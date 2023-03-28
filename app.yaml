@@ -2,10 +2,10 @@ runtime: python310
 entrypoint: gunicorn -b :$PORT src:app
 
 env_variables:
-  SECRET_KEY:dev
-  FLASK_ENV:development
-  FLASK_APP:src
-  SQLALCHEMY_DATABASE_URI:postgresql+psycopg2://postgres:postgres@/monig?host=/cloudsql/monig-382019:southamerica-east1:monig
+  SECRET_KEY : dev
+  FLASK_ENV : development
+  FLASK_APP : src
+  SQLALCHEMY_DATABASE_URI : postgresql+psycopg2://postgres:postgres@/monig?host=/cloudsql/monig-382019:southamerica-east1:monig
   TEST_DATABASE_URI : sqlite:///test.db
-  FLASK_DEBUG:1
-  PORT:8080
+  FLASK_DEBUG : 1
+  PORT : 8080
