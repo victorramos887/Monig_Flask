@@ -1,0 +1,92 @@
+<div class="cadastro">
+<section class="cadastro-pag">
+    <div>
+        <span>1</span>
+        <span class="primeiro">
+            <div>
+                2
+            </div>
+        </span>
+        <span class="terceiro">3</span>
+    </div>
+</section>
+<div class="cadastro-margin cadastros-edificacoes" id="cadastro-margin" aria-label="CadastroEdificacao">
+    <h1 class="font-1-b">Cadastro de Edificação</h1>
+
+    <div class="cadastroEdificacao" onClick="callback()">
+        <p class="font-2-s" >Cadastrar nova edificação</p>
+    </div>
+
+    <section class="container-form" style="display:none;">
+        <form class="form" name = "formulario-edificacoes" id = "formulario-edificacoes" action="{{ url_for('cadastros.edificios') }}" method="POST" enctype = "multipart/form-data">
+            <input type="text" value=1 id="fk_escola" name="fk_escola" style="display:none;">
+            <div class="col-1-2">
+                <label for="nome_do_edificio">Nome do Edifício</label>
+                <input type="text" id="nome_do_edificio" name="nome_do_edificio" placeholder="Escola Municipal de São Paulo - Ala Sul">
+            </div>
+            <div>
+                <label for="nivel">Nível de Ensino</label>
+                <select name="nivel" id="nivel">
+                    <option value="disabledSelected">Selecione os níveis de ensino</option>
+                    <option value="fundamental">Fundamental</option>
+                    <option value="medio">Médio</option>
+                    <option value="superior">Superior</option>
+                    <option value="creche">Creche</option>
+                    <option value="bercario">Berçario</option>
+                    <option value="ceu">CEU</option>
+                </select>
+            </div>
+            <div>
+                <label for="periodos">Períodos</label>
+                <select name="periodos" id="periodos">
+                    <option value="disabledSelected">Selecione o período</option>
+                    <option value="matutino">Manhã</option>
+                    <option value="vespertino">Tarde</option>
+                    <option value="noturno">Noite</option>
+                    <option value="integral">Integral</option>
+                </select>
+            </div>
+            <div>
+                <label for="cep">CEP</label>
+                <input type="text" id="cep" name="cep" placeholder="18260-000">
+            </div>
+            <div class="col-2-3">
+                <label for="logradouro">Logradouro</label>
+                <input type="text" id="logradouro" name="logradouro" placeholder="Avenida das Flores, n°620, Centro">
+            </div>
+            <div>
+                <label for="numero_do_hidrometro">N° do Hidrômetro</label>
+                <input type="text" id="numero_do_hidrometro" name="numero_do_hidrometro" placeholder="Ex: Y17K000567">
+            </div>
+            <div>
+                <label for="quanti_de_pavimentos">Quant. de pavimentos</label>
+                <input type="text" id="quanti_de_pavimentos" name="quanti_de_pavimentos" placeholder="5">
+            </div>
+            <div>
+                <label for="area_total">Área total (m²)</label>
+                <input type="text" name="area_total" id="area_total" placeholder="Ex: 280.00">
+            </div>
+            <div>
+                <label for="quant_de_colaboradores">Quant. de Colaboradores</label>
+                <input type="text" id="quant_de_colaboradores" name="quant_de_colaboradores" placeholder="Ex: 1.600">
+            </div>
+            <div>
+                <label for="quant_de_alunos">Quant. de Alunos</label>
+                <input type="text" name="quant_de_alunos" id="quant_de_alunos" placeholder="Ex: 3.600">
+            </div>
+            <div>
+                <label for="reservatorio">Possui reservatório?</label>
+                <input type="checkbox" name="reservatorio" id="reservatorio">
+            </div>
+            <div class="col-2">
+                <label for="capacidade_reservatorio">Capacidade (m³)</label>
+                <input type="text" id="capacidade_reservatorio" name="capacidade_reservatorio" placeholder="200">
+            </div>
+            <div>
+                <label for="agua_de_reuso">Água de Reuso</label>
+                <input type="checkbox" id="agua_de_reuso" name="agua_de_reuso">
+            </div>
+            <button class="botao col-4 row-5" type="submit" id="btn_save_edificio">Salvar</button>
+        </form>
+    </section>
+</div>

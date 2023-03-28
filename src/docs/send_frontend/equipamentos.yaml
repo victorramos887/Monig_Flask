@@ -1,0 +1,14 @@
+EDIFÍCIOS
+---
+tags:
+  - Retornos
+parameters:
+  - in: query
+    description: 'passar a chaave da área umida'
+    required: true
+    type: integer
+responses:
+  '200':
+    description: Retornando todos os equipamentos da área umida.
+  '400':
+    description: Erro ao retornar os equipamentos.

@@ -1,0 +1,13 @@
+MOIG
+---
+tags:
+  - Moig
+
+securityDefinitions:
+Token:
+  type: apiKey
+  name: Token
+  in: header # optional, for documentation purposes only
+responses:
+  400:
+    description: Falha ao realizar a conexão com a API MOIG

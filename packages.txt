@@ -1,0 +1,10 @@
+Flask
+flask-sqlalchemy
+flasgger==0.9.5
+python-dotenv==0.21.0
+Flask-JWT-Extended==4.4.4
+validators==0.20.0
+pandas==1.5.2
+wfastcgi==3.0.0
+pytest==7.2.1
+flask_caching
