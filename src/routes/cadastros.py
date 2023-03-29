@@ -11,10 +11,13 @@ import re
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
-@cadastros.post('/testes')
+@cadastros.route('/testes', methods=['POST', 'GET'])
 def teste_de_rota():
-    valor_retorno = request.get_data()
-    return valor_retorno
+    if request.methods=='POST':
+        valor_retorno = request.get_data()
+        return valor_retorno
+    else:
+        return 'Valor, do resultado!!!'
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
