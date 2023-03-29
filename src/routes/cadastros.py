@@ -17,6 +17,7 @@ def teste_de_rota():
         valor_retorno = request.get_data()
         return valor_retorno
     else:
+        print('Alterando alguma coisa para tentar testar o gcp')
         return 'Valor, do resultado!!!'
 
 
