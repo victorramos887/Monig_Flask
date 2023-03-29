@@ -5,6 +5,7 @@ from flasgger import swag_from
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos
 import string
 import json
+import re
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
@@ -15,10 +16,10 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     #Captura as informações que foram enviadas através do formulário HTML
-    json_request = request.get_data().decode('utf-8')
-    json_limpo = ''.join(filter(lambda x: x in string.printable, json_request))
-    formulario = json.loads(json_limpo)
-
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
     cache = list(current_app.extensions['cache'].values())[0]
     escola = Escolas(**formulario) #Atribui ao objeto escola
 
