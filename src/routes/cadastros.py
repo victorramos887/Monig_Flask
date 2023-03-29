@@ -11,7 +11,7 @@ import re
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
-@cadastros.post('/rota_de_teste')
+@cadastros.post('/testes')
 def teste_de_rota():
     valor_retorno = request.get_data()
     return valor_retorno
