@@ -14,7 +14,7 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     #Captura as informações que foram enviadas através do formulário HTML
-    formulario = request.form.get_json()
+    formulario = request.get_json()
     cache = list(current_app.extensions['cache'].values())[0]
     escola = Escolas(**formulario) #Atribui ao objeto escola
 
