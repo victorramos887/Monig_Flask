@@ -8,5 +8,4 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  build:
-    logsBucket: "monig-382019.appspot.com"
+  logsBucket: "monig-382019.appspot.com"
