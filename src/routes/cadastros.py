@@ -13,11 +13,12 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 @cadastros.route('/testes', methods=['POST', 'GET'])
 def teste_de_rota():
-    if request.methods=='POST':
+    if request.method == 'POST':
         valor_retorno = request.get_data()
         return valor_retorno
     else:
         return 'Valor, do resultado!!!'
+
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
