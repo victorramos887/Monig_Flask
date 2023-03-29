@@ -4,4 +4,4 @@ steps:
   args:
   - "-c"
   - |
-    gcloud app deploy --no-cache
+    gcloud app deploy --no-cache --log-http --logs-dir=gs://monig-382019.appspot.com
