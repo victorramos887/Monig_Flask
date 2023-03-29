@@ -8,4 +8,6 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  logsBucket: "monig-382019.appspot.com"
+  google.devtools.cloudbuild.v2.ArtifactsConfig:
+    bucket: monig-382019.appspot.com
+    logStreamName: build-log-stream
