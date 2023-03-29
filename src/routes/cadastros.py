@@ -15,7 +15,6 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 def escolas():
     #Captura as informações que foram enviadas através do formulário HTML
     formulario = request.get_json()
-    print('formulario')
     cache = list(current_app.extensions['cache'].values())[0]
     escola = Escolas(**formulario) #Atribui ao objeto escola
 

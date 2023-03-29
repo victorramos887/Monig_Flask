@@ -62,7 +62,7 @@ def new_escolas():
         complemento=fake.secondary_address(),
         cidade=fake.city(),
         estado=fake.state_abbr()
-        ).to_json()
+        )
 
 
 @fixture
