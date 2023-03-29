@@ -11,6 +11,11 @@ import re
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
+@cadastros.post('/rota_de_teste')
+def teste_de_rota():
+    valor_retorno = request.get_data()
+    return valor_retorno
+
 #Cadastros das escolas
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
