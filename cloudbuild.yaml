@@ -6,10 +6,5 @@ steps:
   - |
     gcloud app deploy --no-cache --log-http --logs-dir=gs://monig-382019.appspot.com
 
-options_:
+options:
   logging: CLOUD_LOGGING_ONLY
-  artifacts:
-    objects:
-      location: "us.artifacts.monig-382019.appspot.com"
-      paths:
-      - "*/**"
