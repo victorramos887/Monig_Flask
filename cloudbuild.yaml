@@ -6,8 +6,10 @@ steps:
   - |
     gcloud app deploy --no-cache --log-http --logs-dir=gs://monig-382019.appspot.com
 
-options:
+options_:
   logging: CLOUD_LOGGING_ONLY
-  google.devtools.cloudbuild.v2.ArtifactsConfig:
-    bucket: monig-382019.appspot.com
-    logStreamName: build-log-stream
+  artifacts:
+    objects:
+      location: "us.artifacts.monig-382019.appspot.com"
+      paths:
+      - "*/**"
