@@ -5,3 +5,7 @@ steps:
   - "-c"
   - |
     gcloud app deploy --no-cache --log-http --logs-dir=gs://monig-382019.appspot.com
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  logsBucket: [monig-382019.appspot.com]
