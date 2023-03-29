@@ -1,5 +1,5 @@
 runtime: python310
-entrypoint: gunicorn -b :$PORT src:app
+entrypoint: gunicorn -b :$PORT src.__init__:app
 
 env_variables:
   SECRET_KEY : dev
