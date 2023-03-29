@@ -5,7 +5,7 @@ env_variables:
   SECRET_KEY : dev
   FLASK_ENV : development
   FLASK_APP : src
-  SQLALCHEMY_DATABASE_URI : postgresql://postgres:postgres@35.247.244.29:5432/monig
+  SQLALCHEMY_DATABASE_URI : postgresql://postgres:postgres@/monig?host=/cloudsql/monig-382019:southamerica-east1:monig&unix_socket=/cloudsql
   TEST_DATABASE_URI : sqlite:///test.db
   FLASK_DEBUG : 1
   PORT : 8080
