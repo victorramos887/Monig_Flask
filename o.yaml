@@ -1,7 +1,3 @@
-# steps:
-# - name: "gcr.io/cloud-builders/gcloud"
-#   args: ["app", "deploy"]
-
 steps:
 - name: 'gcr.io/cloud-builders/git'
   args: ['clone', 'https://github.com/victorramos887/Monig_Flask.git']
