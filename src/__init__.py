@@ -63,6 +63,10 @@ def create_app(test_config=None):
     def index():
         return render_template('homepage.html')
 
+    @app.route('/testando')
+    def index():
+        return 'Olá GCP'
+
     return app
 
 
