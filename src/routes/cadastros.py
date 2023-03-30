@@ -11,10 +11,9 @@ import re
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
-@cadastros.get('/escolas_')
+@cadastros.get('/testes')
 def escolas_():
     #Captura as informações que foram enviadas através do formulário HTML
-    json_data = request.get_data()
     return "Olá GCP"
 
 #Cadastros das escolas

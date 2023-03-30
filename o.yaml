@@ -1,7 +1,0 @@
-steps:
-- name: 'gcr.io/cloud-builders/git'
-  args: ['clone', 'https://github.com/victorramos887/Monig_Flask.git']
-
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['app', 'deploy', 'app.yaml', '--project', '$monig-382019', '--version', 'latest', '--no-promote']
-timeout: 1800s
