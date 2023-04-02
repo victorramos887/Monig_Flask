@@ -14,7 +14,11 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @cadastros.get('/testes')
 def escolas_():
     #Captura as informações que foram enviadas através do formulário HTML
-    return "Olá GCP"
+    return "Olá GCP - Estou atualizando você"
+
+@cadastros.get('/nova-rota')
+def rota_atualizando():
+    return 'Nova rota'
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
