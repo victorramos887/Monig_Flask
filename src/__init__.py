@@ -10,6 +10,7 @@ from .models import db
 from .routes import *
 from flask_caching import Cache
 from flask_caching.backends import SimpleCache
+from flask_cors import CORS
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
@@ -23,6 +24,7 @@ def create_app(test_config=None):
 
     app = Flask(__name__,
                 instance_relative_config=True)
+
 
     cache.init_app(app)
 
@@ -76,3 +78,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     # Executa o servidor Flask
     app.run(host='0.0.0.0', port=port, debug=True)
+
+CORS(app, resources={r"/api/*": {"origins": "*"}})

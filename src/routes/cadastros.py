@@ -11,15 +11,6 @@ import re
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
-@cadastros.get('/testes')
-def escolas_():
-    #Captura as informações que foram enviadas através do formulário HTML
-    return "Olá GCP - Estou atualizando você"
-
-@cadastros.get('/nova-rota')
-def rota_atualizando():
-    return 'Nova rota'
-
 #Cadastros das escolas
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
@@ -29,33 +20,32 @@ def escolas():
     json_str = json_data.decode('utf-8', errors='ignore')
     clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
     formulario = json.loads(clean_json_str)
-    cache = list(current_app.extensions['cache'].values())[0]
+
     escola = Escolas(**formulario) #Atribui ao objeto escola
 
     try:
         #inseri no banco de dados. Tabela escolas
         db.session.add(escola)
         db.session.commit()
-        cache.set('id_escola', 1)
-        novo_formulario = render_template('form_edificacoes.html')
-        return jsonify({'success':True, 'edificios':novo_formulario, 'id_escola': cache.get('id_escola')}), HTTP_200_OK
+
+        return jsonify({'success':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'erro': False, 'form':formulario_cadastro, 'codigo':e}), HTTP_409_CONFLICT
+            return jsonify({'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'erro': False, 'form':formulario_cadastro, 'codigo':e}), HTTP_401_UNAUTHORIZED
+            return jsonify({'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'erro': False, 'form':formulario_cadastro, 'codigo':e}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'erro': False, 'form':formulario_cadastro, 'codigo':e}), HTTP_400_BAD_REQUEST
+        return jsonify({'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros dos edifícios.
@@ -64,7 +54,7 @@ def escolas():
 def edificios():
 
     #Captura as informações que foram enviadas através do formulário HTML
-    formulario = request.form.to_dict()
+    formulario = request.get_json()
     edificio = Edificios(**formulario)
     try:
         #inseri no banco de dados. Tabela escolas
@@ -77,6 +67,25 @@ def edificios():
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
             return jsonify({'erro': False, 'codigo':e}), HTTP_409_CONFLICT
+        return jsonify({"Erro":f'Erro ao enviar! ({e})'})
+
+
+@cadastros.post('/populacao')
+def populacao():
+
+    #Captura as informações que foram enviadas através do formulário HTML
+    # formulario = request.form.to_dict()
+    formulario = request.get_json()
+    populacao = Populacao(**formulario)
+    try:
+        #inseri no banco de dados. Tabela escolas
+        db.session.add(populacao)
+        db.session.commit()
+        return  render_template('index.html')
+
+    except exc.DBAPIError as e:
+        if e.orig.pgcode == '23503':
+            return jsonify({'Erro':'Escola já cadastrada!'})
         return jsonify({"Erro":f'Erro ao enviar! ({e})'})
 
 

@@ -6,12 +6,7 @@ from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__, url_prefix = '/api/v1/send_frontend')
 
-
-@send_frontend.get('/cadastro-escolas')
-def cadastro_escolas():
-    return render_template("cadastro.html")
-
-
+#RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
 def escolas():
@@ -19,12 +14,18 @@ def escolas():
     escolas = Escolas.query.all()
     return jsonify({'return':[escola.to_json() for escola in escolas]}), HTTP_200_OK
 
-@send_frontend.get('/edificios')
+#RETORNA APENAS UMA ESCOLA
+@send_frontend.get('/escolas/<int:id>')
+def get_escolas(id):
+    escola = Escolas.query.filter_by(id=id).first()
+    return jsonify({'escola':escola.to_json() if escola is not None else escola})
+
+#RETORNA TODOS OS ESDIFICOS DA ESCOLA.
+@send_frontend.get('/edificios/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
-def edificios():
-    fk_escola = request.args.get('')
-    edificios = Edificios.query.filter_by(fk_escola=fk_escola).all()
-    return jsonify({f'Edificios {fk_escola}': [edificio.to_json() for edificio in edificios]}), HTTP_200_OK
+def edificios(id):
+    edificios = Edificios.query.filter(Edificios.fk_escola == id).all()
+    return jsonify({f'edificios': [edificio.to_json() for edificio in edificios]}), HTTP_200_OK
 
 @send_frontend.get('/area_umidas')
 @swag_from('../docs/send_frontend/area_umidas.yaml')

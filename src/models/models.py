@@ -20,24 +20,25 @@ class Escolas(db.Model):
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     nome = db.Column(db.String, nullable = False) #255
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
-    nivel = db.Column(db.String) #25
+    nivel = db.Column(db.ARRAY(db.String(50)))
     email = db.Column(db.String, unique=True, nullable=False) #55
     telefone = db.Column(db.String) #16
     logradouro = db.Column(db.String)
+    numero = db.Column(db.Integer)
     cep = db.Column(db.String) #9
     complemento = db.Column(db.String) #86
     cidade = db.Column(db.String) #55
     estado = db.Column(db.String) #2
+    edificios = db.relationship('Edificios', backref = 'edificios')
 
-    #edificios = db.relationship('Edificios', backref = 'edificios')
-
-    def __init__(self, nome, cnpj, nivel, email, telefone, logradouro, cep, complemento, cidade, estado):
+    def __init__(self, nome, cnpj, nivel, email, telefone, logradouro, numero, cep, complemento, cidade, estado):
         self.nome = nome
         self.cnpj = cnpj
         self.nivel = nivel
         self.email = email
         self.telefone = telefone
         self.logradouro = logradouro
+        self.numero = numero
         self.cep = cep
         self.complemento = complemento
         self.cidade = cidade
@@ -53,6 +54,7 @@ class Escolas(db.Model):
             "logradouro":self.logradouro,
             "cep":self.cep,
             "complemento":self.complemento,
+            "numero": self.numero,
             "cidade":self.cidade,
             "estado":self.estado
         }
@@ -64,56 +66,82 @@ class Edificios(db.Model):
     __tablename__ = 'edificios'
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    fk_escola = db.Column(db.Integer ) #db.ForeignKey('main.escolas.id')
+    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_edificio = db.Column(db.String)
-    nivel = db.Column(db.String)
-    periodos = db.Column(db.String)
     cep = db.Column(db.String)
     logradouro = db.Column(db.String)
+    numero = db.Column(db.Integer)
     numero_do_hidrometro = db.Column(db.String)
     quanti_de_pavimentos = db.Column(db.Integer)
     area_total = db.Column(db.Float)
-    quant_de_colaboradores = db.Column(db.Integer)
-    quant_de_alunos = db.Column(db.Integer)
-    reservatorio = db.Column(db.String)
+    reservatorio = db.Column(db.Integer)
     capacidade_reservatorio = db.Column(db.Float)
-    agua_de_reuso = db.Column(db.String)
+    agua_de_reuso = db.Column(db.Integer)
+    capacidade_agua_de_reuso= db.Column(db.Float)
+    area_umida = db.relationship('AreaUmida', backref = 'area_umida')
+    populacao = db.relationship('Populacao', backref = 'populacao')
 
-    def __init__(self, fk_escola, nome_do_edificio, nivel, periodos, cep, logradouro, numero_do_hidrometro, quanti_de_pavimentos, area_total, quant_de_colaboradores, quant_de_alunos, capacidade_reservatorio, reservatorio='off', agua_de_reuso='off'):
+    def __init__(self, fk_escola, nome_do_edificio, cep, logradouro, numero, numero_do_hidrometro, quanti_de_pavimentos, area_total, capacidade_reservatorio, capacidade_agua_de_reuso,reservatorio='off', agua_de_reuso='off'):
 
         self.fk_escola = fk_escola
         self.nome_do_edificio = nome_do_edificio
-        self.nivel = nivel
-        self.periodos = periodos
         self.cep = cep
         self.logradouro = logradouro
+        self.numero = numero
         self.numero_do_hidrometro = numero_do_hidrometro
         self.quanti_de_pavimentos = quanti_de_pavimentos
         self.area_total = area_total
-        self.quant_de_colaboradores = quant_de_colaboradores
-        self.quant_de_alunos = quant_de_alunos
         self.reservatorio = reservatorio
         self.capacidade_reservatorio = capacidade_reservatorio
         self.agua_de_reuso = agua_de_reuso
+        self.capacidade_agua_de_reuso = capacidade_agua_de_reuso
 
     def to_json(self):
         return {
-
+            "id":self.id,
             "fk_escola":self.fk_escola,
             "nome_do_edificio":self.nome_do_edificio,
-            "nivel":self.nivel,
-            "periodos":self.periodos,
             "cep":self.cep,
             "logradouro":self.logradouro,
+            "numero": self.numero,
             "numero_do_hidrometro":self.numero_do_hidrometro,
             "quanti_de_pavimentos":self.quanti_de_pavimentos,
             "area_total":self.area_total,
-            "quant_de_colaboradores":self.quant_de_colaboradores,
-            "quant_de_alunos":self.quant_de_alunos,
             "reservatorio":self.reservatorio,
             "capacidade_reservatorio":self.capacidade_reservatorio,
-            "agua_de_reuso":self.agua_de_reuso
+            "agua_de_reuso":self.agua_de_reuso,
+            "capacidade_agua_de_reuso": self.capacidade_agua_de_reuso
         }
+
+
+class Populacao(db.Model):
+        __table_args__ = {'schema': 'main'}
+        __tablename__ = 'populacao'
+
+        id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+        fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
+        nivel = db.Column(db.ARRAY(db.String(50)))
+        periodos = db.Column(db.String)
+        quant_de_colaboradores = db.Column(db.Integer)
+        quant_de_alunos = db.Column(db.Integer)
+
+        def __init__(self, fk_edificios, nivel, periodos, quant_de_colaboradores, quant_de_alunos):
+            self.fk_edificios = fk_edificios
+            self.nivel = nivel
+            self.periodos = periodos
+            self.quant_de_colaboradores = quant_de_colaboradores
+            self.quant_de_alunos = quant_de_alunos
+
+        def to_json(self):
+            return {
+                "id": self.id,
+                "fk_edificios": self.fk_edificios,
+                "nivel": self.nivel,
+                "periodos": self.periodos,
+                "quant_de_colaboradores": self.quant_de_colaboradores,
+                "quant_de_alunos": self.quant_de_alunos
+            }
+
 
 
 class AreaUmida(db.Model):
