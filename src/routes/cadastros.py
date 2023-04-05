@@ -28,24 +28,24 @@ def escolas():
         db.session.add(escola)
         db.session.commit()
 
-        return jsonify({'success':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros dos edifícios.
