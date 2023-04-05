@@ -67,50 +67,59 @@ class Edificios(db.Model):
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
+    numero_edificio = db.Column(db.String)
     nome_do_edificio = db.Column(db.String)
-    cep = db.Column(db.String)
-    logradouro = db.Column(db.String)
-    numero = db.Column(db.Integer)
-    numero_do_hidrometro = db.Column(db.String)
-    quanti_de_pavimentos = db.Column(db.Integer)
-    area_total = db.Column(db.Float)
-    reservatorio = db.Column(db.Integer)
-    capacidade_reservatorio = db.Column(db.Float)
-    agua_de_reuso = db.Column(db.Integer)
-    capacidade_agua_de_reuso= db.Column(db.Float)
+    cep_edificio = db.Column(db.String)
+    cidade_edificio = db.Column(db.String)
+    estado_edificio = db.Column(db.String)
+    cnpj_edificio = db.Column(db.String)
+    logradouro_edificio = db.Column(db.String)
+    hidrometro_edificio = db.Column(db.String)
+    pavimentos_edificio = db.Column(db.Integer)
+    area_total_edificio = db.Column(db.Float)
+    reservatorio = db.Column(db.Boolean)
+    capacidade_m3_edificio = db.Column(db.Float)
+    agua_de_reuso = db.Column(db.Boolean)
+    capacidade_reuso_m3_edificio= db.Column(db.Float)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
 
-    def __init__(self, fk_escola, nome_do_edificio, cep, logradouro, numero, numero_do_hidrometro, quanti_de_pavimentos, area_total, capacidade_reservatorio, capacidade_agua_de_reuso,reservatorio='off', agua_de_reuso='off'):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio,hidrometro_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
+        self.numero_edificio = numero_edificio
         self.nome_do_edificio = nome_do_edificio
-        self.cep = cep
-        self.logradouro = logradouro
-        self.numero = numero
-        self.numero_do_hidrometro = numero_do_hidrometro
-        self.quanti_de_pavimentos = quanti_de_pavimentos
-        self.area_total = area_total
+        self.cep_edificio = cep_edificio
+        self.cnpj_edificio = cnpj_edificio
+        self.logradouro_edificio = logradouro_edificio
+        self.estado_edificio = estado_edificio
+        self.cidade_edificio = cidade_edificio
+        self.hidrometro_edificio = hidrometro_edificio
+        self.pavimentos_edificio = pavimentos_edificio
+        self.area_total_edificio = area_total_edificio
         self.reservatorio = reservatorio
-        self.capacidade_reservatorio = capacidade_reservatorio
+        self.capacidade_m3_edificio  = capacidade_m3_edificio
         self.agua_de_reuso = agua_de_reuso
-        self.capacidade_agua_de_reuso = capacidade_agua_de_reuso
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if capacidade_reuso_m3_edificio is not None else 0;
 
     def to_json(self):
         return {
             "id":self.id,
             "fk_escola":self.fk_escola,
+            "numero_edificio":self.numero_edificio,
             "nome_do_edificio":self.nome_do_edificio,
-            "cep":self.cep,
-            "logradouro":self.logradouro,
-            "numero": self.numero,
-            "numero_do_hidrometro":self.numero_do_hidrometro,
-            "quanti_de_pavimentos":self.quanti_de_pavimentos,
-            "area_total":self.area_total,
+            "cep_edificio":self.cep_edificio,
+            "cnpj_edificio":self.cnpj_edificio,
+            "logradouro_edificio":self.logradouro_edificio,
+            "cidade_edificio":self.cidade_edificio,
+            "estado_edificio":self.estado_edificio,
+            "hidrometro_edificio":self.hidrometro_edificio,
+            "pavimentos_edificio":self.pavimentos_edificio,
+            "area_total_edificio":self.area_total_edificio,
             "reservatorio":self.reservatorio,
-            "capacidade_reservatorio":self.capacidade_reservatorio,
+            "capacidade_m3_edificio ":self.capacidade_m3_edificio ,
             "agua_de_reuso":self.agua_de_reuso,
-            "capacidade_agua_de_reuso": self.capacidade_agua_de_reuso
+            "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
         }
 
 

@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, flash, render_te
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
 from sqlalchemy import exc
 from flasgger import swag_from
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao
 import string
 import json
 import re
@@ -60,15 +60,13 @@ def edificios():
         #inseri no banco de dados. Tabela escolas
         db.session.add(edificio)
         db.session.commit()
-        novo_formulario = '<div>Formulário de áreas humidas</div>'
-        return  jsonify({'success':True}), HTTP_200_OK
+        return jsonify({'status':True, 'id': edificio.id, "data":edificio.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'erro': False, 'codigo':e}), HTTP_409_CONFLICT
-        return jsonify({"Erro":f'Erro ao enviar! ({e})'})
-
+            return jsonify({'status':False, 'erro': 'Erro Não tratado', 'codigo':f'{e}'}), HTTP_409_CONFLICT
+        return jsonify({'status':False, 'erro': 'Erro Não tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 @cadastros.post('/populacao')
 def populacao():

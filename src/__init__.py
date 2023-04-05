@@ -58,6 +58,7 @@ def create_app(test_config=None):
     app.register_blueprint(cadastros)
     app.register_blueprint(send_frontend)
     app.register_blueprint(funcionalidades)
+    app.register_blueprint(editar)
 
     Swagger(app, config=swagger_config, template=template)
 
