@@ -3,18 +3,5 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao
 from sqlalchemy import exc
 
-editar = Blueprint('editar', __name__, url_prefix='/api/v1/cadastros')
-
-#EDITAR ESCOLA
-@editar.put('/escolas')
-def escolas_editar():
-    #RECEBE JSON
-
-    #PESQUISAR O ID PROCURANDO
-
-    #FAZER UM COMMIT
-
-    return 'ok'
-
-#EDITAR EDIFICIOS
+exclusao = Blueprint('exclusao', __name__, url_prefix='/api/v1/exclusao')
 

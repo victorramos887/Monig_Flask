@@ -198,6 +198,7 @@ class Equipamentos(db.Model):
     quant_problemas = db.Column(db.Integer)
     vazamentos = db.Column(db.Integer)
     quant_inutilizada = db.Column(db.Integer)
+    status = db.Column(db.Boolean)
 
     def __init__(self, fk_area_umida, tipo, quant_total, quant_problemas, vazamentos, quant_inutilizada):
 

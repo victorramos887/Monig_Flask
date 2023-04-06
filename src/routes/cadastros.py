@@ -57,70 +57,130 @@ def edificios():
     formulario = request.get_json()
     edificio = Edificios(**formulario)
     try:
-        #inseri no banco de dados. Tabela escolas
+        #inseri no banco de dados. Tabela edificios
         db.session.add(edificio)
         db.session.commit()
+
         return jsonify({'status':True, 'id': edificio.id, "data":edificio.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': 'Erro Não tratado', 'codigo':f'{e}'}), HTTP_409_CONFLICT
-        return jsonify({'status':False, 'erro': 'Erro Não tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            #STRING DATA RIGHT TRUNCATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        #flash("Erro, 4 não salva")
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+
+    
+
 
 @cadastros.post('/populacao')
+@swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
     #Captura as informações que foram enviadas através do formulário HTML
     # formulario = request.form.to_dict()
     formulario = request.get_json()
     populacao = Populacao(**formulario)
+    
+    
     try:
-        #inseri no banco de dados. Tabela escolas
+        #inseri no banco de dados. Tabela populacao
         db.session.add(populacao)
         db.session.commit()
-        return  render_template('index.html')
+
+        return jsonify({'status':True, 'id': populacao.id, "data":populacao.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
-            return jsonify({'Erro':'Escola já cadastrada!'})
-        return jsonify({"Erro":f'Erro ao enviar! ({e})'})
+            # FOREIGN KEY VIOLATION
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            #STRING DATA RIGHT TRUNCATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        #flash("Erro, 4 não salva")
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros das areas umidas
 @cadastros.post('/area-umida')
-@swag_from('../docs/cadastros/area-umidas.yaml')
+@swag_from('../docs/cadastros/area-umida.yaml')
 def area_umida():
 
     #Captura as informações que foram enviadas através do formulário HTML
     # formulario = request.form.to_dict()
-    formulario = request.form.to_dict()
+    formulario = request.get_json()
     umida = AreaUmida(**formulario)
+   
     try:
-        #inseri no banco de dados. Tabela escolas
+        #inseri no banco de dados. Tabela AreaUmida
         db.session.add(umida)
         db.session.commit()
-        return  render_template('index.html')
+
+        return jsonify({'status':True, 'id': umida.id, "data":umida.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
-            return jsonify({'Erro':'Escola já cadastrada!'})
-        return jsonify({"Erro":f'Erro ao enviar! ({e})'})
+            # FOREIGN KEY VIOLATION
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            #STRING DATA RIGHT TRUNCATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        #flash("Erro, 4 não salva")
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+
 
 @cadastros.post('/equipamentos')
 @swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
     #Captura as informações que foram enviadas através do formulário HTML
-    formulario = request.form.to_dict()
+    formulario = request.get_json()
     equipamento = Equipamentos(**formulario)
+    
     try:
-        #inseri no banco de dados. Tabela escolas
+        #inseri no banco de dados. Tabela Equipamentos
         db.session.add(equipamento)
         db.session.commit()
-        return  render_template('index.html')
+
+        return jsonify({'status':True, 'id': equipamento.id, "data":equipamento.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
-            return jsonify({'Erro':'Escola já cadastrada!'})
-        return jsonify({"Erro":f'Erro ao enviar! ({e})'})
+            # FOREIGN KEY VIOLATION
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            #STRING DATA RIGHT TRUNCATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        #flash("Erro, 4 não salva")
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
