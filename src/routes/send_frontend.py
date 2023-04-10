@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, render_template
-from ..constants.http_status_codes import (HTTP_200_OK)
-from sqlalchemy import exc
-from ..models import Escolas, Edificios, AreaUmida, Equipamentos
+from ..constants.http_status_codes import (HTTP_200_OK, HTTP_400_BAD_REQUEST)
+from sqlalchemy import exc, func
+from ..models import Escolas, Edificios, AreaUmida, Equipamentos, Populacao, db
 from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__, url_prefix = '/api/v1/send_frontend')
@@ -20,12 +20,44 @@ def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
     return jsonify({'escola':escola.to_json() if escola is not None else escola})
 
-#RETORNA TODOS OS ESDIFICOS DA ESCOLA.
-@send_frontend.get('/edificios/<int:id>')
+#RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
+@send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
     edificios = Edificios.query.filter(Edificios.fk_escola == id).all()
-    return jsonify({f'edificios': [edificio.to_json() for edificio in edificios]}), HTTP_200_OK
+    result = []
+
+    for edificio in edificios:
+        #População
+        soma_colaboradores, soma_alunos = (
+        db.session.query(
+            func.sum(Populacao.quant_de_colaboradores).label('soma_colaboradores'),
+            func.sum(Populacao.quant_de_colaboradores).label('soma_alunos')
+            )
+            .join(Edificios)
+            .filter(Populacao.fk_edificios == edificio.id)
+            .first()
+        )
+        #Area umida
+        result.append({
+            'id': edificio.id,
+            'nome':edificio.nome_do_edificio,
+            'soma_colaboradores': (soma_colaboradores or 0) + (soma_alunos or 0) or 0,
+            'soma_alunos':soma_alunos or 0
+        })
+
+    return jsonify({'edificios':result}), HTTP_200_OK
+
+#RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
+@send_frontend.get('/edificio/<id>')
+def edificio(id):
+
+    edificio = Edificios.query.filter(Edificios.id == id).first()
+    if edificio is None or edificio == '':
+        return jsonify({'erro':'Edificio não encontrado'}), HTTP_400_BAD_REQUEST
+
+    return jsonify({'edificio':edificio.to_json()}), HTTP_200_OK
+
 
 @send_frontend.get('/area_umidas')
 @swag_from('../docs/send_frontend/area_umidas.yaml')

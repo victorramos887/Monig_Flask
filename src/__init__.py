@@ -43,7 +43,7 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(
             test_config,
-            SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URI')
+            SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
         )
 
     db.app = app  # type: ignore
@@ -76,7 +76,7 @@ def create_app(test_config=None):
 app = create_app()
 if __name__ == "__main__":
     # Define a porta a ser usada pelo servidor Flask
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
     # Executa o servidor Flask
     app.run(host='0.0.0.0', port=port, debug=True)
 

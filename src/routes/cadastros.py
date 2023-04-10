@@ -53,8 +53,11 @@ def escolas():
 @swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
-    #Captura as informações que foram enviadas através do formulário HTML
-    formulario = request.get_json()
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
+
     edificio = Edificios(**formulario)
     try:
         #inseri no banco de dados. Tabela edificios
@@ -87,9 +90,11 @@ def edificios():
 @swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
-    #Captura as informações que foram enviadas através do formulário HTML
-    # formulario = request.form.to_dict()
-    formulario = request.get_json()
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
+
     populacao = Populacao(**formulario)
     
     
@@ -123,9 +128,11 @@ def populacao():
 @swag_from('../docs/cadastros/area-umida.yaml')
 def area_umida():
 
-    #Captura as informações que foram enviadas através do formulário HTML
-    # formulario = request.form.to_dict()
-    formulario = request.get_json()
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
+
     umida = AreaUmida(**formulario)
    
     try:
@@ -157,8 +164,11 @@ def area_umida():
 @swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
-    #Captura as informações que foram enviadas através do formulário HTML
-    formulario = request.get_json()
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
+
     equipamento = Equipamentos(**formulario)
     
     try:
