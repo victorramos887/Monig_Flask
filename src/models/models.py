@@ -29,7 +29,7 @@ class Escolas(db.Model):
     complemento = db.Column(db.String) #86
     cidade = db.Column(db.String) #55
     estado = db.Column(db.String) #2
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref = 'edificios')
 
     def update(self, **kwargs):
@@ -48,6 +48,7 @@ class Escolas(db.Model):
         self.complemento = complemento
         self.cidade = cidade
         self.estado = estado
+       
 
     def to_json(self):
         return {
@@ -64,6 +65,8 @@ class Escolas(db.Model):
             "estado":self.estado
         }
 
+   
+
 
 class Edificios(db.Model):
 
@@ -79,14 +82,13 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
-    hidrometro_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
     reservatorio = db.Column(db.Boolean)
     capacidade_m3_edificio = db.Column(db.Float)
     agua_de_reuso = db.Column(db.Boolean)
     capacidade_reuso_m3_edificio= db.Column(db.Float)
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
 
@@ -94,7 +96,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio,hidrometro_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio, agua_de_reuso):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -104,7 +106,6 @@ class Edificios(db.Model):
         self.logradouro_edificio = logradouro_edificio
         self.estado_edificio = estado_edificio
         self.cidade_edificio = cidade_edificio
-        self.hidrometro_edificio = hidrometro_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
         self.reservatorio = reservatorio
@@ -123,11 +124,10 @@ class Edificios(db.Model):
             "logradouro_edificio":self.logradouro_edificio,
             "cidade_edificio":self.cidade_edificio,
             "estado_edificio":self.estado_edificio,
-            "hidrometro_edificio":self.hidrometro_edificio,
             "pavimentos_edificio":self.pavimentos_edificio,
             "area_total_edificio":self.area_total_edificio,
             "reservatorio":self.reservatorio,
-            "capacidade_m3_edificio":self.capacidade_m3_edificio ,
+            "capacidade_m3_edificio ":self.capacidade_m3_edificio ,
             "agua_de_reuso":self.agua_de_reuso,
             "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
         }
@@ -143,7 +143,7 @@ class Populacao(db.Model):
         periodos = db.Column(db.String)
         quant_de_colaboradores = db.Column(db.Integer)
         quant_de_alunos = db.Column(db.Integer)
-        status = db.Column(db.Boolean)
+        status = db.Column(db.Boolean, default=True)
 
 
         def update(self, **kwargs):
@@ -168,44 +168,73 @@ class Populacao(db.Model):
                 "quant_de_alunos": self.quant_de_alunos
             }
 
+class Hidrometros(db.Model):
+        __table_args__ = {'schema': 'main'}
+        __tablename__ = 'hidrometros'
+
+        id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+        fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
+        hidrometro_edificio = db.Column(db.String)
+        status = db.Column(db.Boolean, default=True)
+
+
+        def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+
+        def __init__(self, fk_edificios, hidrometro_edificio ):
+            self.fk_edificios = fk_edificios
+            self.hidrometro_edificio = hidrometro_edificio
+           
+
+        def to_json(self):
+            return {
+                "id": self.id,
+                "fk_edificios": self.fk_edificios,
+                "hidrometro_edificio":self.hidrometro_edificio
+                
+            }
+
 
 
 class AreaUmida(db.Model):
-
+    
         __table_args__ = {'schema':'main'}
         __tablename__ = 'area_umida'
 
         id = db.Column(db.Integer, autoincrement = True, primary_key = True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        tipo = db.Column(db.String)
-        nome_da_area_umida = db.Column(db.String)
-        localizacao = db.Column(db.String)
+        tipo_area_umida = db.Column(db.String)
+        nome_area_umida = db.Column(db.String)
+        localizacao_area_umida = db.Column(db.String)
         status_area_umida = db.Column(db.String)
-        status = db.Column(db.Boolean)
+        status = db.Column(db.Boolean, default=True)
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
         def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-        def __init__(self, fk_edificios, tipo, nome_da_area_umida, localizacao, status):
+        def __init__(self, fk_edificios, tipo_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
 
             self.fk_edificios = fk_edificios
-            self.tipo= tipo
-            self.nome_da_area_umida = nome_da_area_umida
-            self.localizacao = localizacao
-            self.status = status
+            self.tipo_area_umida= tipo_area_umida
+            self.nome_area_umida = nome_area_umida
+            self.localizacao_area_umida = localizacao_area_umida
+            self.status_area_umida = status_area_umida
 
 
         def to_json(self):
             return {
                 "id":self.id,
                 "fk_edificios":self.fk_edificios,
-                "tipo":self.tipo,
-                "nome_da_area_umida":self.nome_da_area_umida,
-                "localizacao":self.localizacao,
-                "status":self.status
+                "tipo_area_umida":self.tipo_area_umida,
+                "nome_area_umida":self.nome_area_umida,
+                "localizacao_area_umida":self.localizacao_area_umida,
+                "status_area_umida":self.status_area_umida
             }
+
 
 
 class Equipamentos(db.Model):
@@ -220,7 +249,7 @@ class Equipamentos(db.Model):
     quant_problemas = db.Column(db.Integer)
     vazamentos = db.Column(db.Integer)
     quant_inutilizada = db.Column(db.Integer)
-    status = db.Column(db.Boolean)
+    status = db.Column(db.Boolean, default=True)
 
     def update(self, **kwargs):
             for key, value in kwargs.items():

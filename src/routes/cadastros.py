@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, flash, render_te
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
 from sqlalchemy import exc
 from flasgger import swag_from
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
 import string
 import json
 import re
@@ -83,7 +83,43 @@ def edificios():
         #flash("Erro, 4 não salva")
         return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
+
+@cadastros.post('/hidrometros')
+@swag_from('../docs/cadastros/hidrometros.yaml')
+def hidrometros():
+
+    json_data = request.get_data()
+    json_str = json_data.decode('utf-8', errors='ignore')
+    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
+    formulario = json.loads(clean_json_str)
+
+    hidrometros = Hidrometros(**formulario)
     
+    
+    try:
+        #inseri no banco de dados. Tabela hidrometros
+        db.session.add(hidrometros)
+        db.session.commit()
+
+        return jsonify({'status':True, 'id': hidrometros.id, "data":hidrometros.to_json()}), HTTP_200_OK
+
+    except exc.DBAPIError as e:
+        formulario_cadastro = render_template('cadastro.html')
+        if e.orig.pgcode == '23503':
+            # FOREIGN KEY VIOLATION
+            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            #STRING DATA RIGHT TRUNCATION
+            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        #flash("Erro, 4 não salva")
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST  
+
 
 
 @cadastros.post('/populacao')

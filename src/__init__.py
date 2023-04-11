@@ -59,6 +59,7 @@ def create_app(test_config=None):
     app.register_blueprint(send_frontend)
     app.register_blueprint(funcionalidades)
     app.register_blueprint(editar)
+    app.register_blueprint(remover)
 
     Swagger(app, config=swagger_config, template=template)
 

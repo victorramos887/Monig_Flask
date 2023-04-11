@@ -3,98 +3,92 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
 from sqlalchemy import exc
 
-editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
+remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
 #EDITAR ESCOLA
-@editar.put('/escolas/<id>')
-def escolas_editar(id):
+@remover.put('/escolas/<id>')
+def escolas_remover(id):
     escola = Escolas.query.filter_by(id=id).first()
-    body = request.get_json()
+    escola.status = False
 
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado'}), 404
     
-    escola.update(**body)
-
+   
     db.session.commit()
 
     return 'ok'
 
-#EDITAR EDIFICIOS
-@editar.put('/edificios/<id>')
-def edificios_editar(id):
+
+#edificios
+@remover.put('/edificios/<id>')
+def edificios_remover(id):
     edificio = Edificios.query.filter_by(id=id).first()
-    body = request.get_json()
+    edificio.status = False
 
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado'}), 404
     
-    edificio.update(**body)
-
+   
     db.session.commit()
 
     return 'ok'
 
 
-#EDITAR HIDROMETRO
-@editar.put('/hidrometros/<id>')
-def hidrometro_editar(id):
+#hidrometro
+@remover.put('/hidrometros/<id>')
+def hidrometro_remover(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
-    body = request.get_json()
+    hidrometro.status = False
 
     if not hidrometro:
-        return jsonify({'mensagem': 'Hidrometro não encontrado'}), 404
+        return jsonify({'mensagem': 'hidrometro não encontrado'}), 404
     
-    hidrometro.update(**body)
-
     db.session.commit()
 
     return 'ok'
 
 
-#EDITAR POPULACAO
-@editar.put('/populacao/<id>')
-def populacao_editar(id):
+#populacao
+@remover.put('/populacao/<id>')
+def populacao_remover(id):
     populacao = Populacao.query.filter_by(id=id).first()
-    body = request.get_json()
+    populacao.status = False
 
     if not populacao:
-        return jsonify({'mensagem': 'Populacao não encontrado'}), 404
+        return jsonify({'mensagem': 'População não encontrado'}), 404
     
-    populacao.update(**body)
-
+   
     db.session.commit()
 
     return 'ok'
 
 
-#EDITAR AREA UMIDA
-@editar.put('/area-umida/<id>')
-def area_umida_editar(id):
+#area-umida
+@remover.put('/area-umida/<id>')
+def area_umida_remover(id):
     umida = AreaUmida.query.filter_by(id=id).first()
-    body = request.get_json()
+    umida.status = False
 
     if not umida:
         return jsonify({'mensagem': 'Area Umida não encontrado'}), 404
     
-    umida.update(**body)
-
+   
     db.session.commit()
 
     return 'ok'
 
-#EDITAR EQUIPAMENTO
-@editar.put('/equipamentos/<id>')
-def equipamento_editar(id):
+
+#equipamentos
+@remover.put('/equipamentos/<id>')
+def equipamentos_remover(id):
     equipamento = Equipamentos.query.filter_by(id=id).first()
-    body = request.get_json()
+    equipamento.status = False
 
     if not equipamento:
         return jsonify({'mensagem': 'Equipamento não encontrado'}), 404
     
-    equipamento.update(**body)
-
+   
     db.session.commit()
 
     return 'ok'
-
