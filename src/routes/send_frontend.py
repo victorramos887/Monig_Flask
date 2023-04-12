@@ -92,7 +92,7 @@ def equipamentos():
 #RETORNA APENAS UM
 @send_frontend.get('/equipamento/<int:id>')
 def get_equipamento(id):
-    equipamento = Equipamento.query.filter_by(id=id).first()
+    equipamento = Equipamentos.query.filter_by(id=id).first()
     return jsonify({'equipamento':equipamento.to_json() if equipamento is not None else equipamento})
 
 

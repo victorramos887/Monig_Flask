@@ -18,7 +18,7 @@ def escolas_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify({"escola": escola.to_json()}), HTTP_200_OK
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
