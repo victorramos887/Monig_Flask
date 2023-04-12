@@ -91,6 +91,7 @@ class Edificios(db.Model):
     status = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
+    hidrometros = db.relationship('Hidrometros', backref = 'hidrometros')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -127,7 +128,7 @@ class Edificios(db.Model):
             "pavimentos_edificio":self.pavimentos_edificio,
             "area_total_edificio":self.area_total_edificio,
             "reservatorio":self.reservatorio,
-            "capacidade_m3_edificio ":self.capacidade_m3_edificio ,
+            "capacidade_m3_edificio":self.capacidade_m3_edificio ,
             "agua_de_reuso":self.agua_de_reuso,
             "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
         }
@@ -139,10 +140,10 @@ class Populacao(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        nivel = db.Column(db.ARRAY(db.String(50)))
-        periodos = db.Column(db.String)
-        quant_de_colaboradores = db.Column(db.Integer)
-        quant_de_alunos = db.Column(db.Integer)
+        nivel_de_usuario = db.Column(db.ARRAY(db.String(50)))
+        periodo = db.Column(db.String)
+        quant_de_funcionarios_usuarios = db.Column(db.Integer)
+        quant_de_alunos_usuarios = db.Column(db.Integer)
         status = db.Column(db.Boolean, default=True)
 
 
@@ -151,22 +152,23 @@ class Populacao(db.Model):
                 setattr(self, key, value)
 
 
-        def __init__(self, fk_edificios, nivel, periodos, quant_de_colaboradores, quant_de_alunos):
+        def __init__(self, fk_edificios, nivel_de_usuario, periodo, quant_de_funcionarios_usuarios, quant_de_alunos_usuarios):
             self.fk_edificios = fk_edificios
-            self.nivel = nivel
-            self.periodos = periodos
-            self.quant_de_colaboradores = quant_de_colaboradores
-            self.quant_de_alunos = quant_de_alunos
+            self.nivel_de_usuario = nivel_de_usuario
+            self.periodo = periodo
+            self.quant_de_funcionarios_usuarios = quant_de_funcionarios_usuarios
+            self.quant_de_alunos_usuarios = quant_de_alunos_usuarios
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
-                "nivel": self.nivel,
-                "periodos": self.periodos,
-                "quant_de_colaboradores": self.quant_de_colaboradores,
-                "quant_de_alunos": self.quant_de_alunos
+                "nivel_de_usuario": self.nivel_de_usuario,
+                "periodo": self.periodo,
+                "quant_de_funcionarios_usuarios": self.quant_de_funcionarios_usuarios,
+                "quant_de_alunos_usuarios": self.quant_de_alunos_usuarios
             }
+
 
 class Hidrometros(db.Model):
         __table_args__ = {'schema': 'main'}

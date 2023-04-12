@@ -33,6 +33,7 @@ def create_app(test_config=None):
             SECRET_KEY=os.environ.get('SECRET_KEY'),
             SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI'),
             SQLALCHEMY_TRACK_MODIFICATIONS = True,
+            JSON_AS_ASCII = False,  # permitir caracteres acentuados
             JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY'),
             SWAGGER ={
                 'titulo':'API MOIG',

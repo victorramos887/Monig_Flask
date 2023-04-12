@@ -13,7 +13,7 @@ def escolas_editar(id):
 
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado'}), 404
-    
+
     escola.update(**body)
 
     db.session.commit()
@@ -28,12 +28,12 @@ def edificios_editar(id):
 
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado'}), 404
-    
+
     edificio.update(**body)
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify({"edificio":edificio.to_json()}), HTTP_200_OK
 
 
 #EDITAR HIDROMETRO
@@ -44,12 +44,12 @@ def hidrometro_editar(id):
 
     if not hidrometro:
         return jsonify({'mensagem': 'Hidrometro não encontrado'}), 404
-    
+
     hidrometro.update(**body)
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify({"hidrometro":hidrometro.to_json()}), HTTP_200_OK
 
 
 #EDITAR POPULACAO
@@ -60,12 +60,12 @@ def populacao_editar(id):
 
     if not populacao:
         return jsonify({'mensagem': 'Populacao não encontrado'}), 404
-    
+
     populacao.update(**body)
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify({"populacao":populacao.to_json()}), HTTP_200_OK
 
 
 #EDITAR AREA UMIDA
@@ -81,7 +81,7 @@ def area_umida_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify({"areaumida":umida.to_json}), HTTP_200_OK
 
 #EDITAR EQUIPAMENTO
 @editar.put('/equipamentos/<id>')
@@ -91,10 +91,9 @@ def equipamento_editar(id):
 
     if not equipamento:
         return jsonify({'mensagem': 'Equipamento não encontrado'}), 404
-    
+
     equipamento.update(**body)
 
     db.session.commit()
 
-    return 'ok'
-
+    return jsonify({"equipamento":equipamento.to_json}), HTTP_200_OK

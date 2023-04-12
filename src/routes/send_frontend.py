@@ -31,8 +31,8 @@ def edificios(id):
         #População
         soma_colaboradores, soma_alunos = (
             db.session.query(
-                func.sum(Populacao.quant_de_colaboradores).label('soma_colaboradores'),
-                func.sum(Populacao.quant_de_alunos).label('soma_alunos')
+                func.sum(Populacao.quant_de_funcionarios_usuarios).label('soma_colaboradores'),
+                func.sum(Populacao. quant_de_alunos_usuarios).label('soma_alunos')
             )
             .join(Edificios)
             .filter(Populacao.fk_edificios == edificio.id)
@@ -114,7 +114,7 @@ def get_populacao(id):
 #TODOS OS HIDROMETROS
 @send_frontend.get('/hidrometros-table/<int:id>')
 def hidrometro(id):
-    hidrometros = Hidrometros.query.filter_by(fk_edificios = id).all()
+    hidrometros = Hidrometros.query.filter_by(fk_edificios = id).all(status = True)
     return jsonify({
         "hidrometro":[hidrometro.to_json() for hidrometro in hidrometros]
     }), HTTP_200_OK
