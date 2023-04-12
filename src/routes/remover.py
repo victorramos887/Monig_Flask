@@ -17,7 +17,7 @@ def escolas_remover(id):
    
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #edificios
@@ -32,7 +32,7 @@ def edificios_remover(id):
    
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #hidrometro
@@ -46,7 +46,7 @@ def hidrometro_remover(id):
     
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #populacao
@@ -61,7 +61,7 @@ def populacao_remover(id):
    
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #area-umida
@@ -76,7 +76,7 @@ def area_umida_remover(id):
    
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #equipamentos
@@ -91,4 +91,4 @@ def equipamentos_remover(id):
    
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK

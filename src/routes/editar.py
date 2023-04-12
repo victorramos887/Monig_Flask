@@ -18,7 +18,7 @@ def escolas_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
@@ -33,7 +33,7 @@ def edificios_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #EDITAR HIDROMETRO
@@ -49,7 +49,7 @@ def hidrometro_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #EDITAR POPULACAO
@@ -65,7 +65,7 @@ def populacao_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 
 #EDITAR AREA UMIDA
@@ -81,7 +81,7 @@ def area_umida_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 
 #EDITAR EQUIPAMENTO
 @editar.put('/equipamentos/<id>')
@@ -96,5 +96,5 @@ def equipamento_editar(id):
 
     db.session.commit()
 
-    return 'ok'
+    return jsonify(), HTTP_200_OK
 

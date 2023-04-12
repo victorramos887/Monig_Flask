@@ -91,6 +91,7 @@ class Edificios(db.Model):
     status = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
+    hidrometros = db.relationship('Hidrometros', backref = 'hidrometros')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -167,6 +168,7 @@ class Populacao(db.Model):
                 "quant_de_colaboradores": self.quant_de_colaboradores,
                 "quant_de_alunos": self.quant_de_alunos
             }
+
 
 class Hidrometros(db.Model):
         __table_args__ = {'schema': 'main'}
