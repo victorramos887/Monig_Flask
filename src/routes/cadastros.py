@@ -16,11 +16,7 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     #Captura as informações que foram enviadas através do formulário HTML
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     escola = Escolas(**formulario) #Atribui ao objeto escola
 
     try:
@@ -53,11 +49,7 @@ def escolas():
 @swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     edificio = Edificios(**formulario)
     try:
         #inseri no banco de dados. Tabela edificios
@@ -88,11 +80,7 @@ def edificios():
 @swag_from('../docs/cadastros/hidrometros.yaml')
 def hidrometros():
 
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     hidrometros = Hidrometros(**formulario)
 
     try:
@@ -125,11 +113,7 @@ def hidrometros():
 @swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     populacao = Populacao(**formulario)
 
     try:
@@ -162,13 +146,9 @@ def populacao():
 @swag_from('../docs/cadastros/area-umida.yaml')
 def area_umida():
 
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     umida = AreaUmida(**formulario)
-   
+
     try:
         #inseri no banco de dados. Tabela AreaUmida
         db.session.add(umida)
@@ -198,13 +178,9 @@ def area_umida():
 @swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
-    json_data = request.get_data()
-    json_str = json_data.decode('utf-8', errors='ignore')
-    clean_json_str = ''.join(filter(lambda x: x in string.printable, json_str))
-    formulario = json.loads(clean_json_str)
-
+    formulario = request.get_json()
     equipamento = Equipamentos(**formulario)
-    
+
     try:
         #inseri no banco de dados. Tabela Equipamentos
         db.session.add(equipamento)
