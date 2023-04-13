@@ -36,7 +36,7 @@ def create_app(test_config=None):
             JSON_AS_ASCII = False,  # permitir caracteres acentuados
             JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY'),
             SWAGGER ={
-                'titulo':'API MOIG',
+                'titulo':'API MONIG',
                 'version': 1
             }
         )

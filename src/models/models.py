@@ -188,14 +188,12 @@ class Hidrometros(db.Model):
         def __init__(self, fk_edificios, hidrometro_edificio ):
             self.fk_edificios = fk_edificios
             self.hidrometro_edificio = hidrometro_edificio
-           
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
                 "hidrometro_edificio":self.hidrometro_edificio
-                
             }
 
 
@@ -246,33 +244,31 @@ class Equipamentos(db.Model):
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_area_umida= db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
-    tipo = db.Column(db.String)
+    tipo_equipamento = db.Column(db.String)
     quant_total = db.Column(db.Integer)
-    quant_problemas = db.Column(db.Integer)
-    vazamentos = db.Column(db.Integer)
-    quant_inutilizada = db.Column(db.Integer)
+    quant_com_problema = db.Column(db.Integer)
+    # vazamentos = db.Column(db.Integer)
+    quant_inutilizadas = db.Column(db.Integer)
     status = db.Column(db.Boolean, default=True)
 
     def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, tipo, quant_total, quant_problemas, vazamentos, quant_inutilizada):
+    def __init__(self, fk_area_umida, tipo_equipamento, quant_total, quant_com_problema, quant_inutilizadas):
 
         self.fk_area_umida = fk_area_umida
-        self.tipo= tipo
+        self.tipo_equipamento= tipo_equipamento
         self.quant_total = quant_total
-        self.quant_problemas = quant_problemas
-        self.vazamentos = vazamentos
-        self.quant_inutilizada = quant_inutilizada
+        self.quant_com_problema = quant_com_problema
+        self.quant_inutilizadas = quant_inutilizadas
 
     def to_json(self):
         return {
             "id":self.id,
             "fk_area_umida":self.fk_area_umida,
-            "tipo":self.tipo,
+            "tipo_equipamento":self.tipo_equipamento,
             "quant_total":self.quant_total,
-            "quant_problemas":self.quant_problemas,
-            "vazamentos":self.vazamentos,
-            "quant_inutilizada":self.quant_inutilizada
+            "quant_com_problema":self.quant_com_problema,
+            "quant_inutilizadas":self.quant_inutilizadas
         }

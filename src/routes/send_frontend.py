@@ -6,6 +6,7 @@ from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__, url_prefix = '/api/v1/send_frontend')
 
+
 #RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
@@ -68,8 +69,27 @@ def edificio(id):
 @swag_from('../docs/send_frontend/area_umidas.yaml')
 def area_umidas(id):
     # fk_edificios = request.args.get('')
-    areas_umidas = AreaUmida.query.filter_by(fk_edificios = id).all()
-    return jsonify({f'area_umidas':[area_umida.to_json() for area_umida in areas_umidas]}), HTTP_200_OK
+    areas_umidas = AreaUmida.query.filter_by(fk_edificios = id, status=True).all()
+    result = list()
+    for area_umida in areas_umidas:
+        #População
+        total = (
+            db.session.query(
+                func.sum(Equipamentos.quant_total).label('total'),
+            )
+            .join(AreaUmida)
+            .filter(Equipamentos.fk_area_umida == area_umida.id)
+            .first()
+        )
+
+        result.append({
+            'id': area_umida.id,
+            'tipo_area_umida':area_umida.tipo_area_umida,
+            'quant_equipamentos': total.total or 0 if total else 0,
+            "status":area_umida.status_area_umida
+        })
+
+    return jsonify({'area_umidas':result}), HTTP_200_OK
 
 #RETORNA APENAS UMA 
 @send_frontend.get('/area_umida/<int:id>')
@@ -81,12 +101,12 @@ def get_area_umida(id):
 #TODOS OS EQUIPAMENTOS
 @send_frontend.get('/equipamentos-table/<int:id>')
 @swag_from('../docs/send_frontend/equipamentos.yaml')
-def equipamentos():
-    fk_area_umida = request.args.get('')
-    equipamentos = Equipamentos.query.filter_by(fk_area_umida = fk_area_umida).all()
+def equipamentos(id):
+
+    equipamentos = Equipamentos.query.filter_by(fk_area_umida = id).all()
 
     return jsonify({
-        f'Equipamentos {fk_area_umida}':[equipamento.to_json() for equipamento in equipamentos]
+        f'equipamentos':[equipamento.to_json() for equipamento in equipamentos]
     }), HTTP_200_OK
 
 #RETORNA APENAS UM
@@ -99,7 +119,7 @@ def get_equipamento(id):
 #TODAS AS POPULAÇÕES   
 @send_frontend.get('/populacao-table/<int:id>')
 def populacao(id):
-    populacoes = Populacao.query.filter_by(fk_edificios = id).all()
+    populacoes = Populacao.query.filter_by(fk_edificios = id, status = True).all()
     return jsonify({
         "populacao":[populacao.to_json() for populacao in populacoes]
     }), HTTP_200_OK
@@ -114,7 +134,7 @@ def get_populacao(id):
 #TODOS OS HIDROMETROS
 @send_frontend.get('/hidrometros-table/<int:id>')
 def hidrometro(id):
-    hidrometros = Hidrometros.query.filter_by(fk_edificios = id).all(status = True)
+    hidrometros = Hidrometros.query.filter_by(fk_edificios = id, status = True).all()
     return jsonify({
         "hidrometro":[hidrometro.to_json() for hidrometro in hidrometros]
     }), HTTP_200_OK

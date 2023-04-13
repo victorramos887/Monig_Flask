@@ -94,8 +94,7 @@ def hidrometros():
     formulario = json.loads(clean_json_str)
 
     hidrometros = Hidrometros(**formulario)
-    
-    
+
     try:
         #inseri no banco de dados. Tabela hidrometros
         db.session.add(hidrometros)
@@ -132,8 +131,7 @@ def populacao():
     formulario = json.loads(clean_json_str)
 
     populacao = Populacao(**formulario)
-    
-    
+
     try:
         #inseri no banco de dados. Tabela populacao
         db.session.add(populacao)
