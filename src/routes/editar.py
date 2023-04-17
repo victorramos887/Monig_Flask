@@ -81,7 +81,7 @@ def area_umida_editar(id):
 
     db.session.commit()
 
-    return jsonify({"areaumida":umida.to_json}), HTTP_200_OK
+    return jsonify({"areaumida":umida.to_json()}), HTTP_200_OK
 
 #EDITAR EQUIPAMENTO
 @editar.put('/equipamentos/<id>')
