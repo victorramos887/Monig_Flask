@@ -12,13 +12,13 @@ def escolas_editar(id):
     body = request.get_json()
 
     if not escola:
-        return jsonify({'mensagem': 'Escola não encontrado'}), 404
+        return jsonify({'mensagem': 'Escola não encontrado', "status":False}), 404
 
     escola.update(**body)
 
     db.session.commit()
 
-    return jsonify({"escola": escola.to_json()}), HTTP_200_OK
+    return jsonify({"escola": escola.to_json(), "status":True}), HTTP_200_OK
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
@@ -27,13 +27,13 @@ def edificios_editar(id):
     body = request.get_json()
 
     if not edificio:
-        return jsonify({'mensagem': 'Edificio não encontrado'}), 404
+        return jsonify({'mensagem': 'Edificio não encontrado', "status":False}), 404
 
     edificio.update(**body)
 
     db.session.commit()
 
-    return jsonify({"edificio":edificio.to_json()}), HTTP_200_OK
+    return jsonify({"edificio":edificio.to_json(), "status":True}), HTTP_200_OK
 
 
 #EDITAR HIDROMETRO

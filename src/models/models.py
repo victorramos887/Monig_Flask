@@ -75,19 +75,19 @@ class Edificios(db.Model):
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-    numero_edificio = db.Column(db.String)
-    nome_do_edificio = db.Column(db.String)
-    cep_edificio = db.Column(db.String)
-    cidade_edificio = db.Column(db.String)
-    estado_edificio = db.Column(db.String)
-    cnpj_edificio = db.Column(db.String)
-    logradouro_edificio = db.Column(db.String)
-    pavimentos_edificio = db.Column(db.Integer)
-    area_total_edificio = db.Column(db.Float)
+    numero = db.Column(db.String)
+    nome = db.Column(db.String)
+    cep = db.Column(db.String)
+    cidade = db.Column(db.String)
+    estado = db.Column(db.String)
+    cnpj = db.Column(db.String)
+    logradouro = db.Column(db.String)
+    pavimento = db.Column(db.Integer)
+    areaTotal = db.Column(db.Float)
     reservatorio = db.Column(db.Boolean)
-    capacidade_m3_edificio = db.Column(db.Float)
-    agua_de_reuso = db.Column(db.Boolean)
-    capacidade_reuso_m3_edificio= db.Column(db.Float)
+    capReservatorio = db.Column(db.Float)
+    aguaReuso = db.Column(db.Boolean)
+    capAguaReuso= db.Column(db.Float)
     status = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
@@ -97,40 +97,40 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio=False, agua_de_reuso=False):
+    def __init__(self, fk_escola, numero, nome,cep, cnpj, logradouro, cidade, estado, pavimento, areaTotal, capReservatorio , capAguaReuso,reservatorio=False, aguaReuso=False):
 
         self.fk_escola = fk_escola
-        self.numero_edificio = numero_edificio
-        self.nome_do_edificio = nome_do_edificio
-        self.cep_edificio = cep_edificio
-        self.cnpj_edificio = cnpj_edificio
-        self.logradouro_edificio = logradouro_edificio
-        self.estado_edificio = estado_edificio
-        self.cidade_edificio = cidade_edificio
-        self.pavimentos_edificio = pavimentos_edificio
-        self.area_total_edificio = area_total_edificio
+        self.numero = numero
+        self.nome = nome
+        self.cep = cep
+        self.cnpj = cnpj
+        self.logradouro = logradouro
+        self.estado = estado
+        self.cidade = cidade
+        self.pavimento = pavimento
+        self.areaTotal = areaTotal
         self.reservatorio = reservatorio
-        self.capacidade_m3_edificio  = capacidade_m3_edificio
-        self.agua_de_reuso = agua_de_reuso
-        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if capacidade_reuso_m3_edificio is not None else 0;
+        self.capReservatorio  = capReservatorio
+        self.aguaReuso = aguaReuso
+        self.capAguaReuso = capAguaReuso if capAguaReuso is not None else 0;
 
     def to_json(self):
         return {
             "id":self.id,
             "fk_escola":self.fk_escola,
-            "numero_edificio":self.numero_edificio,
-            "nome_do_edificio":self.nome_do_edificio,
-            "cep_edificio":self.cep_edificio,
-            "cnpj_edificio":self.cnpj_edificio,
-            "logradouro_edificio":self.logradouro_edificio,
-            "cidade_edificio":self.cidade_edificio,
-            "estado_edificio":self.estado_edificio,
-            "pavimentos_edificio":self.pavimentos_edificio,
-            "area_total_edificio":self.area_total_edificio,
+            "numero":self.numero,
+            "nome":self.nome,
+            "cep":self.cep,
+            "cnpj":self.cnpj,
+            "logradouro":self.logradouro,
+            "cidade":self.cidade,
+            "estado":self.estado,
+            "pavimento":self.pavimento,
+            "areaTotal":self.areaTotal,
             "reservatorio":self.reservatorio,
-            "capacidade_m3_edificio":self.capacidade_m3_edificio ,
-            "agua_de_reuso":self.agua_de_reuso,
-            "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
+            "capReservatorio":self.capReservatorio ,
+            "aguaReuso":self.aguaReuso,
+            "capAguaReuso": self.capAguaReuso
         }
 
 
@@ -272,3 +272,13 @@ class Equipamentos(db.Model):
             "quant_com_problema":self.quant_com_problema,
             "quant_inutilizadas":self.quant_inutilizadas
         }
+
+class testando(db.Model):
+    __tablename__ ='testando'
+    
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    nome = db.Column(db.String,  unique=True, nullable=False)
+    
+    def __init__ (self, nome):
+        self.nome = nome
+    

@@ -61,6 +61,7 @@ def create_app(test_config=None):
     app.register_blueprint(funcionalidades)
     app.register_blueprint(editar)
     app.register_blueprint(remover)
+    app.register_blueprint(rota_testando)
 
     Swagger(app, config=swagger_config, template=template)
 
