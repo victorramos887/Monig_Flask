@@ -36,7 +36,7 @@ steps:
     - 'run'
     - 'deploy'
     - 'projeto'
-    - '--image=gcr.io/monig-382019/monig'
+    - '--image=gcr.io/monig-382019/gcloud'
     - '--platform=managed'
     - '--region=southamerica-east1'
     - '--allow-unauthenticated'
