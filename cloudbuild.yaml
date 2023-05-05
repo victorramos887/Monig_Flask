@@ -1,42 +1,20 @@
-# steps:
-# - name: 'gcr.io/cloud-builders/git'
-#   args: ['clone', 'https://github.com/victorramos887/Monig_Flask.git']
-
-# - name: "gcr.io/cloud-builders/docker"
-#   args: ["build", "-t", "gcr.io/monig-382213/monig_flask", "."]
-#   dir: "."
-
-# - name: 'gcr.io/cloud-builders/gcloud'
-#   args: ['app', 'deploy', 'app.yaml', '--project', '$monig-382019', '--version', 'latest', '--no-promote']
-# timeout: 1800s
-
-
 steps:
 # Compilação do container
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/monig-382213/monig', '.']
 
-# # Run database migrations
-# - name: 'gcr.io/projeto-383820/geminiapi'
-#   entrypoint: 'flask'
-#   args: ['db', 'upgrade']
-
 #push
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/monig-382213/monig']
 
-# # Testes
-# - name: 'gcr.io/projeto-383820/geminiapi'
-#   entrypoint: 'pytest'
-#   args: ['/app/src/tests/']
 
 # Implantação no Cloud Run
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'run'
     - 'deploy'
-    - 'projeto'
-    - '--image=gcr.io/monig-382019/gcloud'
+    - 'monig'
+    - '--image=gcr.io/monig-382213/gcloud'
     - '--platform=managed'
     - '--region=southamerica-east1'
     - '--allow-unauthenticated'
