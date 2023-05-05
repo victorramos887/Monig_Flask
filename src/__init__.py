@@ -61,7 +61,6 @@ def create_app(test_config=None):
     app.register_blueprint(funcionalidades)
     app.register_blueprint(editar)
     app.register_blueprint(remover)
-    app.register_blueprint(rota_testando)
 
     Swagger(app, config=swagger_config, template=template)
 
@@ -79,7 +78,7 @@ def create_app(test_config=None):
 app = create_app()
 if __name__ == "__main__":
     # Define a porta a ser usada pelo servidor Flask
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
     # Executa o servidor Flask
     app.run(host='0.0.0.0', port=port, debug=True)
 

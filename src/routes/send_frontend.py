@@ -13,13 +13,13 @@ send_frontend = Blueprint('send_frontend', __name__, url_prefix = '/api/v1/send_
 def escolas():
 
     escolas = Escolas.query.all()
-    return jsonify({'return':[escola.to_json() for escola in escolas]}), HTTP_200_OK
+    return jsonify({'return':[escola.to_json() for escola in escolas], "status": True}), HTTP_200_OK
 
 #RETORNA APENAS UMA ESCOLA
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
-    return jsonify({'escola':escola.to_json() if escola is not None else escola})
+    return jsonify({'escola':escola.to_json() if escola is not None else escola, "status": True})
 
 #RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
@@ -51,7 +51,7 @@ def edificios(id):
             'area_umida':contador_area_umida or 0
         })
 
-    return jsonify({'edificios':result}), HTTP_200_OK
+    return jsonify({'edificios':result})
 
 #RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
 @send_frontend.get('/edificio/<int:id>')
@@ -59,9 +59,9 @@ def edificio(id):
 
     edificio = Edificios.query.filter(Edificios.id == id).first()
     if edificio is None or edificio == '':
-        return jsonify({'erro':'Edificio não encontrado'}), HTTP_400_BAD_REQUEST
+        return jsonify({'erro':'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
 
-    return jsonify({'edificio':edificio.to_json()}), HTTP_200_OK
+    return jsonify({'edificio':edificio.to_json(), "status": True}), HTTP_200_OK
 
 
 #TODAS AREA UMIDAS
@@ -89,7 +89,7 @@ def area_umidas(id):
             "status":area_umida.status_area_umida
         })
 
-    return jsonify({'area_umidas':result}), HTTP_200_OK
+    return jsonify({'area_umidas':result})
 
 #RETORNA APENAS UMA 
 @send_frontend.get('/area_umida/<int:id>')
@@ -107,7 +107,7 @@ def equipamentos(id):
 
     return jsonify({
         f'equipamentos':[equipamento.to_json() for equipamento in equipamentos]
-    }), HTTP_200_OK
+    })
 
 #RETORNA APENAS UM
 @send_frontend.get('/equipamento/<int:id>')
@@ -122,7 +122,7 @@ def populacao(id):
     populacoes = Populacao.query.filter_by(fk_edificios = id, status = True).all()
     return jsonify({
         "populacao":[populacao.to_json() for populacao in populacoes]
-    }), HTTP_200_OK
+    })
 
 #RETORNA APENAS UMA 
 @send_frontend.get('/populacao/<int:id>')
@@ -137,7 +137,7 @@ def hidrometro(id):
     hidrometros = Hidrometros.query.filter_by(fk_edificios = id, status = True).all()
     return jsonify({
         "hidrometro":[hidrometro.to_json() for hidrometro in hidrometros]
-    }), HTTP_200_OK
+    })
 
 #RETORNA APENAS UM
 @send_frontend.get('/hidrometro/<int:id>')

@@ -12,12 +12,15 @@ def escolas_remover(id):
     escola.status = False
 
     if not escola:
-        return jsonify({'mensagem': 'Escola não encontrado'}), 404
+        return jsonify({'status':False,'mensagem': 'Escola não encontrado'}), 404
     
+    #atualizar a tabela com os dados deletados
+    #if escola.status == False:
+         # db.session.add(EscolasHistoricoDelete(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
    
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
 
 
 #edificios
@@ -27,12 +30,11 @@ def edificios_remover(id):
     edificio.status = False
 
     if not edificio:
-        return jsonify({'mensagem': 'Edificio não encontrado'}), 404
-    
-   
+        return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
+
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
 
 
 #hidrometro
@@ -42,11 +44,11 @@ def hidrometro_remover(id):
     hidrometro.status = False
 
     if not hidrometro:
-        return jsonify({'mensagem': 'hidrometro não encontrado'}), 404
+        return jsonify({'status':False,'mensagem': 'hidrometro não encontrado'}), 404
     
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'hidrometo removido'}), HTTP_200_OK 
 
 
 #populacao
@@ -56,12 +58,12 @@ def populacao_remover(id):
     populacao.status = False
 
     if not populacao:
-        return jsonify({'mensagem': 'População não encontrado'}), 404
+        return jsonify({'status':False,'mensagem': 'População não encontrado'}), 404
     
    
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'População removida'}), HTTP_200_OK 
 
 
 #area-umida
@@ -71,12 +73,12 @@ def area_umida_remover(id):
     umida.status = False
 
     if not umida:
-        return jsonify({'mensagem': 'Area Umida não encontrado'}), 404
+        return jsonify({'status':False,'mensagem': 'Área Úmida não encontrado'}), 404
     
    
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'Área Úmida removida'}), HTTP_200_OK 
 
 
 #equipamentos
@@ -86,9 +88,9 @@ def equipamentos_remover(id):
     equipamento.status = False
 
     if not equipamento:
-        return jsonify({'mensagem': 'Equipamento não encontrado'}), 404
+        return jsonify({'status':False,'mensagem': 'Equipamento não encontrado'}), 404
     
    
     db.session.commit()
 
-    return jsonify(), HTTP_200_OK
+    return jsonify({"status": True, 'mensagem': 'Equipamento removido'}), HTTP_200_OK 

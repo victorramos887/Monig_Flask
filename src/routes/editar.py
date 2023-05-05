@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, EscolasHistorico
 from sqlalchemy import exc
+from http import HTTPStatus
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
@@ -12,13 +13,26 @@ def escolas_editar(id):
     body = request.get_json()
 
     if not escola:
-        return jsonify({'mensagem': 'Escola não encontrado', "status":False}), 404
+        return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
+    #comparar e incluir na tabela EscolasHistorico
+    if escola != body:
+        db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
+
+    # if escola.cnpj != body['cnpj']:
+    #     db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj))
+    # if escola.cep != body['cep']:
+    #     db.session.add(EscolasHistorico(fk_escola=escola.id, cep=escola.cep))
+    # if escola.nivel != body['nivel']:
+    #     db.session.add(EscolasHistorico(fk_escola=escola.id, nivel=escola.nivel))
+
+    #atualizar tabela Escola - novas informações
     escola.update(**body)
 
     db.session.commit()
-
-    return jsonify({"escola": escola.to_json(), "status":True}), HTTP_200_OK
+  
+    return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK 
+  
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
@@ -27,13 +41,13 @@ def edificios_editar(id):
     body = request.get_json()
 
     if not edificio:
-        return jsonify({'mensagem': 'Edificio não encontrado', "status":False}), 404
+        return jsonify({'mensagem': 'Edificio não encontrado',"status": False}), 404
 
     edificio.update(**body)
 
     db.session.commit()
 
-    return jsonify({"edificio":edificio.to_json(), "status":True}), HTTP_200_OK
+    return jsonify({"edificio":edificio.to_json(), "status": True}), HTTP_200_OK
 
 
 #EDITAR HIDROMETRO
@@ -43,13 +57,13 @@ def hidrometro_editar(id):
     body = request.get_json()
 
     if not hidrometro:
-        return jsonify({'mensagem': 'Hidrometro não encontrado'}), 404
+        return jsonify({'mensagem': 'Hidrometro não encontrado', "status": False}), 404
 
     hidrometro.update(**body)
 
     db.session.commit()
 
-    return jsonify({"hidrometro":hidrometro.to_json()}), HTTP_200_OK
+    return jsonify({"hidrometro":hidrometro.to_json(), "status": True}), HTTP_200_OK
 
 
 #EDITAR POPULACAO
@@ -59,13 +73,13 @@ def populacao_editar(id):
     body = request.get_json()
 
     if not populacao:
-        return jsonify({'mensagem': 'Populacao não encontrado'}), 404
+        return jsonify({'mensagem': 'Populacao não encontrado', "status": False}), 404
 
     populacao.update(**body)
 
     db.session.commit()
 
-    return jsonify({"populacao":populacao.to_json()}), HTTP_200_OK
+    return jsonify({"populacao":populacao.to_json(), "status": True}), HTTP_200_OK
 
 
 #EDITAR AREA UMIDA
@@ -75,13 +89,13 @@ def area_umida_editar(id):
     body = request.get_json()
 
     if not umida:
-        return jsonify({'mensagem': 'Area Umida não encontrado'}), 404
+        return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
     
     umida.update(**body)
 
     db.session.commit()
 
-    return jsonify({"areaumida":umida.to_json()}), HTTP_200_OK
+    return jsonify({"areaumida":umida.to_json(), "status": True}), HTTP_200_OK
 
 #EDITAR EQUIPAMENTO
 @editar.put('/equipamentos/<id>')
@@ -90,10 +104,10 @@ def equipamento_editar(id):
     body = request.get_json()
 
     if not equipamento:
-        return jsonify({'mensagem': 'Equipamento não encontrado'}), 404
+        return jsonify({'mensagem': 'Equipamento não encontrado', "status": False}), 404
 
     equipamento.update(**body)
 
     db.session.commit()
 
-    return jsonify({"equipamento":equipamento.to_json}), HTTP_200_OK
+    return jsonify({"equipamento":equipamento.to_json, "status": True}), HTTP_200_OK

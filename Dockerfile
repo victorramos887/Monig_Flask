@@ -18,5 +18,4 @@ ENV SECRET_KEY=dev \
     PORT=8080
 
 # Expõe a porta em que sua aplicação estará ouvindo
-
 CMD ["sh", "-c", "echo PORT=$PORT && python -m flask run --host=0.0.0.0 --port=$PORT"]
