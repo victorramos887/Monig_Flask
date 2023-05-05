@@ -19,5 +19,5 @@ steps:
     - '--region=southamerica-east1'
     - '--allow-unauthenticated'
     - '--memory=2Gi'
-    - '--set-env-vars=FLASK_ENV=development,SECRET_KEY=prod,SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@34.151.208.233:5432/monig,projeto,TEST_DATABASE_URI=sqlite:///test.db,FLASK_DEBUG=1'
+    - '--set-env-vars=FLASK_ENV=development,SECRET_KEY=prod,SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@34.151.208.233:5432/monig,TEST_DATABASE_URI=sqlite:///test.db,FLASK_DEBUG=1'
 timeout: 1800s
