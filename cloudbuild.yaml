@@ -9,7 +9,7 @@ steps:
 
 
 # Implantação no Cloud Run
-- name: 'gcr.io/cloud-builders/gcloud'
+- name: 'gcr.io/cloud-builders/monig'
   args:
     - 'run'
     - 'deploy'
