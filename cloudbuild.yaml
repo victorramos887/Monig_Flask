@@ -1,20 +1,20 @@
-steps:
-- name: 'gcr.io/cloud-builders/git'
-  args: ['clone', 'https://github.com/victorramos887/Monig_Flask.git']
+# steps:
+# - name: 'gcr.io/cloud-builders/git'
+#   args: ['clone', 'https://github.com/victorramos887/Monig_Flask.git']
 
-- name: "gcr.io/cloud-builders/docker"
-  args: ["build", "-t", "gcr.io/monig-382213/monig_flask", "."]
-  dir: "."
+# - name: "gcr.io/cloud-builders/docker"
+#   args: ["build", "-t", "gcr.io/monig-382213/monig_flask", "."]
+#   dir: "."
 
-- name: 'gcr.io/cloud-builders/gcloud'
-  args: ['app', 'deploy', 'app.yaml', '--project', '$monig-382019', '--version', 'latest', '--no-promote']
-timeout: 1800s
+# - name: 'gcr.io/cloud-builders/gcloud'
+#   args: ['app', 'deploy', 'app.yaml', '--project', '$monig-382019', '--version', 'latest', '--no-promote']
+# timeout: 1800s
 
 
 steps:
 # Compilação do container
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'gcr.io/monig-382019/projeto', '.']
+  args: ['build', '-t', 'gcr.io/monig-382213/monig', '.']
 
 # # Run database migrations
 # - name: 'gcr.io/projeto-383820/geminiapi'
@@ -23,7 +23,7 @@ steps:
 
 #push
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'gcr.io/monig-382019/projeto']
+  args: ['push', 'gcr.io/monig-382213/monig']
 
 # # Testes
 # - name: 'gcr.io/projeto-383820/geminiapi'
@@ -36,7 +36,7 @@ steps:
     - 'run'
     - 'deploy'
     - 'projeto'
-    - '--image=gcr.io/monig-382019/projeto'
+    - '--image=gcr.io/monig-382019/monig'
     - '--platform=managed'
     - '--region=southamerica-east1'
     - '--allow-unauthenticated'
