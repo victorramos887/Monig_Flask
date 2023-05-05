@@ -9,12 +9,12 @@ steps:
 
 
 # Implantação no Cloud Run
-- name: 'gcr.io/cloud-builders/monig'
+- name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'run'
     - 'deploy'
     - 'monig'
-    - '--image=gcr.io/monig-382213/gcloud'
+    - '--image=gcr.io/monig-382213/monig'
     - '--platform=managed'
     - '--region=southamerica-east1'
     - '--allow-unauthenticated'
