@@ -9,3 +9,37 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['app', 'deploy', 'app.yaml', '--project', '$monig-382019', '--version', 'latest', '--no-promote']
 timeout: 1800s
+
+
+steps:
+# Compilação do container
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/monig-382019/projeto', '.']
+
+# # Run database migrations
+# - name: 'gcr.io/projeto-383820/geminiapi'
+#   entrypoint: 'flask'
+#   args: ['db', 'upgrade']
+
+#push
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/monig-382019/projeto']
+
+# # Testes
+# - name: 'gcr.io/projeto-383820/geminiapi'
+#   entrypoint: 'pytest'
+#   args: ['/app/src/tests/']
+
+# Implantação no Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'run'
+    - 'deploy'
+    - 'projeto'
+    - '--image=gcr.io/monig-382019/projeto'
+    - '--platform=managed'
+    - '--region=southamerica-east1'
+    - '--allow-unauthenticated'
+    - '--memory=2Gi'
+    - '--set-env-vars=FLASK_ENV=development,SECRET_KEY=prod,SQLALCHEMY_DATABASE_URI=postgresql://postgres:postgres@34.151.208.233:5432/monig,projeto,TEST_DATABASE_URI=sqlite:///test.db,FLASK_DEBUG=1'
+timeout: 1800s
