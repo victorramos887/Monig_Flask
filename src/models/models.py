@@ -245,10 +245,10 @@ class AreaUmida(db.Model):
             return {
                 "id":self.id,
                 "fk_edificios":self.fk_edificios,
-                "tipo_area_umida":self.tipo_area_umida,
+                "tipo_area_umida":self.tipo_area_umida.replace("{", "").replace("}","").split(","),
                 "nome_area_umida":self.nome_area_umida,
                 "localizacao_area_umida":self.localizacao_area_umida,
-                "status_area_umida":self.status_area_umida
+                "status_area_umida":self.status_area_umida.replace("{", "").replace("}","").split(",")
             }
 
 
