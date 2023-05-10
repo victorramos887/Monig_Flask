@@ -156,10 +156,10 @@ class Populacao(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        nivel_de_usuario = db.Column(db.ARRAY(db.String(50)))
+        nivel = db.Column(db.ARRAY(db.String(50)))
         periodo = db.Column(db.String)
-        quant_de_funcionarios_usuarios = db.Column(db.Integer)
-        quant_de_alunos_usuarios = db.Column(db.Integer)
+        funcionarios = db.Column(db.Integer)
+        alunos = db.Column(db.Integer)
         status = db.Column(db.Boolean, default=True)
 
 
@@ -168,21 +168,21 @@ class Populacao(db.Model):
                 setattr(self, key, value)
 
 
-        def __init__(self, fk_edificios, nivel_de_usuario, periodo, quant_de_funcionarios_usuarios, quant_de_alunos_usuarios):
+        def __init__(self, fk_edificios, nivel, periodo, funcionarios, alunos):
             self.fk_edificios = fk_edificios
-            self.nivel_de_usuario = nivel_de_usuario
+            self.nivel = nivel
             self.periodo = periodo
-            self.quant_de_funcionarios_usuarios = quant_de_funcionarios_usuarios
-            self.quant_de_alunos_usuarios = quant_de_alunos_usuarios
+            self.funcionarios = funcionarios
+            self.alunos = alunos
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
-                "nivel_de_usuario": self.nivel_de_usuario,
+                "nivel": self.nivel,
                 "periodo": self.periodo,
-                "quant_de_funcionarios_usuarios": self.quant_de_funcionarios_usuarios,
-                "quant_de_alunos_usuarios": self.quant_de_alunos_usuarios
+                "funcionarios": self.funcionarios,
+                "alunos": self.alunos
             }
 
 
