@@ -180,7 +180,7 @@ class Populacao(db.Model):
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
                 "nivel": self.nivel,
-                "periodo": self.periodo,
+                "periodo": self.periodo.replace("{", "").replace("}","").split(","),
                 "funcionarios": self.funcionarios,
                 "alunos": self.alunos
             }
@@ -192,7 +192,7 @@ class Hidrometros(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        hidrometro_edificio = db.Column(db.String)
+        hidrometro = db.Column(db.String)
         status = db.Column(db.Boolean, default=True)
 
 
@@ -201,15 +201,15 @@ class Hidrometros(db.Model):
                 setattr(self, key, value)
 
 
-        def __init__(self, fk_edificios, hidrometro_edificio ):
+        def __init__(self, fk_edificios, hidrometro ):
             self.fk_edificios = fk_edificios
-            self.hidrometro_edificio = hidrometro_edificio
+            self.hidrometro = hidrometro
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
-                "hidrometro_edificio":self.hidrometro_edificio
+                "hidrometro":self.hidrometro
             }
 
 
@@ -260,7 +260,7 @@ class Equipamentos(db.Model):
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_area_umida= db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
-    tipo_equipamento = db.Column(db.String)
+    tipo = db.Column(db.String)
     quant_total = db.Column(db.Integer)
     quant_com_problema = db.Column(db.Integer)
     # vazamentos = db.Column(db.Integer)
@@ -271,10 +271,10 @@ class Equipamentos(db.Model):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, tipo_equipamento, quant_total, quant_com_problema, quant_inutilizadas):
+    def __init__(self, fk_area_umida, tipo, quant_total, quant_com_problema, quant_inutilizadas):
 
         self.fk_area_umida = fk_area_umida
-        self.tipo_equipamento= tipo_equipamento
+        self.tipo= tipo
         self.quant_total = quant_total
         self.quant_com_problema = quant_com_problema
         self.quant_inutilizadas = quant_inutilizadas
@@ -283,7 +283,7 @@ class Equipamentos(db.Model):
         return {
             "id":self.id,
             "fk_area_umida":self.fk_area_umida,
-            "tipo_equipamento":self.tipo_equipamento,
+            "tipo":self.tipo.replace("{", "").replace("}","").split(","),
             "quant_total":self.quant_total,
             "quant_com_problema":self.quant_com_problema,
             "quant_inutilizadas":self.quant_inutilizadas

@@ -32,8 +32,8 @@ def edificios(id):
         #População
         soma_colaboradores, soma_alunos = (
             db.session.query(
-                func.sum(Populacao.quant_de_funcionarios_usuarios).label('soma_colaboradores'),
-                func.sum(Populacao. quant_de_alunos_usuarios).label('soma_alunos')
+                func.sum(Populacao.funcionarios).label('soma_colaboradores'),
+                func.sum(Populacao.alunos).label('soma_alunos')
             )
             .join(Edificios)
             .filter(Populacao.fk_edificios == edificio.id)
