@@ -1,16 +1,20 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, func
 from sqlalchemy.orm import relationship
 from dotenv import load_dotenv
+from datetime import datetime
 from os import path
 import os
 
 
-
+###
 db = SQLAlchemy()
 
 basedir = path.abspath(path.dirname(__file__))
 load_dotenv(path.join(basedir, "../../.env"))
+
+
+
 
 class Escolas(db.Model):
 
@@ -29,9 +33,11 @@ class Escolas(db.Model):
     complemento = db.Column(db.String) #86
     cidade = db.Column(db.String) #55
     estado = db.Column(db.String) #2
-    status = db.Column(db.Boolean, default=True)
+    status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref = 'edificios')
-
+    escolas_historico =  db.relationship('EscolasHistorico', backref = 'escolas_historico')
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -64,8 +70,18 @@ class Escolas(db.Model):
             "cidade":self.cidade,
             "estado":self.estado
         }
+      
 
-   
+class EscolasHistorico(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'escolas_historico'
+
+    id = db.Column(db.Integer, primary_key=True)
+    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
+    cnpj = db.Column(db.String) #18
+    nivel = db.Column(db.ARRAY(db.String(50)))
+    cep = db.Column(db.String) #9
+    data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
 
 class Edificios(db.Model):
@@ -88,7 +104,7 @@ class Edificios(db.Model):
     capacidade_m3_edificio = db.Column(db.Float)
     agua_de_reuso = db.Column(db.Boolean)
     capacidade_reuso_m3_edificio= db.Column(db.Float)
-    status = db.Column(db.Boolean, default=True)
+    status_do_registro = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
     hidrometros = db.relationship('Hidrometros', backref = 'hidrometros')
@@ -140,11 +156,11 @@ class Populacao(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        nivel_de_usuario = db.Column(db.ARRAY(db.String(50)))
+        nivel = db.Column(db.ARRAY(db.String(50)))
         periodo = db.Column(db.String)
-        quant_de_funcionarios_usuarios = db.Column(db.Integer)
-        quant_de_alunos_usuarios = db.Column(db.Integer)
-        status = db.Column(db.Boolean, default=True)
+        funcionarios = db.Column(db.Integer)
+        alunos = db.Column(db.Integer)
+        status_do_registro = db.Column(db.Boolean, default=True)
 
 
         def update(self, **kwargs):
@@ -152,21 +168,21 @@ class Populacao(db.Model):
                 setattr(self, key, value)
 
 
-        def __init__(self, fk_edificios, nivel_de_usuario, periodo, quant_de_funcionarios_usuarios, quant_de_alunos_usuarios):
+        def __init__(self, fk_edificios, nivel, periodo, funcionarios, alunos):
             self.fk_edificios = fk_edificios
-            self.nivel_de_usuario = nivel_de_usuario
+            self.nivel = nivel
             self.periodo = periodo
-            self.quant_de_funcionarios_usuarios = quant_de_funcionarios_usuarios
-            self.quant_de_alunos_usuarios = quant_de_alunos_usuarios
+            self.funcionarios = funcionarios
+            self.alunos = alunos
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
-                "nivel_de_usuario": self.nivel_de_usuario,
+                "nivel": self.nivel,
                 "periodo": self.periodo,
-                "quant_de_funcionarios_usuarios": self.quant_de_funcionarios_usuarios,
-                "quant_de_alunos_usuarios": self.quant_de_alunos_usuarios
+                "funcionarios": self.funcionarios,
+                "alunos": self.alunos
             }
 
 
@@ -176,8 +192,8 @@ class Hidrometros(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        hidrometro_edificio = db.Column(db.String)
-        status = db.Column(db.Boolean, default=True)
+        hidrometro = db.Column(db.String)
+        status_do_registro = db.Column(db.Boolean, default=True)
 
 
         def update(self, **kwargs):
@@ -185,15 +201,15 @@ class Hidrometros(db.Model):
                 setattr(self, key, value)
 
 
-        def __init__(self, fk_edificios, hidrometro_edificio ):
+        def __init__(self, fk_edificios, hidrometro ):
             self.fk_edificios = fk_edificios
-            self.hidrometro_edificio = hidrometro_edificio
+            self.hidrometro = hidrometro
 
         def to_json(self):
             return {
                 "id": self.id,
                 "fk_edificios": self.fk_edificios,
-                "hidrometro_edificio":self.hidrometro_edificio
+                "hidrometro":self.hidrometro
             }
 
 
@@ -205,34 +221,34 @@ class AreaUmida(db.Model):
 
         id = db.Column(db.Integer, autoincrement = True, primary_key = True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        tipo_area_umida = db.Column(db.String)
-        nome_area_umida = db.Column(db.String)
-        localizacao_area_umida = db.Column(db.String)
-        status_area_umida = db.Column(db.String)
-        status = db.Column(db.Boolean, default=True)
+        tipo = db.Column(db.String)
+        nomeArea = db.Column(db.String)
+        localizacao = db.Column(db.String)
+        status = db.Column(db.String)
+        status_do_registro = db.Column(db.Boolean, default=True)
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
         def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-        def __init__(self, fk_edificios, tipo_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
+        def __init__(self, fk_edificios, tipo, nomeArea, localizacao, status):
 
             self.fk_edificios = fk_edificios
-            self.tipo_area_umida= tipo_area_umida
-            self.nome_area_umida = nome_area_umida
-            self.localizacao_area_umida = localizacao_area_umida
-            self.status_area_umida = status_area_umida
+            self.tipo= tipo
+            self.nomeArea = nomeArea
+            self.localizacao = localizacao
+            self.status = status
 
 
         def to_json(self):
             return {
                 "id":self.id,
                 "fk_edificios":self.fk_edificios,
-                "tipo_area_umida":self.tipo_area_umida,
-                "nome_area_umida":self.nome_area_umida,
-                "localizacao_area_umida":self.localizacao_area_umida,
-                "status_area_umida":self.status_area_umida
+                "tipo":self.tipo,
+                "nomeArea":self.nomeArea,
+                "localizacao":self.localizacao,
+                "status":self.status
             }
 
 
@@ -244,31 +260,31 @@ class Equipamentos(db.Model):
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_area_umida= db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
-    tipo_equipamento = db.Column(db.String)
-    quant_total = db.Column(db.Integer)
-    quant_com_problema = db.Column(db.Integer)
+    tipo = db.Column(db.String)
+    quantTotal = db.Column(db.Integer)
+    quantProblema = db.Column(db.Integer)
     # vazamentos = db.Column(db.Integer)
-    quant_inutilizadas = db.Column(db.Integer)
-    status = db.Column(db.Boolean, default=True)
+    quantInutil = db.Column(db.Integer)
+    status_do_registro = db.Column(db.Boolean, default=True)
 
     def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, tipo_equipamento, quant_total, quant_com_problema, quant_inutilizadas):
+    def __init__(self, fk_area_umida, tipo, quantTotal, quantProblema, quantInutil):
 
         self.fk_area_umida = fk_area_umida
-        self.tipo_equipamento= tipo_equipamento
-        self.quant_total = quant_total
-        self.quant_com_problema = quant_com_problema
-        self.quant_inutilizadas = quant_inutilizadas
+        self.tipo= tipo
+        self.quantTotal = quantTotal
+        self.quantProblema = quantProblema
+        self.quantInutil = quantInutil
 
     def to_json(self):
         return {
             "id":self.id,
             "fk_area_umida":self.fk_area_umida,
-            "tipo_equipamento":self.tipo_equipamento,
-            "quant_total":self.quant_total,
-            "quant_com_problema":self.quant_com_problema,
-            "quant_inutilizadas":self.quant_inutilizadas
+            "tipo":self.tipo,
+            "quantTotal":self.quantTotal,
+            "quantProblema":self.quantProblema,
+            "quantInutil":self.quantInutil
         }
