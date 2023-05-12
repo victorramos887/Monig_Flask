@@ -110,4 +110,8 @@ def equipamento_editar(id):
 
     db.session.commit()
 
+<<<<<<< HEAD
     return jsonify({"equipamento":equipamento.to_json, "status": True}), HTTP_200_OK
+=======
+    return jsonify({"equipamento":equipamento.to_json(), "status": True}), HTTP_200_OK
+>>>>>>> a0cde676257500da24c41930b197ce2bff3db249
