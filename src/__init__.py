@@ -17,7 +17,7 @@ cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 
 
 basedir = path.abspath(path.dirname(__file__))
-#load_dotenv(path.join(basedir, "../.env"))
+load_dotenv(path.join(basedir, "../.env"))
 
 
 def create_app(test_config=None):
@@ -30,8 +30,7 @@ def create_app(test_config=None):
 
     if test_config is None:
         app.config.from_mapping(
-           # SECRET_KEY=os.environ.get('SECRET_KEY'),
-            SECRET_KEY=dev,
+            SECRET_KEY=os.environ.get('SECRET_KEY'),
             SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI'),
             SQLALCHEMY_TRACK_MODIFICATIONS = True,
             JSON_AS_ASCII = False,  # permitir caracteres acentuados
