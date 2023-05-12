@@ -17,7 +17,7 @@ cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 
 
 basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, "../.env"))
+#load_dotenv(path.join(basedir, "../.env"))
 
 
 def create_app(test_config=None):
@@ -30,7 +30,8 @@ def create_app(test_config=None):
 
     if test_config is None:
         app.config.from_mapping(
-            SECRET_KEY=os.environ.get('SECRET_KEY'),
+           # SECRET_KEY=os.environ.get('SECRET_KEY'),
+            SECRET_KEY=dev,
             SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI'),
             SQLALCHEMY_TRACK_MODIFICATIONS = True,
             JSON_AS_ASCII = False,  # permitir caracteres acentuados
@@ -78,7 +79,8 @@ def create_app(test_config=None):
 app = create_app()
 if __name__ == "__main__":
     # Define a porta a ser usada pelo servidor Flask
-    port = int(os.environ.get("PORT", 5000))
+    #port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT"))
     # Executa o servidor Flask
     app.run(host='0.0.0.0', port=port, debug=True)
 
