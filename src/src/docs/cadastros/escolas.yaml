@@ -1,0 +1,58 @@
+ESCOLAS
+---
+tags:
+  - Cadastros
+parameters:
+  - in: formData
+    name: nome
+    type: string
+    description: Nome da escola
+    example: Escola Teste
+  - in: formData
+    name: cnpj
+    type: string
+    description: CNPJ da escola
+    example: 00.000.000/0001-00
+  - in: formData
+    name: nivel
+    type: string
+    description: Nível de ensino
+    example: Fundamental
+  - in: formData
+    name: email
+    type: string
+    description: Email da escola
+    example: escola@teste.com
+  - in: formData
+    name: telefone
+    type: string
+    description: Telefone da escola
+    example: (11) 1234-5678
+  - in: formData
+    name: logradouro
+    type: string
+    description: Logradouro do endereço da escola
+    example: Rua Teste
+  - in: formData
+    name: cep
+    type: string
+    description: CEP do endereço da escola
+    example: 12345-678
+  - in: formData
+    name: complemento
+    type: string
+    description: Complemento do endereço da escola
+    example: Teste
+  - in: formData
+    name: cidade
+    type: string
+    description: Cidade do endereço da escola
+    example: São Paulo
+  - in: formData
+    name: estado
+    type: string
+    description: Estado do endereço da escola
+    example: SP
+responses:
+  '200':
+    description: Escola cadastrada com sucesso

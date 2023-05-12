@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title>Home</title>
+    <meta charset="utf-8">
+  </head>
+
+  <style>
+
+body{
+    height: 100vh;
+    padding: 0px;
+    margin: 0px;
+    background-image: url('./static/img/bolha_transp.png');
+    /* background-image: "{url_for('static', filename='/img/bolha_transp.png')}; */
+    background-position: 280px 250px;
+    background-repeat: no-repeat; 
+  }
+
+.container {
+  display: grid;
+  grid-template-columns: 28% 30% 40%;
+  grid-gap: 10px;
+}
+
+.img-fundo{
+  position: relative;
+  margin-top: 160px;
+}
+
+.aba-dashboard{
+  margin-top: 160px;
+  
+
+}
+
+.aba-escola{
+  margin-top: 160px;
+}
+
+.aba-escola > a{
+  position: relative;
+  width: 342px;
+  height: 58px;
+  left: 20px;
+  top: -100px;
+  border: 0;
+
+}
+
+
+img {
+  max-width: 100vw;
+  max-height: 100vh
+}
+
+  </style>
+
+  <body>
+    <header>
+      <img src= "./static/img/cabecalho.jpg" alt="menu" width="100%" height="80px"/>
+    </header>
+
+    <div class="container">
+
+      <div class="img-fundo"> 
+        <img src= "./static/img/lampada_transp.png" alt="fundo" width="600px" height="720px">
+          
+        
+      </div>
+
+      <div class="aba-escola">
+          <img src="./static/img/escola.jpg" alt="descrição da imagem" />
+          <!-- linkar com rota cadastros -->
+          <a href="http://www.google.com" target="_self"><img src="./static/img/botao_nova_escola.jpg" alt="descrição da imagem" /></a>
+      </div>
+
+
+      <div class="aba-dashboard">
+          <img src="./static/img/relatorios.jpg" alt="descrição da imagem"/>
+         
+
+      </div>
+
+    </div>
+  </body>
+</html>
+
