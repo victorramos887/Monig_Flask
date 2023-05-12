@@ -95,7 +95,6 @@ def area_umidas(id):
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
     area_umida = AreaUmida.query.filter_by(id=id).first()
-    
     return jsonify({'area_umida':area_umida.to_json() if area_umida is not None else area_umida})
 
 
