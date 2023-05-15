@@ -11,8 +11,13 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 def testando():
     formulario = request.get_json()
     tabela = Tabela(**formulario)
+    
+    db.session.add(tabela)
+    db.session.commit()
+
     return jsonify({
-        "data":tabela.to_json()
+        "data":tabela.to_json(),
+        "id":tabela.id
     })
 
 
