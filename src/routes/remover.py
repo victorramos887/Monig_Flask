@@ -9,7 +9,6 @@ remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 @remover.put('/escolas/<id>')
 def escolas_remover(id):
     escola = Escolas.query.filter_by(id=id).first()
-    escola.status_do_registro = False
 
     if not escola:
         return jsonify({'status':False,'mensagem': 'Escola não encontrado'}), 404
@@ -18,6 +17,7 @@ def escolas_remover(id):
     #if escola.status == False:
          # db.session.add(EscolasHistoricoDelete(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
    
+    escola.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
@@ -27,11 +27,11 @@ def escolas_remover(id):
 @remover.put('/edificios/<id>')
 def edificios_remover(id):
     edificio = Edificios.query.filter_by(id=id).first()
-    edificio.status_do_registro = False
-
+  
     if not edificio:
         return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
 
+    edificio.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
@@ -41,11 +41,11 @@ def edificios_remover(id):
 @remover.put('/hidrometros/<id>')
 def hidrometro_remover(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
-    hidrometro.status_do_registro = False
-
+   
     if not hidrometro:
         return jsonify({'status':False,'mensagem': 'hidrometro não encontrado'}), 404
     
+    hidrometro.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'hidrometo removido'}), HTTP_200_OK 
@@ -55,12 +55,11 @@ def hidrometro_remover(id):
 @remover.put('/populacao/<id>')
 def populacao_remover(id):
     populacao = Populacao.query.filter_by(id=id).first()
-    populacao.status_do_registro = False
 
     if not populacao:
         return jsonify({'status':False,'mensagem': 'População não encontrado'}), 404
     
-   
+    populacao.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'População removida'}), HTTP_200_OK 
@@ -70,12 +69,12 @@ def populacao_remover(id):
 @remover.put('/area-umida/<id>')
 def area_umida_remover(id):
     umida = AreaUmida.query.filter_by(id=id).first()
-    umida.status_do_registro = False
+    
 
     if not umida:
         return jsonify({'status':False,'mensagem': 'Área Úmida não encontrado'}), 404
     
-   
+    umida.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Área Úmida removida'}), HTTP_200_OK 
@@ -85,12 +84,12 @@ def area_umida_remover(id):
 @remover.put('/equipamentos/<id>')
 def equipamentos_remover(id):
     equipamento = Equipamentos.query.filter_by(id=id).first()
-    equipamento.status_do_registro = False
+  
 
     if not equipamento:
         return jsonify({'status':False,'mensagem': 'Equipamento não encontrado'}), 404
     
-   
+    equipamento.status_do_registro = False
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Equipamento removido'}), HTTP_200_OK 
