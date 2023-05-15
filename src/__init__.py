@@ -16,8 +16,8 @@ from flask_cors import CORS
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 
 
-basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, "../.env"))
+# basedir = path.abspath(path.dirname(__file__))
+# load_dotenv(path.join(basedir, "../.env"))
 
 
 def create_app(test_config=None):
@@ -79,8 +79,6 @@ app = create_app()
 if __name__ == "__main__":
     # Define a porta a ser usada pelo servidor Flask
     port = int(os.environ.get("PORT", 8080))
-    #port = int(os.environ.get("PORT"))
-    # Executa o servidor Flask
     app.run(host='0.0.0.0', port=port, debug=True)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
