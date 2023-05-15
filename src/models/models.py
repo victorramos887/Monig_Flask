@@ -10,8 +10,8 @@ import os
 
 db = SQLAlchemy()
 
-basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, "../../.env"))
+# basedir = path.abspath(path.dirname(__file__))
+# load_dotenv(path.join(basedir, "../../.env"))
 #
 
 
