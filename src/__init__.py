@@ -11,6 +11,9 @@ from .routes import *
 from flask_caching import Cache
 from flask_caching.backends import SimpleCache
 from flask_cors import CORS
+from sqlalchemy import create_engine, DDL
+from sqlalchemy.schema import CreateSchema, MetaData
+
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
@@ -18,6 +21,7 @@ cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 
 # basedir = path.abspath(path.dirname(__file__))
 # load_dotenv(path.join(basedir, "../.env"))
+
 
 
 def create_app(test_config=None):
