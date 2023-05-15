@@ -15,7 +15,7 @@ def testando():
     db.session.add(tabela)
     db.session.commit()
     
-    retorno = Tabela.filter_by(id=tabela.id).first()
+    retorno = Tabela.query.filter_by(id=tabela.id).first()
 
     return jsonify({
         "data":retorno.to_json(),
