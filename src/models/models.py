@@ -1,19 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import ForeignKey, func
-from sqlalchemy.orm import relationship
-from dotenv import load_dotenv
+from sqlalchemy import func
 from datetime import datetime
-from os import path
-import os
-
 
 
 db = SQLAlchemy()
-
-# basedir = path.abspath(path.dirname(__file__))
-# load_dotenv(path.join(basedir, "../../.env"))
-#
-
 
 
 class Escolas(db.Model):
@@ -37,7 +27,7 @@ class Escolas(db.Model):
     edificios = db.relationship('Edificios', backref = 'edificios')
     escolas_historico =  db.relationship('EscolasHistorico', backref = 'escolas_historico')
     data_criacao = db.Column(db.DateTime, server_default=func.now())
-    
+
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -54,7 +44,6 @@ class Escolas(db.Model):
         self.complemento = complemento
         self.cidade = cidade
         self.estado = estado
-       
 
     def to_json(self):
         return {
@@ -70,7 +59,6 @@ class Escolas(db.Model):
             "cidade":self.cidade,
             "estado":self.estado
         }
-      
 
 class EscolasHistorico(db.Model):
     __table_args__ = {'schema':'main'}
@@ -215,7 +203,7 @@ class Hidrometros(db.Model):
 
 
 class AreaUmida(db.Model):
-    
+
         __table_args__ = {'schema':'main'}
         __tablename__ = 'area_umida'
 

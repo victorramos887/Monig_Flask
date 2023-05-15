@@ -1,7 +1,5 @@
 import os  # type: ignore
-from os import path
-#VARIAVEIS DE AMBIENTE
-from dotenv import load_dotenv
+
 #SWAGGER DOCUMENTATION
 from flasgger import Swagger
 from .config.swagger import swagger_config, template
@@ -9,10 +7,7 @@ from flask import Flask, render_template
 from .models import db
 from .routes import *
 from flask_caching import Cache
-from flask_caching.backends import SimpleCache
 from flask_cors import CORS
-from sqlalchemy import create_engine, DDL
-from sqlalchemy.schema import CreateSchema, MetaData
 
 
 # Crie uma instância do objeto de cache
