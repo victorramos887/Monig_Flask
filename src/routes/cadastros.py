@@ -2,10 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, flash, render_te
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
 from sqlalchemy import exc
 from flasgger import swag_from
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
-import string
-import json
-import re
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Tabela
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
@@ -13,7 +10,10 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @cadastros.post('/testando')
 def testando():
     formulario = request.get_json()
-    return formulario
+    tabela = Tabela(**formulario)
+    return jsonify({
+        "data":tabela.to_json()
+    })
 
 
 #Cadastros das escolas
