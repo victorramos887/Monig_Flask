@@ -10,6 +10,11 @@ import re
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
+@cadastros.post('/testando')
+def testando():
+    formulario = request.get_json()
+    return formulario
+
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
