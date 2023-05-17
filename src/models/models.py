@@ -210,23 +210,23 @@ class AreaUmida(db.Model):
         id = db.Column(db.Integer, autoincrement = True, primary_key = True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
         tipo = db.Column(db.String)
-        nomeArea = db.Column(db.String)
-        localizacao = db.Column(db.String)
-        status = db.Column(db.String)
-        status_do_registro = db.Column(db.Boolean, default=True)
+        nome_area_umida = db.Column(db.String)
+        localizacao_area_umida = db.Column(db.String)
+        status = db.Column(db.Boolean, default=True)
+        status_do_registro = db.Column(db.String)
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
         def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-        def __init__(self, fk_edificios, tipo, nomeArea, localizacao, status):
+        def __init__(self, fk_edificios, tipo, nome_area_umida, localizacao_area_umida, status_do_registro):
 
             self.fk_edificios = fk_edificios
             self.tipo= tipo
-            self.nomeArea = nomeArea
-            self.localizacao = localizacao
-            self.status = status
+            self.nome_area_umida = nome_area_umida
+            self.localizacao_area_umida = localizacao_area_umida
+            self.status_do_registro = status_do_registro
 
 
         def to_json(self):
@@ -234,9 +234,9 @@ class AreaUmida(db.Model):
                 "id":self.id,
                 "fk_edificios":self.fk_edificios,
                 "tipo":self.tipo,
-                "nomeArea":self.nomeArea,
-                "localizacao":self.localizacao,
-                "status":self.status
+                "nome_area_umida":self.nome_area_umida,
+                "localizacao_area_umida":self.localizacao_area_umida,
+                "status_do_registro":self.status_do_registro
             }
 
 
