@@ -51,7 +51,7 @@ def escolas():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-    except:
+    except Exception as e:
         #flash("Erro, 4 não salva")
         return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
