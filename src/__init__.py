@@ -32,13 +32,15 @@ def create_app(test_config=None):
             SWAGGER ={
                 'titulo':'API MONIG',
                 'version': 1
-            }
+            },
+            DEBUG=False
         )
 
     else:
         app.config.from_mapping(
             test_config,
-            SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI')
+            SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI'),
+            DEBUG=False
         )
 
     db.app = app  # type: ignore

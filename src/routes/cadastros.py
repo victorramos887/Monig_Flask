@@ -1,4 +1,6 @@
-from flask import Blueprint, jsonify, request, render_template, flash, render_template_string, current_app
+from flask import Blueprint, jsonify, request, render_template
+from builtins import TypeError
+
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
 from flasgger import swag_from
@@ -14,7 +16,6 @@ def testando():
 
     db.session.add(tabela)
     db.session.commit()
-    
     retorno = Tabela.query.filter_by(id=tabela.id).first()
 
     return jsonify({
@@ -29,31 +30,28 @@ def testando():
 def escolas():
     #Captura as informações que foram enviadas através do formulário HTML
     formulario = request.get_json()
-    escola = Escolas(**formulario) #Atribui ao objeto escola
 
     try:
+        escola = Escolas(**formulario) #Atribui ao objeto escola
         #inseri no banco de dados. Tabela escolas
         db.session.add(escola)
         db.session.commit()
 
         return jsonify({'status':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
-
+    
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status': False, 'mensagem': 'Chave estrangeira', 'codigo': str(e)}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status': False, 'mensagem': 'Violação de restrição Unicas', 'codigo': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
-            #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+        return jsonify({'status': False, 'mensagem': 'Não foi tratado', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
 
 
 #Cadastros dos edifícios.
