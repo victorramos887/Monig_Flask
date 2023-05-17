@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request, render_template, flash, render_template_string, current_app
-from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
+from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
 from flasgger import swag_from
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Tabela
@@ -53,7 +53,7 @@ def escolas():
             return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'})
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
 
 #Cadastros dos edifícios.
