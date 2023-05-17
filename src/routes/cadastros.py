@@ -39,7 +39,6 @@ def escolas():
         return jsonify({'status':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
             return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
@@ -52,6 +51,7 @@ def escolas():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
+    except:
         #flash("Erro, 4 não salva")
         return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
