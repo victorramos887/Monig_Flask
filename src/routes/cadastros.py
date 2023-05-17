@@ -37,7 +37,7 @@ def escolas():
         db.session.add(escola)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': escola.id, "data":escola.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json()}), HTTP_200_OK
     
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
@@ -60,30 +60,29 @@ def escolas():
 def edificios():
 
     formulario = request.get_json()
-    edificio = Edificios(**formulario)
     try:
+        edificio = Edificios(**formulario)
         #inseri no banco de dados. Tabela edificios
         db.session.add(edificio)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': edificio.id, "data":edificio.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': edificio.id, "mensagem":"Cadastro Realizado!","data":edificio.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/hidrometros')
@@ -98,24 +97,24 @@ def hidrometros():
         db.session.add(hidrometros)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': hidrometros.id, "data":hidrometros.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': hidrometros.id, "mensagem":"Cadastro Realizado com sucesso","data":hidrometros.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST  
+        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST  
 
 
 
@@ -131,24 +130,24 @@ def populacao():
         db.session.add(populacao)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': populacao.id, "data":populacao.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': populacao.id, "mensagem":"Cadastrado realizado com sucesso","data":populacao.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros das areas umidas
@@ -164,24 +163,24 @@ def area_umida():
         db.session.add(umida)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': umida.id, "data":umida.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': umida.id, "mensagem":"Cadastrado realizado com sucesso","data":umida.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/equipamentos')
@@ -196,21 +195,21 @@ def equipamentos():
         db.session.add(equipamento)
         db.session.commit()
 
-        return jsonify({'status':True, 'id': equipamento.id, "data":equipamento.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, 'id': equipamento.id, "mensagem":"Cadastrado realizado com sucesso","data":equipamento.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'erro': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
