@@ -53,7 +53,7 @@ def escolas():
             return jsonify({'status':False, 'erro': False, 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status':False, 'erro': 'Não foi tratado', 'codigo':f'{e}'})
 
 
 #Cadastros dos edifícios.
