@@ -16,7 +16,7 @@ class Escolas(db.Model):
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
     nivel = db.Column(db.ARRAY(db.String(50)))
     email = db.Column(db.String, unique=True, nullable=False) #55
-    telefone = db.Column(db.String) #16
+    telefone = db.Column(db.String(16)) #16
     logradouro = db.Column(db.String)
     numero = db.Column(db.Integer)
     cep = db.Column(db.String(9)) #9

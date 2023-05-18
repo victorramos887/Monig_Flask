@@ -74,9 +74,10 @@ def create_app(test_config=None):
 app = create_app()
 
 if __name__ == "__main__":
-    # Define a porta a ser usada pelo servidor Flask
+    #Define a porta a ser usada pelo servidor Flask
    port = int(os.environ.get("PORT", 8080))
    app.run(host='0.0.0.0', port=port, debug=True)
+
 
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
