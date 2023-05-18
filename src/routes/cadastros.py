@@ -41,16 +41,21 @@ def escolas():
     
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
-            return jsonify({'status': False, 'mensagem': 'Chave estrangeira', 'codigo': str(e)}), HTTP_409_CONFLICT
-
+            # extrai o nome da tabela e da coluna da mensagem de erro
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'codigo': str(e)}), HTTP_409_CONFLICT
+           
 
         if e.orig.pgcode == '23505':
             # extrai o nome do campo da mensagem de erro
             match = re.search(r'Key \((.*?)\)=', str(e))
             campo = match.group(1) if match else 'campo desconhecido'
             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-        return jsonify({'status': False, 'mensagem': mensagem}), HTTP_401_UNAUTHORIZED
-        #return jsonify({'status': False, 'mensagem': 'Violação de restrição Unicas', 'codigo': str(e)}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+       
 
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
@@ -77,7 +82,12 @@ def edificios():
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'codigo': str(e)}), HTTP_409_CONFLICT
+          
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
