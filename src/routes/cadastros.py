@@ -45,12 +45,12 @@ def escolas():
 
 
         if e.orig.pgcode == '23505':
-            #campo_duplicado = str(e.orig.diag.constraint_name).split('_')[1]
-            #valor_duplicado = str(e.orig.diag.constraint_name).split('()')[1].split(')')[0]
-            #mensagem = f"O valor '{valor_duplicado}' já existe para o campo '{campo_duplicado}'. Por favor, corrija o valor e tente novamente."
-
-            #return jsonify({'status': False, 'mensagem': mensagem}), HTTP_401_UNAUTHORIZED
-           return jsonify({'status': False, 'mensagem': 'Violação de restrição Unicas', 'codigo': str(e)}), HTTP_401_UNAUTHORIZED
+            # extrai o nome do campo da mensagem de erro
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+        return jsonify({'status': False, 'mensagem': mensagem}), HTTP_401_UNAUTHORIZED
+        #return jsonify({'status': False, 'mensagem': 'Violação de restrição Unicas', 'codigo': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
