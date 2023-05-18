@@ -88,10 +88,10 @@ class Edificios(db.Model):
     logradouro_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
-    reservatorio = db.Column(db.Boolean, default=False)
-    capacidade_m3_edificio = db.Column(db.Float, default=0.0)
-    agua_de_reuso = db.Column(db.Boolean, default=False)
-    capacidade_reuso_m3_edificio= db.Column(db.Float, default=0.0)
+    reservatorio = db.Column(db.Boolean)#padrao é False
+    capacidade_m3_edificio = db.Column(db.Float) 
+    agua_de_reuso = db.Column(db.Boolean)
+    capacidade_reuso_m3_edificio= db.Column(db.Float)
     status_do_registro = db.Column(db.Boolean, default=True)
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
@@ -101,7 +101,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio, agua_de_reuso):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -131,10 +131,10 @@ class Edificios(db.Model):
             "estado_edificio":self.estado_edificio,
             "pavimentos_edificio":self.pavimentos_edificio,
             "area_total_edificio":self.area_total_edificio,
-            "reservatorio":self.reservatorio if self.reservatorio is not None else False,
-            "capacidade_m3_edificio":self.capacidade_m3_edificio if self.capacidade_m3_edificio is not None else 0.0,
-            "agua_de_reuso":self.agua_de_reuso if self.agua_de_reuso is not None else False,
-            "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio if self.capacidade_reuso_m3_edificio is not None else 0.0
+            "reservatorio":self.reservatorio,
+            "capacidade_m3_edificio":self.capacidade_m3_edificio,
+            "agua_de_reuso":self.agua_de_reuso,
+            "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
         }
 
 
