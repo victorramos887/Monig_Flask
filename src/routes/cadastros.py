@@ -86,12 +86,15 @@ def edificios():
             tabela = match.group(1) if match else 'tabela desconhecida'
             coluna = match.group(2) if match else 'coluna desconhecida'
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'codigo': str(e)}), HTTP_409_CONFLICT
+            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
           
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
@@ -116,15 +119,21 @@ def hidrometros():
         return jsonify({'status':True, 'id': hidrometros.id, "mensagem":"Cadastro Realizado com sucesso","data":hidrometros.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
+        
         if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
-
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+          
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
-
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+       
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
@@ -149,14 +158,21 @@ def populacao():
         return jsonify({'status':True, 'id': populacao.id, "mensagem":"Cadastrado realizado com sucesso","data":populacao.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
+        
         if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+          
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
@@ -182,14 +198,20 @@ def area_umida():
         return jsonify({'status':True, 'id': umida.id, "mensagem":"Cadastrado realizado com sucesso","data":umida.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
+        
         if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
-
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+          
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
@@ -214,15 +236,21 @@ def equipamentos():
         return jsonify({'status':True, 'id': equipamento.id, "mensagem":"Cadastrado realizado com sucesso","data":equipamento.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
+       
         if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT
-
+            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+          
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
-            return jsonify({'status':False, 'mensagem': "Violação de restrição Unicas", 'codigo':f'{e}'}), HTTP_401_UNAUTHORIZED
-
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+        
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES

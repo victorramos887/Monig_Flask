@@ -19,7 +19,7 @@ class Escolas(db.Model):
     telefone = db.Column(db.String) #16
     logradouro = db.Column(db.String)
     numero = db.Column(db.Integer)
-    cep = db.Column(db.String) #9
+    cep = db.Column(db.String(9)) #9
     complemento = db.Column(db.String) #86
     cidade = db.Column(db.String) #55
     estado = db.Column(db.String) #2
