@@ -49,6 +49,15 @@ class Escolas(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+    def to_dict(self):
+        d = {}
+        for column in self.__table__.columns:
+            if isinstance(column.type, db.DateTime):
+                d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
+            else:
+                d[column.name] = getattr(self, column.name)
+        return d
+
 class EscolasHistorico(db.Model):
     __table_args__ = {'schema':'main'}
     __tablename__ = 'escolas_historico'
@@ -108,10 +117,24 @@ class Edificios(db.Model):
         self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        include_keys = ["fk_escola", 
+                        "numero_edificio", 
+                        "nome_do_edificio", 
+                        "cep_edificio", 
+                        "cnpj_edificio", 
+                        "logradouro_edificio", 
+                        "estado_edificio",
+                        "cidade_edificio", 
+                        "pavimentos_edificio",
+                        "area_total_edificio", 
+                        "reservatorio", 
+                        "capacidade_m3_edificio",
+                        "agua_de_reuso", 
+                        "capacidade_reuso_m3_edificio"
+                        ]
+        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns if attr.name in include_keys}
+        return data
     
-    
-
 
 class Populacao(db.Model):
         __table_args__ = {'schema': 'main'}
