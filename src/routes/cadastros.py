@@ -28,7 +28,7 @@ def testando():
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
-    formulario = request.get_json()
+    formulario = request.form.to_dict() #request.get_json()
 
     try:
         escola = Escolas(**formulario)
