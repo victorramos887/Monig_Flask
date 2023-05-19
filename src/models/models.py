@@ -212,7 +212,7 @@ class AreaUmida(db.Model):
         nome_area_umida = db.Column(db.String)
         localizacao_area_umida = db.Column(db.String)
         status_do_registro = db.Column(db.Boolean, default=True)
-        status_area_umida = db.Column(db.String)
+        status_area_umida  = db.Column(db.String)
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
         def update(self, **kwargs):
