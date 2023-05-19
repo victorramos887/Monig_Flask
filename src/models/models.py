@@ -117,23 +117,7 @@ class Edificios(db.Model):
         self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
 
     def to_json(self):
-        include_keys = ["fk_escola", 
-                        "numero_edificio", 
-                        "nome_do_edificio", 
-                        "cep_edificio", 
-                        "cnpj_edificio", 
-                        "logradouro_edificio", 
-                        "estado_edificio",
-                        "cidade_edificio", 
-                        "pavimentos_edificio",
-                        "area_total_edificio", 
-                        "reservatorio", 
-                        "capacidade_m3_edificio",
-                        "agua_de_reuso", 
-                        "capacidade_reuso_m3_edificio"
-                        ]
-        data = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns if attr.name in include_keys}
-        return data
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
     
 
 class Populacao(db.Model):

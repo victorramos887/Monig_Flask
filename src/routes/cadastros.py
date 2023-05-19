@@ -101,7 +101,9 @@ def edificios():
         if str(e) == '400':
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-
+     
+     # Se nenhuma exceção foi acionada, retorna uma resposta vazia com código 204
+    return '', HTTP_204_NO_CONTENT
 
 @cadastros.post('/hidrometros')
 @swag_from('../docs/cadastros/hidrometros.yaml')
