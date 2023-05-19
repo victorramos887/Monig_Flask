@@ -49,14 +49,15 @@ class Escolas(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-    def to_dict(self):
-        d = {}
-        for column in self.__table__.columns:
-            if isinstance(column.type, db.DateTime):
-                d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
-            else:
-                d[column.name] = getattr(self, column.name)
-        return d
+   # def to_dict(self):
+    #    d = {}
+     #   for column in self.__table__.columns:
+     #       if isinstance(column.type, db.DateTime):
+     #           d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
+      #      else:
+       #         d[column.name] = getattr(self, column.name)
+       # return d
+
 
 class EscolasHistorico(db.Model):
     __table_args__ = {'schema':'main'}
@@ -91,6 +92,7 @@ class Edificios(db.Model):
     agua_de_reuso = db.Column(db.Boolean)
     capacidade_reuso_m3_edificio= db.Column(db.Float)
     status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     area_umida = db.relationship('AreaUmida', backref = 'area_umida')
     populacao = db.relationship('Populacao', backref = 'populacao')
     hidrometros = db.relationship('Hidrometros', backref = 'hidrometros')
@@ -131,6 +133,7 @@ class Populacao(db.Model):
         funcionarios = db.Column(db.Integer)
         alunos = db.Column(db.Integer)
         status_do_registro = db.Column(db.Boolean, default=True)
+        data_criacao = db.Column(db.DateTime, server_default=func.now())
 
 
         def update(self, **kwargs):
@@ -146,14 +149,7 @@ class Populacao(db.Model):
             self.alunos = alunos
 
         def to_json(self):
-            return {
-                "id": self.id,
-                "fk_edificios": self.fk_edificios,
-                "nivel": self.nivel,
-                "periodo": self.periodo,
-                "funcionarios": self.funcionarios,
-                "alunos": self.alunos
-            }
+            return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class Hidrometros(db.Model):
@@ -164,6 +160,7 @@ class Hidrometros(db.Model):
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
         hidrometro = db.Column(db.String)
         status_do_registro = db.Column(db.Boolean, default=True)
+        data_criacao = db.Column(db.DateTime, server_default=func.now())
 
 
         def update(self, **kwargs):
@@ -176,11 +173,7 @@ class Hidrometros(db.Model):
             self.hidrometro = hidrometro
 
         def to_json(self):
-            return {
-                "id": self.id,
-                "fk_edificios": self.fk_edificios,
-                "hidrometro":self.hidrometro
-            }
+            return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class AreaUmida(db.Model):
@@ -195,6 +188,7 @@ class AreaUmida(db.Model):
         localizacao_area_umida = db.Column(db.String)
         status_do_registro = db.Column(db.Boolean, default=True)
         status_area_umida  = db.Column(db.String)
+        data_criacao = db.Column(db.DateTime, server_default=func.now())
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
         def update(self, **kwargs):
@@ -211,14 +205,7 @@ class AreaUmida(db.Model):
 
 
         def to_json(self):
-            return {
-                "id":self.id,
-                "fk_edificios":self.fk_edificios,
-                "tipo_area_umida":self.tipo_area_umida,
-                "nome_area_umida":self.nome_area_umida,
-                "localizacao_area_umida":self.localizacao_area_umida,
-                "status_area_umida":self.status_area_umida
-            }
+            return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class Equipamentos(db.Model):
@@ -234,6 +221,7 @@ class Equipamentos(db.Model):
     # vazamentos = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
 
     def update(self, **kwargs):
             for key, value in kwargs.items():
@@ -248,14 +236,8 @@ class Equipamentos(db.Model):
         self.quantInutil = quantInutil
 
     def to_json(self):
-        return {
-            "id":self.id,
-            "fk_area_umida":self.fk_area_umida,
-            "tipo":self.tipo,
-            "quantTotal":self.quantTotal,
-            "quantProblema":self.quantProblema,
-            "quantInutil":self.quantInutil
-        }
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
 
 class Tabela(db.Model):
     __table_args__ = {'schema':'main'}

@@ -29,9 +29,9 @@ def testando():
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     formulario = request.get_json()
-    escola = Escolas(**formulario)
 
     try:
+        escola = Escolas(**formulario)
         
         db.session.add(escola)
         db.session.commit()
