@@ -100,7 +100,6 @@ def hidrometros():
         return jsonify({'status':True, 'id': hidrometros.id, "mensagem":"Cadastro Realizado com sucesso","data":hidrometros.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        formulario_cadastro = render_template('cadastro.html')
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
             return jsonify({'status':False, 'mensagem': "Chave estrangeira", 'codigo':f'{e}'}), HTTP_409_CONFLICT

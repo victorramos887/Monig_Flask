@@ -19,19 +19,12 @@ def escolas_editar(id):
     if escola != body:
         db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
 
-    # if escola.cnpj != body['cnpj']:
-    #     db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj))
-    # if escola.cep != body['cep']:
-    #     db.session.add(EscolasHistorico(fk_escola=escola.id, cep=escola.cep))
-    # if escola.nivel != body['nivel']:
-    #     db.session.add(EscolasHistorico(fk_escola=escola.id, nivel=escola.nivel))
-
     #atualizar tabela Escola - novas informações
     escola.update(**body)
 
     db.session.commit()
   
-    return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK 
+    return jsonify({"escola": escola.to_json(),"mensagem":"Ediçao ok", "status": True}), HTTP_200_OK 
   
 
 #EDITAR EDIFICIOS
