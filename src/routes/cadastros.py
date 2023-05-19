@@ -29,10 +29,10 @@ def testando():
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     formulario = request.get_json()
+    escola = Escolas(**formulario)
 
     try:
-        escola = Escolas(**formulario)
-        
+
         db.session.add(escola)
         db.session.commit()
 
@@ -65,10 +65,9 @@ def escolas():
 def edificios():
 
     formulario = request.get_json()
+    edificio = Edificios(**formulario)
 
     try:
-        edificio = Edificios(**formulario)
-        #inserir no banco de dados. Tabela edificios
         db.session.add(edificio)
         db.session.commit()
 
@@ -112,7 +111,7 @@ def hidrometros():
     hidrometros = Hidrometros(**formulario)
 
     try:
-        #inseri no banco de dados. Tabela hidrometros
+        
         db.session.add(hidrometros)
         db.session.commit()
 
@@ -156,7 +155,7 @@ def populacao():
     populacao = Populacao(**formulario)
 
     try:
-        #inseri no banco de dados. Tabela populacao
+        
         db.session.add(populacao)
         db.session.commit()
 
@@ -201,7 +200,7 @@ def area_umida():
     umida = AreaUmida(**formulario)
 
     try:
-        #inseri no banco de dados. Tabela AreaUmida
+        
         db.session.add(umida)
         db.session.commit()
 
@@ -244,7 +243,7 @@ def equipamentos():
     equipamento = Equipamentos(**formulario)
 
     try:
-        #inseri no banco de dados. Tabela Equipamentos
+       
         db.session.add(equipamento)
         db.session.commit()
 
