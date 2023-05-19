@@ -16,10 +16,10 @@ class Escolas(db.Model):
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
     nivel = db.Column(db.ARRAY(db.String(50)))
     email = db.Column(db.String, unique=True, nullable=False) #55
-    telefone = db.Column(db.String) #16
+    telefone = db.Column(db.String(16)) #16
     logradouro = db.Column(db.String)
     numero = db.Column(db.Integer)
-    cep = db.Column(db.String) #9
+    cep = db.Column(db.String(9)) #9
     complemento = db.Column(db.String) #86
     cidade = db.Column(db.String) #55
     estado = db.Column(db.String) #2
@@ -88,8 +88,8 @@ class Edificios(db.Model):
     logradouro_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
-    reservatorio = db.Column(db.Boolean)
-    capacidade_m3_edificio = db.Column(db.Float)
+    reservatorio = db.Column(db.Boolean)#padrao é False
+    capacidade_m3_edificio = db.Column(db.Float) 
     agua_de_reuso = db.Column(db.Boolean)
     capacidade_reuso_m3_edificio= db.Column(db.Float)
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -101,7 +101,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio , capacidade_reuso_m3_edificio,reservatorio=False, agua_de_reuso=False):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -116,7 +116,7 @@ class Edificios(db.Model):
         self.reservatorio = reservatorio
         self.capacidade_m3_edificio  = capacidade_m3_edificio
         self.agua_de_reuso = agua_de_reuso
-        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if capacidade_reuso_m3_edificio is not None else 0;
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
 
     def to_json(self):
         return {
@@ -132,7 +132,7 @@ class Edificios(db.Model):
             "pavimentos_edificio":self.pavimentos_edificio,
             "area_total_edificio":self.area_total_edificio,
             "reservatorio":self.reservatorio,
-            "capacidade_m3_edificio":self.capacidade_m3_edificio ,
+            "capacidade_m3_edificio":self.capacidade_m3_edificio,
             "agua_de_reuso":self.agua_de_reuso,
             "capacidade_reuso_m3_edificio": self.capacidade_reuso_m3_edificio
         }
