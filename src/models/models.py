@@ -201,7 +201,6 @@ class Hidrometros(db.Model):
             }
 
 
-
 class AreaUmida(db.Model):
 
         __table_args__ = {'schema':'main'}
@@ -212,7 +211,7 @@ class AreaUmida(db.Model):
         tipo_area_umida = db.Column(db.String)
         nome_area_umida = db.Column(db.String)
         localizacao_area_umida = db.Column(db.String)
-        status = db.Column(db.Boolean, default=True)
+        status_do_registro = db.Column(db.Boolean, default=True)
         status_area_umida = db.Column(db.String)
         equipamentos = db.relationship('Equipamentos', backref = 'equipamentos')
 
