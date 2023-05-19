@@ -45,20 +45,6 @@ class Escolas(db.Model):
         self.cidade = cidade
         self.estado = estado
 
-     ''' def to_json(self):
-        return {
-            "nome":self.nome,
-            "cnpj":self.cnpj,
-            "nivel":self.nivel,
-            "email":self.email,
-            "telefone":self.telefone,
-            "logradouro":self.logradouro,
-            "cep":self.cep,
-            "complemento":self.complemento,
-            "numero": self.numero,
-            "cidade":self.cidade,
-            "estado":self.estado
-        }'''
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
