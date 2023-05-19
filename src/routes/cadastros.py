@@ -39,16 +39,7 @@ def escolas():
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json()}), HTTP_200_OK
     
-    except exc.DBAPIError as e:
-        if e.orig.pgcode == '23503':
-            # extrai o nome da tabela e da coluna da mensagem de erro
-            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'codigo': str(e)}), HTTP_409_CONFLICT
-           
-
+    except exc.DBAPIError as e:   
         if e.orig.pgcode == '23505':
             # extrai o nome do campo da mensagem de erro
             match = re.search(r'Key \((.*?)\)=', str(e))
@@ -61,8 +52,12 @@ def escolas():
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        return jsonify({'status': False, 'mensagem': 'Não foi tratado', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros dos edifícios.
@@ -73,7 +68,7 @@ def edificios():
     formulario = request.get_json()
     try:
         edificio = Edificios(**formulario)
-        #inseri no banco de dados. Tabela edificios
+        #inserir no banco de dados. Tabela edificios
         db.session.add(edificio)
         db.session.commit()
 
@@ -100,8 +95,13 @@ def edificios():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+    except Exception as e:
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/hidrometros')
@@ -138,8 +138,13 @@ def hidrometros():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST  
+    except Exception as e:
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 
@@ -178,8 +183,13 @@ def populacao():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+    except Exception as e:
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros das areas umidas
@@ -217,8 +227,13 @@ def area_umida():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+    except Exception as e:
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/equipamentos')
@@ -255,5 +270,10 @@ def equipamentos():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+    except Exception as e:
+        if str(e) == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        
+        if str(e) == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
