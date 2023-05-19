@@ -28,7 +28,7 @@ def testando():
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
-    formulario = request.form.to_dict() #request.get_json()
+    formulario = request.get_json()
 
     try:
         escola = Escolas(**formulario)
@@ -38,7 +38,7 @@ def escolas():
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json()}), HTTP_200_OK
     
-    except exc.DBAPIError as e:   
+    except exc.DBAPIError as e:
         if e.orig.pgcode == '23505':
             # extrai o nome do campo da mensagem de erro
             match = re.search(r'Key \((.*?)\)=', str(e))

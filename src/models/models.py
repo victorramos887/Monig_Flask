@@ -49,14 +49,14 @@ class Escolas(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-    def to_dict(self):
-        d = {}
-        for column in self.__table__.columns:
-            if isinstance(column.type, db.DateTime):
-                d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
-            else:
-                d[column.name] = getattr(self, column.name)
-        return d
+   # def to_dict(self):
+    #    d = {}
+     #   for column in self.__table__.columns:
+      #      if isinstance(column.type, db.DateTime):
+       #         d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
+        #    else:
+         #       d[column.name] = getattr(self, column.name)
+        #return d
 
 class EscolasHistorico(db.Model):
     __table_args__ = {'schema':'main'}

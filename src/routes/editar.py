@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, flash, render_template_string
+from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, EscolasHistorico
 from sqlalchemy import exc
