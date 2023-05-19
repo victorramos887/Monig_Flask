@@ -30,6 +30,9 @@ def testando():
 def escolas():
     formulario = request.get_json()
 
+    if not formulario:
+        raise ValueError('Nenhum formulário foi enviado')
+
     try:
         escola = Escolas(**formulario)
     
@@ -65,6 +68,7 @@ def escolas():
 def edificios():
 
     formulario = request.get_json()
+    
     try:
         edificio = Edificios(**formulario)
         #inserir no banco de dados. Tabela edificios
@@ -102,8 +106,6 @@ def edificios():
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
      
-     # Se nenhuma exceção foi acionada, retorna uma resposta vazia com código 204
-    return '', HTTP_204_NO_CONTENT
 
 @cadastros.post('/hidrometros')
 @swag_from('../docs/cadastros/hidrometros.yaml')
