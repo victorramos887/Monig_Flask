@@ -28,12 +28,11 @@ def testando():
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
-    #Captura as informações que foram enviadas através do formulário HTML
     formulario = request.get_json()
 
     try:
-        escola = Escolas(**formulario) #Atribui ao objeto escola
-        #inseri no banco de dados. Tabela escolas
+        escola = Escolas(**formulario)
+    
         db.session.add(escola)
         db.session.commit()
 
