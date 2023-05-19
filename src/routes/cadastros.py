@@ -1,5 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template
-from builtins import TypeError
+from flask import Blueprint, jsonify, request
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
@@ -53,10 +52,10 @@ def escolas():
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        if isinstance(e, HTTPException) and e.code == 500:
+        if isinstance(e, HTTPException) and e.code == '500':
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if isinstance(e, HTTPException) and e.code == 400:
+        if isinstance(e, HTTPException) and e.code == '400':
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
