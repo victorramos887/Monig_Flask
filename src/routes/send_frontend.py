@@ -86,7 +86,7 @@ def area_umidas(id):
             'id': area_umida.id,
             'tipo_area_umida':area_umida.tipo_area_umida,
             'quant_equipamentos': total.total or 0 if total else 0,
-            "status":area_umida.status
+            "status":area_umida.status_area_umida
         })
 
     return jsonify({'area_umidas':result})
