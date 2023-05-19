@@ -29,13 +29,10 @@ def testando():
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     formulario = request.get_json()
-
-    if not formulario:
-        raise ValueError('Nenhum formulário foi enviado')
+    escola = Escolas(**formulario)
 
     try:
-        escola = Escolas(**formulario)
-    
+        
         db.session.add(escola)
         db.session.commit()
 
@@ -68,7 +65,7 @@ def escolas():
 def edificios():
 
     formulario = request.get_json()
-    
+
     try:
         edificio = Edificios(**formulario)
         #inserir no banco de dados. Tabela edificios
