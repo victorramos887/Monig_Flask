@@ -25,7 +25,7 @@ def get_escolas(id):
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
-    edificios = Edificios.query.filter_by(fk_escola == id, status_do_registro=True).all()
+    edificios = Edificios.query.filter_by(fk_escola = id, status_do_registro=True).all()
     result = []
 
     for edificio in edificios:
