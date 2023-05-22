@@ -142,7 +142,7 @@ class Populacao(db.Model):
 
         def __init__(self, fk_edificios, nivel, periodo, funcionarios, alunos):
             self.fk_edificios = fk_edificios
-            self.nivel = nivel
+            self.nivel = nivel if isinstance(nivel, str) else nivel[0]
             self.periodo = periodo
             self.funcionarios = funcionarios
             self.alunos = alunos
