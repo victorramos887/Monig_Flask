@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, render_template, flash, render_template_string
+from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, EscolasHistorico
 from sqlalchemy import exc
@@ -93,18 +93,15 @@ def edificios_editar(id):
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-
-        #flash("Erro, 4 não salva")
-        return jsonify({'status':False, 'mensagem': 'Não foi tratado', 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
     
     except Exception as e:
-        if str(e) == '500':
+        if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if str(e) == '400':
+        if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-
+        
 #EDITAR HIDROMETRO
 @editar.put('/hidrometros/<id>')
 def hidrometro_editar(id):
@@ -143,10 +140,10 @@ def hidrometro_editar(id):
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        if str(e) == '500':
+        if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if str(e) == '400':
+        if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
    
@@ -189,10 +186,10 @@ def populacao_editar(id):
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        if str(e) == '500':
+        if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if str(e) == '400':
+        if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
     
@@ -235,10 +232,10 @@ def area_umida_editar(id):
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        if str(e) == '500':
+        if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if str(e) == '400':
+        if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
     
@@ -281,11 +278,10 @@ def equipamento_editar(id):
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
-        if str(e) == '500':
+        if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
-        if str(e) == '400':
+        if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-
     
