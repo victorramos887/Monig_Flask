@@ -278,16 +278,14 @@ class Equipamentos(db.Model):
 class Tabela(db.Model):
     __table_args__ = {'schema':'main'}
     __tablename__ = 'testando'
-    
+
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     nome = db.Column(db.String)
-    
+
     def __init__(self, nome):
         self.nome = nome
-        
     def to_json(self):
         return {
             "id":self.id,
             "nome":self.nome
         }
-    
