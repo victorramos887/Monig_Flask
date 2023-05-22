@@ -127,7 +127,7 @@ class Populacao(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        nivel = db.Column(db.ARRAY(db.String(50)))
+        nivel = db.Column(db.String(50))
         periodo = db.Column(db.String)
         funcionarios = db.Column(db.Integer)
         alunos = db.Column(db.Integer)
