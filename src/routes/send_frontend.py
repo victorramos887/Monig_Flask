@@ -134,7 +134,7 @@ def get_populacao(id):
 #TODOS OS HIDROMETROS
 @send_frontend.get('/hidrometros-table/<int:id>')
 def hidrometro(id):
-    hidrometros = Hidrometros.query.filter_by(fk_edificios = id).all()
+    hidrometros = Hidrometros.query.filter_by(fk_edificios = id, status_do_registro=True).all()
     return jsonify({
         "hidrometro":[hidrometro.to_json() for hidrometro in hidrometros]
     })
