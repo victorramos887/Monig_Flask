@@ -180,6 +180,9 @@ def populacao():
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        
+        return jsonify({'status':False, 'mensagem': 'Erro não tratado', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+        
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:

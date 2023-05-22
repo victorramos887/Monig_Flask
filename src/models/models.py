@@ -127,7 +127,7 @@ class Populacao(db.Model):
 
         id = db.Column(db.Integer, autoincrement=True, primary_key=True)
         fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-        nivel = db.Column(db.String(50))
+        nivel = db.Column(db.ARRAY(db.String))  # Mudança aqui
         periodo = db.Column(db.String)
         funcionarios = db.Column(db.Integer)
         alunos = db.Column(db.Integer)
@@ -142,7 +142,7 @@ class Populacao(db.Model):
 
         def __init__(self, fk_edificios, nivel, periodo, funcionarios, alunos):
             self.fk_edificios = fk_edificios
-            self.nivel = nivel if isinstance(nivel, str) else nivel[0]
+            self.nivel = nivel if isinstance(nivel, list) else [nivel]
             self.periodo = periodo
             self.funcionarios = funcionarios
             self.alunos = alunos
