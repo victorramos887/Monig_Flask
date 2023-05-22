@@ -231,8 +231,8 @@ class Equipamentos(db.Model):
         self.fk_area_umida = fk_area_umida
         self.tipo= tipo
         self.quantTotal = quantTotal
-        self.quantProblema = quantProblema
-        self.quantInutil = quantInutil
+        self.quantProblema = quantProblema if quantProblema != '' or quantProblema is not None else 0
+        self.quantInutil = quantInutil if quantInutil != '' or quantInutil is not None else 0
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
