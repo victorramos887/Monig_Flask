@@ -5,6 +5,8 @@ from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Tabela
+import traceback
+
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
@@ -64,9 +66,9 @@ def escolas():
 @swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
-    formulario = request.get_json()
 
     try:
+        formulario = request.get_json()
         edificio = Edificios(**formulario)
         db.session.add(edificio)
         db.session.commit()
@@ -92,15 +94,16 @@ def edificios():
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        if e.origin.pgcode == '22P02':
+            return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
-        if str(e) == '500':
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-        
-        if str(e) == '400':
-            #flash("Erro, 4 não salva")
-            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-     
+        traceback.print_exc()  # Imprime o traceback completo no console
+        print("não entrou aqui")
+        return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo':'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
+
+
 
 @cadastros.post('/hidrometros')
 @swag_from('../docs/cadastros/hidrometros.yaml')

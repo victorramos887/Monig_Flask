@@ -114,13 +114,12 @@ class Edificios(db.Model):
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
         self.reservatorio = reservatorio
-        self.capacidade_m3_edificio  = capacidade_m3_edificio
+        self.capacidade_m3_edificio = capacidade_m3_edificio if reservatorio else None
         self.agua_de_reuso = agua_de_reuso
-        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if agua_de_reuso else None
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
 
 class Populacao(db.Model):
         __table_args__ = {'schema': 'main'}
