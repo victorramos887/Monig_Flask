@@ -25,7 +25,7 @@ def get_escolas(id):
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
-    edificios = Edificios.query.filter(Edificios.fk_escola == id).all()
+    edificios = Edificios.query.filter(Edificios.fk_escola == id, status_do_registro=True).all()
     result = []
 
     for edificio in edificios:
@@ -69,7 +69,7 @@ def edificio(id):
 @swag_from('../docs/send_frontend/area_umidas.yaml')
 def area_umidas(id):
     # fk_edificios = request.args.get('')
-    areas_umidas = AreaUmida.query.filter_by(fk_edificios = id).all()
+    areas_umidas = AreaUmida.query.filter_by(fk_edificios = id, status_do_registro=True).all()
     result = list()
     for area_umida in areas_umidas:
         #População
@@ -103,7 +103,7 @@ def get_area_umida(id):
 @swag_from('../docs/send_frontend/equipamentos.yaml')
 def equipamentos(id):
 
-    equipamentos = Equipamentos.query.filter_by(fk_area_umida = id).all()
+    equipamentos = Equipamentos.query.filter_by(fk_area_umida = id, status_do_registro=True).all()
 
     return jsonify({
         f'equipamentos':[equipamento.to_json() for equipamento in equipamentos]
@@ -119,7 +119,7 @@ def get_equipamento(id):
 #TODAS AS POPULAÇÕES   
 @send_frontend.get('/populacao-table/<int:id>')
 def populacao(id):
-    populacoes = Populacao.query.filter_by(fk_edificios = id).all()
+    populacoes = Populacao.query.filter_by(fk_edificios = id, status_do_registro=True).all()
     return jsonify({
         "populacao":[populacao.to_json() for populacao in populacoes]
     })
