@@ -29,9 +29,9 @@ def testando():
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
     formulario = request.get_json()
-    escola = Escolas(**formulario)
 
     try:
+        escola = Escolas(**formulario)
 
         db.session.add(escola)
         db.session.commit()
@@ -65,9 +65,9 @@ def escolas():
 def edificios():
 
     formulario = request.get_json()
-    edificio = Edificios(**formulario)
 
     try:
+        edificio = Edificios(**formulario)
         db.session.add(edificio)
         db.session.commit()
 
@@ -81,7 +81,6 @@ def edificios():
             coluna = match.group(2) if match else 'coluna desconhecida'
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
             return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-          
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
@@ -108,10 +107,9 @@ def edificios():
 def hidrometros():
 
     formulario = request.get_json()
-    hidrometros = Hidrometros(**formulario)
 
     try:
-        
+        hidrometros = Hidrometros(**formulario)
         db.session.add(hidrometros)
         db.session.commit()
 
@@ -152,10 +150,9 @@ def hidrometros():
 def populacao():
 
     formulario = request.get_json()
-    populacao = Populacao(**formulario)
 
     try:
-        
+        populacao = Populacao(**formulario)
         db.session.add(populacao)
         db.session.commit()
 
@@ -197,10 +194,9 @@ def populacao():
 def area_umida():
 
     formulario = request.get_json()
-    umida = AreaUmida(**formulario)
 
     try:
-        
+        umida = AreaUmida(**formulario)
         db.session.add(umida)
         db.session.commit()
 
@@ -240,10 +236,10 @@ def area_umida():
 def equipamentos():
 
     formulario = request.get_json()
-    equipamento = Equipamentos(**formulario)
 
     try:
        
+        equipamento = Equipamentos(**formulario)
         db.session.add(equipamento)
         db.session.commit()
 
