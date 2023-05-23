@@ -17,12 +17,6 @@ class Escolas(db.Model):
     nivel = db.Column(db.ARRAY(db.String(50)))
     email = db.Column(db.String, unique=True, nullable=False) #55
     telefone = db.Column(db.String(16)) #16
-    logradouro = db.Column(db.String)
-    numero = db.Column(db.Integer)
-    cep = db.Column(db.String(9)) #9
-    complemento = db.Column(db.String) #86
-    cidade = db.Column(db.String) #55
-    estado = db.Column(db.String) #2
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref = 'edificios')
     escolas_historico =  db.relationship('EscolasHistorico', backref = 'escolas_historico')
@@ -32,18 +26,12 @@ class Escolas(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome, cnpj, nivel, email, telefone, logradouro, numero, cep, complemento, cidade, estado):
+    def __init__(self, nome, cnpj, nivel, email, telefone):
         self.nome = nome
         self.cnpj = cnpj
         self.nivel = nivel
         self.email = email
         self.telefone = telefone
-        self.logradouro = logradouro
-        self.numero = numero
-        self.cep = cep
-        self.complemento = complemento
-        self.cidade = cidade
-        self.estado = estado
 
 
     def to_json(self):
@@ -67,7 +55,6 @@ class EscolasHistorico(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     cnpj = db.Column(db.String) #18
     nivel = db.Column(db.ARRAY(db.String(50)))
-    cep = db.Column(db.String) #9
     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
 
@@ -80,6 +67,7 @@ class Edificios(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     numero_edificio = db.Column(db.String)
     nome_do_edificio = db.Column(db.String)
+    principal = db.Column(db.Boolean)
     cep_edificio = db.Column(db.String)
     cidade_edificio = db.Column(db.String)
     estado_edificio = db.Column(db.String)
@@ -101,11 +89,12 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
         self.nome_do_edificio = nome_do_edificio
+        self.principal = principal
         self.cep_edificio = cep_edificio
         self.cnpj_edificio = cnpj_edificio
         self.logradouro_edificio = logradouro_edificio
@@ -215,6 +204,7 @@ class Equipamentos(db.Model):
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_area_umida= db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
     tipo = db.Column(db.String)
+    tipo_equipamento = db.Column(db.String)
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     # vazamentos = db.Column(db.Integer)
@@ -226,10 +216,11 @@ class Equipamentos(db.Model):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, tipo, quantTotal, quantProblema, quantInutil):
+    def __init__(self, fk_area_umida, tipo, tipo_equipamento, quantTotal, quantProblema, quantInutil):
 
         self.fk_area_umida = fk_area_umida
         self.tipo= tipo
+        self.tipo_equipamento = tipo_equipamento
         self.quantTotal = int(quantTotal)
         self.quantProblema = int(quantProblema) if quantProblema != '' and quantProblema is not None else 0
         self.quantInutil = int(quantInutil) if quantInutil != '' and quantInutil is not None else 0
