@@ -30,7 +30,7 @@ def app():
         db.create_all()
         yield app
 
-        # Limpando banco de dados te teste após cada execução do teste
+        # Limpando banco de dados de teste após cada execução do teste
         db.session.remove()
         db.drop_all()
 
@@ -56,12 +56,7 @@ def new_escolas():
         cnpj=cnpj(),
         nivel=fake.random_element(elements=('Fundamental', 'Médio', 'Superior')),
         email=fake.email(),
-        telefone=fake.phone_number(),
-        logradouro=fake.street_address(),
-        cep=fake.postcode(),
-        complemento=fake.secondary_address(),
-        cidade=fake.city(),
-        estado=fake.state_abbr()
+        telefone=fake.phone_number()
         )
 
 
@@ -72,6 +67,7 @@ def new_edificios():
         nome_do_edificio=fake.company(),
         nivel=fake.random_element(elements=('fundamental', 'medio', 'superior', 'creche', 'bercario', 'ceu')),
         periodos=fake.random_element(elements=('matutino', 'vespertino', 'noturno', 'integral')),
+        principal=fake.random_element(elements=('on', 'off')),
         cep=fake.postcode(),
         logradouro=fake.street_address(),
         numero_do_hidrometro=fake.uuid4(),

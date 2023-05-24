@@ -57,16 +57,14 @@ def create_app(test_config=None):
     app.register_blueprint(funcionalidades)
     app.register_blueprint(editar)
     app.register_blueprint(remover)
+    app.register_blueprint(options)
+    app.register_blueprint(personalizados)
 
     Swagger(app, config=swagger_config, template=template)
 
     @app.route('/')
     def index():
         return render_template('homepage.html')
-
-    @app.route('/testando')
-    def testando():
-        return 'Olá HEROKU'
 
     return app
 
@@ -75,9 +73,7 @@ app = create_app()
 
 if __name__ == "__main__":
     #Define a porta a ser usada pelo servidor Flask
-   port = int(os.environ.get("PORT", 5000))
-   app.run(host='0.0.0.0', port=port, debug=True)
-
-
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})

@@ -1,3 +1,4 @@
+
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK
 from ..models import AreaUmida, Tabela

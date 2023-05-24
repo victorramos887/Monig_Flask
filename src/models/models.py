@@ -66,9 +66,10 @@ class Edificios(db.Model):
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     numero_edificio = db.Column(db.String)
-    nome_do_edificio = db.Column(db.String)
+    nome_do_edificio = db.Column(db.String, unique=True, nullable=False)
     principal = db.Column(db.Boolean)
     cep_edificio = db.Column(db.String)
+    bairro = db.Column(db.String)
     cidade_edificio = db.Column(db.String)
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
@@ -89,10 +90,11 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
+    def __init__(self, fk_escola, numero_edificio, bairro, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
+        self.bairro = bairro
         self.nome_do_edificio = nome_do_edificio
         self.principal = principal
         self.cep_edificio = cep_edificio
@@ -243,3 +245,89 @@ class Tabela(db.Model):
             "id":self.id,
             "nome":self.nome
         }
+    
+#TABELAS AUXILIARES - OPTIONS
+#ESCOLAS
+class Nivel(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_nivel'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    nivel = db.Column(db.String)
+
+    def __init__(self, nivel):
+        self.nivel = nivel
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+#ÁREA ÚMIDA
+class TipoArea(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_tipo_area_umida'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    tipo_area_umida = db.Column(db.String)
+
+    def __init__(self, tipo_area_umida):
+        self.tipo_area_umida = tipo_area_umida
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+
+class StatusArea(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_status_area_umida'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    status_area_umida = db.Column(db.String)
+
+    def __init__(self,  status_area_umida):
+        self.status_area_umida =  status_area_umida
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+#Equipamentos
+class TipoEquipamento(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_tipo_equipamento'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    tipo = db.Column(db.String)
+   
+
+    def __init__(self,  tipo):
+        self.tipo =  tipo
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+class DescricaoEquipamento(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_descricao_equipamento'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    tipo_equipamento = db.Column(db.String)
+   
+    def __init__(self,  tipo_equipamento):
+        self.tipo_equipamento =  tipo_equipamento
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+#População
+class Periodo(db.Model):
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'aux_periodo'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    periodo = db.Column(db.String)
+
+    def __init__(self,  periodo):
+        self.periodo =  periodo
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
