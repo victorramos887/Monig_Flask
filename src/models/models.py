@@ -17,33 +17,35 @@ class Escolas(db.Model):
     nivel = db.Column(db.ARRAY(db.String(50)))
     email = db.Column(db.String, unique=True, nullable=False) #55
     telefone = db.Column(db.String(16)) #16
-    logradouro = db.Column(db.String)
-    numero = db.Column(db.Integer)
-    cep = db.Column(db.String(9)) #9
-    complemento = db.Column(db.String) #86
-    cidade = db.Column(db.String) #55
-    estado = db.Column(db.String) #2
+    # logradouro = db.Column(db.String)
+    # numero = db.Column(db.Integer)
+    # cep = db.Column(db.String(9)) #9
+    # complemento = db.Column(db.String) #86
+    # cidade = db.Column(db.String) #55
+    # estado = db.Column(db.String) #2
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref = 'edificios')
     escolas_historico =  db.relationship('EscolasHistorico', backref = 'escolas_historico')
     data_criacao = db.Column(db.DateTime, server_default=func.now())
+    data_update = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome, cnpj, nivel, email, telefone, logradouro, numero, cep, complemento, cidade, estado):
+    def __init__(self, nome, cnpj, nivel, email, telefone):
         self.nome = nome
         self.cnpj = cnpj
         self.nivel = nivel
         self.email = email
         self.telefone = telefone
-        self.logradouro = logradouro
-        self.numero = numero
-        self.cep = cep
-        self.complemento = complemento
-        self.cidade = cidade
-        self.estado = estado
+        # self.logradouro = logradouro
+        # self.numero = numero
+        # self.cep = cep
+        # self.complemento = complemento
+        # self.cidade = cidade
+        # self.estado = estado
 
 
     def to_json(self):
@@ -85,6 +87,8 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
+    bairro = db.Column(db.String)
+    complemento = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
     reservatorio = db.Column(db.Boolean)#padrao é False
@@ -101,14 +105,16 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, bairro, complemento, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
         self.nome_do_edificio = nome_do_edificio
         self.cep_edificio = cep_edificio
         self.cnpj_edificio = cnpj_edificio
+        self.complemento = complemento
         self.logradouro_edificio = logradouro_edificio
+        self.bairro = bairro
         self.estado_edificio = estado_edificio
         self.cidade_edificio = cidade_edificio
         self.pavimentos_edificio = pavimentos_edificio
@@ -236,19 +242,3 @@ class Equipamentos(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
-
-class Tabela(db.Model):
-    __table_args__ = {'schema':'main'}
-    __tablename__ = 'testando'
-
-    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    nome = db.Column(db.String)
-
-    def __init__(self, nome):
-        self.nome = nome
-    def to_json(self):
-        return {
-            "id":self.id,
-            "nome":self.nome
-        }

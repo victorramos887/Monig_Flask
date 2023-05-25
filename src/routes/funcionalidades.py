@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK
-from ..models import AreaUmida, Tabela
+from ..models import AreaUmida
 from flasgger import swag_from
 
 funcionalidades = Blueprint('funcionalidades', __name__, url_prefix = '/api/v1/funcionalidades')

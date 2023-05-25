@@ -12,24 +12,50 @@ editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 @editar.put('/escolas/<id>')
 def escolas_editar(id):
     escola = Escolas.query.filter_by(id=id).first()
+    edificio = Edificios.query.filter_by(fk_escola=id).first()
+
+    #VERIFICAR O QUE FOI ALTERADO
     body = request.get_json()
 
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
+    for k, i in escola.to_json().items():
+        print(k, i)
+
+    for k, i in edificio.to_json().items():
+        print(k, i)
+
     try:
         #comparar e incluir na tabela EscolasHistorico
-        if escola != body:
-            db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
+        # if escola != body:
+        #     db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
 
         #atualizar tabela Escola - novas informações
-        escola.update(**body)
+        escola.update(
+            nome=body["nome"],
+            cnpj=body["cnpj"],
+            email=body["email"],
+            telefone=body["telefone"],
+            nivel=body["nivel"]
+        )
+
+        #db.session.commit()
+
+        edificio.update(
+            numero_edificio=body["numero"],
+            cep_edificio=body["cep"],
+            cidade_edificio=body["cidade"],
+            estado_edificio=body["estado"],
+            cnpj_edificio=body["cnpj"],
+            logradouro_edificio=body["logradouro"],
+            complemento=body["complemento"]
+        )
 
         db.session.commit()
-    
+
         return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK 
     except exc.DBAPIError as e:
-        
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -51,11 +77,15 @@ def escolas_editar(id):
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-        
+
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-    
+
+        return jsonify({
+            "status":False,"mensagem":"Erro não tratado", "codigo":e
+        }), HTTP_500_INTERNAL_SERVER_ERROR
+
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
