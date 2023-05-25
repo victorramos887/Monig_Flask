@@ -97,15 +97,12 @@ def edificios_editar(id):
         return jsonify({'mensagem': 'Edificio não encontrado',"status": False}), 404
 
     try:
-      
         edificio.update(**body)
 
         db.session.commit()
 
         return jsonify({"edificio":edificio.to_json(), "status": True}), HTTP_200_OK
-        
     except exc.DBAPIError as e:
-        
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
