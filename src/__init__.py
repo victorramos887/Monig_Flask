@@ -3,7 +3,7 @@ import os  # type: ignore
 #SWAGGER DOCUMENTATION
 from flasgger import Swagger
 from .config.swagger import swagger_config, template
-from flask import Flask, render_template
+from flask import Flask
 from .models import db
 from .routes import *
 from flask_caching import Cache
@@ -46,7 +46,6 @@ def create_app(test_config=None):
     db.app = app  # type: ignore
     db.init_app(app)
 
-
     #Google Cloud
     with app.app_context():
         db.create_all()
@@ -58,7 +57,7 @@ def create_app(test_config=None):
     app.register_blueprint(editar)
     app.register_blueprint(remover)
     app.register_blueprint(options)
-    app.register_blueprint(personalizados)
+    app.register_blueprint(customizados)
 
     Swagger(app, config=swagger_config, template=template)
 
@@ -67,7 +66,6 @@ def create_app(test_config=None):
         return render_template('homepage.html')
 
     return app
-
 
 app = create_app()
 

@@ -19,7 +19,42 @@ def escolas():
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
-    return jsonify({'escola':escola.to_json() if escola is not None else escola, "status": True})
+    escola_json = escola.to_json() if escola is not None else None
+
+    edificio = Edificios.query.filter_by(fk_escola=id).first()
+    edificio_json = edificio.to_json() if edificio is not None else None
+
+    if edificio is not None and escola is not None:
+
+        enviar = {
+            "cnpj":edificio_json["cnpj_edificio"],
+            "email":escola_json["email"],
+            "id":escola_json["id"],
+            "nivel":escola_json["nivel"],
+            "nome":escola_json["nome"],
+            "status_do_registro":escola_json["status_do_registro"],
+            "telefone":escola_json["telefone"],
+            "logradouro":edificio_json["logradouro_edificio"],
+            "bairro":edificio_json["bairro"],
+            "numero":edificio_json["numero_edificio"],
+            "complemento":edificio_json["complemento"],
+            "estado":edificio_json["estado_edificio"],
+            "cep":edificio_json["cep_edificio"],
+            "cidade":edificio_json["cidade_edificio"]
+        }
+        return jsonify({
+            "status": True,
+            "escola":enviar
+        })
+    return jsonify({
+        "status":False
+    })
+
+# @send_frontend.get('/escolas/<int:id>')
+# def get_escolas(id):
+#     escola = Escolas.query.filter_by(id=id).first()
+#     return jsonify({'escola':escola.to_json() if escola is not None else escola, "status": True})
+
 
 #RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
