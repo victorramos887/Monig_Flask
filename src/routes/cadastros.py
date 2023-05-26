@@ -38,7 +38,6 @@ def escolas():
             cnpj=cnpj,
             email=email,
             telefone=telefone,
-            #nivel=json.dumps(nivel, ensure_ascii=False).encode("utf-8").decode()
             nivel=nivel
         )
 
@@ -54,7 +53,7 @@ def escolas():
             numero_edificio = numero,
             cidade_edificio = cidade,
             estado_edificio = estado,
-            complemento =complemento,
+            complemento_edificio =complemento_edificio,
             bairro_edificio=bairro
         )
 
