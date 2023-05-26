@@ -54,7 +54,7 @@ def escolas():
             cidade_edificio = cidade,
             estado_edificio = estado,
             complemento =complemento,
-            bairro=bairro
+            bairro_edificio=bairro
         )
 
         db.session.add(edificio)
