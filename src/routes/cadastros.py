@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, jsonify, request
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
@@ -37,9 +38,9 @@ def escolas():
             cnpj=cnpj,
             email=email,
             telefone=telefone,
+            #nivel=json.dumps(nivel, ensure_ascii=False).encode("utf-8").decode()
             nivel=nivel
         )
-
 
         db.session.add(escola)
         db.session.commit()
@@ -72,6 +73,7 @@ def escolas():
 
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == '500':
@@ -79,9 +81,7 @@ def escolas():
         if isinstance(e, HTTPException) and e.code == '400':
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({
-            "erro":e
-        })
+        return jsonify({'status':False, 'mensagem': 'Erro não tratado', 'codigo':str(e)}), 500
 
 #Cadastros dos edifícios.
 @cadastros.post('/edificios')
