@@ -53,7 +53,7 @@ def escolas():
             numero_edificio = numero,
             cidade_edificio = cidade,
             estado_edificio = estado,
-            complemento_edificio =complemento_edificio,
+            complemento_edificio =complemento,
             bairro_edificio=bairro
         )
 
