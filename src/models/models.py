@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func, UniqueConstraint, Index
 from datetime import datetime
 
 
@@ -60,13 +60,16 @@ class EscolasHistorico(db.Model):
 
 class Edificios(db.Model):
 
-    __table_args__ = {'schema':'main'}
+    __table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
+                      db.Index('ix_edificio_nome_escola', 'nome_do_edificio', 'fk_escola', unique=True), #cria unicidade das combinações chave e coluna
+                     {'schema': 'main'})
     __tablename__ = 'edificios'
+
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     numero_edificio = db.Column(db.String)
-    nome_do_edificio = db.Column(db.String, unique=True, nullable=False)
+    nome_do_edificio = db.Column(db.String, nullable=False)
     principal = db.Column(db.Boolean)
     cep_edificio = db.Column(db.String)
     bairro = db.Column(db.String)
@@ -74,6 +77,7 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
+    #complemento = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
     reservatorio = db.Column(db.Boolean)#padrao é False

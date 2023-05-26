@@ -26,7 +26,7 @@ def testando():
     })
 
 
-#Cadastros das escolas
+'''#Cadastros das escolas
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
@@ -95,10 +95,10 @@ def escolas():
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
         return jsonify({
             "erro":e
-        })
+        })'''
 
 
-'''@cadastros.post('/escolas')
+@cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
      formulario = request.get_json()
@@ -129,7 +129,7 @@ def escolas():
         
          if isinstance(e, HTTPException) and e.code == '400':
              #flash("Erro, 4 não salva")
-             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST'''
+             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 #Cadastros dos edifícios.
