@@ -87,7 +87,7 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
-    bairro = db.Column(db.String)
+    bairro_edificio = db.Column(db.String)
     complemento = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
@@ -105,7 +105,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, bairro, complemento, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio,cep_edificio, cnpj_edificio, logradouro_edificio, bairro_edificio, complemento, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -114,7 +114,7 @@ class Edificios(db.Model):
         self.cnpj_edificio = cnpj_edificio
         self.complemento = complemento
         self.logradouro_edificio = logradouro_edificio
-        self.bairro = bairro
+        self.bairro_edificio = bairro_edificio
         self.estado_edificio = estado_edificio
         self.cidade_edificio = cidade_edificio
         self.pavimentos_edificio = pavimentos_edificio
