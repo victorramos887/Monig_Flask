@@ -37,7 +37,7 @@ def get_escolas(id):
             "logradouro":edificio_json["logradouro_edificio"],
             "bairro":edificio_json["bairro_edificio"],
             "numero":edificio_json["numero_edificio"],
-            "complemento":edificio_json["complemento"],
+            "complemento":edificio_json["complemento_edificio"],
             "estado":edificio_json["estado_edificio"],
             "cep":edificio_json["cep_edificio"],
             "cidade":edificio_json["cidade_edificio"]
