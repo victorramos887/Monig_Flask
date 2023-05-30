@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, EscolasHistorico
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -86,58 +86,6 @@ def escolas_editar(id):
             "status":False,"mensagem":"Erro não tratado", "codigo":e
         }), HTTP_500_INTERNAL_SERVER_ERROR
 
-'''#EDITAR ESCOLA
-@editar.put('/escolas/<id>')
-def escolas_editar(id):
-    escola = Escolas.query.filter_by(id=id).first()
- 
-
-    #VERIFICAR O QUE FOI ALTERADO
-    body = request.get_json()
-
-    if not escola:
-        return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
-
-
-    try:
-        #comparar e incluir na tabela EscolasHistorico
-         if escola != body:
-            db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, nivel=escola.nivel))
-
-            db.session.commit()
-
-            return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK 
-    except exc.DBAPIError as e:
-        if e.orig.pgcode == '23503':
-            match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-        
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
-        
-        if e.orig.pgcode == '01004':
-            #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-
-    except Exception as e:
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-
-        if isinstance(e, HTTPException) and e.code == 400:
-            #flash("Erro, 4 não salva")
-            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-
-        return jsonify({
-            "status":False,"mensagem":"Erro não tratado", "codigo":e
-        }), HTTP_500_INTERNAL_SERVER_ERROR'''
-
 
 #EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
@@ -149,15 +97,12 @@ def edificios_editar(id):
         return jsonify({'mensagem': 'Edificio não encontrado',"status": False}), 404
 
     try:
-      
         edificio.update(**body)
 
         db.session.commit()
 
         return jsonify({"edificio":edificio.to_json(), "status": True}), HTTP_200_OK
-        
     except exc.DBAPIError as e:
-        
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -179,11 +124,11 @@ def edificios_editar(id):
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-        
+
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        
+
 #EDITAR HIDROMETRO
 @editar.put('/hidrometros/<id>')
 def hidrometro_editar(id):
@@ -192,24 +137,19 @@ def hidrometro_editar(id):
 
     if not hidrometro:
         return jsonify({'mensagem': 'Hidrometro não encontrado', "status": False}), 404
-    
     try:
-      
         hidrometro.update(**body)
 
         db.session.commit()
 
         return jsonify({"hidrometro":hidrometro.to_json(), "status": True}), HTTP_200_OK
-        
     except exc.DBAPIError as e:
-        
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
             coluna = match.group(2) if match else 'coluna desconhecida'
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
             return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-        
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
             match = re.search(r'Key \((.*?)\)=', str(e))

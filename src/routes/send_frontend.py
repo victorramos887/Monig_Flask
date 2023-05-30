@@ -35,9 +35,9 @@ def get_escolas(id):
             "status_do_registro":escola_json["status_do_registro"],
             "telefone":escola_json["telefone"],
             "logradouro":edificio_json["logradouro_edificio"],
-            "bairro":edificio_json["bairro"],
+            "bairro":edificio_json["bairro_edificio"],
             "numero":edificio_json["numero_edificio"],
-            "complemento":edificio_json["complemento"],
+            "complemento":edificio_json["complemento_edificio"],
             "estado":edificio_json["estado_edificio"],
             "cep":edificio_json["cep_edificio"],
             "cidade":edificio_json["cidade_edificio"]
@@ -50,10 +50,6 @@ def get_escolas(id):
         "status":False
     })
 
-# @send_frontend.get('/escolas/<int:id>')
-# def get_escolas(id):
-#     escola = Escolas.query.filter_by(id=id).first()
-#     return jsonify({'escola':escola.to_json() if escola is not None else escola, "status": True})
 
 
 #RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA

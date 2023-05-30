@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, UniqueConstraint, Index
+from sqlalchemy import func
 from datetime import datetime
 
 
@@ -12,7 +12,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    nome = db.Column(db.String, nullable = False) #255
+    nome = db.Column(db.String, unique=True, nullable = False) #255
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
     nivel = db.Column(db.JSON(db.String))
     email = db.Column(db.String, unique=True, nullable=False) #55
@@ -77,7 +77,8 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
-    #complemento = db.Column(db.String)
+    bairro_edificio = db.Column(db.String)
+    complemento_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
     reservatorio = db.Column(db.Boolean)#padrao é False
@@ -94,18 +95,20 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, bairro, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, cidade_edificio, estado_edificio, pavimentos_edificio, area_total_edificio, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
-
+    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, capacidade_m3_edificio=0.0 , capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
+    
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
-        self.bairro = bairro
+        self.bairro_edificio = bairro_edificio
         self.nome_do_edificio = nome_do_edificio
         self.principal = principal
         self.cep_edificio = cep_edificio
         self.cnpj_edificio = cnpj_edificio
         self.logradouro_edificio = logradouro_edificio
+        self.bairro_edificio = bairro_edificio
         self.estado_edificio = estado_edificio
         self.cidade_edificio = cidade_edificio
+        self.complemento_edificio = complemento_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
         self.reservatorio = reservatorio
@@ -280,3 +283,34 @@ class Customizados(db.Model):
 
         def to_json(self):
             return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        
+
+
+
+#USUARIOS
+
+class Usuarios(db.Model): 
+
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'usuarios'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    email = db.Column(db.String, nullable = False, unique=True)
+    senha = db.Column(db.String(126), nullable = False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, email, senha):
+        self.email = email
+        self.senha = senha
+
+    def to_json(self):
+            return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+
+        

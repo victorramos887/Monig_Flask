@@ -12,12 +12,13 @@ def niveis():
     opcoes_pers_str = [o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola]
     options = opcoes_pre_definidos + opcoes_pers_str
     return jsonify(options)
-    
+
+
 
 #AreaUmida
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
-    opcoes_pre_definidos = ['Cozinha', 'Banheiro', 'Bebedouro'] 
+    opcoes_pre_definidos = ['Cozinha', 'Banheiro', 'Bebedouro']
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.tipo_area_umida for o in opcoes_personalizadas]
     return jsonify(options)
@@ -33,7 +34,7 @@ def status_area_umida():
 #Equipamentos
 @options.get('/tipo_equipamento')
 def tipo_equipamento():
-    opcoes_pre_definidos = ['Chuveiro', 'Torneira', 'Sanitário'] 
+    opcoes_pre_definidos =['Chuveiro', 'Torneira', 'Sanitário']
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.tipo_equipamento for o in opcoes_personalizadas]
     return jsonify(options)
@@ -72,9 +73,3 @@ def nivel_populacao(id):
     
     return jsonify(options)
 
-    #ESTÁ RETORNANDO APENAS OS ITENS CUSTOMIZADOS
-''' escola = Escolas.query.filter_by(id=id).all()
-    opcoes_personalizadas = Customizados.query.all() 
-    options = [o.nivel for o in escola]  + [o.nivel_escola for o in opcoes_personalizadas] 
-    return jsonify(options)'''
-    

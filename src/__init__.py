@@ -1,13 +1,16 @@
 import os  # type: ignore
 
 #SWAGGER DOCUMENTATION
-from flasgger import Swagger
 from .config.swagger import swagger_config, template
-from flask import Flask
 from .models import db
 from .routes import *
+from datetime import timedelta
+from flasgger import Swagger
+from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
+
 
 
 # Crie uma instância do objeto de cache
@@ -22,6 +25,7 @@ def create_app(test_config=None):
 
     cache.init_app(app)
 
+
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
@@ -33,6 +37,7 @@ def create_app(test_config=None):
                 'titulo':'API MONIG',
                 'version': 1
             },
+            JWT_EXPIRATION_DELTA = timedelta(days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
             DEBUG=False
         )
 
@@ -50,6 +55,8 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
 
+    JWTManager(app)
+    
     #Blue prints
     app.register_blueprint(cadastros)
     app.register_blueprint(send_frontend)
@@ -58,6 +65,7 @@ def create_app(test_config=None):
     app.register_blueprint(remover)
     app.register_blueprint(options)
     app.register_blueprint(customizados)
+    app.register_blueprint(auth)
 
     Swagger(app, config=swagger_config, template=template)
 

@@ -1,3 +1,4 @@
+import json
 from flask import Blueprint, jsonify, request
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
@@ -10,6 +11,7 @@ import traceback
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
+
 
 @cadastros.post('/testando')
 def testando():
@@ -40,7 +42,7 @@ def escolas():
         logradouro = formulario["logradouro"]
         cep = formulario["cep"]
         complemento = formulario["complemento"]
-        numero = formulario["numero"]  
+        numero = formulario["numero"]
         nivel = formulario["nivel"]
         cidade = formulario["cidade"]
         estado = formulario["estado"]
@@ -54,7 +56,6 @@ def escolas():
             nivel=nivel
         )
 
-
         db.session.add(escola)
         db.session.commit()
 
@@ -67,8 +68,8 @@ def escolas():
             numero_edificio = numero,
             cidade_edificio = cidade,
             estado_edificio = estado,
-            complemento =complemento,
-            bairro=bairro
+            complemento_edificio =complemento,
+            bairro_edificio=bairro
         )
 
         db.session.add(edificio)
@@ -86,6 +87,7 @@ def escolas():
 
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == '500':
@@ -136,7 +138,6 @@ def escolas():
 @cadastros.post('/edificios')
 @swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
-
 
     try:
         formulario = request.get_json()
@@ -190,7 +191,6 @@ def hidrometros():
         return jsonify({'status':True, 'id': hidrometros.id, "mensagem":"Cadastro Realizado com sucesso","data":hidrometros.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
