@@ -12,7 +12,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    nome = db.Column(db.String, nullable = False) #255
+    nome = db.Column(db.String, nullable = False, unique=True) #255
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
     nivel = db.Column(db.JSON(db.String))
     email = db.Column(db.String, unique=True, nullable=False) #55

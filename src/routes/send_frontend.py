@@ -12,7 +12,7 @@ send_frontend = Blueprint('send_frontend', __name__, url_prefix = '/api/v1/send_
 @swag_from('../docs/send_frontend/escolas.yaml')
 def escolas():
 
-    escolas = Escolas.query.all()
+    escolas = Escolas.query.filter_by(status_do_registro=True).all()
     return jsonify({'return':[escola.to_json() for escola in escolas], "status": True}), HTTP_200_OK
 
 #RETORNA APENAS UMA ESCOLA

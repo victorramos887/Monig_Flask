@@ -63,6 +63,7 @@ def escolas():
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json(), "dada_edificio":edificio.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        db.session.rollback()
         if e.orig.pgcode == '23505':
             # extrai o nome do campo da mensagem de erro
             match = re.search(r'Key \((.*?)\)=', str(e))
@@ -75,6 +76,7 @@ def escolas():
         return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
     except Exception as e:
+        db.session.rollback()
         if isinstance(e, HTTPException) and e.code == '500':
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         if isinstance(e, HTTPException) and e.code == '400':
@@ -96,6 +98,7 @@ def edificios():
         return jsonify({'status':True, 'id': edificio.id, "mensagem":"Cadastro Realizado!","data":edificio.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             # FOREIGN KEY VIOLATION
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
@@ -105,6 +108,7 @@ def edificios():
             return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
+            db.session.rollback()
             # UNIQUE VIOLATION
             match = re.search(r'Key \((.*?)\)=', str(e))
             campo = match.group(1) if match else 'campo desconhecido'
@@ -118,6 +122,7 @@ def edificios():
             return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
+        db.session.rollback()
         traceback.print_exc()  # Imprime o traceback completo no console
         print("não entrou aqui")
         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -139,6 +144,7 @@ def hidrometros():
         return jsonify({'status':True, 'id': hidrometros.id, "mensagem":"Cadastro Realizado com sucesso","data":hidrometros.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -158,6 +164,7 @@ def hidrometros():
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
+        db.session.rollback()
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
@@ -181,7 +188,7 @@ def populacao():
         return jsonify({'status':True, 'id': populacao.id, "mensagem":"Cadastrado realizado com sucesso","data":populacao.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -204,6 +211,7 @@ def populacao():
         
 
     except Exception as e:
+        db.session.rollback()   
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
@@ -227,7 +235,7 @@ def area_umida():
         return jsonify({'status':True, 'id': umida.id, "mensagem":"Cadastrado realizado com sucesso","data":umida.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
-        
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -247,6 +255,7 @@ def area_umida():
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
+        db.session.rollback()
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
@@ -269,6 +278,7 @@ def equipamentos():
         return jsonify({'status':True, 'id': equipamento.id, "mensagem":"Cadastrado realizado com sucesso","data":equipamento.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             match = re.search(r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -291,6 +301,7 @@ def equipamentos():
             return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
+        db.session.rollback()
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
         
