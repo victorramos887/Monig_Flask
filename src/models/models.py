@@ -289,3 +289,26 @@ class Usuarios(db.Model):
 
     def to_json(self):
             return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+# TABELAS DE OPÇÕES
+class opcoes(db.Model):
+     
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'opcoes'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    opcao = db.Column(db.String, nullable = False, unique=True)
+    funcao = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+         for key, value in kwargs.items():
+              setattr(self, key, value)
+    
+    def __init__(self, opcao, funcao):
+         self.opcao = opcao
+         self.funcao = funcao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
