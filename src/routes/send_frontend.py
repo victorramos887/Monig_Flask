@@ -50,8 +50,6 @@ def get_escolas(id):
         "status":False
     })
 
-
-
 #RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
