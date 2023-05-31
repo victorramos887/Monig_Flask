@@ -2,9 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
 
-
 db = SQLAlchemy()
-
 
 class Escolas(db.Model):
 
@@ -12,7 +10,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    nome = db.Column(db.String, nullable = False, unique=True) #255
+    nome = db.Column(db.String, unique=True, nullable = False) #255
     cnpj = db.Column(db.String, unique=True, nullable=False) #18
     nivel = db.Column(db.JSON(db.String))
     email = db.Column(db.String, unique=True, nullable=False) #55
@@ -33,19 +31,8 @@ class Escolas(db.Model):
         self.email = email
         self.telefone = telefone
 
-
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-   # def to_dict(self):
-    #    d = {}
-     #   for column in self.__table__.columns:
-     #       if isinstance(column.type, db.DateTime):
-     #           d[column.name] = getattr(self, column.name).strftime("%Y-%m-%dT%H:%M:%S")
-      #      else:
-       #         d[column.name] = getattr(self, column.name)
-       # return d
-
 
 class EscolasHistorico(db.Model):
     __table_args__ = {'schema':'main'}
@@ -57,16 +44,18 @@ class EscolasHistorico(db.Model):
     nivel = db.Column(db.JSON(db.String))
     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
-
 class Edificios(db.Model):
 
-    __table_args__ = {'schema':'main'}
+    __table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
+                      db.Index('ix_edificio_nome_escola', 'nome_do_edificio', 'fk_escola', unique=True), #cria unicidade das combinações chave e coluna
+                     {'schema': 'main'})
     __tablename__ = 'edificios'
+
 
     id = db.Column(db.Integer, autoincrement = True, primary_key = True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     numero_edificio = db.Column(db.String)
-    nome_do_edificio = db.Column(db.String, unique=True, nullable=False)
+    nome_do_edificio = db.Column(db.String, nullable=False)
     principal = db.Column(db.Boolean)
     cep_edificio = db.Column(db.String)
     bairro = db.Column(db.String)
@@ -233,7 +222,6 @@ class Equipamentos(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
 
 class Tabela(db.Model):
     __table_args__ = {'schema':'main'}
@@ -249,7 +237,7 @@ class Tabela(db.Model):
             "id":self.id,
             "nome":self.nome
         }
-    
+
 #Tabela auxiliar
 class Customizados(db.Model):
         __table_args__ = {'schema': 'main'}
@@ -263,11 +251,9 @@ class Customizados(db.Model):
         descricao_equipamento = db.Column(db.JSON(db.String))
         periodo_populacao = db.Column(db.JSON(db.String))
 
-
         def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
-
 
         def __init__(self, nivel_escola, tipo_area_umida, status_area_umida, tipo_equipamento, descricao_equipamento, periodo_populacao ):
             self.nivel_escola = nivel_escola
@@ -279,4 +265,27 @@ class Customizados(db.Model):
             
 
         def to_json(self):
+            return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+#USUARIOS
+class Usuarios(db.Model): 
+
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'usuarios'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    email = db.Column(db.String, nullable = False, unique=True)
+    senha = db.Column(db.String(126), nullable = False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, email, senha):
+        self.email = email
+        self.senha = senha
+
+    def to_json(self):
             return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}

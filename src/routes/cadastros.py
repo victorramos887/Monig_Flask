@@ -13,6 +13,20 @@ import traceback
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
+@cadastros.post('/testando')
+def testando():
+    formulario = request.get_json()
+    tabela = Tabela(**formulario)
+
+    db.session.add(tabela)
+    db.session.commit()
+    retorno = Tabela.query.filter_by(id=tabela.id).first()
+
+    return jsonify({
+        "data":retorno.to_json(),
+        "id":retorno.id
+    })
+
 #Cadastros das escolas
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
@@ -74,7 +88,6 @@ def escolas():
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
         return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
-
     except Exception as e:
         db.session.rollback()
         if isinstance(e, HTTPException) and e.code == '500':
@@ -82,7 +95,9 @@ def escolas():
         if isinstance(e, HTTPException) and e.code == '400':
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({'status':False, 'mensagem': 'Erro não tratado', 'codigo':str(e)}), 500
+        return jsonify({
+            "erro":e
+        })
 
 #Cadastros dos edifícios.
 @cadastros.post('/edificios')
