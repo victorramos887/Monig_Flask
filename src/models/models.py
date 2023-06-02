@@ -58,7 +58,7 @@ class Edificios(db.Model):
     nome_do_edificio = db.Column(db.String, nullable=False)
     principal = db.Column(db.Boolean)
     cep_edificio = db.Column(db.String)
-    bairro = db.Column(db.String)
+    bairro_edificio = db.Column(db.String)
     cidade_edificio = db.Column(db.String)
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
