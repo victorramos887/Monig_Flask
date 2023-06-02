@@ -63,7 +63,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
-        return render_template('homepage.html')
+        return 'API MONIG'
 
     return app
 
