@@ -291,7 +291,7 @@ class Usuarios(db.Model):
             return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
     
 # TABELAS DE OPÇÕES
-class opcoes(db.Model):
+class Opcoes(db.Model):
      
     __table_args__ = {'schema':'main'}
     __tablename__ = 'opcoes'

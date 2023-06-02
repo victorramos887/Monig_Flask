@@ -59,7 +59,7 @@ def escolas():
         db.session.commit()
 
         edificio = Edificios(
-            fk_escola = escola.id,
+            fk_escola = int(escola.id),
             cnpj_edificio=cnpj,
             nome_do_edificio=nome,
             logradouro_edificio = logradouro,

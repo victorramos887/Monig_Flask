@@ -6,3 +6,4 @@ from .remover import *
 from .get_options import *
 from .customizados import *
 from .auth import *
+from .cadastro_opcoes import *
