@@ -7,7 +7,7 @@ cadopcoes = Blueprint("cadopcoes", __name__,
 
 
 @cadopcoes.post('/opcao')
-def opcoesCadastro():
+def opcaoCadastro():
 
     # PEGAR INFORMACOES DO JSON
     send = request.get_json()
