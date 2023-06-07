@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
-from ..models import db, Customizados, Escolas
+
+from src.models.models import TiposEquipamentos
+from ..models import db, Customizados, Escolas, Opcoes
 
 
 options = Blueprint('options', __name__, url_prefix = '/api/v1/options')
@@ -7,18 +9,20 @@ options = Blueprint('options', __name__, url_prefix = '/api/v1/options')
 #Escola
 @options.get('/niveis')
 def niveis():
-    opcoes_pre_definidos = ['Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU']
+
+    opcoes_pers = Opcoes.query.filter_by(funcao="Nivel").all()
+    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     opcoes_pers_str = [o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola]
     options = opcoes_pre_definidos + opcoes_pers_str
     return jsonify(options)
 
 
-
 #AreaUmida
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
-    opcoes_pre_definidos = ['Cozinha', 'Banheiro', 'Bebedouro']
+    opcoes_pers = Opcoes.query.filter_by(funcao="Area-Umida").all()
+    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.tipo_area_umida for o in opcoes_personalizadas]
     return jsonify(options)
@@ -26,7 +30,8 @@ def tipo_area_umida():
 
 @options.get('/status_area_umida')
 def status_area_umida():
-    opcoes_pre_definidos = ['Aberto', 'Fechado'] 
+    opcoes_pers = Opcoes.query.filter_by(funcao="Status-Area-Umida").all()
+    opcoes_pre_definidos = [op.opcao for op in opcoes_pers] 
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.status_area_umida for o in opcoes_personalizadas]
     return jsonify(options)
@@ -34,25 +39,25 @@ def status_area_umida():
 #Equipamentos
 @options.get('/tipo_equipamento')
 def tipo_equipamento():
-    opcoes_pre_definidos =['Chuveiro', 'Torneira', 'Sanitário']
+    opcoes_pers = Opcoes.query.filter_by(funcao="Equipamentos").all()
+    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.tipo_equipamento for o in opcoes_personalizadas]
     return jsonify(options)
 
 @options.get('/descricao_equipamento')
 def descricao_equipamento():
-    opcoes_pre_definidos = ['Chuveiro a gás', 
-                            'Chuveiro pressurizado', 
-                            'Sanitário com caixa acoplada', 
-                            'Sanitário com descarga embutida'] 
-    opcoes_personalizadas = Customizados.query.all() 
-    options = opcoes_pre_definidos + [o.descricao_equipamento for o in opcoes_personalizadas]
-    return jsonify(options)
+    opcoes_pers = TiposEquipamentos.query.all()
+    opcoes_pre_definidos = [{op.equipamento:op.tipos} for op in opcoes_pers]   
+
+    return jsonify({"tipos":opcoes_pre_definidos})
 
 #Populacao
 @options.get('/periodo')
 def periodo():
-    opcoes_pre_definidos = ['Manhã', 'Tarde', 'Noite', 'Integral'] 
+
+    opcoes_pers = Opcoes.query.filter_by(funcao="Periodo").all()
+    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all() 
     options = opcoes_pre_definidos + [o.periodo_populacao for o in opcoes_personalizadas]
     return jsonify(options)

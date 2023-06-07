@@ -270,7 +270,6 @@ def equipamento_editar(id):
 
     if not equipamento:
         return jsonify({'mensagem': 'Equipamento não encontrado', "status": False}), 404
-    
     try:
 
         equipamento.update(**body)

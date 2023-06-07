@@ -5,7 +5,6 @@ from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_4
 from ..models import Usuarios, db #session
 from sqlalchemy import exc
 
-
 auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
 
 #cadastro de usuário
@@ -35,7 +34,6 @@ def register():
     db.session.commit()
 
     return jsonify({ 'mensagem':'Usuario criado com sucesso!', 'user':email }), HTTP_201_CREATED
-
 
 
 #login
@@ -75,7 +73,6 @@ def login():
             }), HTTP_400_BAD_REQUEST
 
 
-
 #busca as informações do usuário identificado pelo token
 @auth.get('/me')
 @jwt_required()
@@ -86,7 +83,6 @@ def me():
     return jsonify({
         'email':user.email,
     }), HTTP_200_OK
-
 
 
 #renovar o JWT de acesso do usuário

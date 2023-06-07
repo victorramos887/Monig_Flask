@@ -5,27 +5,13 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros,Tabela
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
 import traceback
 
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
-
-@cadastros.post('/testando')
-def testando():
-    formulario = request.get_json()
-    tabela = Tabela(**formulario)
-
-    db.session.add(tabela)
-    db.session.commit()
-    retorno = Tabela.query.filter_by(id=tabela.id).first()
-
-    return jsonify({
-        "data":retorno.to_json(),
-        "id":retorno.id
-    })
 
 #Cadastros das escolas
 @cadastros.post('/escolas')

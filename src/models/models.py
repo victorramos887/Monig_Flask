@@ -223,21 +223,6 @@ class Equipamentos(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-class Tabela(db.Model):
-    __table_args__ = {'schema':'main'}
-    __tablename__ = 'testando'
-
-    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
-    nome = db.Column(db.String)
-
-    def __init__(self, nome):
-        self.nome = nome
-    def to_json(self):
-        return {
-            "id":self.id,
-            "nome":self.nome
-        }
-
 #Tabela auxiliar
 class Customizados(db.Model):
         __table_args__ = {'schema': 'main'}
@@ -309,6 +294,29 @@ class Opcoes(db.Model):
     def __init__(self, opcao, funcao):
          self.opcao = opcao
          self.funcao = funcao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+
+class TiposEquipamentos(db.Model):
+     
+    __table_args__ = {'schema':'main'}
+    __tablename__ = 'tipo_equipamentos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipos = db.Column(db.JSON(db.String))
+    equipamento = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+         for key, value in kwargs.items():
+              setattr(self, key, value)
+    
+    def __init__(self, tipos, equipamento):
+         self.tipos = tipos
+         self.equipamento = equipamento
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
