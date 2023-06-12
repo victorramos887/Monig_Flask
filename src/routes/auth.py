@@ -50,9 +50,9 @@ def login():
     except exc.DBAPIError as e:
 
         if e.orig.pgcode == '42703':
-            return {'Erro':'Verifique os nomes das colunas no banco de dados'}
+            return {'error':'Verifique os nomes das colunas no banco de dados', "status":False}
         else:
-            return {'Erro':'ERRO NÃO TRATADO'}
+            return {'error':'ERRO NÃO TRATADO', "status":False}
 
     if user is None:
         return jsonify({'ERRO':'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST
@@ -66,12 +66,13 @@ def login():
                     'reflesh':reflesh,
                     'access':access,
                     'email':email
-                }
+                }, 
+                "status":True
             }), HTTP_200_OK
     else:
         return jsonify({'error':'senha incorreta'}), HTTP_409_CONFLICT
     return jsonify({
-                'error':'Error'
+                'error':'Error',"status":False
             }), HTTP_400_BAD_REQUEST
 
 
