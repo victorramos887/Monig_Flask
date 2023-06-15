@@ -45,3 +45,5 @@ def tiposCadastro():
         'mensagem': "enviado com sucesso!", 
         "enviado": [tipo.to_json() for tipo in tipos]
     })
+
+
