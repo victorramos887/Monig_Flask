@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
+from sqlalchemy import inspect
 
 db = SQLAlchemy()
 
@@ -13,7 +14,6 @@ class Escolas(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome = db.Column(db.String, unique=True, nullable=False)  # 255
     cnpj = db.Column(db.String, unique=True, nullable=False)  # 18
-    # nivel = db.Column(db.JSON(db.String))
     email = db.Column(db.String, unique=True, nullable=False)  # 55
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -29,7 +29,6 @@ class Escolas(db.Model):
     def __init__(self, nome, cnpj, email, telefone):
         self.nome = nome
         self.cnpj = cnpj
-        # self.nivel = nivel
         self.email = email
         self.telefone = telefone
 
@@ -168,13 +167,15 @@ class AreaUmida(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-    tipo_area_umida = db.Column(db.String)
+    tipo_area_umida = db.Column(db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
+    status_area_umida = db.Column(db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
-    status_area_umida = db.Column(db.String)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
+    tipo_area_umida_rel = db.relationship('TipoAreaUmida', backref='aux_tipo_area_umida')
+    status_area_umida_rel = db.relationship('StatusAreaUmida', backref='aux_status_area_umida')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -188,9 +189,23 @@ class AreaUmida(db.Model):
         self.localizacao_area_umida = localizacao_area_umida
         self.status_area_umida = status_area_umida
 
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    # def to_json(self):
+    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+    def to_json(self):
+        area_umida_descricao = self.tipo_area_umida_rel.tipo if self.tipo_area_umida_rel else None
+        status_descricao = self.status_area_umida_rel.status if self.status_area_umida_rel else None
+    
+        return {
+            'id': self.id,
+            'fk_edificios': self.fk_edificios,
+            'tipo_area_umida': area_umida_descricao,
+            'nome_area_umida': self.nome_area_umida,
+            'localizacao_area_umida': self.localizacao_area_umida,
+            'status_do_registro': self.status_do_registro,
+            'status_area_umida': status_descricao,
+            'data_criacao': self.data_criacao.strftime('%Y-%m-%d %H:%M:%S')
+        }
 
 class Equipamentos(db.Model):
 
@@ -203,12 +218,10 @@ class Equipamentos(db.Model):
     descricao_equipamento = db.Column(db.String)
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
-    # vazamentos = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
 
-    
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -283,7 +296,41 @@ class Usuarios(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # TABELAS DE OPÇÕES
+class TipoAreaUmida(db.Model):
 
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'aux_tipo_area_umida'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipo = db.Column(db.String, nullable=False, unique=True)
+
+    def __init__(self, tipo):
+        self.tipo = tipo
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+class StatusAreaUmida(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'aux_status_area_umida'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    status = db.Column(db.String, nullable=False, unique=True)
+
+    def __init__(self, status):
+        self.status = status
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 class Opcoes(db.Model):
 
@@ -326,6 +373,8 @@ class OpNiveis(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
+
+
 class TiposEquipamentos(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -348,10 +397,50 @@ class TiposEquipamentos(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-#ESCOLAS E NIVEIS DE ENSINO
+# Tabelas auxiliares MxM
+
+
 class EscolaNiveis(db.Model):
-    __table_args__ = {'schema':'main'}
+    __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
 
-    escola_id = db.Column(db.Integer, db.ForeignKey('main.escolas.id'), primary_key=True)
-    nivel_ensino_id = db.Column(db.Integer, db.ForeignKey('main.opniveis.id'), primary_key=True)
+    escola_id = db.Column(db.Integer, db.ForeignKey(
+        'main.escolas.id'), primary_key=True)
+    nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
+        'main.opniveis.id'), primary_key=True)
+
+def table_exists(table_name):
+    inspector = inspect(db.engine)
+    return table_name in inspector.get_table_names()
+
+def add_opniveis():
+    opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
+    tipoareaumida = ['Banheiro', 'Cozinha', 'Bebedouro', 'Jardim']
+    statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
+
+    for nivel in opniveis:
+        opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
+        if not opnivel:
+            opnivel = OpNiveis(nivel=nivel)
+            db.session.add(opnivel)
+        else:
+            pass
+
+    for areaumida in tipoareaumida:
+        tipo = TipoAreaUmida.query.filter_by(tipo=areaumida).first()
+        if not tipo:
+            tipo = TipoAreaUmida(tipo=areaumida)
+            db.session.add(tipo)
+        else:
+            pass
+
+    for status in statusareaumida:
+        st = StatusAreaUmida.query.filter_by(status=status).first()
+
+        if not st:
+            st = StatusAreaUmida(status = status)
+            db.session.add(st)
+        else:
+            pass
+    
+    db.session.commit()

@@ -98,8 +98,6 @@ def edificios(id):
     return jsonify({'edificios': result, "status":True})
 
 # RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
-
-
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 
@@ -143,7 +141,6 @@ def area_umidas(id):
 def get_area_umida(id):
     area_umida = AreaUmida.query.filter_by(id=id).first()
     return jsonify({'area_umida': area_umida.to_json() if area_umida is not None else area_umida, "status":True})
-
 
 # TODOS OS EQUIPAMENTOS
 @send_frontend.get('/equipamentos-table/<int:id>')

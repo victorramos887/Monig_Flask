@@ -5,9 +5,10 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida
 import traceback
-
+from sqlalchemy.exc import ArgumentError
+0
 
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
@@ -32,7 +33,7 @@ def escolas():
         cidade = formulario["cidade"]
         estado = formulario["estado"]
         bairro = formulario["bairro"]
-
+        
         escola = Escolas(
             nome=nome,
             cnpj=cnpj,
@@ -71,7 +72,13 @@ def escolas():
         db.session.commit()
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json(), "dada_edificio":edificio.to_json()}), HTTP_200_OK
-
+    except ArgumentError as e:
+        error_message = str(e)
+        error_data = {'error': error_message}
+        json_error = json.dumps(error_data)
+        print(json_error)
+        return json_error
+    
     except exc.DBAPIError as e:
         db.session.rollback()
         if e.orig.pgcode == '23505':
@@ -237,9 +244,32 @@ def populacao():
 def area_umida():
 
     formulario = request.get_json()
+    jsonr = {
+    "fk_edificios": 1,
+    "tipo_area_umida": 2,
+    "nome_area_umida": "Banheiro 1",
+    "localizacao_area_umida": "Piso térreo",
+    "status_area_umida": "Ativo"
+    }
 
     try:
-        umida = AreaUmida(**formulario)
+        fk_edificios = formulario['fk_edificios']
+        tipo_area_umida = formulario['tipo_area_umida']
+        nome_area_umida = formulario['nome_area_umida']
+        localizacao_area_umida = formulario['localizacao_area_umida']
+        status_area_umida = formulario['status_area_umida']
+
+        tipos = TipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+        status = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
+
+        umida = AreaUmida(
+            fk_edificios = fk_edificios,
+            tipo_area_umida = tipos.id,
+            nome_area_umida = nome_area_umida,
+            localizacao_area_umida = localizacao_area_umida,
+            status_area_umida = status.id
+        )
+
         db.session.add(umida)
         db.session.commit()
 
