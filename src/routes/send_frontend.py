@@ -8,6 +8,7 @@ send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
 
+
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
