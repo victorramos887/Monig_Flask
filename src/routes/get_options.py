@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 
 from src.models.models import TiposEquipamentos
-from ..models import db, Customizados, Escolas, Opcoes
+from ..models import db, Customizados, Escolas, Opcoes, EscolaNiveis, OpNiveis
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
+
 
 
 options = Blueprint('options', __name__, url_prefix = '/api/v1/options')
@@ -10,13 +13,12 @@ options = Blueprint('options', __name__, url_prefix = '/api/v1/options')
 @options.get('/niveis')
 def niveis():
 
-    opcoes_pers = Opcoes.query.filter_by(funcao="Nivel").all()
-    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
+    opcoes_pers = OpNiveis.query.all()
+    opcoes_pre_definidos = [op.nivel for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     opcoes_pers_str = [o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola]
     options = opcoes_pre_definidos + opcoes_pers_str
     return jsonify(options)
-
 
 #AreaUmida
 @options.get('/tipo_area_umida')
@@ -69,11 +71,19 @@ def nivel_populacao(id):
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
     
+    result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
+    .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+    .filter(EscolaNiveis.escola_id == escola.id) \
+    .all()
+
+    serialized_result = [nivel for escola_id, nivel in result]
+    #return serialized_result
+
     opcoes_personalizadas = Customizados.query.all() 
-    
     options = []
+    
     if escola:
-        options.extend(escola.nivel)
+        options.extend(serialized_result)
     options.extend(o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola)
     
     return jsonify(options)

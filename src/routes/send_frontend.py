@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, render_template
 from ..constants.http_status_codes import (HTTP_200_OK, HTTP_400_BAD_REQUEST)
-from sqlalchemy import exc, func
-from ..models import Escolas, Edificios, AreaUmida, Equipamentos, Populacao, AreaUmida, Hidrometros, db
+from sqlalchemy import exc, func, select
+
+from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__,
@@ -18,8 +19,6 @@ def escolas():
     return jsonify({'return': [escola.to_json() for escola in escolas], "status": True}), HTTP_200_OK
 
 # RETORNA APENAS UMA ESCOLA
-
-
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
@@ -28,13 +27,20 @@ def get_escolas(id):
     edificio = Edificios.query.filter_by(fk_escola=id).first()
     edificio_json = edificio.to_json() if edificio is not None else None
 
+    result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
+    .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+    .filter(EscolaNiveis.escola_id == escola.id) \
+    .all()
+
+    nivelRetorno = [nivel for escola_id, nivel in result]
+
     if edificio is not None and escola is not None:
 
         enviar = {
             "cnpj": edificio_json["cnpj_edificio"],
             "email": escola_json["email"],
             "id": escola_json["id"],
-            "nivel": escola_json["nivel"],
+            "nivel":nivelRetorno,
             "nome": escola_json["nome"],
             "status_do_registro": escola_json["status_do_registro"],
             "telefone": escola_json["telefone"],
@@ -48,7 +54,8 @@ def get_escolas(id):
         }
         return jsonify({
             "status": True,
-            "escola": enviar
+            "escola": enviar,
+            
         })
     return jsonify({
         "status": False

@@ -5,7 +5,7 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis
 import traceback
 
 
@@ -38,10 +38,20 @@ def escolas():
             cnpj=cnpj,
             email=email,
             telefone=telefone,
-            nivel=nivel
         )
-
+    
         db.session.add(escola)
+        db.session.commit()
+
+        # VERIFICAR NÍVEIS
+
+        niveis_query = OpNiveis.query.filter(OpNiveis.nivel.in_(nivel)).all()
+        #realizar controle, de que não foi cadastrado nível
+
+        escola_niveis = [EscolaNiveis(
+            nivel_ensino_id=nivel.id, escola_id=escola.id
+        ) for nivel in niveis_query]
+        db.session.add_all(escola_niveis)
         db.session.commit()
 
         edificio = Edificios(
