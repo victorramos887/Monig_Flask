@@ -167,15 +167,19 @@ class AreaUmida(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-    tipo_area_umida = db.Column(db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
-    status_area_umida = db.Column(db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
+    tipo_area_umida = db.Column(
+        db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
+    status_area_umida = db.Column(
+        db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
-    tipo_area_umida_rel = db.relationship('TipoAreaUmida', backref='aux_tipo_area_umida')
-    status_area_umida_rel = db.relationship('StatusAreaUmida', backref='aux_status_area_umida')
+    tipo_area_umida_rel = db.relationship(
+        'TipoAreaUmida', backref='aux_tipo_area_umida')
+    status_area_umida_rel = db.relationship(
+        'StatusAreaUmida', backref='aux_status_area_umida')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -189,23 +193,14 @@ class AreaUmida(db.Model):
         self.localizacao_area_umida = localizacao_area_umida
         self.status_area_umida = status_area_umida
 
-    # def to_json(self):
-    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
     def to_json(self):
         area_umida_descricao = self.tipo_area_umida_rel.tipo if self.tipo_area_umida_rel else None
         status_descricao = self.status_area_umida_rel.status if self.status_area_umida_rel else None
-    
-        return {
-            'id': self.id,
-            'fk_edificios': self.fk_edificios,
-            'tipo_area_umida': area_umida_descricao,
-            'nome_area_umida': self.nome_area_umida,
-            'localizacao_area_umida': self.localizacao_area_umida,
-            'status_do_registro': self.status_do_registro,
-            'status_area_umida': status_descricao,
-            'data_criacao': self.data_criacao.strftime('%Y-%m-%d %H:%M:%S')
-        }
+
+        jsonRetorno = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        jsonRetorno['tipo_area_umida'] = area_umida_descricao
+        jsonRetorno['status_area_umida'] = status_descricao
+        return jsonRetorno
 
 class Equipamentos(db.Model):
 
@@ -214,13 +209,19 @@ class Equipamentos(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_area_umida = db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
-    tipo_equipamento = db.Column(db.String)
-    descricao_equipamento = db.Column(db.String)
+    tipo_equipamento = db.Column(
+        db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
+    descricao_equipamento = db.Column(
+        db.Integer, db.ForeignKey('main.descricao_equipamentos.id'))
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
+    tipo_equipamento_rel = db.relationship(
+        'TiposEquipamentos', backref='main.tipo_equipamentos.id')
+    descricao_equipamento_rel = db.relationship(
+        'DescricaoEquipamentos', backref='main.descricao_equipamentos.id')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -238,7 +239,13 @@ class Equipamentos(db.Model):
             quantInutil) if quantInutil != '' and quantInutil is not None else 0
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        tipo_equipamento = self.tipo_equipamento_rel.equipamento if self.tipo_equipamento_rel else None
+        descricao = self.descricao_equipamento_rel.descricao if self.descricao_equipamento_rel else None
+
+        jsonRetorno = {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        jsonRetorno['tipo_equipamento'] = tipo_equipamento
+        jsonRetorno['status_descricao'] = descricao
+        return jsonRetorno
 
 # Tabela auxiliar
 
@@ -296,6 +303,8 @@ class Usuarios(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # TABELAS DE OPÇÕES
+
+
 class TipoAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -314,6 +323,7 @@ class TipoAreaUmida(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+
 class StatusAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -331,6 +341,7 @@ class StatusAreaUmida(db.Model):
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+
 
 class Opcoes(db.Model):
 
@@ -373,15 +384,12 @@ class OpNiveis(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-
-
 class TiposEquipamentos(db.Model):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'tipo_equipamentos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    tipos = db.Column(db.JSON(db.String))
     equipamento = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -390,16 +398,38 @@ class TiposEquipamentos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, tipos, equipamento):
-        self.tipos = tipos
+    def __init__(self, equipamento):
         self.equipamento = equipamento
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+
+class DescricaoEquipamentos(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'descricao_equipamentos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipo_equipamento = db.Column(
+        db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
+    descricao = db.Column(db.String)
+    tipo_equipamento_rel = db.relationship(
+        'TiposEquipamentos', backref='tipo_equipamentos')
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, tipo_equipamento, descricao):
+        self.tipo_equipamento = tipo_equipamento
+        self.descricao = descricao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
 # Tabelas auxiliares MxM
-
-
 class EscolaNiveis(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
@@ -409,38 +439,100 @@ class EscolaNiveis(db.Model):
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
 
-def table_exists(table_name):
-    inspector = inspect(db.engine)
-    return table_name in inspector.get_table_names()
 
 def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Bebedouro', 'Jardim']
     statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
+    tiposequipamentos = ['Chuveiro', 'Torneira',
+                         'Hidrante', 'Sanitário']
+    descricaoequipamentos = [
+        {"Chuveiro": [
+            {
+                "descricao": "Chuveiro Elétrico"
+            },
+            {
+                "descricao": "Chuveiro Eletrônico"
+            },
+            {
+                "descricao": "Chuveiro Gás"
+            }],
+         "Torneira": [
+            {
+                "descricao": "Acionador por botão"
+            },
+            {
+                "descricao": "Acionador por sensor de proximidade"
+            },
+            {
+                "descricao": "Acionador presencial"
+            },
+            {
+                "descricao": "Acionador eletrônico"
+            },
+            {
+                "descricao": "Acionador por alavanca"
+            },
+            {
+                "descricao": "Acionador por registro giratório"
+            }
+        ],
+            "Hidrante": [
+            {
+                "descricao": "Enterrado"
+            },
+            {
+                "descricao": "Coluna"
+            }
+        ],
+            "Sanitário": [
+            {
+                "descricao": "Caixa a coplada"
+            },
+            {
+                "descricao": "Válvula de Descarga de Pressão"
+            }
+        ]
+        }
+    ]
 
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:
             opnivel = OpNiveis(nivel=nivel)
             db.session.add(opnivel)
-        else:
-            pass
 
     for areaumida in tipoareaumida:
         tipo = TipoAreaUmida.query.filter_by(tipo=areaumida).first()
         if not tipo:
             tipo = TipoAreaUmida(tipo=areaumida)
             db.session.add(tipo)
-        else:
-            pass
 
     for status in statusareaumida:
         st = StatusAreaUmida.query.filter_by(status=status).first()
 
         if not st:
-            st = StatusAreaUmida(status = status)
+            st = StatusAreaUmida(status=status)
             db.session.add(st)
-        else:
-            pass
-    
+
     db.session.commit()
+
+    for equipamento in descricaoequipamentos:
+        for key, values in equipamento.items():
+            tequi = TiposEquipamentos.query.filter_by(equipamento=key).first()
+            if not tequi:
+                tequi = TiposEquipamentos(equipamento=key)
+                db.session.add(tequi)
+                db.session.commit()
+
+            for desc in values:
+                descricao_str = desc['descricao']
+                descricao = DescricaoEquipamentos.query.filter_by(
+                    descricao=descricao_str).first()
+
+                if not descricao:
+                    descricao = DescricaoEquipamentos(
+                        tipo_equipamento=tequi.id, descricao=descricao_str
+                    )
+                    db.session.add(descricao)
+                    db.session.commit()

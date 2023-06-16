@@ -5,7 +5,7 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
 import traceback
 from sqlalchemy.exc import ArgumentError
 0
@@ -244,13 +244,6 @@ def populacao():
 def area_umida():
 
     formulario = request.get_json()
-    jsonr = {
-    "fk_edificios": 1,
-    "tipo_area_umida": 2,
-    "nome_area_umida": "Banheiro 1",
-    "localizacao_area_umida": "Piso térreo",
-    "status_area_umida": "Ativo"
-    }
 
     try:
         fk_edificios = formulario['fk_edificios']
@@ -311,8 +304,29 @@ def equipamentos():
 
     formulario = request.get_json()
 
+
+    #CONTINUAR DAQUI
+
     try:
-        equipamento = Equipamentos(**formulario)
+        fk_area_umida = formulario['fk_area_umida']
+        tipo_equipamento = formulario['tipo_equipamento']
+        descricao_equipamento = formulario['descricao_equipamento']
+        quantTotal = formulario['quantTotal']
+        quantProblema = formulario['quantProblema']
+        quantInutil = formulario['quantInutil']
+
+        tipo_equipamento = TiposEquipamentos.query.filter_by(equipamento=tipo_equipamento).first().id
+
+        descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
+
+        equipamento = Equipamentos(
+            fk_area_umida=fk_area_umida,
+            tipo_equipamento=tipo_equipamento,
+            descricao_equipamento=descricao_equipamento,
+            quantTotal=quantTotal,
+            quantProblema=quantProblema,
+            quantInutil=quantInutil
+        )
         db.session.add(equipamento)
         db.session.commit()
 

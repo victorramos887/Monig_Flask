@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from src.models.models import TiposEquipamentos
-from ..models import db, Customizados, Escolas, Opcoes, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida
+from ..models import db, Customizados, Escolas, Opcoes, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -41,15 +41,17 @@ def status_area_umida():
 #Equipamentos
 @options.get('/tipo_equipamento')
 def tipo_equipamento():
-    opcoes_pers = Opcoes.query.filter_by(funcao="Equipamentos").all()
-    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
+    opcoes_pers = TiposEquipamentos.query.all()
+    opcoes_pre_definidos = [op.equipamento for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + [o.tipo_equipamento for o in opcoes_personalizadas]
     return jsonify(options)
 
 @options.get('/descricao_equipamento')
 def descricao_equipamento():
-    opcoes_pers = TiposEquipamentos.query.all()
+    opcoes_pers = DescricaoEquipamentos.query.all()
+
+    #CONTINUAR DAQUI 2
     opcoes_pre_definidos = [{op.equipamento:op.tipos} for op in opcoes_pers]   
 
     return jsonify({"tipos":opcoes_pre_definidos})
