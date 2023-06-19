@@ -116,8 +116,8 @@ class Populacao(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-    nivel = db.Column(db.JSON(db.String))  # Mudança aqui
-    periodo = db.Column(db.String)
+    fk_niveis = db.Column(db.Integer, db.ForeignKey('main.opniveis.id'))
+    fk_periodo = db.Column(db.Integer, db.ForeignKey('main.populacao_periodos.id'))
     funcionarios = db.Column(db.Integer)
     alunos = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -127,10 +127,10 @@ class Populacao(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, nivel, periodo, funcionarios, alunos):
+    def __init__(self, fk_edificios, fk_niveis, fk_periodo, funcionarios, alunos):
         self.fk_edificios = fk_edificios
-        self.nivel = nivel if isinstance(nivel, list) else [nivel]
-        self.periodo = periodo
+        self.fk_niveis = fk_niveis
+        self.fk_periodo = fk_periodo
         self.funcionarios = funcionarios
         self.alunos = alunos
 
@@ -536,3 +536,50 @@ def add_opniveis():
                     )
                     db.session.add(descricao)
                     db.session.commit()
+
+
+class PopulacaoNiveis(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_niveis'
+
+    populacao_id = db.Column(db.Integer, db.ForeignKey(
+        'main.populacao.id'), primary_key=True)
+    nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
+        'main.opniveis.id'), primary_key=True)
+
+def add_opniveis():
+    opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
+    for nivel in opniveis:
+        opniveis = OpNiveis.query.filter_by(nivel=nivel).first()
+        if not opniveis:
+            opniveis = OpNiveis(nivel=nivel)
+            db.session.add(opniveis)
+
+
+    
+class PopulacaoPeriodo(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_periodos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    periodo = db.Column(db.String)
+    
+    
+    def add_periodos():
+        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
+        
+        for periodo in op_periodos:
+            op_periodos = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
+            if not op_periodos:
+                op_periodos = PopulacaoPeriodo(periodo=periodo)
+                db.session.add(op_periodos)
+
+    def __init__(self, periodo):
+        self.periodo = periodo
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
