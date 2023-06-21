@@ -1,20 +1,21 @@
-from flask import Blueprint, jsonify, request, render_template
-from ..constants.http_status_codes import (HTTP_200_OK, HTTP_400_BAD_REQUEST)
-from sqlalchemy import exc, func, select
-
+from flask import Blueprint, jsonify, request, render_template, current_app
+from ..constants.http_status_codes import (HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
+from sqlalchemy import func, select
+from flask_oidc import OpenIDConnect
 from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
+from ..keycloak_flask import oidc
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
-
-
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
+@oidc.require_login
 def escolas():
-
+    user = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'groups'])
+    print(user)
     escolas = Escolas.query.filter_by(status_do_registro=True).all()
     return jsonify({'return': [escola.to_json() for escola in escolas], "status": True}), HTTP_200_OK
 

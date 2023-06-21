@@ -7,8 +7,6 @@ from sqlalchemy import exc
 
 auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
 
-
-
 #cadastro de usuário
 @auth.post('/register')
 def register():

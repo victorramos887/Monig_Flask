@@ -1,16 +1,12 @@
 from flask import Blueprint, jsonify, request
-
 from src.models.models import TiposEquipamentos
 from ..models import db, Customizados, Escolas, Opcoes, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
-
 options = Blueprint('options', __name__, url_prefix='/api/v1/options')
 
 # Escola
-
-
 @options.get('/niveis')
 def niveis():
 
@@ -23,8 +19,6 @@ def niveis():
     return jsonify(options)
 
 # AreaUmida
-
-
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
     opcoes_pers = TipoAreaUmida.query.all()
@@ -45,8 +39,6 @@ def status_area_umida():
     return jsonify(options)
 
 # Equipamentos
-
-
 @options.get('/tipo_equipamento')
 def tipo_equipamento():
     opcoes_pers = TiposEquipamentos.query.all()
@@ -62,19 +54,7 @@ def descricao_equipamento():
     descricoes = DescricaoEquipamentos.query.all()
 
     # CONTINUAR DAQUI 2
-
-    # for de in descricoes:
     dicionario = {}
-
-
-    # for op in descricoes:
-    #     tipo_equipamento = op.tipo_equipamento_rel.equipamento
-    #     descricao = op.descricao
-
-    #     if tipo_equipamento in dicionario:
-    #         dicionario[tipo_equipamento].append(descricao)
-    #     else:
-    #         dicionario[tipo_equipamento] = [descricao]
 
     dicionario = {}
     for op in descricoes:
@@ -89,24 +69,9 @@ def descricao_equipamento():
     resultado = {"tipos": []}
     for tipo, descricoes in dicionario.items():
         resultado["tipos"].append({tipo: descricoes})
-
-
-    # for op in descricoes:
-    #     tipo_equipamento = op.tipo_equipamento_rel.equipamento
-    #     descricao = op.descricao
-
-    #     if tipo_equipamento not in opcoes_pre_definidos:
-    #         opcoes_pre_definidos[tipo_equipamento] = []
-
-    #     opcoes_pre_definidos[tipo_equipamento].append({"descricao": descricao})
-
-    # opcoes_pre_definidos = [{op.tipo_equipamento_rel.equipamento:op.descricao} for op in descricoes]
-
     return jsonify({"tipos": dicionario})
 
 # Populacao
-
-
 @options.get('/periodo')
 def periodo():
 
@@ -116,7 +81,6 @@ def periodo():
     options = opcoes_pre_definidos + \
         [o.periodo_populacao for o in opcoes_personalizadas]
     return jsonify(options)
-
 
 @options.get('/nivel_populacao/<int:id>')
 def nivel_populacao(id):
