@@ -12,10 +12,7 @@ send_frontend = Blueprint('send_frontend', __name__,
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
-@oidc.require_login
 def escolas():
-    user = oidc.user_getinfo(['preferred_username', 'email', 'sub', 'groups'])
-    print(user)
     escolas = Escolas.query.filter_by(status_do_registro=True).all()
     return jsonify({'return': [escola.to_json() for escola in escolas], "status": True}), HTTP_200_OK
 
@@ -130,9 +127,9 @@ def area_umidas(id):
 
         result.append({
             'id': area_umida.id,
-            'tipo_area_umida': area_umida.tipo_area_umida,
+            'tipo_area_umida': area_umida.tipo_area_umida_rel.tipo,
             'quant_equipamentos': total.total or 0 if total else 0,
-            "status": area_umida.status_area_umida
+            "status": area_umida.status_area_umida_rel.status
         })
 
     return jsonify({'area_umidas': result, "status":True})
