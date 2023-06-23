@@ -11,15 +11,15 @@ from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
 import tempfile
-from .keycloak_flask import oidc
+from .keycloak_flask import keycloak_openid
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
 
-diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-caminho_arquivo = os.path.join(diretorio_atual, 'config', 'client_secrets.json')
+# diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+# caminho_arquivo = os.path.join(diretorio_atual, 'config', 'client_secrets.json')
 
 
 
@@ -43,25 +43,7 @@ def create_app(test_config=None):
             },
             JWT_EXPIRATION_DELTA=timedelta(days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
             DEBUG=False,
-            OIDC_CLIENT_SECRETS=caminho_arquivo,
-            OIDC_ID_TOKEN_COOKIE_SECURE=False,
-            OIDC_REQUIRE_VERIFIED_EMAIL=False,
-            OIDC_USER_INFOR_ENABLED=True,
-            OIDC_OPENID_REALM='springBootkeycloak',
-            OIDC_SCOPES=['openid', 'email', 'profile'],
-            OIDC_INTROSPECTION_AUTH_METHOD='client_secret_post',
-            OIDC_TOKEN_TYPE_HINT='access_token'
         )
-
-        with open(caminho_arquivo, 'r') as f:
-            client_secrets_content = f.read()
-            client_secrets = json.loads(client_secrets_content)
-
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, dir=tempfile.gettempdir()) as temp_file:
-            temp_file.write(json.dumps(client_secrets))
-            temp_file.flush()
-            temp_file_path = temp_file.name
-            app.config['OIDC_CLIENT_SECRETS'] = temp_file.name
 
     else:
         app.config.from_mapping(
@@ -74,7 +56,6 @@ def create_app(test_config=None):
     db.init_app(app)
     
     with app.app_context():
-        oidc.init_app(app)
         db.create_all()
         add_opniveis()
 

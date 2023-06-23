@@ -144,9 +144,10 @@ class Hidrometros(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-    hidrometro = db.Column(db.String)
+    fk_hidrometro = db.Column(db.Integer, db.ForeignKey('main.tipo_hidrometros.id'))
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
+    tipo_hidrometros = db.relationship('TipoHidrometro', backref='tipo_hidrometros')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -412,8 +413,11 @@ class DescricaoEquipamentos(db.Model):
     tipo_equipamento = db.Column(
         db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
     descricao = db.Column(db.String)
+    vazao = db.Column(db.Float)
+    peso = db.Column(db.Float)
     tipo_equipamento_rel = db.relationship(
         'TiposEquipamentos', backref='tipo_equipamentos')
+    
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -423,6 +427,22 @@ class DescricaoEquipamentos(db.Model):
         self.tipo_equipamento = tipo_equipamento
         self.descricao = descricao
 
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+class TipoHidrometro(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'tipo_hidrometros'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipo_hidrometro = db.Column(db.String, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def __init__(self, tipo_hidrometro):
+        self.tipo_hidrometro = tipo_hidrometro
+    
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
@@ -437,13 +457,22 @@ class EscolaNiveis(db.Model):
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
 
+class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'area_umida_equipamento'
+
+    tipo_equipamento_id = db.Column(db.Integer, db.ForeignKey(
+        'main.tipo_equipamentos.id'), primary_key=True)
+    nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
+        'main.aux_tipo_area_umida.id'), primary_key=True)
+
 
 def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Bebedouro', 'Jardim']
     statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
-    tiposequipamentos = ['Chuveiro', 'Torneira',
-                         'Hidrante', 'Sanitário']
+    tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
+
     descricaoequipamentos = [
         {"Chuveiro": [
             {
@@ -512,6 +541,13 @@ def add_opniveis():
         if not st:
             st = StatusAreaUmida(status=status)
             db.session.add(st)
+
+    for hidrometro in tipohidrometro:
+        hid = TipoHidrometro.query.filter_by(tipo_hidrometro=hidrometro).first()
+
+        if not hid:
+            hid = TipoHidrometro(tipo_hidrometro=hidrometro)
+            db.session.add(hid)
 
     db.session.commit()
 
