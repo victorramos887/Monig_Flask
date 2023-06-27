@@ -3,23 +3,34 @@ import sys
 from time import sleep
 import json
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
-print(sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
 
-# def test_cadastro_escola(app, assert_response, new_escolas):
-#     # Converte o objeto para JSON
-#     json_data = json.dumps(new_escolas.to_json())
+from dotenv import load_dotenv
+
+# Define o diretório base do projeto
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+print(sys.path)
+# Caminho para o arquivo .env
+ENV_PATH = os.path.join(sys.path[0], '.env')
+
+# Carrega as variáveis de ambiente do arquivo .env
+load_dotenv(ENV_PATH)
+
+def test_cadastro_escola(app, assert_response, new_escolas):
+    # Converte o objeto para JSON
+    json_data = json.dumps(new_escolas.to_json())
     
-#     response = app.test_client().post(
-#         'api/v1/cadastros/escolas',
-#         data=json_data,
-#         content_type='application/json'
-#     )
+    response = app.test_client().post(
+        'api/v1/cadastros/escolas',
+        data=json_data,
+        content_type='application/json'
+    )
     
-#     data = response.get_json()
-#     assert response.status_code == 200
-#     assert data['id_escola'] == 1
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data['id_escola'] == 1
 
 
 # def test_cadastro_edificios(app, assert_response, new_edificios):

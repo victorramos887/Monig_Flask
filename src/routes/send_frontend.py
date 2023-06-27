@@ -152,8 +152,6 @@ def edificios(id):
     
 
 # RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
-
-
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 

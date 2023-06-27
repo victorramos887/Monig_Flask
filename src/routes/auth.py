@@ -4,14 +4,18 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST,HTTP_409_CONFLICT)
 from ..models import Usuarios, db #session
 from sqlalchemy import exc
+from .. import keycloak_flask
 
 auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
+
+
 
 #cadastro de usuário
 @auth.post('/register')
 def register():
-    
+
     #PEGANDO VALORES POST JSON
+    nome = request.json['nome']
     email = request.json['email']
     senha = request.json['senha']
 
@@ -20,20 +24,28 @@ def register():
         return jsonify({'error':'Senha muito curta'}), HTTP_400_BAD_REQUEST
 
     #VERIFICANDO SE O USUÁRIO JÁ EXISTE
-    if Usuarios.query.filter_by(email=email).first() is not None:
-        return jsonify({'errors':'Usuario ja existe'}), HTTP_409_CONFLICT
+    # if Usuarios.query.filter_by(email=email).first() is not None:
+    #     return jsonify({'errors':'Usuario ja existe'}), HTTP_409_CONFLICT
+
+    # new_user = keycloak_flask.keycloak_openid.create_user(request.json)
+    new_user = keycloak_flask.user(
+        nome=nome,
+        email=email,
+        senha=senha
+    )
+    print(new_user)
 
     #GERANDO HASH DA SENHA
-    pws_hash = generate_password_hash(senha)
+    #pws_hash = generate_password_hash(senha)
 
-    #CRIANDO O USUÁRIO
-    user = Usuarios(email=email,
-    senha=generate_password_hash(senha))  
+    # #CRIANDO O USUÁRIO
+    # user = Usuarios(email=email,
+    # senha=generate_password_hash(senha))  
 
-    db.session.add(user)
-    db.session.commit()
+    # db.session.add(user)
+    # db.session.commit()
 
-    return jsonify({ 'mensagem':'Usuario criado com sucesso!', 'user':email }), HTTP_201_CREATED
+    return jsonify({ 'mensagem':'Usuario criado com sucesso!', 'user':'' }), 200
 
 
 #login
