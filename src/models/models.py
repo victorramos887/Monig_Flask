@@ -6,6 +6,66 @@ from sqlalchemy import inspect
 db = SQLAlchemy()
 
 
+
+
+
+class Cliente(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'cliente'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    nome = db.Column(db.String(255), nullable=False, unique=True)
+    email = db.Column(db.String(55), unique=True, nullable=False)
+    cnpj = db.Column(db.String(18), unique=True, nullable=False)
+    telefone = db.Column(db.String(12))
+    usuarios = db.relationship('Usuarios', backref = 'usuarios')
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, nome, cnpj, email, telefone):
+        self.nome = nome
+        self.email = email
+        self.cnpj = cnpj
+        self.telefone = telefone
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+# USUARIOS
+
+class Usuarios(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'usuarios'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    cod_cliente = db.Column(db.Integer, db.ForeignKey('main.cliente.id'))
+    nome = db.Column(db.String(126), nullable=False)
+    email = db.Column(db.String, nullable=False, unique=True)
+    senha = db.Column(db.String(126), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, cod_cliente, nome, email, senha):
+        self.cod_cliente = cod_cliente
+        self.nome = nome
+        self.email = email
+        self.senha = senha
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
 class Escolas(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -546,3 +606,50 @@ def add_opniveis():
                     )
                     db.session.add(descricao)
                     db.session.commit()
+
+
+class PopulacaoNiveis(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_niveis'
+
+    populacao_id = db.Column(db.Integer, db.ForeignKey(
+        'main.populacao.id'), primary_key=True)
+    nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
+        'main.opniveis.id'), primary_key=True)
+
+def add_opniveis():
+    opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
+    for nivel in opniveis:
+        opniveis = OpNiveis.query.filter_by(nivel=nivel).first()
+        if not opniveis:
+            opniveis = OpNiveis(nivel=nivel)
+            db.session.add(opniveis)
+
+
+    
+class PopulacaoPeriodo(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_periodos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    periodo = db.Column(db.String)
+    
+    
+    def add_periodos():
+        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
+        
+        for periodo in op_periodos:
+            op_periodos = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
+            if not op_periodos:
+                op_periodos = PopulacaoPeriodo(periodo=periodo)
+                db.session.add(op_periodos)
+
+    def __init__(self, periodo):
+        self.periodo = periodo
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
