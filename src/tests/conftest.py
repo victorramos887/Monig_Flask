@@ -54,30 +54,32 @@ def new_escolas():
     return Escolas(
         nome=fake.company(),
         cnpj=cnpj(),
-        nivel=fake.random_element(elements=('Fundamental', 'Médio', 'Superior')),
         email=fake.email(),
         telefone=fake.phone_number()
         )
 
+# nivel=fake.random_element(elements=('fundamental', 'medio', 'superior', 'creche', 'bercario', 'ceu')),
 
 @fixture
 def new_edificios():
     return Edificios(
         fk_escola=1,
         nome_do_edificio=fake.company(),
-        nivel=fake.random_element(elements=('fundamental', 'medio', 'superior', 'creche', 'bercario', 'ceu')),
-        periodos=fake.random_element(elements=('matutino', 'vespertino', 'noturno', 'integral')),
-        principal=fake.random_element(elements=('on', 'off')),
-        cep=fake.postcode(),
-        logradouro=fake.street_address(),
-        numero_do_hidrometro=fake.uuid4(),
-        quanti_de_pavimentos=fake.random_int(min=1, max=20),
-        area_total=fake.pyfloat(min_value=100, max_value=5000, right_digits=2),
-        quant_de_colaboradores=fake.random_int(min=1, max=200),
-        quant_de_alunos=fake.random_int(min=1, max=2000),
-        reservatorio=fake.random_element(elements=('on', 'off')),
-        capacidade_reservatorio=fake.pyfloat(min_value=1000, max_value=50000, right_digits=2),
-        agua_de_reuso=fake.random_element(elements=('on', 'off'))
+        numero_edificio=fake.building_number(),
+        bairro_edificio=fake.city_suffix(),
+        cep_edificio=fake.postcode(),
+        cnpj_edificio=fake.cnpj(),
+        logradouro_edificio=fake.street_name(),
+        complemento_edificio=fake.secondary_address(),
+        cidade_edificio=fake.city(),
+        estado_edificio=fake.state_abbr(),
+        pavimentos_edificio=fake.random_int(min=1, max=10),
+        area_total_edificio=fake.pyfloat(min_value=100, max_value=1000, right_digits=2),
+        reservatorio=fake.boolean(),
+        capacidade_m3_edificio=fake.pyfloat(min_value=100, max_value=1000, right_digits=2),
+        agua_de_reuso=fake.boolean(),
+        capacidade_reuso_m3_edificio=fake.pyfloat(min_value=100, max_value=1000, right_digits=2),
+        principal=fake.boolean()
     ).to_json()
 
 

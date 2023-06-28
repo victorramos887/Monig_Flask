@@ -1,5 +1,5 @@
 import os  # type: ignore
-
+import json
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
 from .models import db
@@ -10,11 +10,18 @@ from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
+import tempfile
+# from .keycloak_flask import keycloak_openid
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
+
+# diretorio_atual = os.path.dirname(os.path.abspath(__file__))
+# caminho_arquivo = os.path.join(diretorio_atual, 'config', 'client_secrets.json')
+
+
 
 def create_app(test_config=None):
 
@@ -34,9 +41,8 @@ def create_app(test_config=None):
                 'titulo': 'API MONIG',
                 'version': 1
             },
-            JWT_EXPIRATION_DELTA=timedelta(
-                days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
-            DEBUG=False
+            JWT_EXPIRATION_DELTA=timedelta(days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
+            DEBUG=False,
         )
 
     else:
@@ -45,10 +51,10 @@ def create_app(test_config=None):
             SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
             DEBUG=False
         )
-
+    #os.path.join(config_dir, 'config', 'client_secrets.json')
     db.app = app  # type: ignore
     db.init_app(app)
-
+    
     with app.app_context():
         db.create_all()
       #  add_opniveis()

@@ -8,16 +8,14 @@ from werkzeug.exceptions import HTTPException
 from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
 import traceback
 from sqlalchemy.exc import ArgumentError
-0
-
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
-
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
+
     formulario = request.get_json()
 
     try:
@@ -304,9 +302,7 @@ def equipamentos():
 
     formulario = request.get_json()
 
-
     #CONTINUAR DAQUI
-
     try:
         fk_area_umida = formulario['fk_area_umida']
         tipo_equipamento = formulario['tipo_equipamento']

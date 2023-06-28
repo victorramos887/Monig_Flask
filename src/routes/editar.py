@@ -224,13 +224,9 @@ def area_umida_editar(id):
 
     if not umida:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
-    
     try:
-
         umida.update(**body)
-
         db.session.commit()
-
         return jsonify({"areaumida":umida.to_json(), "status": True}), HTTP_200_OK
         
     except exc.DBAPIError as e:
