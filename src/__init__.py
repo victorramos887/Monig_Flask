@@ -2,11 +2,11 @@ import os  # type: ignore
 
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
-from .models import db, add_opniveis
+from .models import db
 from . import routes
 from datetime import timedelta
 from flasgger import Swagger
-from flask import Blueprint, Flask, render_template
+from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
@@ -51,7 +51,7 @@ def create_app(test_config=None):
 
     with app.app_context():
         db.create_all()
-        add_opniveis()
+      #  add_opniveis()
 
     JWTManager(app)
 

@@ -9,35 +9,6 @@ auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
 
 
 
-#cadastro de usuário
-@auth.post('/register')
-def register():
-    
-    #PEGANDO VALORES POST JSON
-    email = request.json['email']
-    senha = request.json['senha']
-
-    #COLOCANDO LIMITE NA SENHA
-    if len(senha) < 6:
-        return jsonify({'error':'Senha muito curta'}), HTTP_400_BAD_REQUEST
-
-    #VERIFICANDO SE O USUÁRIO JÁ EXISTE
-    if Usuarios.query.filter_by(email=email).first() is not None:
-        return jsonify({'errors':'Usuario ja existe'}), HTTP_409_CONFLICT
-
-    #GERANDO HASH DA SENHA
-    pws_hash = generate_password_hash(senha)
-
-    #CRIANDO O USUÁRIO
-    user = Usuarios(email=email,
-    senha=generate_password_hash(senha))  
-
-    db.session.add(user)
-    db.session.commit()
-
-    return jsonify({ 'mensagem':'Usuario criado com sucesso!', 'user':email }), HTTP_201_CREATED
-
-
 #login
 @auth.post('/login')
 def login():

@@ -7,58 +7,7 @@ db = SQLAlchemy()
 
 
 
-class Cliente(db.Model):
 
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'cliente'
-
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    nome = db.Column(db.String(255), nullable=False, unique=True)
-    cnpj = db.Column(db.String(18), unique=True, nullable=False)
-    email = db.Column(db.String(55), unique=True, nullable=False)
-    telefone = db.Column(db.String(12))
-    usuarios = db.relationship('Usuarios', backref = 'usuarios')
-    created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __init__(self, email, senha):
-        self.email = email
-        self.senha = senha
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-# USUARIOS
-
-class Usuarios(db.Model):
-
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'usuarios'
-
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    cod_cliente =   cod_cliente = db.Column(db.Integer, db.ForeignKey('main.cliente.id'))
-    nome = db.Column(db.String(126), nullable=False)
-    email = db.Column(db.String, nullable=False, unique=True)
-    senha = db.Column(db.String(126), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __init__(self, nome, email, senha):
-        self.nome = nome
-        self.email = email
-        self.senha = senha
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 
@@ -594,3 +543,23 @@ class PopulacaoPeriodo(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+
+
+    class TipoAreaUmida(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'aux_tipo_area_umida'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipo = db.Column(db.String, nullable=False, unique=True)
+
+    def __init__(self, tipo):
+        self.tipo = tipo
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
