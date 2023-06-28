@@ -463,7 +463,7 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
 
     tipo_equipamento_id = db.Column(db.Integer, db.ForeignKey(
         'main.tipo_equipamentos.id'), primary_key=True)
-    nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
+    tipo_area_umida_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_area_umida.id'), primary_key=True)
 
 

@@ -11,7 +11,7 @@ from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
 import tempfile
-from .keycloak_flask import keycloak_openid
+# from .keycloak_flask import keycloak_openid
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
