@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from flask_oidc import OpenIDConnect
 from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token

@@ -276,30 +276,6 @@ class Customizados(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-# USUARIOS
-
-
-class Usuarios(db.Model):
-
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'usuarios'
-
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    email = db.Column(db.String, nullable=False, unique=True)
-    senha = db.Column(db.String(126), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __init__(self, email, senha):
-        self.email = email
-        self.senha = senha
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # TABELAS DE OPÇÕES
 
