@@ -5,7 +5,7 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, DescricaoEquipamentos
 import traceback
 from sqlalchemy.exc import ArgumentError
 

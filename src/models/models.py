@@ -6,11 +6,6 @@ from sqlalchemy import inspect
 db = SQLAlchemy()
 
 
-
-
-
-
-
 class Escolas(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -281,6 +276,27 @@ class Customizados(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+
+# TABELAS DE OPÇÕES
+
+
+class TipoAreaUmida(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'aux_tipo_area_umida'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tipo = db.Column(db.String, nullable=False, unique=True)
+
+    def __init__(self, tipo):
+        self.tipo = tipo
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
 class StatusAreaUmida(db.Model):
