@@ -107,6 +107,30 @@ class EscolasHistorico(db.Model):
     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
 
+class Reservatorios(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'reservatorios'
+    
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
+    nome_do_reservatorio = db.Column(db.String, unique=True, nullable=False )  
+
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, fk_escola, nome_do_reservatorio):
+
+        self.fk_escola = fk_escola
+        self.nome_do_reservatorio = nome_do_reservatorio
+        
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+
 class Edificios(db.Model):
 
     __table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
@@ -131,21 +155,18 @@ class Edificios(db.Model):
     complemento_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
-    reservatorio = db.Column(db.Boolean)  # padrao é False
-    capacidade_m3_edificio = db.Column(db.Float)
-    agua_de_reuso = db.Column(db.Boolean)
-    capacidade_reuso_m3_edificio = db.Column(db.Float)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
     populacao = db.relationship('Populacao', backref='populacao')
     hidrometros = db.relationship('Hidrometros', backref='hidrometros')
+    #reservatorios = db.relationship('Reservatorios', secondary='main.reservatorio_edificio')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, capacidade_m3_edificio=0.0, capacidade_reuso_m3_edificio=0.0, reservatorio=False, agua_de_reuso=False, principal=False):
+    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -161,10 +182,6 @@ class Edificios(db.Model):
         self.complemento_edificio = complemento_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
-        self.reservatorio = reservatorio
-        self.capacidade_m3_edificio = capacidade_m3_edificio if reservatorio else None
-        self.agua_de_reuso = agua_de_reuso
-        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if agua_de_reuso else None
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -492,6 +509,18 @@ class EscolaNiveis(db.Model):
         'main.escolas.id'), primary_key=True)
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
+
+
+class ReservatorioEdificio(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'reservatorio_edificio'
+
+    edificio_id = db.Column(db.Integer, db.ForeignKey(
+        'main.edificios.id'), primary_key=True)
+    reservatorio_id = db.Column(db.Integer, db.ForeignKey(
+        'main.reservatorios.id'), primary_key=True)
+
+
 
 class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
     __table_args__ = {'schema': 'main'}

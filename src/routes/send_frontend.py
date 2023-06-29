@@ -102,7 +102,7 @@ def get_escolas(id):
     }), 404
 
 
-# RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
+# RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
