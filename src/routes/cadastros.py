@@ -179,6 +179,7 @@ def escolas():
             bairro_edificio=bairro
         )
 
+
         db.session.add(edificio)
         db.session.commit()
 
@@ -224,12 +225,19 @@ def reservatorios():
         fk_escola = formulario['fk_escola']
         nome_do_reservatorio = formulario['nome_do_reservatorio']
       
-        
-        #CRIANDO O USUÁRIO
+        # Criando ou obtendo o edifício associado ao reservatório
+        edificio_id = formulario['fk_escola']
+        edificio = Edificios.query.filter_by(id=edificio_id).first()
+        if edificio is None:
+            return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
+
+        #CRIANDO O RESERVATORIO
         reservatorio = Reservatorios(
         fk_escola = fk_escola,
         nome_do_reservatorio = nome_do_reservatorio)
             
+        # Associando o reservatório ao edifício
+        edificio.reservatorio.append(reservatorio)    
 
         db.session.add(reservatorio)
         db.session.commit()

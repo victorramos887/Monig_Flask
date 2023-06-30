@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
 from sqlalchemy import inspect
+import sqlalchemy.orm.collections as col
 
 db = SQLAlchemy()
 
@@ -111,11 +112,16 @@ class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
     
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    id: db.Mapped[int] = db.mapped_column (db.Integer, autoincrement=True, primary_key=True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-    nome_do_reservatorio = db.Column(db.String, unique=True, nullable=False )  
-
-
+    nome_do_reservatorio = db.Column(db.String, nullable=False )  
+    edificio = db.relationship(
+    'Edificios',
+    back_populates="reservatorio",
+    secondary="main.reservatorio_edificio"
+)
+   
+  
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -140,7 +146,7 @@ class Edificios(db.Model):
                       {'schema': 'main'})
     __tablename__ = 'edificios'
 
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    id: db.Mapped[int] = db.mapped_column (db.Integer, autoincrement=True, primary_key=True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     numero_edificio = db.Column(db.String)
     nome_do_edificio = db.Column(db.String, nullable=False)
@@ -160,7 +166,12 @@ class Edificios(db.Model):
     area_umida = db.relationship('AreaUmida', backref='area_umida')
     populacao = db.relationship('Populacao', backref='populacao')
     hidrometros = db.relationship('Hidrometros', backref='hidrometros')
-    #reservatorios = db.relationship('Reservatorios', secondary='main.reservatorio_edificio')
+    reservatorio = db.relationship(
+    'Reservatorios',
+    back_populates="edificio",
+    secondary="main.reservatorio_edificio"
+)
+
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
