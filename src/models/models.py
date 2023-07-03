@@ -278,6 +278,29 @@ class Customizados(db.Model):
 
 # USUARIOS
 
+class Cliente(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'cliente'
+
+    id = db.Column(db.Integer, autoincrement = True, primary_key=True)
+    nome = db.Column(db.String, nullable=False)
+    cnpj = db.Column(db.String, unique=True)
+    email = db.Column(db.String)
+    telefone = db.Column(db.String)
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, email, telefone, senha, nome):
+        self.email = email
+        self.telefone = telefone
+        self.senha = senha
+        self.nome = nome
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 class Usuarios(db.Model):
 
@@ -285,8 +308,10 @@ class Usuarios(db.Model):
     __tablename__ = 'usuarios'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    nome = db.Column(db.String, nullable=False),
     email = db.Column(db.String, nullable=False, unique=True)
     senha = db.Column(db.String(126), nullable=False)
+    cod_cliente = db.Column(db.Integer,  db.ForeignKey('main.cliente.id'))
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -294,9 +319,11 @@ class Usuarios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, email, senha):
+    def __init__(self, email, cod_cliente, senha, nome):
         self.email = email
         self.senha = senha
+        self.cod_cliente = cod_cliente
+        self.nome = nome
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}

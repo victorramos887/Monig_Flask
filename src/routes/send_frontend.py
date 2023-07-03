@@ -11,41 +11,23 @@ send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
 
-# def validacao_token(access_token):
-#     try:
-#         access_token = access_token.split(' ')[1]
-#         token = autenticar_token(access_token)
-#         return {"token": token, 'retorno': {
-#             'return': [],
-#             'status': False,
-#             'mensagem': 'Token inválido ou sessão expirou'
-#         }}
-        
-#     except Exception as e:
-#         return {"token": False, 'retorno':{
-#             'return': [],
-#             'status': False,
-#             'mensagem': 'Token não enviado.'
-#         }}
-   
+ 
 
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
-    token = True
-    if token["token"]:
-        escolas = Escolas.query.filter_by(status_do_registro=True).all()
-        return jsonify({
-            'return': [escola.to_json() for escola in escolas],
-            'status': True,
-            'mensagem': 'Escolas retornadas com sucesso'
-        }), 200
-    else:
-        return jsonify(
-            token['retorno']
-        ), 407
+
+    escolas = Escolas.query.filter_by(status_do_registro=True).all()
+    return jsonify({
+        'return': [escola.to_json() for escola in escolas],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
+    }), 200
+
+
+
 
 
 # RETORNA APENAS UMA ESCOLA
