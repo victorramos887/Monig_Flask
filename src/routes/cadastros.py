@@ -5,11 +5,124 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Equipamentos, Populacao, Hidrometros, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
+from werkzeug.security import  generate_password_hash
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, DescricaoEquipamentos, Reservatorios
 import traceback
 from sqlalchemy.exc import ArgumentError
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
+
+
+
+#cadastro de cliente
+@cadastros.post('/cliente')
+def cliente():
+
+ try:
+
+    formulario = request.get_json()
+    cliente = Cliente(**formulario)
+    db.session.add(cliente)
+    db.session.commit()
+        
+    return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":cliente.to_json()}), HTTP_200_OK
+   
+ except ArgumentError as e:
+        error_message = str(e)
+        error_data = {'error': error_message}
+        json_error = json.dumps(error_data)
+        print(json_error)
+        return json_error
+    
+ except exc.DBAPIError as e:
+        db.session.rollback()
+        if e.orig.pgcode == '23505':
+            # extrai o nome do campo da mensagem de erro
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+
+ except Exception as e:
+        db.session.rollback()
+        if isinstance(e, HTTPException) and e.code == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        if isinstance(e, HTTPException) and e.code == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            "erro":e
+        })
+
+
+
+#cadastro de usuário
+@cadastros.post('/usuario')
+def usuario():
+
+    try:
+        formulario = request.get_json()
+        cod_cliente = formulario['cod_cliente']
+        nome = formulario['nome']
+        email = formulario['email']
+        senha = formulario['senha']
+        
+
+        #COLOCANDO LIMITE NA SENHA
+        if len(senha) < 6:
+            return jsonify({'error':'Senha muito curta'}), HTTP_400_BAD_REQUEST
+
+        #GERANDO HASH DA SENHA
+        pws_hash = generate_password_hash(senha)
+
+        #CRIANDO O USUÁRIO
+        usuario = Usuarios(
+            cod_cliente = cod_cliente,
+            nome=nome, 
+            email=email,
+            senha=generate_password_hash(senha))  
+
+        db.session.add(usuario)
+        db.session.commit()
+        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":usuario.to_json()}), HTTP_200_OK
+
+    except ArgumentError as e:
+        error_message = str(e)
+        error_data = {'error': error_message}
+        json_error = json.dumps(error_data)
+        print(json_error)
+        return json_error
+
+
+    except exc.DBAPIError as e:
+        db.session.rollback()
+        if e.orig.pgcode == '23505':
+            # extrai o nome do campo da mensagem de erro
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+
+    except Exception as e:
+        db.session.rollback()
+        if isinstance(e, HTTPException) and e.code == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        if isinstance(e, HTTPException) and e.code == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            "erro":e
+        })
+
+
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
@@ -66,6 +179,7 @@ def escolas():
             bairro_edificio=bairro
         )
 
+
         db.session.add(edificio)
         db.session.commit()
 
@@ -99,6 +213,68 @@ def escolas():
         return jsonify({
             "erro":e
         })
+
+
+#cadastro de reservatorios
+@cadastros.post('/reservatorios')
+def reservatorios():
+
+    formulario = request.get_json()
+    try:
+       
+        fk_escola = formulario['fk_escola']
+        nome_do_reservatorio = formulario['nome_do_reservatorio']
+      
+        # Criando ou obtendo o edifício associado ao reservatório
+        edificio_id = formulario['fk_escola']
+        edificio = Edificios.query.filter_by(id=edificio_id).first()
+        if edificio is None:
+            return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
+
+        #CRIANDO O RESERVATORIO
+        reservatorio = Reservatorios(
+        fk_escola = fk_escola,
+        nome_do_reservatorio = nome_do_reservatorio)
+            
+        # Associando o reservatório ao edifício
+        edificio.reservatorio.append(reservatorio)    
+
+        db.session.add(reservatorio)
+        db.session.commit()
+        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":reservatorio.to_json()}), HTTP_200_OK
+
+    except ArgumentError as e:
+        error_message = str(e)
+        error_data = {'error': error_message}
+        json_error = json.dumps(error_data)
+        print(json_error)
+        return json_error
+
+
+    except exc.DBAPIError as e:
+        db.session.rollback()
+        if e.orig.pgcode == '23505':
+            # extrai o nome do campo da mensagem de erro
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+
+    except Exception as e:
+        db.session.rollback()
+        if isinstance(e, HTTPException) and e.code == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        if isinstance(e, HTTPException) and e.code == '400':
+            #flash("Erro, 4 não salva")
+            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            "erro":e
+        })
+
 
 #Cadastros dos edifícios.
 @cadastros.post('/edificios')

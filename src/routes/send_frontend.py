@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from flask_oidc import OpenIDConnect
 from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token
@@ -68,7 +67,7 @@ def get_escolas(id):
             'mensagem': 'Escola retornada com sucesso!'
         }), 200
 
-# RETORNA TODOS OS ESDIFICOS DA ESCOLA PARA MONTAR A TABELA
+# RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
