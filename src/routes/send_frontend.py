@@ -2,15 +2,13 @@ from flask import Blueprint, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
+from ..models import Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
-
- 
 
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
@@ -29,7 +27,7 @@ def escolas():
 # RETORNA APENAS UMA ESCOLA
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
-    
+
     escola = Escolas.query.filter_by(id=id).first()
     escola_json = escola.to_json() if escola is not None else ''
 
@@ -68,12 +66,14 @@ def get_escolas(id):
         }), 200
 
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
+
+
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
 
     edificios = Edificios.query.filter_by(
-    fk_escola=id, status_do_registro=True).all()
+        fk_escola=id, status_do_registro=True).all()
     result = []
 
     for edificio in edificios:
@@ -100,12 +100,11 @@ def edificios(id):
             'area_umida': contador_area_umida or 0
         })
     return jsonify({
-        'edificios': result, 
+        'edificios': result,
         'status': True,
-        'mensagem':'Edificio retornado com sucesso!'
+        'mensagem': 'Edificio retornado com sucesso!'
     })
 
-    
 
 # RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
 @send_frontend.get('/edificio/<int:id>')
@@ -212,3 +211,24 @@ def hidrometro(id):
 def get_hidrometro(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
     return jsonify({'hidrometro': hidrometro.to_json() if hidrometro is not None else hidrometro, "status": True})
+
+
+@send_frontend.get('/reservatorio/<int:id>')
+def get_reservatorio(id):
+
+    reservatorio = Reservatorios.query.filter_by(
+        id=id
+    ).first()
+
+    return jsonify({
+        'reservatorio': reservatorio.to_json() if reservatorio is not None else reservatorio, "status": True
+    })
+
+# TODOS OS RESERVATÓRIOS
+@send_frontend.get('/reservatorios-table/<int:id>')
+def reservatorios(id):
+    reservatorios = Reservatorios.query.filter_by(
+        fk_escola=id, status_do_registro=True).all()
+    return jsonify({
+        "reservatorios": [reservatorio.to_json() for reservatorio in reservatorios], "status": True
+    })
