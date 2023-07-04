@@ -111,7 +111,7 @@ class EscolasHistorico(db.Model):
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
-    
+
     id: db.Mapped[int] = db.mapped_column (db.Integer, autoincrement=True, primary_key=True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False )  
@@ -523,8 +523,11 @@ class EscolaNiveis(db.Model):
 
 
 class ReservatorioEdificio(db.Model):
+
+     #esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio'
+
 
     edificio_id = db.Column(db.Integer, db.ForeignKey(
         'main.edificios.id'), primary_key=True)
