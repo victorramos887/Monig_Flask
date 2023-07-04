@@ -223,7 +223,7 @@ def reservatorios():
     try:
        
         fk_escola = formulario['fk_escola']
-        nome_do_reservatorio = formulario['nome_do_reservatorio']
+        nome_do_reservatorio = formulario['nome']
       
         # Criando ou obtendo o edifício associado ao reservatório
         edificio_id = formulario['fk_escola']

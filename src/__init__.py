@@ -1,8 +1,9 @@
 import os  # type: ignore
 import json
+
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
-from .models import db
+from .models import db, add_opniveis
 from . import routes
 from datetime import timedelta
 from flasgger import Swagger
@@ -17,11 +18,6 @@ import tempfile
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
-
-# diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-# caminho_arquivo = os.path.join(diretorio_atual, 'config', 'client_secrets.json')
-
-
 
 def create_app(test_config=None):
 
@@ -57,7 +53,7 @@ def create_app(test_config=None):
     
     with app.app_context():
         db.create_all()
-      #  add_opniveis()
+        add_opniveis()
 
     JWTManager(app)
 

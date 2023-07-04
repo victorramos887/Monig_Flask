@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from ..models import Escolas, Edificios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
+from ..models import Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token
 
@@ -10,146 +10,101 @@ send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
 
-# def validacao_token(access_token):
-#     try:
-#         access_token = access_token.split(' ')[1]
-#         token = autenticar_token(access_token)
-#         return {"token": token, 'retorno': {
-#             'return': [],
-#             'status': False,
-#             'mensagem': 'Token inválido ou sessão expirou'
-#         }}
-        
-#     except Exception as e:
-#         return {"token": False, 'retorno':{
-#             'return': [],
-#             'status': False,
-#             'mensagem': 'Token não enviado.'
-#         }}
-   
-
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
 @swag_from('../docs/send_frontend/escolas.yaml')
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
-    token = True
-    if token["token"]:
-        escolas = Escolas.query.filter_by(status_do_registro=True).all()
-        return jsonify({
-            'return': [escola.to_json() for escola in escolas],
-            'status': True,
-            'mensagem': 'Escolas retornadas com sucesso'
-        }), 200
-    else:
-        return jsonify(
-            token['retorno']
-        ), 407
+
+    escolas = Escolas.query.filter_by(status_do_registro=True).all()
+    return jsonify({
+        'return': [escola.to_json() for escola in escolas],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
+    }), 200
 
 
 # RETORNA APENAS UMA ESCOLA
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
-    token = validacao_token(request.headers.get('Authorization'))
-    
-    if token:
-        escola = Escolas.query.filter_by(id=id).first()
-        escola_json = escola.to_json() if escola is not None else ''
 
-        edificio = Edificios.query.filter_by(fk_escola=id).first()
-        edificio_json = edificio.to_json() if edificio is not None else None
+    escola = Escolas.query.filter_by(id=id).first()
+    escola_json = escola.to_json() if escola is not None else ''
 
-        result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
-            .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
-            .filter(EscolaNiveis.escola_id == escola.id) \
-            .all()
+    edificio = Edificios.query.filter_by(fk_escola=id).first()
+    edificio_json = edificio.to_json() if edificio is not None else None
 
-        nivelRetorno = [nivel for escola_id, nivel in result]
+    result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
+        .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+        .filter(EscolaNiveis.escola_id == escola.id) \
+        .all()
 
-        if edificio is not None and escola is not None:
+    nivelRetorno = [nivel for escola_id, nivel in result]
 
-            enviar = {
-                "cnpj": edificio_json["cnpj_edificio"],
-                "email": escola_json["email"],
-                "id": escola_json["id"],
-                "nivel": nivelRetorno,
-                "nome": escola_json["nome"],
-                "status_do_registro": escola_json["status_do_registro"],
-                "telefone": escola_json["telefone"],
-                "logradouro": edificio_json["logradouro_edificio"],
-                "bairro": edificio_json["bairro_edificio"],
-                "numero": edificio_json["numero_edificio"],
-                "complemento": edificio_json["complemento_edificio"],
-                "estado": edificio_json["estado_edificio"],
-                "cep": edificio_json["cep_edificio"],
-                "cidade": edificio_json["cidade_edificio"]
-            }
-            return jsonify({
-                "status": True,
-                "escola": enviar,
-                'mensagem': 'Escola retornada com sucesso!'
-            }), 200
-    else:
+    if edificio is not None and escola is not None:
+
+        enviar = {
+            "cnpj": edificio_json["cnpj_edificio"],
+            "email": escola_json["email"],
+            "id": escola_json["id"],
+            "nivel": nivelRetorno,
+            "nome": escola_json["nome"],
+            "status_do_registro": escola_json["status_do_registro"],
+            "telefone": escola_json["telefone"],
+            "logradouro": edificio_json["logradouro_edificio"],
+            "bairro": edificio_json["bairro_edificio"],
+            "numero": edificio_json["numero_edificio"],
+            "complemento": edificio_json["complemento_edificio"],
+            "estado": edificio_json["estado_edificio"],
+            "cep": edificio_json["cep_edificio"],
+            "cidade": edificio_json["cidade_edificio"]
+        }
         return jsonify({
-            'status': False,
-            'mensagem': 'Token inválido ou sessão expirou.',
-            'return':''
-        }), 407
-    
-    return jsonify({
-        "status": False,
-        'mensagem': 'Escola não encontrada.'
-    }), 404
-
+            "status": True,
+            "escola": enviar,
+            'mensagem': 'Escola retornada com sucesso!'
+        }), 200
 
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
+
+
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
 
-    token = validacao_token(request.headers.get('Authorization'))
-    if token:
-        edificios = Edificios.query.filter_by(
+    edificios = Edificios.query.filter_by(
         fk_escola=id, status_do_registro=True).all()
-        result = []
+    result = []
 
-        for edificio in edificios:
-            # População
-            soma_colaboradores, soma_alunos = (
-                db.session.query(
-                    func.sum(Populacao.funcionarios).label('soma_colaboradores'),
-                    func.sum(Populacao.alunos).label('soma_alunos')
-                )
-                .join(Edificios)
-                .filter(Populacao.fk_edificios == edificio.id)
-                .first()
+    for edificio in edificios:
+        # População
+        soma_colaboradores, soma_alunos = (
+            db.session.query(
+                func.sum(Populacao.funcionarios).label('soma_colaboradores'),
+                func.sum(Populacao.alunos).label('soma_alunos')
             )
-            soma_total = (soma_colaboradores or 0) + (soma_alunos or 0)
+            .join(Edificios)
+            .filter(Populacao.fk_edificios == edificio.id)
+            .first()
+        )
+        soma_total = (soma_colaboradores or 0) + (soma_alunos or 0)
 
-            # Area umida
-            contador_area_umida = db.session.query(func.count(AreaUmida.id)).filter(
-                AreaUmida.fk_edificios == edificio.id).scalar()
+        # Area umida
+        contador_area_umida = db.session.query(func.count(AreaUmida.id)).filter(
+            AreaUmida.fk_edificios == edificio.id).scalar()
 
-            result.append({
-                'id': edificio.id,
-                'nome': edificio.nome_do_edificio,
-                'populacao': soma_total or 0,
-                'area_umida': contador_area_umida or 0
-            })
-        return jsonify({
-            'edificios': result, 
-            'status': True,
-            'mensagem':'Edificio retornado com sucesso!'
+        result.append({
+            'id': edificio.id,
+            'nome': edificio.nome_do_edificio,
+            'populacao': soma_total or 0,
+            'area_umida': contador_area_umida or 0
         })
-    
-    else:
-        return jsonify({
-            'edificios':[],
-            'status': False,
-            'mensagem': 'Token inválido ou sessão expirou.'
-        })
+    return jsonify({
+        'edificios': result,
+        'status': True,
+        'mensagem': 'Edificio retornado com sucesso!'
+    })
 
-    
 
 # RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
 @send_frontend.get('/edificio/<int:id>')
@@ -256,3 +211,24 @@ def hidrometro(id):
 def get_hidrometro(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
     return jsonify({'hidrometro': hidrometro.to_json() if hidrometro is not None else hidrometro, "status": True})
+
+
+@send_frontend.get('/reservatorio/<int:id>')
+def get_reservatorio(id):
+
+    reservatorio = Reservatorios.query.filter_by(
+        id=id
+    ).first()
+
+    return jsonify({
+        'reservatorio': reservatorio.to_json() if reservatorio is not None else reservatorio, "status": True
+    })
+
+# TODOS OS RESERVATÓRIOS
+@send_frontend.get('/reservatorios-table/<int:id>')
+def reservatorios(id):
+    reservatorios = Reservatorios.query.filter_by(
+        fk_escola=id, status_do_registro=True).all()
+    return jsonify({
+        "reservatorios": [reservatorio.to_json() for reservatorio in reservatorios], "status": True
+    })
