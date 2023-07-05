@@ -27,7 +27,6 @@ def escolas():
 # RETORNA APENAS UMA ESCOLA
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
-
     escola = Escolas.query.filter_by(id=id).first()
     escola_json = escola.to_json() if escola is not None else ''
 
@@ -42,7 +41,6 @@ def get_escolas(id):
     nivelRetorno = [nivel for escola_id, nivel in result]
 
     if edificio is not None and escola is not None:
-
         enviar = {
             "cnpj": edificio_json["cnpj_edificio"],
             "email": escola_json["email"],
@@ -65,9 +63,14 @@ def get_escolas(id):
             'mensagem': 'Escola retornada com sucesso!'
         }), 200
 
+    # Adicione esta declaração de retorno caso a condição anterior não seja satisfeita
+    return jsonify({
+        "status": False,
+        "mensagem": "Escola não encontrada."
+    }), 404
+
+
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
-
-
 @send_frontend.get('/edificios-table/<int:id>')
 @swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):

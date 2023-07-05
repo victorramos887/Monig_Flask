@@ -6,6 +6,7 @@ import sqlalchemy.orm.collections as col
 
 db = SQLAlchemy()
 
+
 class Cliente(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -32,6 +33,7 @@ class Cliente(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
 
 class Escolas(db.Model):
 
@@ -127,6 +129,8 @@ class Edificios(db.Model):
     complemento_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
+    capacidade_reuso_m3_edificio = db.Column(db.Float)
+    agua_de_reuso = db.Column(db.Boolean, default=False)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
@@ -142,7 +146,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, principal=False):
+    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -158,6 +162,8 @@ class Edificios(db.Model):
         self.complemento_edificio = complemento_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
+        self.agua_de_reuso = agua_de_reuso
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -199,8 +205,9 @@ class Hidrometros(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     fk_hidrometro = db.Column(
-        db.Integer, db.ForeignKey('main.tipo_hidrometros.id'))
+        db.Integer, db.ForeignKey('main.tipo_hidrometros.id'), default=1)
     status_do_registro = db.Column(db.Boolean, default=True)
+    hidrometro = db.Column(db.String, nullable=False)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     tipo_hidrometros = db.relationship(
         'TipoHidrometro', backref='tipo_hidrometros')
@@ -338,6 +345,8 @@ class Customizados(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # USUARIOS
+
+
 class Usuarios(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -654,6 +663,7 @@ class PopulacaoNiveis(db.Model):
         'main.populacao.id'), primary_key=True)
     nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
+
 
 class PopulacaoPeriodo(db.Model):
     __table_args__ = {'schema': 'main'}

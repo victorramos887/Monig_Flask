@@ -153,7 +153,7 @@ def escolas():
         )
     
         db.session.add(escola)
-        db.session.commit()
+        
 
         # VERIFICAR NÍVEIS
 
@@ -164,7 +164,7 @@ def escolas():
             nivel_ensino_id=nivel.id, escola_id=escola.id
         ) for nivel in niveis_query]
         db.session.add_all(escola_niveis)
-        db.session.commit()
+        
 
         edificio = Edificios(
             fk_escola = int(escola.id),
@@ -185,6 +185,7 @@ def escolas():
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json(), "dada_edificio":edificio.to_json()}), HTTP_200_OK
     except ArgumentError as e:
+        db.session.rollback()
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
