@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from src.models.models import TiposEquipamentos
-from ..models import db, Customizados, Escolas, Opcoes, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, DescricaoEquipamentos
+from ..models import db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, PopulacaoPeriodo, AreaUmida, TipoDeAreaUmidaTipoDeEquipamento
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -39,43 +39,51 @@ def status_area_umida():
     return jsonify(options)
 
 # Equipamentos
-@options.get('/tipo_equipamento')
-def tipo_equipamento():
-    opcoes_pers = TiposEquipamentos.query.all()
-    opcoes_pre_definidos = [op.equipamento for op in opcoes_pers]
-    opcoes_personalizadas = Customizados.query.all()
-    options = opcoes_pre_definidos + \
-        [o.tipo_equipamento for o in opcoes_personalizadas]
-    return jsonify(options)
+@options.get('/tipo_equipamento/<int:area_umida>')
+def tipo_equipamento(area_umida):
+    tipoareaumida = TipoAreaUmida.query.filter_by(id=area_umida).first()
+
+    if tipoareaumida:
+        tipoareaumida_id = tipoareaumida.id
+    else:
+        return jsonify([])
+
+    opcoes_pers = TipoDeAreaUmidaTipoDeEquipamento.query.filter_by(tipo_area_umida_id=tipoareaumida_id).all()
+    opcoes_pre_definidos = [op.to_json()['tipo'] for op in opcoes_pers]
+    print(opcoes_pre_definidos)
+    return jsonify({
+        "tipoequipamentos": opcoes_pre_definidos
+    })
 
 
-@options.get('/descricao_equipamento')
-def descricao_equipamento():
-    descricoes = DescricaoEquipamentos.query.all()
 
-    # CONTINUAR DAQUI 2
-    dicionario = {}
+# @options.get('/descricao_equipamento')
+# def descricao_equipamento():
+#     descricoes = DescricaoEquipamentos.query.all()
 
-    dicionario = {}
-    for op in descricoes:
-        tipo_equipamento = op.tipo_equipamento_rel.equipamento
-        descricao = op.descricao
+#     # CONTINUAR DAQUI 2
+#     dicionario = {}
 
-        if tipo_equipamento in dicionario:
-            dicionario[tipo_equipamento].append(descricao)
-        else:
-            dicionario[tipo_equipamento] = [descricao]
+#     dicionario = {}
+#     for op in descricoes:
+#         tipo_equipamento = op.tipo_equipamento_rel.equipamento
+#         descricao = op.descricao
 
-    resultado = {"tipos": []}
-    for tipo, descricoes in dicionario.items():
-        resultado["tipos"].append({tipo: descricoes})
-    return jsonify({"tipos": dicionario})
+#         if tipo_equipamento in dicionario:
+#             dicionario[tipo_equipamento].append(descricao)
+#         else:
+#             dicionario[tipo_equipamento] = [descricao]
+
+#     resultado = {"tipos": []}
+#     for tipo, descricoes in dicionario.items():
+#         resultado["tipos"].append({tipo: descricoes})
+#     return jsonify({"tipos": dicionario})
 
 # Populacao
 @options.get('/periodo')
 def periodo():
 
-    opcoes_pers = Opcoes.query.filter_by(funcao="Periodo").all()
+    opcoes_pers = PopulacaoPeriodo.query.all()
     opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + \

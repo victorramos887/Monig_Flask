@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, DescricaoEquipamentos, Reservatorios
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo
 import traceback
 from sqlalchemy.exc import ArgumentError
 
@@ -311,7 +311,7 @@ def edificios():
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        if e.origin.pgcode == '22P02':
+        if e.orig.pgcode == '22P02':
             return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
@@ -372,9 +372,25 @@ def hidrometros():
 def populacao():
 
     formulario = request.get_json()
-
+    print(formulario)
+    nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
+    print(nivel)
     try:
-        populacao = Populacao(**formulario)
+
+        alunos = formulario['alunos']
+        funcionarios = formulario['funcionarios']
+        fk_edificios = formulario['fk_edificios']
+
+        nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
+        periodo = db.session.query(PopulacaoPeriodo.id).filter_by(periodo=formulario['periodo']).scalar()
+        
+        populacao = Populacao(
+            alunos=alunos,
+            funcionarios=funcionarios,
+            fk_periodo = periodo,
+            fk_edificios=fk_edificios,
+            fk_niveis = nivel
+        )
         db.session.add(populacao)
         db.session.commit()
 
@@ -411,6 +427,9 @@ def populacao():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            'status': False, 'mensagem': 'Erro não tratado', 'codigo':str(e)
+        }), HTTP_400_BAD_REQUEST
 
 
 #Cadastros das areas umidas
@@ -483,23 +502,24 @@ def equipamentos():
     try:
         fk_area_umida = formulario['fk_area_umida']
         tipo_equipamento = formulario['tipo_equipamento']
-        descricao_equipamento = formulario['descricao_equipamento']
+        # descricao_equipamento = formulario['descricao_equipamento']
         quantTotal = formulario['quantTotal']
         quantProblema = formulario['quantProblema']
         quantInutil = formulario['quantInutil']
 
-        tipo_equipamento = TiposEquipamentos.query.filter_by(equipamento=tipo_equipamento).first().id
+        tipo_equipamento = TiposEquipamentos.query.filter_by(aparelho_sanitario=tipo_equipamento).first().id
 
-        descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
+        # descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
 
         equipamento = Equipamentos(
             fk_area_umida=fk_area_umida,
             tipo_equipamento=tipo_equipamento,
-            descricao_equipamento=descricao_equipamento,
+            # descricao_equipamento=descricao_equipamento,
             quantTotal=quantTotal,
             quantProblema=quantProblema,
             quantInutil=quantInutil
         )
+
         db.session.add(equipamento)
         db.session.commit()
 
@@ -536,3 +556,8 @@ def equipamentos():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        print(e)
+        return jsonify({
+            'status': False,
+            'mensagem':'Erro não tratado.', 'codigo': str(e)
+        }), HTTP_400_BAD_REQUEST
