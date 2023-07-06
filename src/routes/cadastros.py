@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida
 import traceback
 from sqlalchemy.exc import ArgumentError
 
@@ -445,16 +445,23 @@ def area_umida():
         nome_area_umida = formulario['nome_area_umida']
         localizacao_area_umida = formulario['localizacao_area_umida']
         status_area_umida = formulario['status_area_umida']
+        operacao_area_umida = formulario['operacao_area_umida']
 
         tipos = TipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
-        status = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
+        if status_area_umida == "Aberto":
+            status_area_umida = True
+        else:
+            status_area_umida = False
 
+        operacao = OperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
+        
         umida = AreaUmida(
             fk_edificios = fk_edificios,
             tipo_area_umida = tipos.id,
             nome_area_umida = nome_area_umida,
             localizacao_area_umida = localizacao_area_umida,
-            status_area_umida = status.id
+            status_area_umida = status_area_umida,
+            operacao_area_umida=operacao.id
         )
 
         db.session.add(umida)
@@ -481,6 +488,8 @@ def area_umida():
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        
+        return jsonify({'status':False, 'mensagem': "Erro não Tratado", 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
         db.session.rollback()
@@ -490,6 +499,8 @@ def area_umida():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        
+        return jsonify({'status':False, 'mensagem': 'Erro não Tratado', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/equipamentos')

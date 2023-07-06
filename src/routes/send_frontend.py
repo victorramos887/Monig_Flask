@@ -143,14 +143,12 @@ def area_umidas(id):
             'id': area_umida.id,
             'tipo_area_umida': area_umida.tipo_area_umida_rel.tipo,
             'quant_equipamentos': total.total or 0 if total else 0,
-            "status": area_umida.status_area_umida_rel.status
+            "status": "Aberto" if area_umida.status_area_umida else "Fechado"
         })
 
     return jsonify({'area_umidas': result, "status": True})
 
 # RETORNA APENAS UMA
-
-
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
     area_umida = AreaUmida.query.filter_by(id=id).first()

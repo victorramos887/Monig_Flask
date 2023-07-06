@@ -247,8 +247,10 @@ class AreaUmida(db.Model):
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     tipo_area_umida = db.Column(
         db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
-    status_area_umida = db.Column(
-        db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
+    status_area_umida = db.Column(db.Boolean, default=True)
+    operacao_area_umida = db.Column(
+        db.Integer, db.ForeignKey('main.aux_operacao_area_umida.id')
+    )
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -256,29 +258,34 @@ class AreaUmida(db.Model):
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
     tipo_area_umida_rel = db.relationship(
         'TipoAreaUmida', backref='aux_tipo_area_umida')
-    status_area_umida_rel = db.relationship(
-        'StatusAreaUmida', backref='aux_status_area_umida')
+    
+    operacao_area_umida_rel = db.relationship(
+        'OperacaoAreaUmida', backref = 'aux_operacao_area_umida'
+    )
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, tipo_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
+    def __init__(self, fk_edificios, tipo_area_umida, operacao_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
 
         self.fk_edificios = fk_edificios
         self.tipo_area_umida = tipo_area_umida
         self.nome_area_umida = nome_area_umida
         self.localizacao_area_umida = localizacao_area_umida
         self.status_area_umida = status_area_umida
+        self.operacao_area_umida = operacao_area_umida
 
     def to_json(self):
+        
         area_umida_descricao = self.tipo_area_umida_rel.tipo if self.tipo_area_umida_rel else None
-        status_descricao = self.status_area_umida_rel.status if self.status_area_umida_rel else None
+        operacao = self.operacao_area_umida_rel.operacao if self.operacao_area_umida_rel else None
 
         jsonRetorno = {attr.name: getattr(self, attr.name)
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_area_umida'] = area_umida_descricao
-        jsonRetorno['status_area_umida'] = status_descricao
+        jsonRetorno['operacao_area_umida'] = operacao
+        jsonRetorno['status_area_umida'] = self.status_area_umida
         return jsonRetorno
 
 
@@ -458,29 +465,25 @@ class StatusAreaUmida(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
+class OperacaoAreaUmida(db.Model):
 
-# class Opcoes(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'aux_operacao_area_umida'
 
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'opcoes'
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    operacao = db.Column(db.String, nullable=False, unique=True)
 
-#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     opcao = db.Column(db.String, nullable=False, unique=True)
-#     funcao = db.Column(db.String, nullable=False)
-#     created_at = db.Column(db.DateTime, default=datetime.now())
-#     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    def __init__(self, operacao):
+        self.operacao = operacao
 
-#     def update(self, **kwargs):
-#         for key, value in kwargs.items():
-#             setattr(self, key, value)
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-#     def __init__(self, opcao, funcao):
-#         self.opcao = opcao
-#         self.funcao = funcao
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
+  
 
 class OpNiveis(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -523,33 +526,6 @@ class TiposEquipamentos(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-# class DescricaoEquipamentos(db.Model):
-
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'descricao_equipamentos'
-
-#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     tipo_equipamento = db.Column(
-#         db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
-#     descricao = db.Column(db.String)
-#     vazao = db.Column(db.Float)
-#     peso = db.Column(db.Float)
-#     tipo_equipamento_rel = db.relationship(
-#         'TiposEquipamentos', backref='tipo_equipamentos')
-
-#     def update(self, **kwargs):
-#         for key, value in kwargs.items():
-#             setattr(self, key, value)
-
-#     def __init__(self, tipo_equipamento, descricao):
-#         self.tipo_equipamento = tipo_equipamento
-#         self.descricao = descricao
-
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
 
 class TipoHidrometro(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -619,7 +595,7 @@ def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
-    statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
+    operacaoareaumida = ['Fechado', 'Em Manutenção', 'Parcialmente funcionando']
     tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
     populacao_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
     tipoequipamento = {
@@ -706,64 +682,6 @@ def add_opniveis():
             }
         ]
     }
-
-    tipoareaumidaequipamento = {
-        "Banheiro": [
-            "Bacia sanitária Caixa de descarga",
-            "Bacia sanitária Válvula de descarga",
-            "Chuveiro ou ducha",
-            "Chuveiro elétrico"
-        ]
-    }
-
-    for nivel in opniveis:
-        opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
-        if not opnivel:
-            opnivel = OpNiveis(nivel=nivel)
-            db.session.add(opnivel)
-
-    for areaumida in tipoareaumida:
-        tipo = TipoAreaUmida.query.filter_by(tipo=areaumida).first()
-        if not tipo:
-            tipo = TipoAreaUmida(tipo=areaumida)
-            db.session.add(tipo)
-
-    for status in statusareaumida:
-        st = StatusAreaUmida.query.filter_by(status=status).first()
-
-        if not st:
-            st = StatusAreaUmida(status=status)
-            db.session.add(st)
-
-    for hidrometro in tipohidrometro:
-        hid = TipoHidrometro.query.filter_by(
-            tipo_hidrometro=hidrometro).first()
-
-        if not hid:
-            hid = TipoHidrometro(tipo_hidrometro=hidrometro)
-            db.session.add(hid)
-
-    for periodo in populacao_periodos:
-        operiodo = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
-        if not operiodo:
-            operiodo = PopulacaoPeriodo(periodo=periodo)
-            db.session.add(operiodo)
-
-    for equipamento in tipoequipamento['tipoequipamento']:
-        oequipamento = TiposEquipamentos.query.filter_by(
-            aparelho_sanitario=equipamento['aparelho_sanitario']).first()
-
-        if not oequipamento:
-            oequipamento = TiposEquipamentos(
-                aparelho_sanitario=equipamento['aparelho_sanitario'],
-                vazao=equipamento['vazao'],
-                peso=equipamento['peso']
-            )
-            db.session.add(oequipamento)
-        # print(item['aparelho_sanitario'], item['vazao'], item['peso'])
-
-    db.session.commit()
-
     tipoareaumidaequipamento = {
         "Banheiro": [
             "Bacia sanitária Caixa de descarga",
@@ -813,25 +731,52 @@ def add_opniveis():
         ]
     }
 
-    # for key, values in tipoareaumidaequipamento.items():
+    for nivel in opniveis:
+        opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
+        if not opnivel:
+            opnivel = OpNiveis(nivel=nivel)
+            db.session.add(opnivel)
 
-    #     idarea = TipoAreaUmida.query.filter_by(tipo=key).first().id
-    #     for value in values:
-    #         idEquipamento = TiposEquipamentos.query.filter_by(
-    #             aparelho_sanitario=value).first().id
+    for areaumida in tipoareaumida:
+        tipo = TipoAreaUmida.query.filter_by(tipo=areaumida).first()
+        if not tipo:
+            tipo = TipoAreaUmida(tipo=areaumida)
+            db.session.add(tipo)
 
-    #         if idEquipamento is not None and idarea is not None:
-    #             query = TipoDeAreaUmidaTipoDeEquipamento.query.filter_by(
-    #                 tipo_equipamento_id=idEquipamento,
-    #                 tipo_area_umida_id=idarea
-    #             )
+    for operacao in operacaoareaumida:
+        st = OperacaoAreaUmida.query.filter_by(operacao=operacao).first()
 
-    #             if not query:
-    #                 areaumidaequipamento = TipoDeAreaUmidaTipoDeEquipamento(
-    #                     tipo_equipamento_id=idEquipamento, tipo_area_umida_id=idarea)
-    #                 db.session.add(areaumidaequipamento)
+        if not st:
+            st = OperacaoAreaUmida(operacao=operacao)
+            db.session.add(st)
 
-    #         db.session.commit()
+    for hidrometro in tipohidrometro:
+        hid = TipoHidrometro.query.filter_by(
+            tipo_hidrometro=hidrometro).first()
+
+        if not hid:
+            hid = TipoHidrometro(tipo_hidrometro=hidrometro)
+            db.session.add(hid)
+
+    for periodo in populacao_periodos:
+        operiodo = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
+        if not operiodo:
+            operiodo = PopulacaoPeriodo(periodo=periodo)
+            db.session.add(operiodo)
+
+    for equipamento in tipoequipamento['tipoequipamento']:
+        oequipamento = TiposEquipamentos.query.filter_by(
+            aparelho_sanitario=equipamento['aparelho_sanitario']).first()
+
+        if not oequipamento:
+            oequipamento = TiposEquipamentos(
+                aparelho_sanitario=equipamento['aparelho_sanitario'],
+                vazao=equipamento['vazao'],
+                peso=equipamento['peso']
+            )
+            db.session.add(oequipamento)
+
+    db.session.commit()
 
     for key, values in tipoareaumidaequipamento.items():
         idarea = TipoAreaUmida.query.filter_by(tipo=key).first()
@@ -855,25 +800,3 @@ def add_opniveis():
                         db.session.add(areaumidaequipamento)
 
             db.session.commit()
-
-
-        # tipo_equipamento_id tipo_area_umida_id
-    # for equipamento in descricaoequipamentos:
-    #     for key, values in equipamento.items():
-    #         tequi = TiposEquipamentos.query.filter_by(equipamento=key).first()
-    #         if not tequi:
-    #             tequi = TiposEquipamentos(equipamento=key)
-    #             db.session.add(tequi)
-    #             db.session.commit()
-
-    #         for desc in values:
-    #             descricao_str = desc['descricao']
-    #             descricao = DescricaoEquipamentos.query.filter_by(
-    #                 descricao=descricao_str).first()
-
-    #             if not descricao:
-    #                 descricao = DescricaoEquipamentos(
-    #                     tipo_equipamento=tequi.id, descricao=descricao_str
-    #                 )
-    #                 db.session.add(descricao)
-    #                 db.session.commit()
