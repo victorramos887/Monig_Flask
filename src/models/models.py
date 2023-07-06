@@ -162,7 +162,7 @@ class Edificios(db.Model):
         self.complemento_edificio = complemento_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
-        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if isinstance(capacidade_reuso_m3_edificio, int) else 0
         self.agua_de_reuso = agua_de_reuso
 
     def to_json(self):
