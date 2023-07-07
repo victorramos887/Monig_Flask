@@ -186,7 +186,9 @@ def reservatorio_editar(id):
         return jsonify({'mensagem': 'reservatorio não encontrado',"status": False}), 404
 
     try:
-        reservatorio.update(**body)
+        reservatorio.update(
+            nome_do_reservatorio = body['nome']
+        )
 
         db.session.commit()
 
@@ -371,28 +373,28 @@ def populacao_editar(id):
 def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
     body = request.get_json()
-    print(body)
-
-    if not umida:
+    print(umida.to_json())
+    if not umida or umida is None:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
+    
     try:
-
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
 
-        status_area_umida = StatusAreaUmida.query.filter_by(status =body['status_area_umida']).first()
+        #status_area_umida = StatusAreaUmida.query.filter_by(status =body['status_area_umida']).first()
         tipo_area_umida = TipoAreaUmida.query.filter_by(tipo = body['tipo_area_umida']).first()
-                   
+
         umida.update(
             tipo_area_umida = tipo_area_umida.id,
-            status_area_umida = status_area_umida.id,
+            status_area_umida = True,
             nome_area_umida = nome_area_umida,
             localizacao_area_umida = localizacao_area_umida,
             fk_edificios = fk_edificios
         )
 
         db.session.commit()
+
         return jsonify({"areaumida":umida.to_json(), "status": True, 'mensagem': "Atualizado com sucesso"}), HTTP_200_OK
         
     except exc.DBAPIError as e:
@@ -414,7 +416,8 @@ def area_umida_editar(id):
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), 400
+
+        return jsonify({'status':False, 'mensagem': "Erro não tratado 122", 'codigo':f'{e}'}), 400
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -423,9 +426,10 @@ def area_umida_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        
         return jsonify({
             'status':False,
-            'mensagem':'Erro não tratado',
+            'mensagem':'Erro não tratado ',
             'codigo':str(e)
         }), HTTP_400_BAD_REQUEST
     
