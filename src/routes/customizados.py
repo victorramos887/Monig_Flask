@@ -47,17 +47,6 @@ def tipo_equipamento():
     db.session.commit()
     return jsonify({'status':True}), 200
 
-@customizados.post('/descricao_equipamento')
-def descricao_equipamento():
-    # Obtém os dados enviados pelo usuário através do formulário
-    item_personalizado = request.get_json()
-    tipo_equipamento = Customizados(**item_personalizado)
-   # criado_por = current_user.username 
-    db.session.add(tipo_equipamento)
-    db.session.commit()
-    return jsonify({'status':True}), 200
-
-
 #Populacao
 @customizados.post('/periodo')
 def periodo():

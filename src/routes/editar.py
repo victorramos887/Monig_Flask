@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -186,7 +186,9 @@ def reservatorio_editar(id):
         return jsonify({'mensagem': 'reservatorio não encontrado',"status": False}), 404
 
     try:
-        reservatorio.update(**body)
+        reservatorio.update(
+            nome_do_reservatorio = body['nome']
+        )
 
         db.session.commit()
 
@@ -313,8 +315,22 @@ def populacao_editar(id):
         return jsonify({'mensagem': 'Populacao não encontrado', "status": False}), 404
     
     try:
+        print(body)
+        alunos = body['alunos']
+        fk_edificios = body['fk_edificios']
+        funcionarios = body['funcionarios']
+        nivel = OpNiveis.query.filter_by(nivel=body['nivel']).first()
+        periodo = PopulacaoPeriodo.query.filter_by(periodo=body['periodo']).first()
 
-        populacao.update(**body)
+
+        print(periodo.id)
+        populacao.update(
+            alunos = alunos,
+            fk_edificios = fk_edificios,
+            funcionarios = funcionarios,
+            fk_niveis = nivel.id,
+            fk_periodo = periodo.id
+        )   
 
         db.session.commit()
 
@@ -340,6 +356,8 @@ def populacao_editar(id):
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
+        return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -347,20 +365,37 @@ def populacao_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-    
+
+        return jsonify({'status':False, 'mensagem': 'Erro não tratado', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
 
 #EDITAR AREA UMIDA
 @editar.put('/area-umida/<id>')
 def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
     body = request.get_json()
-
-    if not umida:
+    print(umida.to_json())
+    if not umida or umida is None:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
+    
     try:
-        umida.update(**body)
+        fk_edificios = body['fk_edificios']
+        localizacao_area_umida = body['localizacao_area_umida']
+        nome_area_umida = body['nome_area_umida']
+
+        #status_area_umida = StatusAreaUmida.query.filter_by(status =body['status_area_umida']).first()
+        tipo_area_umida = TipoAreaUmida.query.filter_by(tipo = body['tipo_area_umida']).first()
+
+        umida.update(
+            tipo_area_umida = tipo_area_umida.id,
+            status_area_umida = True,
+            nome_area_umida = nome_area_umida,
+            localizacao_area_umida = localizacao_area_umida,
+            fk_edificios = fk_edificios
+        )
+
         db.session.commit()
-        return jsonify({"areaumida":umida.to_json(), "status": True}), HTTP_200_OK
+
+        return jsonify({"areaumida":umida.to_json(), "status": True, 'mensagem': "Atualizado com sucesso"}), HTTP_200_OK
         
     except exc.DBAPIError as e:
         
@@ -382,6 +417,8 @@ def area_umida_editar(id):
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
+        return jsonify({'status':False, 'mensagem': "Erro não tratado 122", 'codigo':f'{e}'}), 400
+
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -389,6 +426,12 @@ def area_umida_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        
+        return jsonify({
+            'status':False,
+            'mensagem':'Erro não tratado ',
+            'codigo':str(e)
+        }), HTTP_400_BAD_REQUEST
     
 
 #EDITAR EQUIPAMENTO
@@ -401,7 +444,19 @@ def equipamento_editar(id):
         return jsonify({'mensagem': 'Equipamento não encontrado', "status": False}), 404
     try:
 
-        equipamento.update(**body)
+        fk_area_umida = body['fk_area_umida']
+        tipo_equipamento = TiposEquipamentos.query.filter_by(aparelho_sanitario = body['tipo_equipamento']).first()
+        quantTotal = body['quantTotal']
+        quantProblema = body['quantProblema']
+        quantInutil = body['quantInutil']
+
+        equipamento.update(
+            fk_area_umida = fk_area_umida,
+            tipo_equipamento = tipo_equipamento.id,
+            quantTotal = quantTotal,
+            quantProblema = quantProblema,
+            quantInutil = quantInutil
+        )
 
         db.session.commit()
 
@@ -426,6 +481,9 @@ def equipamento_editar(id):
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+ 
+        return jsonify({'status':False, 'mensagem': "Erro não Tratado", 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -434,4 +492,5 @@ def equipamento_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-    
+
+        return jsonify({'status':False, 'mensagem': 'Erro não tratado', 'codigo':str(e)}), HTTP_400_BAD_REQUEST

@@ -10,6 +10,34 @@ import sqlalchemy.orm.collections as col
 db = SQLAlchemy()
 
 
+class Cliente(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'cliente'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    nome = db.Column(db.String(255), nullable=False, unique=True)
+    email = db.Column(db.String(55), unique=True, nullable=False)
+    cnpj = db.Column(db.String(18), unique=True, nullable=False)
+    telefone = db.Column(db.String(12))
+    usuarios = db.relationship('Usuarios', backref='usuarios')
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, nome, cnpj, email, telefone):
+        self.nome = nome
+        self.email = email
+        self.cnpj = cnpj
+        self.telefone = telefone
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
 class Escolas(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -133,6 +161,8 @@ class Edificios(db.Model):
     complemento_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
+    capacidade_reuso_m3_edificio = db.Column(db.Float)
+    agua_de_reuso = db.Column(db.Boolean, default=False)
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
@@ -148,7 +178,7 @@ class Edificios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, pavimentos_edificio=None, area_total_edificio=None, principal=False):
+    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
@@ -164,6 +194,8 @@ class Edificios(db.Model):
         self.complemento_edificio = complemento_edificio
         self.pavimentos_edificio = pavimentos_edificio
         self.area_total_edificio = area_total_edificio
+        self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if isinstance(capacidade_reuso_m3_edificio, int) else 0
+        self.agua_de_reuso = agua_de_reuso
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -183,6 +215,11 @@ class Populacao(db.Model):
     status_do_registro = db.Column(db.Boolean, default=True)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
 
+    populacao_periodos = db.relationship(
+        'PopulacaoPeriodo', backref='populacao_periodos')
+    opniveis = db.relationship('OpNiveis', backref='opniveis')
+    # hidrometros = db.relationship('Hidrometros', backref='hidrometros')
+
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -195,7 +232,16 @@ class Populacao(db.Model):
         self.alunos = alunos
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+        jsonRetorno = {}
+        jsonRetorno['id'] = self.id
+        jsonRetorno['periodo'] = self.populacao_periodos.periodo if self.populacao_periodos else None
+        jsonRetorno['nivel'] = self.opniveis.nivel
+        jsonRetorno['alunos'] = self.alunos
+        jsonRetorno['funcionarios'] = self.funcionarios
+
+        # {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        return jsonRetorno
 
 
 class Hidrometros(db.Model):
@@ -205,8 +251,9 @@ class Hidrometros(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     fk_hidrometro = db.Column(
-        db.Integer, db.ForeignKey('main.tipo_hidrometros.id'))
+        db.Integer, db.ForeignKey('main.tipo_hidrometros.id'), default=1)
     status_do_registro = db.Column(db.Boolean, default=True)
+    hidrometro = db.Column(db.String, nullable=False)
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     tipo_hidrometros = db.relationship(
         'TipoHidrometro', backref='tipo_hidrometros')
@@ -232,8 +279,10 @@ class AreaUmida(db.Model):
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     tipo_area_umida = db.Column(
         db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
-    status_area_umida = db.Column(
-        db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
+    status_area_umida = db.Column(db.Boolean, default=True)
+    operacao_area_umida = db.Column(
+        db.Integer, db.ForeignKey('main.aux_operacao_area_umida.id')
+    )
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -241,29 +290,34 @@ class AreaUmida(db.Model):
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
     tipo_area_umida_rel = db.relationship(
         'TipoAreaUmida', backref='aux_tipo_area_umida')
-    status_area_umida_rel = db.relationship(
-        'StatusAreaUmida', backref='aux_status_area_umida')
+    
+    operacao_area_umida_rel = db.relationship(
+        'OperacaoAreaUmida', backref = 'aux_operacao_area_umida'
+    )
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, tipo_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
+    def __init__(self, fk_edificios, tipo_area_umida, operacao_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
 
         self.fk_edificios = fk_edificios
         self.tipo_area_umida = tipo_area_umida
         self.nome_area_umida = nome_area_umida
         self.localizacao_area_umida = localizacao_area_umida
         self.status_area_umida = status_area_umida
+        self.operacao_area_umida = operacao_area_umida
 
     def to_json(self):
+        
         area_umida_descricao = self.tipo_area_umida_rel.tipo if self.tipo_area_umida_rel else None
-        status_descricao = self.status_area_umida_rel.status if self.status_area_umida_rel else None
+        operacao = self.operacao_area_umida_rel.operacao if self.operacao_area_umida_rel else None
 
         jsonRetorno = {attr.name: getattr(self, attr.name)
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_area_umida'] = area_umida_descricao
-        jsonRetorno['status_area_umida'] = status_descricao
+        jsonRetorno['operacao_area_umida'] = operacao
+        jsonRetorno['status_area_umida'] = self.status_area_umida
         return jsonRetorno
 
 
@@ -276,8 +330,6 @@ class Equipamentos(db.Model):
     fk_area_umida = db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
     tipo_equipamento = db.Column(
         db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
-    descricao_equipamento = db.Column(
-        db.Integer, db.ForeignKey('main.descricao_equipamentos.id'))
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
@@ -285,17 +337,14 @@ class Equipamentos(db.Model):
     data_criacao = db.Column(db.DateTime, server_default=func.now())
     tipo_equipamento_rel = db.relationship(
         'TiposEquipamentos', backref='main.tipo_equipamentos.id')
-    descricao_equipamento_rel = db.relationship(
-        'DescricaoEquipamentos', backref='main.descricao_equipamentos.id')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, descricao_equipamento, tipo_equipamento, quantTotal, quantProblema, quantInutil):
+    def __init__(self, fk_area_umida, tipo_equipamento, quantTotal, quantProblema, quantInutil):
 
         self.fk_area_umida = fk_area_umida
-        self.descricao_equipamento = descricao_equipamento
         self.tipo_equipamento = tipo_equipamento
         self.quantTotal = int(quantTotal)
         self.quantProblema = int(
@@ -304,13 +353,11 @@ class Equipamentos(db.Model):
             quantInutil) if quantInutil != '' and quantInutil is not None else 0
 
     def to_json(self):
-        tipo_equipamento = self.tipo_equipamento_rel.equipamento if self.tipo_equipamento_rel else None
-        descricao = self.descricao_equipamento_rel.descricao if self.descricao_equipamento_rel else None
+        tipo_equipamento = self.tipo_equipamento_rel.aparelho_sanitario if self.tipo_equipamento_rel else None
 
         jsonRetorno = {attr.name: getattr(self, attr.name)
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_equipamento'] = tipo_equipamento
-        jsonRetorno['status_descricao'] = descricao
         return jsonRetorno
 
 # Tabela auxiliar
@@ -342,6 +389,8 @@ class Customizados(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # USUARIOS
+
+
 class Usuarios(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -369,6 +418,44 @@ class Usuarios(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # TABELAS DE OPÇÕES
+
+
+class PopulacaoNiveis(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_niveis'
+
+    populacao_id = db.Column(db.Integer, db.ForeignKey(
+        'main.populacao.id'), primary_key=True)
+    nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
+        'main.opniveis.id'), primary_key=True)
+
+
+class PopulacaoPeriodo(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'populacao_periodos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    periodo = db.Column(db.String)
+
+    def add_periodos():
+        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
+
+        for periodo in op_periodos:
+            op_periodos = PopulacaoPeriodo.query.filter_by(
+                periodo=periodo).first()
+            if not op_periodos:
+                op_periodos = PopulacaoPeriodo(periodo=periodo)
+                db.session.add(op_periodos)
+
+    def __init__(self, periodo):
+        self.periodo = periodo
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class TipoAreaUmida(db.Model):
@@ -408,29 +495,25 @@ class StatusAreaUmida(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-
-class Opcoes(db.Model):
+class OperacaoAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'opcoes'
+    __tablename__ = 'aux_operacao_area_umida'
 
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    opcao = db.Column(db.String, nullable=False, unique=True)
-    funcao = db.Column(db.String, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    id = db.Column(db.Integer, autoincrement = True, primary_key = True)
+    operacao = db.Column(db.String, nullable=False, unique=True)
+
+    def __init__(self, operacao):
+        self.operacao = operacao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, opcao, funcao):
-        self.opcao = opcao
-        self.funcao = funcao
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
+  
 
 class OpNiveis(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -456,7 +539,9 @@ class TiposEquipamentos(db.Model):
     __tablename__ = 'tipo_equipamentos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    equipamento = db.Column(db.String, nullable=False)
+    aparelho_sanitario = db.Column(db.String, nullable=False)
+    vazao = db.Column(db.Float)
+    peso = db.Column(db.Float)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -464,38 +549,13 @@ class TiposEquipamentos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, equipamento):
-        self.equipamento = equipamento
+    def __init__(self, aparelho_sanitario, peso, vazao):
+        self.aparelho_sanitario = aparelho_sanitario
+        self.vazao = vazao
+        self.peso = peso
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-class DescricaoEquipamentos(db.Model):
-
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'descricao_equipamentos'
-
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    tipo_equipamento = db.Column(
-        db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
-    descricao = db.Column(db.String)
-    vazao = db.Column(db.Float)
-    peso = db.Column(db.Float)
-    tipo_equipamento_rel = db.relationship(
-        'TiposEquipamentos', backref='tipo_equipamentos')
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __init__(self, tipo_equipamento, descricao):
-        self.tipo_equipamento = tipo_equipamento
-        self.descricao = descricao
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
 
 class TipoHidrometro(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -546,62 +606,163 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
     tipo_area_umida_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_area_umida.id'), primary_key=True)
 
+    tipo_equipamento_string = db.relationship(
+        'TiposEquipamentos',
+        backref = 'tipo_equipamentos'
+    )
+
+    def __init__(self, tipo_equipamento_id, tipo_area_umida_id):
+        self.tipo_equipamento_id = tipo_equipamento_id
+        self.tipo_area_umida_id = tipo_area_umida_id
+
+    def to_json(self):
+        tipo = self.tipo_equipamento_string.aparelho_sanitario
+        jsonEnviar = {}
+
+        jsonEnviar['tipo'] = tipo
+        jsonEnviar['equipamento_id'] = self.tipo_equipamento_id
+        return jsonEnviar
+
 
 def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
-    tipoareaumida = ['Banheiro', 'Cozinha', 'Bebedouro', 'Jardim']
-    statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
+    tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
+                     'Piscina', 'Jardim', 'Areas Umida Comum']
+    operacaoareaumida = ['Fechado', 'Em Manutenção', 'Parcialmente funcionando']
     tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
-
-    descricaoequipamentos = [
-        {"Chuveiro": [
+    populacao_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
+    tipoequipamento = {
+        "tipoequipamento": [
             {
-                "descricao": "Chuveiro Elétrico"
+                "aparelho_sanitario": "Bacia sanitária Caixa de descarga",
+                "vazao": 0.15,
+                "peso": 0.3
             },
             {
-                "descricao": "Chuveiro Eletrônico"
+                "aparelho_sanitario": "Bacia sanitária Válvula de descarga",
+                "vazao": 1.7,
+                "peso": 32
             },
             {
-                "descricao": "Chuveiro Gás"
-            }],
-         "Torneira": [
-            {
-                "descricao": "Acionador por botão"
+                "aparelho_sanitario": "Banheira",
+                "vazao": 0.3,
+                "peso": 1
             },
             {
-                "descricao": "Acionador por sensor de proximidade"
+                "aparelho_sanitario": "Bebedouro",
+                "vazao": 0.1,
+                "peso": 0.1
             },
             {
-                "descricao": "Acionador presencial"
+                "aparelho_sanitario": "Bidê",
+                "vazao": 0.1,
+                "peso": 0.1
             },
             {
-                "descricao": "Acionador eletrônico"
+                "aparelho_sanitario": "Chuveiro ou ducha",
+                "vazao": 0.2,
+                "peso": 0.4
             },
             {
-                "descricao": "Acionador por alavanca"
+                "aparelho_sanitario": "Chuveiro elétrico",
+                "vazao": 0.1,
+                "peso": 0.1
             },
             {
-                "descricao": "Acionador por registro giratório"
-            }
-        ],
-            "Hidrante": [
-            {
-                "descricao": "Enterrado"
+                "aparelho_sanitario": "Lavadora de pratos ou de roupas",
+                "vazao": 0.3,
+                "peso": 1
             },
             {
-                "descricao": "Coluna"
-            }
-        ],
-            "Sanitário": [
-            {
-                "descricao": "Caixa a coplada"
+                "aparelho_sanitario": "Lavatório",
+                "vazao": 0.15,
+                "peso": 0.3
             },
             {
-                "descricao": "Válvula de Descarga de Pressão"
+                "aparelho_sanitario": "Mictório cerâmico Válvula de descarga",
+                "vazao": 0.5,
+                "peso": 2.8
+            },
+            {
+                "aparelho_sanitario": "Mictório Caixa de descarga, registro de pressão ou válvula de descarga para mictório",
+                "vazao": 0.15,
+                "peso": 0.3
+            },
+            {
+                "aparelho_sanitario": "Mictório tipo calha",
+                "vazao": "0.15",
+                "peso": 0.3
+            },
+            {
+                "aparelho_sanitario": "Pia Torneira Gás",
+                "vazao": 0.25,
+                "peso": 0.7
+            },
+            {
+                "aparelho_sanitario": "Pia Toneira (Elétrica)",
+                "vazao": 0.1,
+                "peso": 0.1
+            },
+            {
+                "aparelho_sanitario": "Tanque",
+                "vazao": 0.25,
+                "peso": 0.7
+            },
+            {
+                "aparelho_sanitario": "Torneira de jardim ou lavagem em geral",
+                "vazao": 0.2,
+                "peso": 0.4
             }
         ]
-        }
-    ]
+    }
+    tipoareaumidaequipamento = {
+        "Banheiro": [
+            "Bacia sanitária Caixa de descarga",
+            "Bacia sanitária Válvula de descarga",
+            "Chuveiro ou ducha",
+            "Chuveiro elétrico",
+            "Mictório Caixa de descarga, registro de pressão ou válvula de descarga para mictório",
+            "Mictório cerâmico Válvula de descarga",
+            "Mictório tipo calha",
+            "Torneira de jardim ou lavagem em geral",
+            "Banheira",
+            "Bidê"
+        ],
+        "Cozinha": [
+            "Pia Torneira Gás",
+            "Pia Toneira (Elétrica)",
+            "Torneira de jardim ou lavagem em geral",
+            "Lavadora de pratos ou de roupas",
+            "Tanque",
+            "Bebedouro"
+        ],
+        "Piscina": [
+            "Banheira",
+            "Bidê",
+            "Chuveiro ou ducha",
+            "Chuveiro elétrico",
+            "Mictório Caixa de descarga, registro de pressão ou válvula de descarga para mictório",
+            "Lavatório",
+            "Mictório tipo calha",
+            "Tanque",
+            "Torneira de jardim ou lavagem em geral",
+            "Bacia sanitária Caixa de descarga",
+            "Bacia sanitária Válvulade descarga"
+        ],
+        "Lavanderia": [
+            "Tanque",
+            "Lavadora de pratos ou de roupas",
+            "Pia Torneira Gás",
+            "Pia Toneira (Elétrica)",
+            "Torneira de jardim ou lavagem em geral"
+        ],
+        "Areas Umida Comum": [
+            "Pia Torneira Gás",
+            "Pia Toneira (Elétrica)",
+            "Tanque",
+            "Bebedouro"
+        ]
+    }
 
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
@@ -615,11 +776,11 @@ def add_opniveis():
             tipo = TipoAreaUmida(tipo=areaumida)
             db.session.add(tipo)
 
-    for status in statusareaumida:
-        st = StatusAreaUmida.query.filter_by(status=status).first()
+    for operacao in operacaoareaumida:
+        st = OperacaoAreaUmida.query.filter_by(operacao=operacao).first()
 
         if not st:
-            st = StatusAreaUmida(status=status)
+            st = OperacaoAreaUmida(operacao=operacao)
             db.session.add(st)
 
     for hidrometro in tipohidrometro:
@@ -630,61 +791,45 @@ def add_opniveis():
             hid = TipoHidrometro(tipo_hidrometro=hidrometro)
             db.session.add(hid)
 
+    for periodo in populacao_periodos:
+        operiodo = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
+        if not operiodo:
+            operiodo = PopulacaoPeriodo(periodo=periodo)
+            db.session.add(operiodo)
+
+    for equipamento in tipoequipamento['tipoequipamento']:
+        oequipamento = TiposEquipamentos.query.filter_by(
+            aparelho_sanitario=equipamento['aparelho_sanitario']).first()
+
+        if not oequipamento:
+            oequipamento = TiposEquipamentos(
+                aparelho_sanitario=equipamento['aparelho_sanitario'],
+                vazao=equipamento['vazao'],
+                peso=equipamento['peso']
+            )
+            db.session.add(oequipamento)
+
     db.session.commit()
 
-    for equipamento in descricaoequipamentos:
-        for key, values in equipamento.items():
-            tequi = TiposEquipamentos.query.filter_by(equipamento=key).first()
-            if not tequi:
-                tequi = TiposEquipamentos(equipamento=key)
-                db.session.add(tequi)
-                db.session.commit()
+    for key, values in tipoareaumidaequipamento.items():
+        idarea = TipoAreaUmida.query.filter_by(tipo=key).first()
+        if idarea:
+            idarea = idarea.id
 
-            for desc in values:
-                descricao_str = desc['descricao']
-                descricao = DescricaoEquipamentos.query.filter_by(
-                    descricao=descricao_str).first()
+            for value in values:
+                idEquipamento = TiposEquipamentos.query.filter_by(
+                    aparelho_sanitario=value).first()
+                if idEquipamento:
+                    idEquipamento = idEquipamento.id
 
-                if not descricao:
-                    descricao = DescricaoEquipamentos(
-                        tipo_equipamento=tequi.id, descricao=descricao_str
+                    query = TipoDeAreaUmidaTipoDeEquipamento.query.filter_by(
+                        tipo_equipamento_id=idEquipamento,
+                        tipo_area_umida_id=idarea
                     )
-                    db.session.add(descricao)
-                    db.session.commit()
 
+                    if not query.first():
+                        areaumidaequipamento = TipoDeAreaUmidaTipoDeEquipamento(
+                            tipo_equipamento_id=idEquipamento, tipo_area_umida_id=idarea)
+                        db.session.add(areaumidaequipamento)
 
-class PopulacaoNiveis(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'populacao_niveis'
-
-    populacao_id = db.Column(db.Integer, db.ForeignKey(
-        'main.populacao.id'), primary_key=True)
-    nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
-        'main.opniveis.id'), primary_key=True)
-
-class PopulacaoPeriodo(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'populacao_periodos'
-
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    periodo = db.Column(db.String)
-
-    def add_periodos():
-        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
-
-        for periodo in op_periodos:
-            op_periodos = PopulacaoPeriodo.query.filter_by(
-                periodo=periodo).first()
-            if not op_periodos:
-                op_periodos = PopulacaoPeriodo(periodo=periodo)
-                db.session.add(op_periodos)
-
-    def __init__(self, periodo):
-        self.periodo = periodo
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+            db.session.commit()
