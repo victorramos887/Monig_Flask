@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
+from ..models import Escolas, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
 from sqlalchemy import exc
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
@@ -93,3 +93,18 @@ def equipamentos_remover(id):
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Equipamento removido'}), HTTP_200_OK 
+
+
+#reservatorios
+@remover.put('/reservatorios/<id>')
+def reservatorio_remover(id):
+    reservatorio = Reservatorios.query.filter_by(id=id).first()
+  
+
+    if not reservatorio:
+        return jsonify({'status':False,'mensagem': 'Reservatório não encontrado'}), 404
+    
+    reservatorio.status_do_registro = False
+    db.session.commit()
+
+    return jsonify({"status": True, 'mensagem': 'Reservatório removido'}), HTTP_200_OK 

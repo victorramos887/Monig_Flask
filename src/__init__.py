@@ -1,5 +1,6 @@
 import os  # type: ignore
 import json
+
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
 from .models import db, add_opniveis
@@ -11,17 +12,12 @@ from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
 import tempfile
-from .keycloak_flask import keycloak_openid
+# from .keycloak_flask import keycloak_openid
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
-
-# diretorio_atual = os.path.dirname(os.path.abspath(__file__))
-# caminho_arquivo = os.path.join(diretorio_atual, 'config', 'client_secrets.json')
-
-
 
 def create_app(test_config=None):
 
