@@ -20,14 +20,13 @@ def validacao_token(access_token):
             'status': False,
             'mensagem': 'Token inválido ou sessão expirou'
         }}
-        
+
     except Exception as e:
         return {"token": False, 'retorno':{
             'return': [],
             'status': False,
             'mensagem': 'Token não enviado.'
         }}
-   
 
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')

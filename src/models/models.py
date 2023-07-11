@@ -470,7 +470,7 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
 def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Bebedouro', 'Jardim']
-    statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção', 'Ativo']
+    statusareaumida = ['Aberto', 'Fechado', 'Em Manutenção'] # Alterar campos. (reunião)
     tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
 
     descricaoequipamentos = [
