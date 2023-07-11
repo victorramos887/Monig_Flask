@@ -166,7 +166,18 @@ class Edificios(db.Model):
         self.agua_de_reuso = agua_de_reuso
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        jsonRetorn = {}
+#         jsonRetorn['reservatorio'] = [reservatorios.nome_do_reservatorio for reservatorios in self.reservatorio]
+#         #return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        
+#         jsonRetorn.update({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+# jsonRetorn.update({'reservatorio': [reservatorios.nome_do_reservatorio for reservatorios in self.reservatorio]})
+
+#         return jsonRetorn
+
+        jsonRetorn.update({attr.name: getattr(self, attr.name) for attr in self.__table__.columns})
+        jsonRetorn.update({'reservatorio': [reservatorios.nome_do_reservatorio for reservatorios in self.reservatorio]})
+        return jsonRetorn
 
 
 class Populacao(db.Model):
