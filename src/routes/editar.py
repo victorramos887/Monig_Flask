@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -75,18 +75,18 @@ def usuario_editar(id):
             coluna = match.group(2) if match else 'coluna desconhecida'
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
             return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-        
+
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
             match = re.search(r'Key \((.*?)\)=', str(e))
             campo = match.group(1) if match else 'campo desconhecido'
             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
-        
+
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-    
+
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -115,18 +115,51 @@ def escolas_editar(id):
         print(k, i)
 
     try:
-        #comparar e incluir na tabela EscolasHistorico
-        # if escola != body:
-        #     db.session.add(EscolasHistorico(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
 
-        #atualizar tabela Escola - novas informações
+       #verificando niveis das escolas
+
+        escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
+
         escola.update(
             nome=body["nome"],
             cnpj=body["cnpj"],
             email=body["email"],
             telefone=body["telefone"]
         )
-        niveis = nivel=body["nivel"]
+
+        niveis=body["nivel"]
+        
+        niveis = [OpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
+
+        # Obtenha todos os níveis de ensino associados à escola
+        niveis_atuais = [n.nivel_ensino_id for n in escola_niveis]
+
+        # Determine os níveis a serem adicionados e removidos
+        niveis_adicionados = set(niveis) - set(niveis_atuais)
+        niveis_removidos = set(niveis_atuais) - set(niveis)
+
+        for nivel in niveis_adicionados:
+            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+            if op_nivel:
+                escola_nivel = EscolaNiveis(
+                    escola_id=id,
+                    nivel_ensino_id=op_nivel.id
+                )
+                db.session.add(escola_nivel)
+
+        # Remova os níveis de ensino que não estão mais presentes
+        for nivel in niveis_removidos:
+            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+            if op_nivel:
+                escola_nivel = EscolaNiveis.query.filter_by(
+                    escola_id=escola.id,
+                    nivel_ensino_id=op_nivel.id
+                ).first()
+                if escola_nivel:
+                    db.session.delete(escola_nivel)
+
+        # db.session.commit()
+
         #db.session.commit()
 
         edificio.update(
@@ -160,6 +193,7 @@ def escolas_editar(id):
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -171,7 +205,7 @@ def escolas_editar(id):
 
         return jsonify({
             "status":False,"mensagem":"Erro não tratado", "codigo":e
-        }), HTTP_500_INTERNAL_SERVER_ERROR
+        }), HTTP_400_BAD_REQUEST
 
 
 
