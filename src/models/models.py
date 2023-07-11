@@ -41,9 +41,9 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    nome = db.Column(db.String, unique=True, nullable=False)  # 255
-    cnpj = db.Column(db.String, unique=True, nullable=False)  # 18
-    email = db.Column(db.String, unique=True, nullable=False)  # 55
+    nome = db.Column(db.String)  # 255
+    cnpj = db.Column(db.String)  # 18
+    email = db.Column(db.String)  # 55
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')

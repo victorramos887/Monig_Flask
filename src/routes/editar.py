@@ -124,10 +124,9 @@ def escolas_editar(id):
             nome=body["nome"],
             cnpj=body["cnpj"],
             email=body["email"],
-            telefone=body["telefone"],
-            nivel=body["nivel"]
+            telefone=body["telefone"]
         )
-
+        niveis = nivel=body["nivel"]
         #db.session.commit()
 
         edificio.update(
