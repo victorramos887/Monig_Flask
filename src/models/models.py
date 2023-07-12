@@ -359,10 +359,8 @@ class Customizados(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # USUARIOS
-
-
 class Usuarios(db.Model):
-
+    
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'usuarios'
 
