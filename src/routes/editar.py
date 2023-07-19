@@ -266,7 +266,7 @@ def edificios_editar(id):
 
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
 
-        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios]
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios if reservatorio is not None]
         edificio.update(**body)
 
 

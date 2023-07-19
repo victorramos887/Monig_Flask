@@ -284,8 +284,8 @@ def edificios():
 
     try:
         formulario = request.get_json()
-        formulario_edificios = formulario.pop('reservatorio')
         formulario_reservatorio = formulario['reservatorio']
+        formulario_edificios = formulario.pop('reservatorio')
         edificio = Edificios(**formulario_edificios)
         reservatorio = ReservatorioEdificio(**formulario_reservatorio)
         db.session.add(edificio)
