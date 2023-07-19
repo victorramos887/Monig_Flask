@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -109,12 +109,6 @@ def escolas_editar(id):
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
-    for k, i in escola.to_json().items():
-        print(k, i)
-
-    for k, i in edificio.to_json().items():
-        print(k, i)
-
     try:
 
        #verificando niveis das escolas
@@ -141,16 +135,20 @@ def escolas_editar(id):
 
         for nivel in niveis_adicionados:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+                
+            print(op_nivel.id, ' nivel')
             if op_nivel:
                 escola_nivel = EscolaNiveis(
-                    escola_id=id,
+                    escola_id=escola.id,
                     nivel_ensino_id=op_nivel.id
                 )
+                
                 db.session.add(escola_nivel)
 
         # Remova os níveis de ensino que não estão mais presentes
         for nivel in niveis_removidos:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+            print(op_nivel.id)
             if op_nivel:
                 escola_nivel = EscolaNiveis.query.filter_by(
                     escola_id=escola.id,
@@ -159,9 +157,6 @@ def escolas_editar(id):
                 if escola_nivel:
                     db.session.delete(escola_nivel)
 
-        # db.session.commit()
-
-        #db.session.commit()
 
         edificio.update(
             numero_edificio=body["numero"],
@@ -172,35 +167,6 @@ def escolas_editar(id):
             logradouro_edificio=body["logradouro"],
             complemento=body["complemento"]
         )
-
-        nivels = body["nivel"]
-
-        niveis_query = OpNiveis.query.filter(OpNiveis.nivel.in_(nivels)).all()
-        # realizar controle, de que não foi cadastrado nível
-
-        niveis_relacionados = [relacionamento.nivel_ensino_id for relacionamento in EscolaNiveis.query.filter_by(escola_id=escola.id).all()]
-
-        # Identifica os níveis que estão na lista e não estão nos registros existentes
-        niveis_a_adicionar = list(set(niveis_query) - set(niveis_relacionados))
-
-        # Identifica os níveis que estão nos registros existentes e não estão na lista
-        niveis_a_remover = list(set(niveis_relacionados) - set(niveis_query))
-
-        # Realiza as ações necessárias com os níveis a adicionar e remover
-        if niveis_a_adicionar:
-            for nivel in niveis_a_adicionar:
-                novo_relacionamento = EscolaNiveis(escola_id=escola.id, nivel_ensino_id=nivel)
-                db.session.add(novo_relacionamento)
-
-        if niveis_a_remover:
-            for nivel in niveis_a_remover:
-                relacionamento = EscolaNiveis.query.filter_by(escola_id=escola.id, nivel_ensino_id=nivel).first()
-                db.session.delete(relacionamento)
-
-        escola_niveis = [EscolaNiveis(
-            nivel_ensino_id=nivel.id, escola_id=escola.id
-        ) for nivel in niveis_query]
-        db.session.add_all(escola_niveis)
 
         db.session.commit()
 
@@ -291,11 +257,49 @@ def edificios_editar(id):
     edificio = Edificios.query.filter_by(id=id).first()
     body = request.get_json()
 
+    reservatorios = body.pop('reservatorio')
+
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado', "status": False}), 404
 
     try:
+
+        EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
+
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios]
         edificio.update(**body)
+
+
+        reservatorioatual = [n.reservatorio_id for n in EdificioRes]
+        
+        reservatorio_adicionado = set(reservatorios) - set(reservatorioatual)
+        reservatorio_remover = set(reservatorioatual) - set(reservatorios)
+        for reservatorio in reservatorio_adicionado:
+            reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
+
+            if reservatorios_edificios:
+
+                edificios_reservatorio = ReservatorioEdificio(
+                    edificio_id=id,
+                    reservatorio_id=reservatorios_edificios.id
+                )
+                print(reservatorio)
+                db.session.add(edificios_reservatorio)
+
+        for reservatorio in reservatorio_remover:
+            print(reservatorio, ' remover')
+            reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
+
+            if reservatorios_edificios:
+
+                edificios_reservatorio = ReservatorioEdificio.query.filter_by(
+                    edificio_id=id,
+                    reservatorio_id=reservatorios_edificios.id         
+                ).first()
+                print(reservatorios)
+                if edificios_reservatorio:
+                    db.session.delete(edificios_reservatorio)
+  
 
         db.session.commit()
 
@@ -320,6 +324,8 @@ def edificios_editar(id):
             # STRING DATA RIGHT TRUNCATION
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
+        return jsonify({'status': False, 'mensagem': "Erro não tratado", 'codigo': f'{e}'}), HTTP_400_BAD_REQUEST
+    
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -327,6 +333,8 @@ def edificios_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+        
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 # EDITAR HIDROMETRO
 

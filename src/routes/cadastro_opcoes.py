@@ -11,7 +11,6 @@ def tiposCadastro():
     # PEGAR INFORMACOES DO JSON
     sends = request.get_json()
     tipos = [TiposEquipamentos(**send) for send in sends]
-    print(tipos)
     db.session.add_all(tipos)
     db.session.commit()
     return jsonify({
