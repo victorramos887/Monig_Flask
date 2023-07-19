@@ -290,7 +290,6 @@ def edificios():
         agua_de_reuso = formulario['agua_de_reuso']
         area_total_edificio = formulario['area_total_edificio']
         bairro_edificio = formulario['bairro_edificio']
-        capacidade_reuso_m3_edificio = formulario['capacidade_reuso_m3_edificio']
         cep_edificio = formulario['cep_edificio']
         cidade_edificio = formulario['cidade_edificio']
         cnpj_edificio = formulario['cnpj_edificio']
@@ -314,7 +313,6 @@ def edificios():
             estado_edificio=estado_edificio,
             cnpj_edificio=cnpj_edificio,
             logradouro_edificio=logradouro_edificio,
-            bairro_edificio=bairro_edificio,
             complemento_edificio=complemento_edificio,
             pavimentos_edificio=pavimentos_edificio,
             area_total_edificio=area_total_edificio,
