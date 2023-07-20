@@ -353,6 +353,11 @@ def edificio_principal(id):
         edificio.update(principal=body['principal'])
         db.session.commit()
 
+        return jsonify({
+            'mensagem': 'Alteração realizada com sucesso',
+            'status':True
+        }), 200
+
     except Exception as e:
         db.session.rollback()
         return jsonify({
