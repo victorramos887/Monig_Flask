@@ -337,6 +337,31 @@ def edificios_editar(id):
 
 # EDITAR HIDROMETRO
 
+@editar.put('/edificio-principal/<int:id>')
+def edificio_principal(id):
+
+
+    edificio = Edificios.query.filter_by(id=id).first()
+    if not edificio:
+        return jsonify({
+            'mensagem':'Edificio não encontrado', 'status':False
+        }), 404
+    
+    body = request.get_json()
+
+    try:
+        edificio.update(principal=body['principal'])
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'mensagem':'Erro não tratado',
+            'codigo':str(e),
+            'status':False
+        }), 404
+
+
 
 @editar.put('/hidrometros/<id>')
 def hidrometro_editar(id):
@@ -352,6 +377,7 @@ def hidrometro_editar(id):
 
         return jsonify({"hidrometro": hidrometro.to_json(), "status": True}), HTTP_200_OK
     except exc.DBAPIError as e:
+        db.session.rollback()
         if e.orig.pgcode == '23503':
             match = re.search(
                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
