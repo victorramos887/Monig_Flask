@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9af6c5e3-1a96-4b62-bc94-4d7a2f227ffb" name="Changes" comment="Changes">
-      <change beforePath="$PROJECT_DIR$/src/models/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/auth.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/cadastro_opcoes.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/cadastro_opcoes.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/cadastros.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/cadastros.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/routes/get_options.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/routes/get_options.py" afterDir="false" />
-    </list>
+    <list default="true" id="9af6c5e3-1a96-4b62-bc94-4d7a2f227ffb" name="Changes" comment="Changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

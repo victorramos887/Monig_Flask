@@ -144,7 +144,27 @@ class Edificios(db.Model):
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
-            setattr(self, key, value)
+            if key == 'principal':
+                verificar = self.query.filter_by(fk_escola=self.fk_escola).count()
+                if verificar == 1:
+                    self.principal = True
+                else:
+                    if value:
+                        print(value, ' passar aqui')
+                        edificioprincipal = self.query.filter_by(principal=True).first()
+                        if edificioprincipal is not None:
+                            edificioprincipal.principal = False  # Corrigido aqui
+                        self.principal = True
+                    else:
+                        edificios = self.query.filter_by(id = self.id).first()
+                        if edificios.principal:
+                            self.principal = True
+                        else:
+                            self.principal = False
+    
+            else:
+                setattr(self, key, value)
+
 
     def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
@@ -152,7 +172,6 @@ class Edificios(db.Model):
         self.numero_edificio = numero_edificio
         self.bairro_edificio = bairro_edificio
         self.nome_do_edificio = nome_do_edificio
-        self.principal = principal
         self.cep_edificio = cep_edificio
         self.cnpj_edificio = cnpj_edificio
         self.logradouro_edificio = logradouro_edificio
@@ -164,6 +183,15 @@ class Edificios(db.Model):
         self.area_total_edificio = area_total_edificio
         self.capacidade_reuso_m3_edificio = capacidade_reuso_m3_edificio if isinstance(capacidade_reuso_m3_edificio, int) else 0
         self.agua_de_reuso = agua_de_reuso
+
+        # PRINCIPAL
+        verificar = self.query.filter_by(fk_escola=self.fk_escola).count()
+        if verificar == 0:
+            self.principal = True
+        else:
+            self.principal = False
+                      
+
 
     def to_json(self):
         jsonRetorn = {}

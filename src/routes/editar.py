@@ -255,6 +255,7 @@ def reservatorio_editar(id):
 @editar.put('/edificios/<id>')
 def edificios_editar(id):
     edificio = Edificios.query.filter_by(id=id).first()
+    print(edificio)
     body = request.get_json()
 
     reservatorios = body.pop('reservatorio')
@@ -287,7 +288,6 @@ def edificios_editar(id):
                 db.session.add(edificios_reservatorio)
 
         for reservatorio in reservatorio_remover:
-            print(reservatorio, ' remover')
             reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
 
             if reservatorios_edificios:
@@ -296,7 +296,6 @@ def edificios_editar(id):
                     edificio_id=id,
                     reservatorio_id=reservatorios_edificios.id         
                 ).first()
-                print(reservatorios)
                 if edificios_reservatorio:
                     db.session.delete(edificios_reservatorio)
   
