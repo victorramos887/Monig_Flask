@@ -100,7 +100,8 @@ def edificios(id):
             'id': edificio.id,
             'nome': edificio.nome_do_edificio,
             'populacao': soma_total or 0,
-            'area_umida': contador_area_umida or 0
+            'area_umida': contador_area_umida or 0,
+            'principal':edificio.principal
         })
     return jsonify({
         'edificios': result,

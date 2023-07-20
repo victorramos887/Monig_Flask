@@ -150,7 +150,6 @@ class Edificios(db.Model):
                     self.principal = True
                 else:
                     if value:
-                        print(value, ' passar aqui')
                         edificioprincipal = self.query.filter_by(principal=True).first()
                         if edificioprincipal is not None:
                             edificioprincipal.principal = False  # Corrigido aqui
