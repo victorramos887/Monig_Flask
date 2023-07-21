@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida
+from ..models import Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio
 import traceback
 from sqlalchemy.exc import ArgumentError
 
@@ -284,8 +284,61 @@ def edificios():
 
     try:
         formulario = request.get_json()
-        edificio = Edificios(**formulario)
+        # formulario_reservatorio = formulario['reservatorio']
+        # formulario_edificios = formulario.pop('reservatorio')
+        fk_escola = formulario['fk_escola']
+        agua_de_reuso = formulario['agua_de_reuso']
+        area_total_edificio = formulario['area_total_edificio']
+        bairro_edificio = formulario['bairro_edificio']
+        cep_edificio = formulario['cep_edificio']
+        cidade_edificio = formulario['cidade_edificio']
+        cnpj_edificio = formulario['cnpj_edificio']
+        complemento_edificio = formulario['complemento_edificio']
+        estado_edificio = formulario['estado_edificio']
+        logradouro_edificio = formulario['logradouro_edificio']
+        nome_do_edificio = formulario['nome_do_edificio']
+        numero_edificio = formulario['numero_edificio']
+        pavimentos_edificio = formulario['pavimentos_edificio']
+        reservatorios = formulario['reservatorio']
+
+        
+
+        edificio = Edificios(
+            fk_escola=fk_escola,
+            numero_edificio=numero_edificio,
+            nome_do_edificio=nome_do_edificio,
+            cep_edificio=cep_edificio,
+            bairro_edificio=bairro_edificio,
+            cidade_edificio=cidade_edificio,
+            estado_edificio=estado_edificio,
+            cnpj_edificio=cnpj_edificio,
+            logradouro_edificio=logradouro_edificio,
+            complemento_edificio=complemento_edificio,
+            pavimentos_edificio=pavimentos_edificio,
+            area_total_edificio=area_total_edificio,
+            agua_de_reuso=agua_de_reuso,
+        )
+        
         db.session.add(edificio)
+
+        
+
+
+        for reservatorio_enviado in reservatorios:
+            reserv = Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio_enviado).first()
+
+            if reserv:
+
+                reservatorio = ReservatorioEdificio(
+                    edificio_id=edificio.id,
+                    reservatorio_id=reserv.id
+                )
+
+                db.session.add(reservatorio)
+            else:
+                db.session.rollback()
+                return jsonify({'status': False, 'mensagem': f'Reservatório não existente {reservatorio_enviado}', 'codigo':'Falha'}), 409
+
         db.session.commit()
 
         return jsonify({'status':True, 'id': edificio.id, "mensagem":"Cadastro Realizado!","data":edificio.to_json()}), HTTP_200_OK
