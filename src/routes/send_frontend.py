@@ -1,13 +1,21 @@
-from flask import Blueprint, jsonify, request, render_template, current_app
+from flask import Blueprint, json, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from ..models import Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
+
+
+# Verificar Historico de Deleção
+@send_frontend.get('/historico')
+def historico():
+
+    historico= Historico.query.all()
+    return jsonify([json.dumps(h.to_json()) for h in historico])
 
 
 # RETORNA TODAS AS ESCOLAS
@@ -114,8 +122,9 @@ def edificios(id):
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 
-    edificio = Edificios.query.filter(Edificios.id == id).first()
-    if edificio is None or edificio == '':
+    edificio = Edificios.query.filter_by(id=id, status_do_registro=True).first()
+
+    if edificio is None:
         return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
 
     return jsonify({'edificio': edificio.to_json(), "status": True}), HTTP_200_OK

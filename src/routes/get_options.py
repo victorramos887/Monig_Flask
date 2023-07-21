@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from src.models.models import TiposEquipamentos
-from ..models import db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, PopulacaoPeriodo, AreaUmida, TipoDeAreaUmidaTipoDeEquipamento, OperacaoAreaUmida
+from ..models import ( db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, 
+TiposEquipamentos, PopulacaoPeriodo, AreaUmida, TipoDeAreaUmidaTipoDeEquipamento, OperacaoAreaUmida )
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -74,6 +75,8 @@ def periodo():
         [o.periodo_populacao for o in opcoes_personalizadas]
     return jsonify(options)
 
+
+
 @options.get('/nivel_populacao/<int:id>')
 def nivel_populacao(id):
     escola = Escolas.query.filter_by(id=id).first()
@@ -98,3 +101,5 @@ def nivel_populacao(id):
         o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola)
 
     return jsonify(options)
+
+

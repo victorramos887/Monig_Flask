@@ -38,6 +38,21 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
+#Historico geral
+class Historico(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'historico'
+
+    id = db.Column(db.Integer, primary_key=True)
+    tabela = db.Column(db.String, nullable=False)
+    dados = db.Column(db.JSON, nullable=False)
+    data_alteracao = db.Column(db.DateTime, default=datetime.now)
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+
 class Escolas(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -110,11 +125,12 @@ class Reservatorios(db.Model):
 
 class Edificios(db.Model):
 
-    __table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
+    '''__table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
                       # cria unicidade das combinações chave e coluna
                       db.Index('ix_edificio_nome_escola',
                                'nome_do_edificio', 'fk_escola', unique=True),
-                      {'schema': 'main'})
+                      {'schema': 'main'})'''
+    __table_args__ = {'schema': 'main'}
     __tablename__ = 'edificios'
 
     id: db.Mapped[int] = db.mapped_column(
