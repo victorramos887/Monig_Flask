@@ -41,7 +41,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    nome = db.Column(db.String)  # 255
+    nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
     telefone = db.Column(db.String(16))  # 16
@@ -170,7 +170,7 @@ class Edificios(db.Model):
                 setattr(self, key, value)
 
 
-    def __init__(self, fk_escola, numero_edificio, bairro_edificio, nome_do_edificio, cep_edificio, cnpj_edificio, logradouro_edificio, complemento_edificio, cidade_edificio, estado_edificio, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
+    def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cnpj_edificio, logradouro_edificio, cep_edificio=None,bairro_edificio=None, complemento_edificio=None, cidade_edificio=None, estado_edificio=None, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
         self.numero_edificio = numero_edificio
