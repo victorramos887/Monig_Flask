@@ -52,7 +52,6 @@ class Historico(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-
 class Escolas(db.Model):
 
     __table_args__ = {'schema': 'main'}
