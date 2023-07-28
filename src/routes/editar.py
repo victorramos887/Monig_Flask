@@ -4,7 +4,6 @@ from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao,
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
-from http import HTTPStatus
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
@@ -350,6 +349,7 @@ def edificio_principal(id):
     body = request.get_json()
 
     try:
+        print('principal')
         edificio.update(principal=body['principal'])
         db.session.commit()
 

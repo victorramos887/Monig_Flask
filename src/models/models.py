@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import func,text
 from datetime import datetime
 from sqlalchemy import inspect
 import sqlalchemy.orm.collections as col
@@ -143,6 +143,11 @@ class Edificios(db.Model):
     )
 
     def update(self, **kwargs):
+
+        db.session.execute(text('CREATE UNIQUE INDEX ix_edificio_nome_escola_unique_name ON main.edificios (nome_do_edificio) WHERE status_do_registro = true;'))
+
+        db.session.commit()
+
         for key, value in kwargs.items():
             if key == 'principal':
                 verificar = self.query.filter_by(fk_escola=self.fk_escola).count()
