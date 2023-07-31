@@ -266,9 +266,10 @@ class Hidrometros(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, hidrometro):
+    def __init__(self, fk_edificios, hidrometro, fk_hidrometro):
         self.fk_edificios = fk_edificios
         self.hidrometro = hidrometro
+        self.fk_hidrometro = fk_hidrometro
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -303,7 +304,7 @@ class AreaUmida(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, tipo_area_umida, operacao_area_umida, nome_area_umida, localizacao_area_umida, status_area_umida):
+    def __init__(self, fk_edificios, tipo_area_umida, nome_area_umida, localizacao_area_umida = None, status_area_umida = True, operacao_area_umida = 4):
 
         self.fk_edificios = fk_edificios
         self.tipo_area_umida = tipo_area_umida
@@ -346,7 +347,7 @@ class Equipamentos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_area_umida, tipo_equipamento, quantTotal, quantProblema, quantInutil):
+    def __init__(self, fk_area_umida, tipo_equipamento, quantTotal, quantProblema=0, quantInutil=0):
 
         self.fk_area_umida = fk_area_umida
         self.tipo_equipamento = tipo_equipamento
@@ -629,8 +630,8 @@ def add_opniveis():
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
-    operacaoareaumida = ['Fechado', 'Em Manutenção', 'Parcialmente funcionando']
-    tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
+    operacaoareaumida = ['Fechado', 'Em Manutenção', 'Parcialmente funcionando', 'Aberto']
+    tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C', 'Pulsada', 'Normal']
     populacao_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
     tipoequipamento = {
         "tipoequipamento": [

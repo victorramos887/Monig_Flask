@@ -1,6 +1,9 @@
 from flask import Blueprint, request, jsonify
-from ..models import Escolas, Edificios, db
+from sqlalchemy import or_, and_
+from ..models import Escolas, Edificios, Hidrometros, TipoHidrometro, AreaUmida, Equipamentos, TiposEquipamentos, TipoDeAreaUmidaTipoDeEquipamento,db
 import pandas as pd
+import math
+
 
 
 valores = Blueprint('valores', __name__, url_prefix='/api/v1/valores')
@@ -20,23 +23,9 @@ def inserirGuarulhos():
         dfAreaUmida = pd.read_csv(
             areaumida, header=0, sep=";", encoding='latin-1')
 
-        print(dfEscola.columns)
-
         for index, row in dfEscola.iterrows():
-
-            # """
-            #     'ID', 'Unidade Escolar', 'Logradouro', 'Nº do Hidrômetro',
-            #     'Tipo Hidrometro', 'Data inspeção', 'Horário de início',
-            #     'Horário de Termino', 'DN da Tubulação de entrada (mm)',
-            #     'Ano de construição (reservatório)', 'Qnt. De Reservatório',
-            #     'Precisa de Reforma', 'Alt. Reservatório (m)', 'Vol. Reservatório (L)',
-            #     'Elevado', 'Enterrado', 'semi-enterrado', 'torre', 'PVC', 'CONCRETO',
-            #     'METALICO', 'Se Houver', 'Reservatório de água de reuso', 'Marca',
-            #     'Modelo', 'Potencia', 'Vazão', 'Marca2', 'Modelo3', 'Potencia4',
-            #     'Vazão5', 'Marca6', 'Modelo7', 'Potencia8', 'Vazão9', 'Bomba reserva',
-            #     'Técnico Responsável', 'Ajudante Técnico', 'Observações'
-            # """
-
+            
+            
             nome = row['Unidade Escolar'].upper()
             endereco = str(row['Logradouro']).split(',')
             if len(endereco) >= 2:
@@ -47,9 +36,9 @@ def inserirGuarulhos():
                 numero = "S/N"
 
             hidrometro = row['Nº do Hidrômetro']
+            tipohidrometro = row['Tipo Hidrometro']
             nivelenviado = row['Se Houver']
 
-            print(logradouro,' - nº:' ,numero)
 
             escolainsert = Escolas(
                 nome=nome,
@@ -58,9 +47,11 @@ def inserirGuarulhos():
                 email='-'
             )
 
+            db.session.add(escolainsert)
+            db.session.commit()
 
             edificioinsert = Edificios(
-                fk_escola = escolainsert.id,
+                fk_escola=escolainsert.id,
                 principal=True,
                 nome_do_edificio=nome,
                 logradouro_edificio=logradouro,
@@ -70,10 +61,147 @@ def inserirGuarulhos():
                 estado_edificio='SP'
             )
 
-            db.session.add(escolainsert)
             db.session.add(edificioinsert)
+            db.session.commit()
+                       
+            if type(tipohidrometro) == str:
+                tipo = TipoHidrometro.query.filter_by(tipo_hidrometro = tipohidrometro).first()
 
-        db.session.commit()
+                if tipo:
+                    tipo = tipo.id
+
+                    hidrometroinsert = Hidrometros(
+                        fk_edificios = edificioinsert.id,
+                         fk_hidrometro=tipo,
+                         hidrometro = hidrometro
+                    )
+                    db.session.add(hidrometroinsert)
+                    db.session.commit()
+
+            aumida = dfAreaUmida.loc[dfAreaUmida['idEscola'] == row['ID']]
+            
+            for i, r in aumida.iterrows():
+                fk_edificio = edificioinsert.id
+                nomearea = r['Local']
+
+                equipamentos = {
+                'vh' : r['VH'],
+                'ca' : r['CA'],
+                'tc' : r['TC'],
+                'ta' : r['TA'],
+                'ch' : r['CH'],
+                'mi' : r['MI'],
+                'be' : r['BE']
+                }
+                foradeusuo = r['Fora de uso']
+
+                if 'cozinha' in nomearea.lower() or 'refeitorio' in nomearea.lower() or 'refeitório' in nomearea.lower():
+                    areainsert = AreaUmida(
+                        fk_edificios = fk_edificio,
+                        tipo_area_umida = 2,
+                        nome_area_umida = nomearea
+                    )
+
+                    
+                elif 'banheiro' in nomearea.lower():
+
+                    areainsert = AreaUmida(
+                        fk_edificios = fk_edificio,
+                        tipo_area_umida = 1,
+                        nome_area_umida = nomearea
+                    )
+                
+                elif 'Lavanderia' in nomearea.lower():
+
+                    areainsert = AreaUmida(
+                        fk_edificios=fk_edificio,
+                        tipo_area_umida=3,
+                        nome_area_umida=nomearea
+                    )
+                
+                else:
+
+                    areainsert = AreaUmida(
+                        fk_edificios=fk_edificio,
+                        tipo_area_umida=6,
+                        nome_area_umida=nomearea
+                    )
+                db.session.add(areainsert)
+                db.session.commit()
+
+                for key, value in equipamentos.items():
+                   
+                    if key == 'vh' and not math.isnan(value):
+
+                        vh = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=2,
+                            quantTotal=value
+
+                        )
+
+                        db.session.add(vh)
+                    elif key == 'ca' and not math.isnan(value):
+    
+                        ca = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=1,
+                            quantTotal=value
+
+                        )
+                        db.session.add(ca)
+                    elif key == 'tc'  and not math.isnan(value):
+                        print(value, ' - valor tc')
+        
+                        tc = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=16,
+                            quantTotal=value
+
+                        )
+                        db.session.add(tc)
+
+                    elif key == 'ta'  and not math.isnan(value):
+            
+                        ta = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=16,
+                            quantTotal=value
+
+                        )
+                        db.session.add(ta)
+                    elif key == 'ch' and not math.isnan(value):
+            
+                        ch = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=6,
+                            quantTotal=value
+
+                        )
+                        db.session.add(ch)
+                    elif key == 'mi' and not math.isnan(value):
+                        #não foi definido qual mictório
+                        mi = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=10,
+                            quantTotal=value
+
+                        )
+                        db.session.add(mi)
+                    
+                    elif key == 'be' and not math.isnan(value):
+                        #não foi definido qual mictório
+                        be = Equipamentos(
+                            fk_area_umida=areainsert.id,
+                            tipo_equipamento=4,
+                            quantTotal=value
+
+                        )
+                        db.session.add(be)
+                    
+                    db.session.commit()
+
+
         return jsonify({"mensagem": "Valore retornado!"})
 
     except Exception as e:
@@ -81,5 +209,3 @@ def inserirGuarulhos():
             "mensagem": "Erro não tratado!",
             "cod": str({e})
         }), 400
-
-    
