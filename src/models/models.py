@@ -2,12 +2,83 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
 from sqlalchemy import inspect
+from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 
 
 
 
 db = SQLAlchemy()
+
+
+#tabelas teste
+
+class Evento(db.Model):
+    __tablename__ = 'evento'
+    id = db.Column(db.Integer, primary_key=True)
+    chave_id = db.Column(db.Integer, db.ForeignKey('chave.id'))
+    chave = db.relationship('Chave', backref='eventos')
+    tipos = db.relationship('Tipo', secondary='evento_tipo', backref='eventos')
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, id, chave_id):
+        self.id = id
+        self.chave_id = chave_id
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+class Tipo(db.Model):
+    __tablename__ = 'tipo'
+    id = db.Column(db.Integer, primary_key=True)
+    local = db.Column(db.String(200), nullable=False)
+    data_inicio = db.Column(db.Date, nullable=False)
+    data_fim = db.Column(db.Date, nullable=False)
+    observacao = db.Column(db.String(100))
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, local, data_fim, data_inicio, observacao):
+        self.local = local
+        self.data_inicio = data_inicio
+        self.data_fim = data_fim
+        self.observacao = observacao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+
+class Chave(db.Model):
+    __tablename__ = 'chave'
+    id = db.Column(db.Integer, primary_key=True)
+    tabela = db.Column(db.String(200), nullable=False)
+    valor = db.Column(db.Integer, nullable=False)
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, tabela, valor):
+        self.tabela = tabela
+        self.valor = valor
+        
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+
+class EventoTipo(db.Model):
+    __tablename__ = 'evento_tipo'
+    evento_id = db.Column(db.Integer, db.ForeignKey('evento.id'), primary_key=True)
+    tipo_id = db.Column(db.Integer, db.ForeignKey('tipo.id'), primary_key=True)
+
+
+
 
 
 class Cliente(db.Model):
