@@ -11,73 +11,121 @@ import sqlalchemy.orm.collections as col
 db = SQLAlchemy()
 
 
-#tabelas teste
+# EVENTOS
+class Eventos(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'eventos'
 
-class Evento(db.Model):
-    __tablename__ = 'evento'
-    id = db.Column(db.Integer, primary_key=True)
-    chave_id = db.Column(db.Integer, db.ForeignKey('chave.id'))
-    chave = db.relationship('Chave', backref='eventos')
-    tipos = db.relationship('Tipo', secondary='evento_tipo', backref='eventos')
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    fk_tipo = db.Column(db.Integer, db.ForeignKey('main.tipo_de_eventos.id'))
+    nome = db.Column(db.String)
+    datainicio = db.Column(db.DateTime)
+    datafim = db.Column(db.DateTime)
+    prioridade = db.Column(db.Integer, db.ForeignKey('main.prioridade_eventos.id'))
+    local = db.Column(db.Integer) # 200
+    tipo_de_local = db.Column(db.Integer, db.ForeignKey('main.tabela_de_locais.id')) # 3
+    observacao = db.Column(db.Text)
+    usuarios = db.relationship('Usuarios', backref='usuarios')
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, id, chave_id):
+    def __init__(self, id, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao):
         self.id = id
-        self.chave_id = chave_id
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-class Tipo(db.Model):
-    __tablename__ = 'tipo'
-    id = db.Column(db.Integer, primary_key=True)
-    local = db.Column(db.String(200), nullable=False)
-    data_inicio = db.Column(db.Date, nullable=False)
-    data_fim = db.Column(db.Date, nullable=False)
-    observacao = db.Column(db.String(100))
-
-    def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
-
-    def __init__(self, local, data_fim, data_inicio, observacao):
+        self.fk_tipo = fk_tipo
+        self.nome = nome
+        self.datainicio = datainicio
+        self.datafim = datafim
+        self.prioridade = prioridade
         self.local = local
-        self.data_inicio = data_inicio
-        self.data_fim = data_fim
+        self.tipo_de_local = tipo_de_local
         self.observacao = observacao
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
 
-class Chave(db.Model):
-    __tablename__ = 'chave'
-    id = db.Column(db.Integer, primary_key=True)
-    tabela = db.Column(db.String(200), nullable=False)
-    valor = db.Column(db.Integer, nullable=False)
+
+class TabelasDeLocais(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'tabela_de_locais'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    nome_da_tabela = db.Column(db.String)
 
     def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+            for key, value in kwargs.items():
+                setattr(self, key, value)
 
-    def __init__(self, tabela, valor):
-        self.tabela = tabela
-        self.valor = valor
+    def __init__(self, id, nome_da_tabela):
+        self.id = id
+        self.nome_da_tabela = nome_da_tabela
+        
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+      
+
+class PrioridadeEventos(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'prioridade_eventos'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    prioridade = db.Column(db.String)
+
+
+    def add_prioridade():
+        op_prioridade = ['Alta', 'Média', 'Baixa']
+
+        for prioridade in op_prioridade:
+            op_prioridade = PrioridadeEventos.query.filter_by(
+                prioridade=prioridade).first()
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, prioridade ):
+        self.prioridade = prioridade
         
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+
+class TipoDeEventos:
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'tipo_de_eventos'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    tipo_de_evento = db.Column(db.String)
+
+    def add_tipo_de_evento():
+        op_tipo_de_evento = ['Férias', 'Carnaval', 'Paixão de Cristo', 'Páscoa', 'Corpus Christi']
+
+        for tipo_de_evento in op_tipo_de_evento:
+            op_tipo_de_evento = TipoDeEventos.query.filter_by(
+                tipo_de_evento=tipo_de_evento).first()
+            if not op_tipo_de_evento:
+                op_tipo_de_evento = TipoDeEventos(tipo_de_evento=tipo_de_evento)
+                db.session.add(op_tipo_de_evento)
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, id, tipo_de_evento ):
+        self.id = id
+        self.tipo_de_evento = tipo_de_evento
+        
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
     
-
-class EventoTipo(db.Model):
-    __tablename__ = 'evento_tipo'
-    evento_id = db.Column(db.Integer, db.ForeignKey('evento.id'), primary_key=True)
-    tipo_id = db.Column(db.Integer, db.ForeignKey('tipo.id'), primary_key=True)
-
-
 
 
 

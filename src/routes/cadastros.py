@@ -15,65 +15,92 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
 
-#rota teste
+#TESTE rota Tipo
 @cadastros.post('/tipo-evento')
-def tipoevento():
- try:
+def tipo_evento():
+    try:
+        if formulario is not None:
+            formulario = request.get_json()
+            tipo = Tipo(**formulario)
+            db.session.add(tipo)
+            db.session.commit()
+                
+            return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":tipo.to_json()}), HTTP_200_OK
 
-    formulario = request.get_json()
-    tipo = Tipo(**formulario)
-    db.session.add(tipo)
-    db.session.commit()
+    except ArgumentError as e:
+            error_message = str(e)
+            error_data = {'error': error_message}
+            json_error = json.dumps(error_data)
+            print(json_error)
+            return json_error
         
-    return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":tipo.to_json()}), HTTP_200_OK
-   
- except ArgumentError as e:
-        error_message = str(e)
-        error_data = {'error': error_message}
-        json_error = json.dumps(error_data)
-        print(json_error)
-        return json_error
-    
- except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23505':
-            # extrai o nome do campo da mensagem de erro
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    except exc.DBAPIError as e:
+            db.session.rollback()
+            if e.orig.pgcode == '23505':
+                # extrai o nome do campo da mensagem de erro
+                match = re.search(r'Key \((.*?)\)=', str(e))
+                campo = match.group(1) if match else 'campo desconhecido'
+                mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+                return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+            if e.orig.pgcode == '01004':
+                return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
- except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == '500':
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-        if isinstance(e, HTTPException) and e.code == '400':
-            #flash("Erro, 4 não salva")
-            return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({
-            "erro":e
-        })
+    except Exception as e:
+            db.session.rollback()
+            if isinstance(e, HTTPException) and e.code == '500':
+                return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+            if isinstance(e, HTTPException) and e.code == '400':
+                #flash("Erro, 4 não salva")
+                return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+            return jsonify({
+                "erro":e
+            })
 
 
-
-        
-
-   
-
+#Cadastro de chave estrangeira
 @cadastros.post('/evento')
 def evento():
+    try:
+        formulario = request.get_json()
+        chave = Chave(**formulario)
+        db.session.add(chave)
+        db.session.commit()
+            
+        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":chave.to_json()}), HTTP_200_OK
 
-
-    formulario = request.get_json()
-    evento = Chave(**formulario)
-    db.session.add(evento)
-    db.session.commit()
+    except ArgumentError as e:
+            error_message = str(e)
+            error_data = {'error': error_message}
+            json_error = json.dumps(error_data)
+            print(json_error)
+            return json_error
         
-    return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":evento.to_json()}), HTTP_200_OK
+    except exc.DBAPIError as e:
+            db.session.rollback()
+            if e.orig.pgcode == '23505':
+                # extrai o nome do campo da mensagem de erro
+                match = re.search(r'Key \((.*?)\)=', str(e))
+                campo = match.group(1) if match else 'campo desconhecido'
+                mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+                return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+            if e.orig.pgcode == '01004':
+                return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+
+    except Exception as e:
+            db.session.rollback()
+            if isinstance(e, HTTPException) and e.code == '500':
+                return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+            if isinstance(e, HTTPException) and e.code == '400':
+                #flash("Erro, 4 não salva")
+                return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+            return jsonify({
+                "erro":e
+            })
+
 
 
 
