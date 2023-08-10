@@ -7,14 +7,14 @@ from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
 from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,
-                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio, Tipo, Chave)
+                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio)
 import traceback
 from sqlalchemy.exc import ArgumentError
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 
 
-
+'''
 #TESTE rota Tipo
 @cadastros.post('/tipo-evento')
 def tipo_evento():
@@ -105,7 +105,7 @@ def evento():
 
 
 
-
+'''
 
 #cadastro de cliente
 @cadastros.post('/cliente')
@@ -594,10 +594,13 @@ def area_umida():
         operacao_area_umida = formulario['operacao_area_umida']
 
         tipos = TipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
-        if status_area_umida == "Aberto":
+
+        status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
+        
+        '''if status_area_umida == "Aberto":
             status_area_umida = True
         else:
-            status_area_umida = False
+            status_area_umida = False'''
 
         operacao = OperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
         

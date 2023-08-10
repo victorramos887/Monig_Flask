@@ -25,7 +25,7 @@ class Eventos(db.Model):
     local = db.Column(db.Integer) # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey('main.tabela_de_locais.id')) # 3
     observacao = db.Column(db.Text)
-    usuarios = db.relationship('Usuarios', backref='usuarios')
+    #usuarios = db.relationship('Usuarios', backref='usuarios')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -33,8 +33,7 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, id, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao):
-        self.id = id
+    def __init__(self, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao):
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
@@ -52,7 +51,7 @@ class TabelasDeLocais(db.Model):
     __table_args__ = {"schema":"main"}
     __tablename__ = 'tabela_de_locais'
 
-    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
 
     def add_nome_da_tabela():
@@ -81,7 +80,7 @@ class PrioridadeEventos(db.Model):
     __table_args__ = {"schema":"main"}
     __tablename__ = 'prioridade_eventos'
 
-    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     prioridade = db.Column(db.String)
 
 
@@ -104,11 +103,11 @@ class PrioridadeEventos(db.Model):
 
 
 
-class TipoDeEventos:
+class TipoDeEventos(db.Model):
     __table_args__ = {"schema":"main"}
     __tablename__ = 'tipo_de_eventos'
 
-    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
     sazonal_periodo = db.Column(db.Date)
