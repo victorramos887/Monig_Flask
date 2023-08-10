@@ -593,23 +593,23 @@ def area_umida():
         status_area_umida = formulario['status_area_umida']
         operacao_area_umida = formulario['operacao_area_umida']
 
-        tipos = TipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+        tipos = TipoAreaUmida.query.filter_by(id=tipo_area_umida).first()
 
-        status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
-        
+        status_area_umida = StatusAreaUmida.query.filter_by(id=status_area_umida).first()
+
         '''if status_area_umida == "Aberto":
             status_area_umida = True
         else:
             status_area_umida = False'''
 
-        operacao = OperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
+        operacao = OperacaoAreaUmida.query.filter_by(id=operacao_area_umida).first()
         
         umida = AreaUmida(
             fk_edificios = fk_edificios,
             tipo_area_umida = tipos.id,
             nome_area_umida = nome_area_umida,
             localizacao_area_umida = localizacao_area_umida,
-            status_area_umida = status_area_umida,
+            status_area_umida = status_area_umida.id,
             operacao_area_umida=operacao.id
         )
 

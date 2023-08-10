@@ -484,7 +484,8 @@ class AreaUmida(db.Model):
         self.operacao_area_umida = operacao_area_umida
 
     def to_json(self):
-        
+
+        status_area_umida = self.status_area_umida_rel.status if self.status_area_umida_rel else None
         area_umida_descricao = self.tipo_area_umida_rel.tipo if self.tipo_area_umida_rel else None
         operacao = self.operacao_area_umida_rel.operacao if self.operacao_area_umida_rel else None
 
@@ -492,7 +493,7 @@ class AreaUmida(db.Model):
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_area_umida'] = area_umida_descricao
         jsonRetorno['operacao_area_umida'] = operacao
-        jsonRetorno['status_area_umida'] = self.status_area_umida
+        jsonRetorno['status_area_umida'] = status_area_umida
         return jsonRetorno
 
 
@@ -802,6 +803,7 @@ def add_opniveis():
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
     operacaoareaumida = ['Fechado', 'Em Manutenção', 'Parcialmente funcionando']
+    status_area_umida = ['True', 'False']
     tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C']
     populacao_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
     tipoequipamento = {
@@ -954,6 +956,13 @@ def add_opniveis():
 
         if not st:
             st = OperacaoAreaUmida(operacao=operacao)
+            db.session.add(st)
+
+    for status in status_area_umida:
+        st = StatusAreaUmida.query.filter_by(status=status).first()
+
+        if not st:
+            st = StatusAreaUmida(status=status)
             db.session.add(st)
 
     for hidrometro in tipohidrometro:
