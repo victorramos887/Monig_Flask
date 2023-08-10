@@ -1,13 +1,21 @@
-from flask import Blueprint, jsonify, request, render_template, current_app
+from flask import Blueprint, json, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
-from ..models import Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, db
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
 from flasgger import swag_from
 # from ..keycloak_flask import autenticar_token
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
+
+
+# Verificar Historico de Deleção
+@send_frontend.get('/historico')
+def historico():
+
+    historico= Historico.query.all()
+    return jsonify([json.dumps(h.to_json()) for h in historico])
 
 
 # RETORNA TODAS AS ESCOLAS
@@ -96,13 +104,19 @@ def edificios(id):
         contador_area_umida = db.session.query(func.count(AreaUmida.id)).filter(
             AreaUmida.fk_edificios == edificio.id).scalar()
 
+        # Reservatorios
+        reservatorios = Reservatorios.query.filter(Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
+        info_reservatorios = [reservatorio.to_json() for reservatorio in reservatorios]
+            
         result.append({
             'id': edificio.id,
             'nome': edificio.nome_do_edificio,
             'populacao': soma_total or 0,
             'area_umida': contador_area_umida or 0,
-            'principal':edificio.principal
+            'principal':edificio.principal,
+            'reservatorios': info_reservatorios  
         })
+
     return jsonify({
         'edificios': result,
         'status': True,
@@ -114,11 +128,19 @@ def edificios(id):
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 
-    edificio = Edificios.query.filter(Edificios.id == id).first()
-    if edificio is None or edificio == '':
-        return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
+    edificio = Edificios.query.filter_by(id=id, status_do_registro=True).first()
+    reservatorios = Reservatorios.query.filter(Reservatorios.fk_escola == id,Reservatorios.status_do_registro == True).all()
 
-    return jsonify({'edificio': edificio.to_json(), "status": True}), HTTP_200_OK
+    
+    if edificio is None:
+        return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
+    
+    result = {
+        'edificio': edificio.to_json(),
+        'reservatorios': [reservatorio.to_json() for reservatorio in reservatorios]
+    }
+
+    return jsonify({'edificio':result, "status": True}), HTTP_200_OK
 
 
 # TODAS AREA UMIDAS
@@ -219,7 +241,7 @@ def get_hidrometro(id):
 def get_reservatorio(id):
 
     reservatorio = Reservatorios.query.filter_by(
-        id=id
+        id=id, status_do_registro=True
     ).first()
 
     return jsonify({

@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request, render_template, flash, render_template_string
+from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
-from sqlalchemy import exc
+from ..models import Escolas, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Historico
+from sqlalchemy import exc, text
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
@@ -13,16 +13,21 @@ def escolas_remover(id):
     if not escola:
         return jsonify({'status':False,'mensagem': 'Escola não encontrado'}), 404
     
-    #atualizar a tabela com os dados deletados
-    #if escola.status == False:
-         # db.session.add(EscolasHistoricoDelete(fk_escola=escola.id, cnpj=escola.cnpj, cep=escola.cep, nivel=escola.nivel))
-   
+    #alterar status da linha para False
     escola.status_do_registro = False
+
+     # Insere os dados da linha excluída na tabela de histórico
+    historico = Historico(tabela='Escolas', dados=json.dumps(escola.to_json()))
+    db.session.add(historico)
+
+
+    # Confirma as alterações no banco de dados
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
 
-
+ 
+    
 #edificios
 @remover.put('/edificios/<id>')
 def edificios_remover(id):
@@ -32,6 +37,12 @@ def edificios_remover(id):
         return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
 
     edificio.status_do_registro = False
+
+       # Insere os dados da linha excluída na tabela de histórico
+    historico = Historico(tabela='Edificios', dados=json.dumps(edificio.to_json()))
+    db.session.add(historico)
+
+    
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
