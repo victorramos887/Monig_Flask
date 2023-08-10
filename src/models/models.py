@@ -66,8 +66,7 @@ class TabelasDeLocais(db.Model):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, id, nome_da_tabela):
-        self.id = id
+    def __init__(self, nome_da_tabela):
         self.nome_da_tabela = nome_da_tabela
         
 
@@ -111,10 +110,11 @@ class TipoDeEventos(db.Model):
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
     sazonal_periodo = db.Column(db.Date)
-    requer_acao = db.Column(db.Boolean) 
+    requer_resposta = db.Column(db.Boolean, default=False) 
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
-    acao = db.Column(db.String)
+    e_resposta = db.Column(db.Boolean, default=False)
+    resposta_para = db.Column(db.String)
    
     def add_nome_do_evento():
         op_nome_do_evento = ['Férias', 'Festa', 'Manutenção']
@@ -132,28 +132,20 @@ class TipoDeEventos(db.Model):
         for unidade_de_tempo in op_unidade_de_tempo:
             op_unidade_de_tempo = TipoDeEventos.query.filter_by(
                 unidade_de_tempo=unidade_de_tempo).first()
-            
-    def add_acao():
-        op_acao = ['Sim', 'Não', 'Nem resposta, nem ação']
-
-        for acao in op_acao:
-            op_acao = TipoDeEventos.query.filter_by(
-                acao=acao).first()
                 
-
     def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-    def __init__(self, id, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao ):
-        self.id = id
+    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, e_resposta, resposta_para ):
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo =  sazonal_periodo
-        self.requer_acao = requer_acao
+        self.requer_resposta = requer_resposta
         self.tempo_de_tolerancia = tempo_de_tolerancia
         self.unidade_de_tempo = unidade_de_tempo
-        self.acao = acao
+        self.e_resposta = e_resposta
+        self.resposta_para = resposta_para
         
 
     def to_json(self):
