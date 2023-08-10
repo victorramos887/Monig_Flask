@@ -59,7 +59,7 @@ class TabelasDeLocais(db.Model):
         op_nome_da_tabela = ['Escola', 'Edificação', 'Area Umida', 'Equipamento', 'Reservatório', 'Hidrômetro']
 
         for nome_da_tabela in op_nome_da_tabela:
-            op_nome_da_tabela = TipoDeEventos.query.filter_by(
+            op_nome_da_tabela = TabelasDeLocais.query.filter_by(
                 nome_da_tabela=nome_da_tabela).first()
            
 
