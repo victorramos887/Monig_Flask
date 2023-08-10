@@ -2,12 +2,165 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from datetime import datetime
 from sqlalchemy import inspect
+from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 
 
 
 
 db = SQLAlchemy()
+
+
+# EVENTOS
+class Eventos(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'eventos'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    fk_tipo = db.Column(db.Integer, db.ForeignKey('main.tipo_de_eventos.id'))
+    nome = db.Column(db.String)
+    datainicio = db.Column(db.DateTime)
+    datafim = db.Column(db.DateTime)
+    prioridade = db.Column(db.Integer, db.ForeignKey('main.prioridade_eventos.id'))
+    local = db.Column(db.Integer) # 200
+    tipo_de_local = db.Column(db.Integer, db.ForeignKey('main.tabela_de_locais.id')) # 3
+    observacao = db.Column(db.Text)
+    usuarios = db.relationship('Usuarios', backref='usuarios')
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def __init__(self, id, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao):
+        self.id = id
+        self.fk_tipo = fk_tipo
+        self.nome = nome
+        self.datainicio = datainicio
+        self.datafim = datafim
+        self.prioridade = prioridade
+        self.local = local
+        self.tipo_de_local = tipo_de_local
+        self.observacao = observacao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+class TabelasDeLocais(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'tabela_de_locais'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    nome_da_tabela = db.Column(db.String)
+
+    def add_nome_da_tabela():
+        op_nome_da_tabela = ['Escola', 'Edificação', 'Area Umida', 'Equipamento', 'Reservatório', 'Hidrômetro']
+
+        for nome_da_tabela in op_nome_da_tabela:
+            op_nome_da_tabela = TabelasDeLocais.query.filter_by(
+                nome_da_tabela=nome_da_tabela).first()
+           
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, id, nome_da_tabela):
+        self.id = id
+        self.nome_da_tabela = nome_da_tabela
+        
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+      
+
+class PrioridadeEventos(db.Model):
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'prioridade_eventos'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    prioridade = db.Column(db.String)
+
+
+    def add_prioridade():
+        op_prioridade = ['Alta', 'Média', 'Baixa']
+
+        for prioridade in op_prioridade:
+            op_prioridade = PrioridadeEventos.query.filter_by(
+                prioridade=prioridade).first()
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, prioridade ):
+        self.prioridade = prioridade
+        
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+
+
+class TipoDeEventos:
+    __table_args__ = {"schema":"main"}
+    __tablename__ = 'tipo_de_eventos'
+
+    id = db.Column(db.Integer, autoincrement=True, primaria_key=True)
+    nome_do_evento = db.Column(db.String)
+    periodicidade = db.Column(db.String)
+    sazonal_periodo = db.Column(db.Date)
+    requer_acao = db.Column(db.Boolean) 
+    tempo_de_tolerancia = db.Column(db.Integer)
+    unidade_de_tempo = db.Column(db.String)
+    acao = db.Column(db.String)
+   
+    def add_nome_do_evento():
+        op_nome_do_evento = ['Férias', 'Festa', 'Manutenção']
+
+        for nome_do_evento in op_nome_do_evento:
+            op_nome_do_evento = TipoDeEventos.query.filter_by(
+                nome_do_evento=nome_do_evento).first()
+            if not op_nome_do_evento:
+                op_nome_do_evento = TipoDeEventos(nome_do_evento=nome_do_evento)
+                db.session.add(op_nome_do_evento)
+
+    def add_unidade_de_tempo():
+        op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
+
+        for unidade_de_tempo in op_unidade_de_tempo:
+            op_unidade_de_tempo = TipoDeEventos.query.filter_by(
+                unidade_de_tempo=unidade_de_tempo).first()
+            
+    def add_acao():
+        op_acao = ['Sim', 'Não', 'Nem resposta, nem ação']
+
+        for acao in op_acao:
+            op_acao = TipoDeEventos.query.filter_by(
+                acao=acao).first()
+                
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
+
+    def __init__(self, id, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao ):
+        self.id = id
+        self.nome_do_evento = nome_do_evento
+        self.periodicidade = periodicidade
+        self.sazonal_periodo =  sazonal_periodo
+        self.requer_acao = requer_acao
+        self.tempo_de_tolerancia = tempo_de_tolerancia
+        self.unidade_de_tempo = unidade_de_tempo
+        self.acao = acao
+        
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+  
+
 
 
 class Cliente(db.Model):
@@ -297,7 +450,7 @@ class AreaUmida(db.Model):
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     tipo_area_umida = db.Column(
         db.Integer, db.ForeignKey('main.aux_tipo_area_umida.id'))
-    status_area_umida = db.Column(db.Boolean, default=True)
+    status_area_umida = db.Column(db.Integer, db.ForeignKey('main.aux_status_area_umida.id'))
     operacao_area_umida = db.Column(
         db.Integer, db.ForeignKey('main.aux_operacao_area_umida.id')
     )
@@ -311,6 +464,10 @@ class AreaUmida(db.Model):
     
     operacao_area_umida_rel = db.relationship(
         'OperacaoAreaUmida', backref = 'aux_operacao_area_umida'
+    )
+
+    status_area_umida_rel = db.relationship( 
+        'StatusAreaUmida', backref='aux_status_area_umida'
     )
 
     def update(self, **kwargs):
