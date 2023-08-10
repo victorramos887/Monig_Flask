@@ -11,8 +11,8 @@ from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
-#import tempfile
-# from .keycloak_flask import keycloak_openid
+from flask_migrate import Migrate
+
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
@@ -54,6 +54,10 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
         add_opniveis()
+
+
+
+    migrate = Migrate(app, db)
 
     JWTManager(app)
 
