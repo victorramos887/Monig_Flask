@@ -53,8 +53,9 @@ def evento():
                 #flash("Erro, 4 não salva")
                 return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
             return jsonify({
-                "erro":e
+                "erro":str(e)
             })
+   
 
 
 #TESTE rota Tipo

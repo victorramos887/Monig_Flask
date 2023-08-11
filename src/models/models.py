@@ -20,7 +20,7 @@ class Eventos(db.Model):
     fk_tipo = db.Column(db.Integer, db.ForeignKey('main.tipo_de_eventos.id'))
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
-    datafim = db.Column(db.DateTime)
+    datafim = db.Column(db.DateTime, default=None)
     prioridade = db.Column(db.Integer, db.ForeignKey('main.prioridade_eventos.id'))
     local = db.Column(db.Integer) # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey('main.tabela_de_locais.id')) # 3
@@ -52,15 +52,7 @@ class TabelasDeLocais(db.Model):
     __tablename__ = 'tabela_de_locais'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    nome_da_tabela = db.Column(db.String)
-
-    def add_nome_da_tabela():
-        op_nome_da_tabela = ['Escola', 'Edificação', 'Area Umida', 'Equipamento', 'Reservatório', 'Hidrômetro']
-
-        for nome_da_tabela in op_nome_da_tabela:
-            op_nome_da_tabela = TabelasDeLocais.query.filter_by(
-                nome_da_tabela=nome_da_tabela).first()
-           
+    nome_da_tabela = db.Column(db.String)       
 
     def update(self, **kwargs):
             for key, value in kwargs.items():
@@ -72,23 +64,15 @@ class TabelasDeLocais(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-      
-
+    
+    
+    
 class PrioridadeEventos(db.Model):
     __table_args__ = {"schema":"main"}
     __tablename__ = 'prioridade_eventos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     prioridade = db.Column(db.String)
-
-
-    def add_prioridade():
-        op_prioridade = ['Alta', 'Média', 'Baixa']
-
-        for prioridade in op_prioridade:
-            op_prioridade = PrioridadeEventos.query.filter_by(
-                prioridade=prioridade).first()
 
     def update(self, **kwargs):
             for key, value in kwargs.items():
@@ -99,7 +83,7 @@ class PrioridadeEventos(db.Model):
         
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
+    
 
 
 class TipoDeEventos(db.Model):
@@ -109,30 +93,13 @@ class TipoDeEventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
-    sazonal_periodo = db.Column(db.Date)
+    sazonal_periodo = db.Column(db.Date, default=None)
     requer_resposta = db.Column(db.Boolean, default=False) 
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
     e_resposta = db.Column(db.Boolean, default=False)
     resposta_para = db.Column(db.String)
    
-    def add_nome_do_evento():
-        op_nome_do_evento = ['Férias', 'Festa', 'Manutenção']
-
-        for nome_do_evento in op_nome_do_evento:
-            op_nome_do_evento = TipoDeEventos.query.filter_by(
-                nome_do_evento=nome_do_evento).first()
-            if not op_nome_do_evento:
-                op_nome_do_evento = TipoDeEventos(nome_do_evento=nome_do_evento)
-                db.session.add(op_nome_do_evento)
-
-    def add_unidade_de_tempo():
-        op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
-
-        for unidade_de_tempo in op_unidade_de_tempo:
-            op_unidade_de_tempo = TipoDeEventos.query.filter_by(
-                unidade_de_tempo=unidade_de_tempo).first()
-                
     def update(self, **kwargs):
             for key, value in kwargs.items():
                 setattr(self, key, value)
@@ -150,7 +117,7 @@ class TipoDeEventos(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-  
+
 
 
 
@@ -603,16 +570,6 @@ class PopulacaoPeriodo(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     periodo = db.Column(db.String)
 
-    def add_periodos():
-        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
-
-        for periodo in op_periodos:
-            op_periodos = PopulacaoPeriodo.query.filter_by(
-                periodo=periodo).first()
-            if not op_periodos:
-                op_periodos = PopulacaoPeriodo(periodo=periodo)
-                db.session.add(op_periodos)
-
     def __init__(self, periodo):
         self.periodo = periodo
 
@@ -791,6 +748,11 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
 
 
 def add_opniveis():
+    op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
+    op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
+    op_nome_do_evento = ['Férias', 'Festa', 'Manutenção']
+    op_prioridade = ['Alta', 'Média', 'Baixa']
+
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
@@ -931,6 +893,32 @@ def add_opniveis():
         ]
     }
 
+    for nome_da_tabela in op_nome_da_tabela:
+        opnome = TabelasDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
+        if not opnome:
+            opnome = TabelasDeLocais(nome_da_tabela=nome_da_tabela)
+            db.session.add(opnome)
+
+    for unidade_de_tempo in op_unidade_de_tempo:
+            unidade_tempo = TipoDeEventos.query.filter_by(unidade_de_tempo=unidade_de_tempo).first()
+            if not unidade_tempo:
+                unidade_tempo = TipoDeEventos(unidade_de_tempo=unidade_de_tempo)
+                db.session.add(unidade_tempo)
+
+    for nome_do_evento in op_nome_do_evento:
+        tipo_de_eventos = TipoDeEventos.query.filter_by(
+            nome_do_evento=nome_do_evento).first()
+        if not tipo_de_eventos:
+            tipo_de_eventos = TipoDeEventos.query.filter_by(
+            nome_do_evento=nome_do_evento)
+            db.session.add(tipo_de_eventos)
+
+    for prioridade in op_prioridade:
+        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first() 
+        if not prioridade_eventos:
+            prioridade_eventos = PrioridadeEventos(prioridade=prioridade)
+            db.session.add(prioridade_eventos)
+        
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:
