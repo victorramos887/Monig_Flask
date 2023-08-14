@@ -1,18 +1,18 @@
 branch-defaults:
   main:
-    environment: Monig-Flask-dev
+    environment: null
     group_suffix: null
 global:
-  application_name: Monig_Flask
-  branch: null
+  application_name: flask-tutorial
+  branch: main
   default_ec2_keyname: ec2
-  default_platform: Python 3.9 running on 64bit Amazon Linux 2023
+  default_platform: Python 3.7
   default_region: us-east-2
   include_git_submodules: true
   instance_profile: null
   platform_name: null
   platform_version: null
   profile: null
-  repository: null
+  repository: origin
   sc: git
   workspace_type: Application
