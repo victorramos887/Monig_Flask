@@ -84,7 +84,7 @@ class PrioridadeEventos(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
     
-
+    
 
 class TipoDeEventos(db.Model):
     __table_args__ = {"schema":"main"}
@@ -100,11 +100,8 @@ class TipoDeEventos(db.Model):
     e_resposta = db.Column(db.Boolean, default=False)
     resposta_para = db.Column(db.String)
    
-    def update(self, **kwargs):
-            for key, value in kwargs.items():
-                setattr(self, key, value)
 
-    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, e_resposta, resposta_para ):
+    def __init__(self, nome_do_evento, periodicidade, tempo_de_tolerancia, unidade_de_tempo, resposta_para, e_resposta=False, sazonal_periodo=None, requer_resposta=False):
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo =  sazonal_periodo
@@ -118,6 +115,10 @@ class TipoDeEventos(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+
+    def update(self, **kwargs):
+            for key, value in kwargs.items():
+                setattr(self, key, value)
 
 
 
@@ -746,13 +747,11 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
         jsonEnviar['equipamento_id'] = self.tipo_equipamento_id
         return jsonEnviar
 
+   
 
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
-    op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
-    op_nome_do_evento = ['Férias', 'Festa', 'Manutenção']
     op_prioridade = ['Alta', 'Média', 'Baixa']
-
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
@@ -893,31 +892,37 @@ def add_opniveis():
         ]
     }
 
+    
+    tipo_de_evento = TipoDeEventos(
+    nome_do_evento='Natal',
+    periodicidade='Sazonal',
+    sazonal_periodo= '25/12/2023',
+    requer_resposta=False,
+    tempo_de_tolerancia=None,
+    unidade_de_tempo= None,
+    e_resposta=False,
+    resposta_para=None
+    )
+
+    db.session.add(tipo_de_evento)
+  
+
     for nome_da_tabela in op_nome_da_tabela:
         opnome = TabelasDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
         if not opnome:
             opnome = TabelasDeLocais(nome_da_tabela=nome_da_tabela)
             db.session.add(opnome)
 
-    for unidade_de_tempo in op_unidade_de_tempo:
-            unidade_tempo = TipoDeEventos.query.filter_by(unidade_de_tempo=unidade_de_tempo).first()
-            if not unidade_tempo:
-                unidade_tempo = TipoDeEventos(unidade_de_tempo=unidade_de_tempo)
-                db.session.add(unidade_tempo)
-
-    for nome_do_evento in op_nome_do_evento:
-        tipo_de_eventos = TipoDeEventos.query.filter_by(
-            nome_do_evento=nome_do_evento).first()
-        if not tipo_de_eventos:
-            tipo_de_eventos = TipoDeEventos.query.filter_by(
-            nome_do_evento=nome_do_evento)
-            db.session.add(tipo_de_eventos)
-
     for prioridade in op_prioridade:
         prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first() 
         if not prioridade_eventos:
             prioridade_eventos = PrioridadeEventos(prioridade=prioridade)
             db.session.add(prioridade_eventos)
+    
+    '''for prioridade in op_prioridade:
+        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first()
+        if prioridade_eventos:
+            db.session.add(prioridade_eventos)'''
         
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
