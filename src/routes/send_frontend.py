@@ -142,7 +142,7 @@ def edificio(id):
         return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
 
     return jsonify({
-        "edificios": edificio.to_json(), "status": True
+        "edificio": edificio.to_json(), "status": True
     }), HTTP_200_OK
 
 
