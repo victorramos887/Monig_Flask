@@ -1,0 +1,14 @@
+QUANTIDADE AREA UMIDAS
+---
+tags:
+  - Contadores
+parameters:
+  - in: query
+    description: 'passe a chave do edifício'
+    required: true
+    type: integer
+responses:
+  '200':
+    description: Retorno das quantidas de áreas umidas.
+  '400':
+    description: Erro ao retornar das quantidades de áreas umidas.
