@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, request
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
-from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
 from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis,
@@ -125,7 +124,6 @@ def usuario():
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
-@swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
 
     formulario = request.get_json()
@@ -278,7 +276,6 @@ def reservatorios():
 
 #Cadastros dos edifícios.
 @cadastros.post('/edificios')
-@swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
     try:
@@ -376,7 +373,6 @@ def edificios():
 
 
 @cadastros.post('/hidrometros')
-@swag_from('../docs/cadastros/hidrometros.yaml')
 def hidrometros():
 
     formulario = request.get_json()
@@ -420,7 +416,6 @@ def hidrometros():
 
 
 @cadastros.post('/populacao')
-@swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
     formulario = request.get_json()
@@ -486,7 +481,6 @@ def populacao():
 
 #Cadastros das areas umidas
 @cadastros.post('/area-umida')
-@swag_from('../docs/cadastros/area-umida.yaml')
 def area_umida():
 
     formulario = request.get_json()
@@ -559,7 +553,6 @@ def area_umida():
 
 
 @cadastros.post('/equipamentos')
-@swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
     formulario = request.get_json()

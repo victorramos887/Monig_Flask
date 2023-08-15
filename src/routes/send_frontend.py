@@ -3,8 +3,6 @@ from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
-from flasgger import swag_from
-# from ..keycloak_flask import autenticar_token
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -20,7 +18,6 @@ def historico():
 
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')
-@swag_from('../docs/send_frontend/escolas.yaml')
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
 
@@ -87,7 +84,6 @@ def get_escolas(id):
 
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
-@swag_from('../docs/send_frontend/edificios.yaml')
 def edificios(id):
 
     edificios = Edificios.query.filter_by(
@@ -155,7 +151,6 @@ def edificio(id):
 
 # TODAS AREA UMIDAS
 @send_frontend.get('/area_umidas_table/<int:id>')
-@swag_from('../docs/send_frontend/area_umidas.yaml')
 def area_umidas(id):
     # fk_edificios = request.args.get('')
     areas_umidas = AreaUmida.query.filter_by(
@@ -193,7 +188,6 @@ def get_area_umida(id):
 
 
 @send_frontend.get('/equipamentos-table/<int:id>')
-@swag_from('../docs/send_frontend/equipamentos.yaml')
 def equipamentos(id):
 
     equipamentos = Equipamentos.query.filter_by(

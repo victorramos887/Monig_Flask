@@ -6,7 +6,6 @@ from .config.swagger import swagger_config, template
 from .models import db, add_opniveis
 from . import routes
 from datetime import timedelta
-from flasgger import Swagger
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
@@ -63,7 +62,7 @@ def create_app(test_config=None):
     for rota in rotas:
         app.register_blueprint(rota)
 
-    Swagger(app, config=swagger_config, template=template)
+    # Swagger(app, config=swagger_config, template=template)
 
     @app.route('/')
     def index():
