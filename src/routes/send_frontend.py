@@ -143,10 +143,10 @@ def edificio(id):
 
     result = {
         'edificio': edificio.to_json(),
-        'reservatorios': [reservatorio.to_json() for reservatorio in reservatorios]
+        'reservatorios': [reservatorio.to_json() for reservatorio in reservatorios], "status": True
     }
 
-    return jsonify({'edificio': result, "status": True}), HTTP_200_OK
+    return jsonify(result), HTTP_200_OK
 
 
 # TODAS AREA UMIDAS
