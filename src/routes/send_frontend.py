@@ -14,7 +14,7 @@ send_frontend = Blueprint('send_frontend', __name__,
 @send_frontend.get('/historico')
 def historico():
 
-    historico= Historico.query.all()
+    historico = Historico.query.all()
     return jsonify([json.dumps(h.to_json()) for h in historico])
 
 
@@ -36,6 +36,13 @@ def escolas():
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
+
+    if not escola:
+        return jsonify({
+            "status": False,
+            "mensagem": "Escola não encontrada."
+        }), 404
+
     escola_json = escola.to_json() if escola is not None else ''
 
     edificio = Edificios.query.filter_by(fk_escola=id).first()
@@ -105,16 +112,18 @@ def edificios(id):
             AreaUmida.fk_edificios == edificio.id).scalar()
 
         # Reservatorios
-        reservatorios = Reservatorios.query.filter(Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
-        info_reservatorios = [reservatorio.to_json() for reservatorio in reservatorios]
-            
+        reservatorios = Reservatorios.query.filter(
+            Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
+        info_reservatorios = [reservatorio.to_json()
+                              for reservatorio in reservatorios]
+
         result.append({
             'id': edificio.id,
             'nome': edificio.nome_do_edificio,
             'populacao': soma_total or 0,
             'area_umida': contador_area_umida or 0,
-            'principal':edificio.principal,
-            'reservatorios': info_reservatorios  
+            'principal': edificio.principal,
+            'reservatorios': info_reservatorios
         })
 
     return jsonify({
@@ -128,19 +137,20 @@ def edificios(id):
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 
-    edificio = Edificios.query.filter_by(id=id, status_do_registro=True).first()
-    reservatorios = Reservatorios.query.filter(Reservatorios.fk_escola == id,Reservatorios.status_do_registro == True).all()
+    edificio = Edificios.query.filter_by(
+        id=id, status_do_registro=True).first()
+    reservatorios = Reservatorios.query.filter(
+        Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
 
-    
     if edificio is None:
         return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
-    
+
     result = {
         'edificio': edificio.to_json(),
         'reservatorios': [reservatorio.to_json() for reservatorio in reservatorios]
     }
 
-    return jsonify({'edificio':result, "status": True}), HTTP_200_OK
+    return jsonify({'edificio': result, "status": True}), HTTP_200_OK
 
 
 # TODAS AREA UMIDAS
@@ -172,6 +182,8 @@ def area_umidas(id):
     return jsonify({'area_umidas': result, "status": True})
 
 # RETORNA APENAS UMA
+
+
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
     area_umida = AreaUmida.query.filter_by(id=id).first()
@@ -249,6 +261,8 @@ def get_reservatorio(id):
     })
 
 # TODOS OS RESERVATÓRIOS
+
+
 @send_frontend.get('/reservatorios-table/<int:id>')
 def reservatorios(id):
     reservatorios = Reservatorios.query.filter_by(

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -489,14 +489,19 @@ def area_umida_editar(id):
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
+        status = body['status_area_umida']
 
-        # status_area_umida = StatusAreaUmida.query.filter_by(status =body['status_area_umida']).first()
+        if status == 'Aberto':
+            status = True
+        else:
+            status = False
+
         tipo_area_umida = TipoAreaUmida.query.filter_by(
             tipo=body['tipo_area_umida']).first()
 
         umida.update(
             tipo_area_umida=tipo_area_umida.id,
-            status_area_umida=True,
+            status_area_umida=status,
             nome_area_umida=nome_area_umida,
             localizacao_area_umida=localizacao_area_umida,
             fk_edificios=fk_edificios

@@ -4,10 +4,7 @@ from ..models import Escolas, Edificios, Hidrometros, TipoHidrometro, AreaUmida,
 import pandas as pd
 import math
 
-
-
 valores = Blueprint('valores', __name__, url_prefix='/api/v1/valores')
-
 
 @valores.post('/valor')
 def inserirGuarulhos():
@@ -58,7 +55,8 @@ def inserirGuarulhos():
                 numero_edificio=numero,
                 cidade_edificio='Guarulhos',
                 cnpj_edificio='000000000000',
-                estado_edificio='SP'
+                estado_edificio='SP',
+                cep_edificio='00000-XXX'
             )
 
             db.session.add(edificioinsert)

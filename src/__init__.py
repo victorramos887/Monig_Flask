@@ -11,7 +11,7 @@ from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
-from flask_migrate import Migrate
+#from flask_migrate import Migrate
 
 
 # Crie uma instância do objeto de cache
@@ -55,9 +55,7 @@ def create_app(test_config=None):
         db.create_all()
         add_opniveis()
 
-
-
-    migrate = Migrate(app, db)
+    #migrate = Migrate(app, db)
 
     JWTManager(app)
 
