@@ -141,12 +141,9 @@ def edificio(id):
     if edificio is None:
         return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
 
-    result = {
-        'edificio': edificio.to_json(),
-        'reservatorios': [reservatorio.to_json() for reservatorio in reservatorios], "status": True
-    }
-
-    return jsonify(result), HTTP_200_OK
+    return jsonify({
+        "edificios": edificio.to_json(), "status": True
+    }), HTTP_200_OK
 
 
 # TODAS AREA UMIDAS
