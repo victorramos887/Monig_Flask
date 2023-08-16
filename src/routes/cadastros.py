@@ -402,7 +402,12 @@ def hidrometros():
        
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({
+            'status':False,
+            'mensagem':'Erro no banco não tratao!',
+            'codigo':f'{e}'
+        }), 500
 
     except Exception as e:
         db.session.rollback()
@@ -412,6 +417,11 @@ def hidrometros():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            'status':False,
+            'mensagem':'Erro não tratado.',
+            'codigo':str(e)
+        })
 
 
 
@@ -419,9 +429,8 @@ def hidrometros():
 def populacao():
 
     formulario = request.get_json()
-    print(formulario)
     nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
-    print(nivel)
+
     try:
 
         alunos = formulario['alunos']

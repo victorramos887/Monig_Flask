@@ -139,7 +139,6 @@ class Edificios(db.Model):
     estado_edificio = db.Column(db.String)
     cnpj_edificio = db.Column(db.String)
     logradouro_edificio = db.Column(db.String)
-    bairro_edificio = db.Column(db.String)
     complemento_edificio = db.Column(db.String)
     pavimentos_edificio = db.Column(db.Integer)
     area_total_edificio = db.Column(db.Float)
@@ -504,25 +503,6 @@ class TipoAreaUmida(db.Model):
             setattr(self, key, value)
 
 
-# class StatusAreaUmida(db.Model):
-
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'aux_status_area_umida'
-
-#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     status = db.Column(db.String, nullable=False, unique=True)
-
-#     def __init__(self, status):
-#         self.status = status
-
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-#     def update(self, **kwargs):
-#         for key, value in kwargs.items():
-#             setattr(self, key, value)
-
-
 class OperacaoAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -702,11 +682,6 @@ class TabelasDeLocais(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
 
-    # def add_nome_da_tabela():
-    #     op_nome_da_tabela = ['escolas', 'edificios', 'area_umidas']
-    #     for nome_da_tabela in op_nome_da_tabela:
-    #         op_nome_da_tabela = TabelasDeLocais.query.filter_by(
-    #             nome_da_tabela=nome_da_tabela).first()
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -755,16 +730,6 @@ class TipoDeEventos(db.Model):
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
     acao = db.Column(db.String)
-
-    # def add_nome_do_evento():
-    #     op_nome_do_evento = ['Férias', 'Festa', 'Comunicados','Manutenção']
-    #     for nome_do_evento in op_nome_do_evento:
-    #         op_nome_do_evento = TipoDeEventos.query.filter_by(
-    #             nome_do_evento=nome_do_evento).first()
-    #         if not op_nome_do_evento:
-    #             op_nome_do_evento = TipoDeEventos(
-    #                 nome_do_evento=nome_do_evento)
-    #             db.session.add(op_nome_do_evento)
 
     def add_unidade_de_tempo():
         op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']

@@ -43,7 +43,7 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(
             test_config,
-            SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
+            SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
             DEBUG=False
         )
     #os.path.join(config_dir, 'config', 'client_secrets.json')
