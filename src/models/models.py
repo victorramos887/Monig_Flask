@@ -161,7 +161,7 @@ class Edificios(db.Model):
         
 
 
-        if not current_app.config['testing']:  # Verifica se está no ambiente de teste
+        if not current_app.config['test_config']:  # Verifica se está no ambiente de teste
             db.session.execute(text(
                 'CREATE UNIQUE INDEX ix_edificio_nome_escola_unique_name ON main.edificios (nome_do_edificio) WHERE status_do_registro = true;'))
             db.session.commit()
