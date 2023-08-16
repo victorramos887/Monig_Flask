@@ -5,6 +5,8 @@ from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 
+from flask import current_app
+
 db = SQLAlchemy()
 
 class Cliente(db.Model):
@@ -156,12 +158,14 @@ class Edificios(db.Model):
     )
 
     def update(self, **kwargs):
+        
 
-        db.session.execute(text(
-            'CREATE UNIQUE INDEX ix_edificio_nome_escola_unique_name ON main.edificios (nome_do_edificio) WHERE status_do_registro = true;'))
 
-        db.session.commit()
-
+        if not current_app.config['testing']:  # Verifica se está no ambiente de teste
+            db.session.execute(text(
+                'CREATE UNIQUE INDEX ix_edificio_nome_escola_unique_name ON main.edificios (nome_do_edificio) WHERE status_do_registro = true;'))
+            db.session.commit()
+            
         for key, value in kwargs.items():
             if key == 'principal':
                 verificar = self.query.filter_by(

@@ -32,10 +32,6 @@ def create_app(test_config=None):
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
-            SWAGGER={
-                'titulo': 'API MONIG',
-                'version': 1
-            },
             JWT_EXPIRATION_DELTA=timedelta(days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
             DEBUG=False,
         )

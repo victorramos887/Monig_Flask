@@ -66,7 +66,25 @@ def new_escolas():
         'estado': fake.state_abbr(),
         'complemento': fake.secondary_address(),
         'logradouro': fake.street_name(),
-        'nivel': niveis,
+        'nivel': [niveis, niveis],
+        'numero': fake.random_int(min=1, max=1000)
+    }
+
+@fixture
+def update_escola():
+
+    return {
+        'nome': fake.company(),
+        'cnpj': cnpj(),
+        'email': fake.email(),
+        'telefone': fake.phone_number(),
+        'bairro': fake.city_suffix(),
+        'cep': fake.postcode(),
+        'cidade': fake.city(),
+        'estado': fake.state_abbr(),
+        'complemento': fake.secondary_address(),
+        'logradouro': fake.street_name(),
+        'nivel': ['Fundamental'],
         'numero': fake.random_int(min=1, max=1000)
     }
 
@@ -149,10 +167,18 @@ def new_populacao():
     }
 
 
-@fixtured
+@fixture
 def new_hidrometro():
 
     return {
-        "fk_edificios":1
-        "fk_hidrometro"
+        "fk_edificios":1,
+        "hidrometro":fake.name()
+    }
+
+@fixture
+def new_reservatorio():
+
+    return {
+        "fk_escola":1,
+        "nome":fake.name()
     }

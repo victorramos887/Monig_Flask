@@ -29,6 +29,7 @@ def test_cadastro_escola(app, new_escolas):
     data = response.get_json()
 
     assert response.status_code == 200
+    
 
 
 def test_cadastro_edificios(app, new_edificios):
@@ -97,33 +98,24 @@ def test_cadastro_hidrometro(app, new_hidrometro):
         json_data = json.dumps(new_hidrometro)
 
         response = app.test_client().post(
-            'api/v1/cadastros/hidrometro',
+            'api/v1/cadastros/hidrometros',
             data=json_data,
             content_type='application/json'
         )
 
-
-        assert response.status_codae == 200
-
-
-# def test_cadastro_area_umida(app, assert_response, new_area_umida):
-
-#     response = app.test_client().post(
-#         '/api/v1/cadastros/area-umida',
-#         data = {
-#             **new_area_umida
-#         })
-
-#     assert_response(response, 200, "text/html; charset=utf-8", b"<!DOCTYPE html>")
+        assert response.status_code == 200
 
 
-# def test_cadastro_equipamentos(app, assert_response, new_equipamentos):
+def test_cadastro_reservatorio(app, new_reservatorio):
 
-#     response =app.test_client().post(
-#         '/api/v1/cadastros/equipamentos',
-#         data={
-#             **new_equipamentos
-#         }
-#     )
+    with app.app_context():
+        
+        json_data = json.dumps(new_reservatorio)
 
-#     assert_response(response, 200, "text/html; charset=utf-8", b"<!DOCTYPE html>")
+        response = app.test_client().post(
+            'api/v1/cadastros/reservatorios',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200

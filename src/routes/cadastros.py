@@ -224,10 +224,10 @@ def reservatorios():
         nome_do_reservatorio = formulario['nome']
       
         # Criando ou obtendo o edifício associado ao reservatório
-        edificio_id = formulario['fk_escola']
-        edificio = Edificios.query.filter_by(id=edificio_id).first()
-        if edificio is None:
-            return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
+        # edificio_id = formulario['fk_escola']
+        # edificio = Edificios.query.filter_by(id=edificio_id).first()
+        # if edificio is None:
+        #     return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
 
         #CRIANDO O RESERVATORIO
         reservatorio = Reservatorios(
@@ -235,7 +235,7 @@ def reservatorios():
         nome_do_reservatorio = nome_do_reservatorio)
             
         # Associando o reservatório ao edifício
-        edificio.reservatorio.append(reservatorio)    
+        # edificio.reservatorio.append(reservatorio)    
 
         db.session.add(reservatorio)
         db.session.commit()

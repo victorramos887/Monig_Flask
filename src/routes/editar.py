@@ -170,8 +170,9 @@ def escolas_editar(id):
         db.session.commit()
 
         return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK
+    
     except exc.DBAPIError as e:
-        if e.orig.pgcode == '23503':
+        if '23503' in str(e):
             match = re.search(
                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -179,16 +180,19 @@ def escolas_editar(id):
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
             return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
+        # if e.orig.pgcode == '23505':
+        if '23505' in str(e):
             # UNIQUE VIOLATION
             match = re.search(r'Key \((.*?)\)=', str(e))
             campo = match.group(1) if match else 'campo desconhecido'
             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
+        #if e.orig.pgcode == '01004':
+        if '01004' in str(e):
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
         return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
     except Exception as e:
