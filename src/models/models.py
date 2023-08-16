@@ -282,7 +282,7 @@ class Hidrometros(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_edificios, hidrometro, fk_hidrometro):
+    def __init__(self, fk_edificios, hidrometro, fk_hidrometro=1):
         self.fk_edificios = fk_edificios
         self.hidrometro = hidrometro
         self.fk_hidrometro = fk_hidrometro
