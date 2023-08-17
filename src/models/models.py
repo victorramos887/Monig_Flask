@@ -175,10 +175,10 @@ class Edificios(db.Model):
                     else:
                         edificios = self.query.filter_by(id=self.id).first()
                         if edificios.principal:
+                            edificios.principal = False
                             self.principal = True
                         else:
                             self.principal = False
-
             else:
                 setattr(self, key, value)
 
