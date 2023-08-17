@@ -141,3 +141,4 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
         response_select_edificio_02 = json.loads(selecionarEdificio_02.get_data())
         assert selecionarEdificio_02.status_code == 200
         assert response_select_edificio_02['edificio']['principal'] == True
+

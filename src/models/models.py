@@ -164,7 +164,13 @@ class Edificios(db.Model):
                 verificar = self.query.filter_by(
                     fk_escola=self.fk_escola).count()
                 if verificar == 1:
+                    self.principal = False
+                    edificioprincipal = self.query.filter_by(
+                            principal=True).first()
+                    if edificioprincipal is not None:
+                        edificioprincipal.principal = False  # Corrigido aqui
                     self.principal = True
+
                 else:
                     if value:
                         edificioprincipal = self.query.filter_by(
