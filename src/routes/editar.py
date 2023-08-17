@@ -111,7 +111,6 @@ def escolas_editar(id):
     try:
 
        #verificando niveis das escolas
-
         escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
 
         escola.update(
@@ -135,7 +134,6 @@ def escolas_editar(id):
         for nivel in niveis_adicionados:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
                 
-            print(op_nivel.id, ' nivel')
             if op_nivel:
                 escola_nivel = EscolaNiveis(
                     escola_id=escola.id,
@@ -147,7 +145,6 @@ def escolas_editar(id):
         # Remova os níveis de ensino que não estão mais presentes
         for nivel in niveis_removidos:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
-            print(op_nivel.id)
             if op_nivel:
                 escola_nivel = EscolaNiveis.query.filter_by(
                     escola_id=escola.id,
@@ -155,8 +152,6 @@ def escolas_editar(id):
                 ).first()
                 if escola_nivel:
                     db.session.delete(escola_nivel)
-
-
         edificio.update(
             numero_edificio=body["numero"],
             cep_edificio=body["cep"],
@@ -353,7 +348,7 @@ def edificio_principal(id):
     body = request.get_json()
 
     try:
-        print('principal')
+
         edificio.update(principal=body['principal'])
         db.session.commit()
 

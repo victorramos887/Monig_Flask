@@ -280,11 +280,10 @@ def edificios():
 
     try:
         formulario = request.get_json()
-        # formulario_reservatorio = formulario['reservatorio']
-        # formulario_edificios = formulario.pop('reservatorio')
+
         fk_escola = formulario['fk_escola']
         agua_de_reuso = formulario['agua_de_reuso']
-        area_total_edificio = formulario.get('area_total_edificio', 0.0)
+        area_total_edificio = formulario['area_total_edificio'] if formulario['area_total_edificio'] != "" else 0.0
         bairro_edificio = formulario['bairro_edificio']
         cep_edificio = formulario['cep_edificio']
         cidade_edificio = formulario['cidade_edificio']
@@ -294,7 +293,7 @@ def edificios():
         logradouro_edificio = formulario['logradouro_edificio']
         nome_do_edificio = formulario['nome_do_edificio']
         numero_edificio = formulario['numero_edificio']
-        pavimentos_edificio = formulario.get('pavimentos_edificio', 0)
+        pavimentos_edificio = formulario['pavimentos_edificio'] if formulario['pavimentos_edificio'] != "" else 0.0
         reservatorios = formulario['reservatorio']
 
         
