@@ -340,7 +340,7 @@ class AreaUmida(db.Model):
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_area_umida'] = area_umida_descricao
         jsonRetorno['operacao_area_umida'] = operacao
-        jsonRetorno['status_area_umida'] = status_area_umida
+        # jsonRetorno['status_area_umida'] = status_area_umida
         return jsonRetorno
 
 
@@ -895,18 +895,18 @@ def add_opniveis():
     }
 
     
-    tipo_de_evento = TipoDeEventos(
-    nome_do_evento='Natal',
-    periodicidade='Sazonal',
-    sazonal_periodo= '25/12/2023',
-    requer_resposta=False,
-    tempo_de_tolerancia=None,
-    unidade_de_tempo= None,
-    e_resposta=False,
-    resposta_para=None
-    )
+    # tipo_de_evento = TipoDeEventos(
+    #     nome_do_evento='Natal',
+    #     periodicidade='Sazonal',
+    #     sazonal_periodo= '25/12/2023',
+    #     requer_acao=False,
+    #     tempo_de_tolerancia=None,
+    #     unidade_de_tempo= None,
+    #     acao=False,
+    #     resposta_para=None
+    # )
 
-    db.session.add(tipo_de_evento)
+    # db.session.add(tipo_de_evento)
   
 
     for nome_da_tabela in op_nome_da_tabela:
@@ -945,12 +945,12 @@ def add_opniveis():
             st = OperacaoAreaUmida(operacao=operacao)
             db.session.add(st)
 
-    for status in status_area_umida:
-        st = StatusAreaUmida.query.filter_by(status=status).first()
+    # for status in status_area_umida:
+    #     st = StatusAreaUmida.query.filter_by(status=status).first()
 
-        if not st:
-            st = StatusAreaUmida(status=status)
-            db.session.add(st)
+    #     if not st:
+    #         st = StatusAreaUmida(status=status)
+    #         db.session.add(st)
 
     for hidrometro in tipohidrometro:
         hid = TipoHidrometro.query.filter_by(

@@ -50,6 +50,8 @@ def test_update_escola(app, new_escolas, update_escola):
         assert response.status_code == 200
 
 
-# def test_update_edificios(app, new_edificios):
+def test_update_edificios(app, new_edificios):
 
-#     json_data = json.dumps(new_edificios)
+    json_data = json.dumps(new_edificios)
+
+    

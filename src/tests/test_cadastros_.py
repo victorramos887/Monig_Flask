@@ -45,7 +45,7 @@ def test_cadastro_edificios(app, new_edificios):
         
         # Verifique o código de status da resposta
         assert response.status_code == 200
-
+        
 
 def test_cadastro_area_umida(app, new_area_umida):
 
@@ -58,7 +58,11 @@ def test_cadastro_area_umida(app, new_area_umida):
             content_type='application/json'
         )
 
+        response_dict = json.loads(response.get_data())
+
+        print(response_dict)
         assert response.status_code == 200
+
 
 def test_cadastro_equipamento(app, new_equipamentos):
 
