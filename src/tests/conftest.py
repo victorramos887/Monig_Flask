@@ -182,3 +182,24 @@ def new_reservatorio():
         "fk_escola":1,
         "nome":fake.name()
     }
+
+@fixture
+def new_cliente():
+    
+   return {
+        "nome": fake.name(),
+        "email": fake.email(),
+        "cnpj":  cnpj(),
+        "telefone": fake.phone_number()
+    }
+
+@fixture
+def new_usuario():
+    
+   return {
+        "cod_cliente": 1,
+        "nome": fake.name(),
+        "email": fake.email(),
+        "senha":  fake.password(),
+      
+    }

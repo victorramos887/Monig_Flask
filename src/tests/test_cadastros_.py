@@ -58,6 +58,9 @@ def test_cadastro_area_umida(app, new_area_umida):
             content_type='application/json'
         )
 
+        response_dict = json.loads(response.get_data())
+
+        print(response_dict)
         assert response.status_code == 200
 
 def test_cadastro_equipamento(app, new_equipamentos):
@@ -114,6 +117,36 @@ def test_cadastro_reservatorio(app, new_reservatorio):
 
         response = app.test_client().post(
             'api/v1/cadastros/reservatorios',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+
+
+def test_cadastro_cliente(app, new_cliente):
+
+    with app.app_context():
+        
+        json_data = json.dumps(new_cliente)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/cliente',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+
+
+def test_cadastro_usuario(app, new_usuario):
+
+    with app.app_context():
+        
+        json_data = json.dumps(new_usuario)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/usuario',
             data=json_data,
             content_type='application/json'
         )
