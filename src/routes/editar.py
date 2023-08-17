@@ -1,10 +1,9 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, StatusAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
+from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
-from http import HTTPStatus
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
@@ -112,7 +111,6 @@ def escolas_editar(id):
     try:
 
        #verificando niveis das escolas
-
         escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
 
         escola.update(
@@ -136,7 +134,6 @@ def escolas_editar(id):
         for nivel in niveis_adicionados:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
                 
-            print(op_nivel.id, ' nivel')
             if op_nivel:
                 escola_nivel = EscolaNiveis(
                     escola_id=escola.id,
@@ -148,7 +145,6 @@ def escolas_editar(id):
         # Remova os níveis de ensino que não estão mais presentes
         for nivel in niveis_removidos:
             op_nivel = OpNiveis.query.filter_by(id=nivel).first()
-            print(op_nivel.id)
             if op_nivel:
                 escola_nivel = EscolaNiveis.query.filter_by(
                     escola_id=escola.id,
@@ -156,8 +152,6 @@ def escolas_editar(id):
                 ).first()
                 if escola_nivel:
                     db.session.delete(escola_nivel)
-
-
         edificio.update(
             numero_edificio=body["numero"],
             cep_edificio=body["cep"],
@@ -171,8 +165,9 @@ def escolas_editar(id):
         db.session.commit()
 
         return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK
+    
     except exc.DBAPIError as e:
-        if e.orig.pgcode == '23503':
+        if '23503' in str(e):
             match = re.search(
                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
             tabela = match.group(1) if match else 'tabela desconhecida'
@@ -180,16 +175,19 @@ def escolas_editar(id):
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
             return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
+        # if e.orig.pgcode == '23505':
+        if '23505' in str(e):
             # UNIQUE VIOLATION
             match = re.search(r'Key \((.*?)\)=', str(e))
             campo = match.group(1) if match else 'campo desconhecido'
             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
+        #if e.orig.pgcode == '01004':
+        if '01004' in str(e):
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
         return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
 
     except Exception as e:
@@ -350,6 +348,7 @@ def edificio_principal(id):
     body = request.get_json()
 
     try:
+
         edificio.update(principal=body['principal'])
         db.session.commit()
 
@@ -489,14 +488,19 @@ def area_umida_editar(id):
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
+        status = body['status_area_umida']
 
-        # status_area_umida = StatusAreaUmida.query.filter_by(status =body['status_area_umida']).first()
+        if status == 'Aberto':
+            status = True
+        else:
+            status = False
+
         tipo_area_umida = TipoAreaUmida.query.filter_by(
             tipo=body['tipo_area_umida']).first()
 
         umida.update(
             tipo_area_umida=tipo_area_umida.id,
-            status_area_umida=True,
+            status_area_umida=status,
             nome_area_umida=nome_area_umida,
             localizacao_area_umida=localizacao_area_umida,
             fk_edificios=fk_edificios

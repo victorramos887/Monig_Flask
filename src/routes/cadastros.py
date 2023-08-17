@@ -3,105 +3,14 @@ from flask import Blueprint, jsonify, request
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
-from flasgger import swag_from
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis, StatusAreaUmida,
-                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio, Eventos, TipoDeEventos)
+from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis,
+                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio)
 import traceback
 from sqlalchemy.exc import ArgumentError
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
-
-
-
-@cadastros.post('/evento')
-def evento():
-    try:
-        formulario = request.get_json()
-        evento = Eventos(**formulario)
-        db.session.add(evento)
-        db.session.commit()
-            
-        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":evento.to_json()}), HTTP_200_OK
-
-    except ArgumentError as e:
-            error_message = str(e)
-            error_data = {'error': error_message}
-            json_error = json.dumps(error_data)
-            print(json_error)
-            return json_error
-        
-    except exc.DBAPIError as e:
-            db.session.rollback()
-            if e.orig.pgcode == '23505':
-                # extrai o nome do campo da mensagem de erro
-                match = re.search(r'Key \((.*?)\)=', str(e))
-                campo = match.group(1) if match else 'campo desconhecido'
-                mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-                return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
-
-            if e.orig.pgcode == '01004':
-                return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-            return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
-
-    except Exception as e:
-            db.session.rollback()
-            if isinstance(e, HTTPException) and e.code == '500':
-                return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-            if isinstance(e, HTTPException) and e.code == '400':
-                #flash("Erro, 4 não salva")
-                return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-            return jsonify({
-                "erro":str(e)
-            })
-   
-
-
-#TESTE rota Tipo
-@cadastros.post('/tipo-evento')
-def tipo_evento():
-    try:
-        
-        formulario = request.get_json()
-        tipo = TipoDeEventos(**formulario)
-        db.session.add(tipo)
-        db.session.commit()
-            
-        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":tipo.to_json()}), HTTP_200_OK
-
-    except ArgumentError as e:
-            error_message = str(e)
-            error_data = {'error': error_message}
-            json_error = json.dumps(error_data)
-            print(json_error)
-            return json_error
-
-        
-    except exc.DBAPIError as e:
-            db.session.rollback()
-            if e.orig.pgcode == '23505':
-                # extrai o nome do campo da mensagem de erro
-                match = re.search(r'Key \((.*?)\)=', str(e))
-                campo = match.group(1) if match else 'campo desconhecido'
-                mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-                return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
-
-            if e.orig.pgcode == '01004':
-                return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-            return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
-
-    except Exception as e:
-            db.session.rollback()
-            if isinstance(e, HTTPException) and e.code == '500':
-                return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-            if isinstance(e, HTTPException) and e.code == '400':
-                #flash("Erro, 4 não salva")
-                return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-            return jsonify({
-                "erro":e
-            })
-
 
 #cadastro de cliente
 @cadastros.post('/cliente')
@@ -215,7 +124,6 @@ def usuario():
 
 #Cadastros das escolas
 @cadastros.post('/escolas')
-@swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
 
     formulario = request.get_json()
@@ -317,10 +225,10 @@ def reservatorios():
         nome_do_reservatorio = formulario['nome']
       
         # Criando ou obtendo o edifício associado ao reservatório
-        edificio_id = formulario['fk_escola']
-        edificio = Edificios.query.filter_by(id=edificio_id).first()
-        if edificio is None:
-            return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
+        # edificio_id = formulario['fk_escola']
+        # edificio = Edificios.query.filter_by(id=edificio_id).first()
+        # if edificio is None:
+        #     return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
 
         #CRIANDO O RESERVATORIO
         reservatorio = Reservatorios(
@@ -328,7 +236,7 @@ def reservatorios():
         nome_do_reservatorio = nome_do_reservatorio)
             
         # Associando o reservatório ao edifício
-        edificio.reservatorio.append(reservatorio)    
+        # edificio.reservatorio.append(reservatorio)    
 
         db.session.add(reservatorio)
         db.session.commit()
@@ -369,16 +277,14 @@ def reservatorios():
 
 #Cadastros dos edifícios.
 @cadastros.post('/edificios')
-@swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
     try:
         formulario = request.get_json()
-        # formulario_reservatorio = formulario['reservatorio']
-        # formulario_edificios = formulario.pop('reservatorio')
+
         fk_escola = formulario['fk_escola']
         agua_de_reuso = formulario['agua_de_reuso']
-        area_total_edificio = formulario.get('area_total_edificio', 0.0)
+        area_total_edificio = formulario['area_total_edificio'] if formulario['area_total_edificio'] != "" else 0.0
         bairro_edificio = formulario['bairro_edificio']
         cep_edificio = formulario['cep_edificio']
         cidade_edificio = formulario['cidade_edificio']
@@ -388,7 +294,7 @@ def edificios():
         logradouro_edificio = formulario['logradouro_edificio']
         nome_do_edificio = formulario['nome_do_edificio']
         numero_edificio = formulario['numero_edificio']
-        pavimentos_edificio = formulario.get('pavimentos_edificio', 0)
+        pavimentos_edificio = formulario['pavimentos_edificio'] if formulario['pavimentos_edificio'] != "" else 0.0
         reservatorios = formulario['reservatorio']
 
         
@@ -467,7 +373,6 @@ def edificios():
 
 
 @cadastros.post('/hidrometros')
-@swag_from('../docs/cadastros/hidrometros.yaml')
 def hidrometros():
 
     formulario = request.get_json()
@@ -497,7 +402,12 @@ def hidrometros():
        
         if e.orig.pgcode == '01004':
             #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            return jsonify({'status':False, 'mensagem': 'Erro no cabeçalho', 'codigo':str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({
+            'status':False,
+            'mensagem':'Erro no banco não tratao!',
+            'codigo':f'{e}'
+        }), 500
 
     except Exception as e:
         db.session.rollback()
@@ -507,17 +417,20 @@ def hidrometros():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            'status':False,
+            'mensagem':'Erro não tratado.',
+            'codigo':str(e)
+        })
 
 
 
 @cadastros.post('/populacao')
-@swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
     formulario = request.get_json()
-    print(formulario)
     nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
-    print(nivel)
+
     try:
 
         alunos = formulario['alunos']
@@ -577,7 +490,6 @@ def populacao():
 
 #Cadastros das areas umidas
 @cadastros.post('/area-umida')
-@swag_from('../docs/cadastros/area-umida.yaml')
 def area_umida():
 
     formulario = request.get_json()
@@ -594,10 +506,12 @@ def area_umida():
 
         status_area_umida = StatusAreaUmida.query.filter_by(id=status_area_umida).first()
 
-        '''if status_area_umida == "Aberto":
+        #status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
+        
+        if status_area_umida == "Aberto":
             status_area_umida = True
         else:
-            status_area_umida = False'''
+            status_area_umida = False
 
         operacao = OperacaoAreaUmida.query.filter_by(id=operacao_area_umida).first()
         
@@ -650,7 +564,6 @@ def area_umida():
 
 
 @cadastros.post('/equipamentos')
-@swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
     formulario = request.get_json()

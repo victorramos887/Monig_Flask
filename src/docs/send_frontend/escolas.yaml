@@ -1,9 +1,0 @@
-ESCOLAS
----
-tags:
-  - Retornos
-responses:
-  '200':
-    description: Retornando todas as escolas.
-  '400':
-    description: Erro ao retornar as escolas.

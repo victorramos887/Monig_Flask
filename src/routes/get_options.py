@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from src.models.models import TiposEquipamentos
-from ..models import ( db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, StatusAreaUmida, 
+from ..models import ( db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, 
 TiposEquipamentos, PopulacaoPeriodo, AreaUmida, TipoDeAreaUmidaTipoDeEquipamento, OperacaoAreaUmida )
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
@@ -30,14 +30,6 @@ def tipo_area_umida():
     return jsonify(options)
 
 
-@options.get('/status_area_umida')
-def status_area_umida():
-    opcoes_pers = StatusAreaUmida.query.all()
-    opcoes_pre_definidos = [op.status for op in opcoes_pers]
-    opcoes_personalizadas = Customizados.query.all()
-    options = opcoes_pre_definidos + \
-        [o.status_area_umida for o in opcoes_personalizadas]
-    return jsonify(options)
 
 @options.get('operacao_area_umida')
 def operacao_area_umida():

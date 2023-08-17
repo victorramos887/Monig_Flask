@@ -3,8 +3,6 @@ import sys
 from time import sleep
 import json
 
-
-
 from dotenv import load_dotenv
 
 # Define o diretório base do projeto
@@ -18,9 +16,9 @@ ENV_PATH = os.path.join(sys.path[0], '.env')
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv(ENV_PATH)
 
-def test_cadastro_escola(app, assert_response, new_escolas):
+def test_cadastro_escola(app, new_escolas):
     # Converte o objeto para JSON
-    json_data = json.dumps(new_escolas.to_json())
+    json_data = json.dumps(new_escolas)
     
     response = app.test_client().post(
         'api/v1/cadastros/escolas',
@@ -29,41 +27,95 @@ def test_cadastro_escola(app, assert_response, new_escolas):
     )
     
     data = response.get_json()
+
     assert response.status_code == 200
-    assert data['id_escola'] == 1
-
-
-# def test_cadastro_edificios(app, assert_response, new_edificios):
-#         # Teste 2
-#     response = app.test_client().post(
-#         '/api/v1/cadastros/edificios',
-#         data={
-#             **new_edificios
-#         })
-#     assert response.status == '200 OK'
     
-#     # assert_response(response, 200, "text/html; charset=utf-8", b"<!DOCTYPE html>")
+
+
+def test_cadastro_edificios(app, new_edificios):
+
+    # Execute a lógica do teste
+    with app.app_context():
+        json_data = json.dumps(new_edificios)
+        response = app.test_client().post(
+            'api/v1/cadastros/edificios',
+            data=json_data,
+            content_type='application/json'
+        )
+        
+        # Verifique o código de status da resposta
+        assert response.status_code == 200
+
+
+def test_cadastro_area_umida(app, new_area_umida):
+
+    with app.app_context():
+        json_data = json.dumps(new_area_umida)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/area-umida',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+
+def test_cadastro_equipamento(app, new_equipamentos):
+
+    with app.app_context():
+
+        json_data = json.dumps(new_equipamentos)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/equipamentos',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
 
 
 
-# def test_cadastro_area_umida(app, assert_response, new_area_umida):
+def test_cadastro_populacao(app, new_populacao):
 
-#     response = app.test_client().post(
-#         '/api/v1/cadastros/area-umida',
-#         data = {
-#             **new_area_umida
-#         })
+    with app.app_context():
 
-#     assert_response(response, 200, "text/html; charset=utf-8", b"<!DOCTYPE html>")
+        json_data = json.dumps(new_populacao)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/populacao',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
 
 
-# def test_cadastro_equipamentos(app, assert_response, new_equipamentos):
+def test_cadastro_hidrometro(app, new_hidrometro):
 
-#     response =app.test_client().post(
-#         '/api/v1/cadastros/equipamentos',
-#         data={
-#             **new_equipamentos
-#         }
-#     )
+    with app.app_context():
 
-#     assert_response(response, 200, "text/html; charset=utf-8", b"<!DOCTYPE html>")
+        json_data = json.dumps(new_hidrometro)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/hidrometros',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+
+
+def test_cadastro_reservatorio(app, new_reservatorio):
+
+    with app.app_context():
+        
+        json_data = json.dumps(new_reservatorio)
+
+        response = app.test_client().post(
+            'api/v1/cadastros/reservatorios',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200

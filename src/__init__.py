@@ -6,13 +6,12 @@ from .config.swagger import swagger_config, template
 from .models import db, add_opniveis
 from . import routes
 from datetime import timedelta
-from flasgger import Swagger
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
-#import tempfile
-# from .keycloak_flask import keycloak_openid
+#from flask_migrate import Migrate
+
 
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
@@ -33,10 +32,6 @@ def create_app(test_config=None):
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
-            SWAGGER={
-                'titulo': 'API MONIG',
-                'version': 1
-            },
             JWT_EXPIRATION_DELTA=timedelta(days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
             DEBUG=False,
         )
@@ -44,7 +39,7 @@ def create_app(test_config=None):
     else:
         app.config.from_mapping(
             test_config,
-            SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI'),
+            SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
             DEBUG=False
         )
     #os.path.join(config_dir, 'config', 'client_secrets.json')
@@ -55,13 +50,15 @@ def create_app(test_config=None):
         db.create_all()
         add_opniveis()
 
+    #migrate = Migrate(app, db)
+
     JWTManager(app)
 
     # Blue prints
     for rota in rotas:
         app.register_blueprint(rota)
 
-    Swagger(app, config=swagger_config, template=template)
+    # Swagger(app, config=swagger_config, template=template)
 
     @app.route('/')
     def index():
