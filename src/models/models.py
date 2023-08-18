@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, text
+from sqlalchemy import func, text, DDL, and_, not_
 from datetime import datetime
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,6 +8,7 @@ import sqlalchemy.orm.collections as col
 from flask import current_app
 
 db = SQLAlchemy()
+
 
 class Cliente(db.Model):
 
@@ -37,7 +38,7 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-#Historico geral
+# Historico geral
 class Historico(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'historico'
@@ -92,7 +93,6 @@ class EscolasHistorico(db.Model):
     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
 
-
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
@@ -119,6 +119,7 @@ class Reservatorios(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
 
 class Edificios(db.Model):
 
@@ -158,36 +159,61 @@ class Edificios(db.Model):
     )
 
     def update(self, **kwargs):
-        
+
         for key, value in kwargs.items():
-            if key == 'principal':
-                verificar = self.query.filter_by(
-                    fk_escola=self.fk_escola).count()
-                if verificar == 1:
-                    self.principal = False
-                    edificioprincipal = self.query.filter_by(
-                            principal=True).first()
-                    if edificioprincipal is not None:
-                        edificioprincipal.principal = False  # Corrigido aqui
-                    self.principal = True
+            #     if key == 'principal':
+            #         verificar = self.query.filter_by(
+            #             fk_escola=self.fk_escola).count()
+            #         if verificar == 1:
+            #             self.principal = False
+            #             edificioprincipal = self.query.filter_by(
+            #                     principal=True).first()
+            #             if edificioprincipal is not None:
+            #                 edificioprincipal.principal = False  # Corrigido aqui
+            #             self.principal = True
 
-                else:
-                    if value:
-                        edificioprincipal = self.query.filter_by(
-                            principal=True).first()
-                        if edificioprincipal is not None:
-                            edificioprincipal.principal = False  # Corrigido aqui
-                        self.principal = True
-                    else:
-                        edificios = self.query.filter_by(id=self.id).first()
-                        if edificios.principal:
-                            edificios.principal = False
-                            self.principal = True
-                        else:
-                            self.principal = False
-            else:
-                setattr(self, key, value)
+            #         else:
+            #             if value:
+            #                 edificioprincipal = self.query.filter_by(
+            #                     principal=True).first()
+            #                 if edificioprincipal is not None:
+            #                     edificioprincipal.principal = False  # Corrigido aqui
+            #                 self.principal = True
+            #             else:
+            #                 edificios = self.query.filter_by(id=self.id).first()
+            #                 if edificios.principal:
+            #                     edificios.principal = False
+            #                     self.principal = True
+            #                 else:
+            #                     self.principal = False
+            #     else:
+            setattr(self, key, value)
 
+    def update_principal(self):
+        print(self.id)
+        escola_principal = Edificios.query.filter(Edificios.fk_escola == self.fk_escola, Edificios.principal == True).first()
+        print(escola_principal.fk_escola)
+        if escola_principal:
+            escola_principal.principal = False
+            self.principal = True  # Correção aqui
+            db.session.commit()
+
+            return self.to_json()
+        else:
+            return {}     
+        
+        # Edificios.query.filter(
+        #     and_(
+        #         Edificios.fk_escola == self.fk_escola,
+        #         Edificios.id != self.id,
+        #         Edificios.principal == True
+        #     )
+        # ).first().update({Edificios.principal: False})
+
+        # self.principal = True
+
+            
+            
     def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cnpj_edificio, logradouro_edificio, cep_edificio=None, bairro_edificio=None, complemento_edificio=None, cidade_edificio=None, estado_edificio=None, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
@@ -319,7 +345,7 @@ class AreaUmida(db.Model):
         'OperacaoAreaUmida', backref='aux_operacao_area_umida'
     )
 
-    # status_area_umida_rel = db.relationship( 
+    # status_area_umida_rel = db.relationship(
     #     'StatusAreaUmida', backref='aux_status_area_umida'
     # )
 
@@ -335,7 +361,6 @@ class AreaUmida(db.Model):
         self.localizacao_area_umida = localizacao_area_umida
         self.status_area_umida = status_area_umida
         self.operacao_area_umida = operacao_area_umida
-       
 
     def to_json(self):
 
@@ -390,6 +415,8 @@ class Equipamentos(db.Model):
         return jsonRetorno
 
 # Tabela auxiliar
+
+
 class Customizados(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_customizado_cliente'
@@ -597,10 +624,9 @@ class EscolaNiveis(db.Model):
 
 class ReservatorioEdificio(db.Model):
 
-     #esta podendo ter nomes de reservatorios iguais para o mesmo edificio
+    # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio'
-
 
     edificio_id = db.Column(db.Integer, db.ForeignKey(
         'main.edificios.id'), primary_key=True)
@@ -635,6 +661,8 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
         return jsonEnviar
 
 # EVENTOS
+
+
 class Eventos(db.Model):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
@@ -652,7 +680,7 @@ class Eventos(db.Model):
     cod_usuarios = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     usuarios = db.relationship(
         'Usuarios',
-         backref='main.usuarios'
+        backref='main.usuarios'
     )
 
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -678,13 +706,11 @@ class Eventos(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-
 class TabelasDeLocais(db.Model):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'tabela_de_locais'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
-
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -751,7 +777,7 @@ class TipoDeEventos(db.Model):
             setattr(self, key, value)
 
     def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
-        
+
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo = sazonal_periodo
@@ -762,8 +788,6 @@ class TipoDeEventos(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
-
 
 
 def add_opniveis():
@@ -772,7 +796,7 @@ def add_opniveis():
                      'Piscina', 'Jardim', 'Areas Umida Comum']
     operacaoareaumida = ['Fechado', 'Em Manutenção',
                          'Parcialmente funcionando', 'Aberto']
-    
+
     tipohidrometro = ['Tipo A', 'Tipo B', 'Tipo C', 'Pulsada', 'Normal']
     populacao_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
     tipoequipamento = {
@@ -977,3 +1001,48 @@ def add_opniveis():
                         db.session.add(areaumidaequipamento)
 
             db.session.commit()
+
+
+# def criar_gatilho_pg(nome_do_gatilho, tabela, coluna_booleana, fk_coluna):
+#     trigger_function = DDL(f"""
+#         CREATE OR REPLACE FUNCTION {nome_do_gatilho}_function()
+#         RETURNS TRIGGER AS $$
+#         BEGIN
+#             IF NEW.{coluna_booleana} THEN
+#                 UPDATE {tabela}
+#                 SET {coluna_booleana} = false
+#                 WHERE {fk_coluna} = NEW.{fk_coluna};
+#             END IF;
+#             RETURN NEW;
+#         END;
+#         $$ LANGUAGE plpgsql;
+#     """)
+
+#     trigger = DDL(f"""
+#         DROP TRIGGER IF EXISTS {nome_do_gatilho} ON {tabela};
+#         CREATE TRIGGER {nome_do_gatilho}
+#         BEFORE INSERT OR UPDATE ON {tabela}
+#         FOR EACH ROW
+#         EXECUTE FUNCTION {nome_do_gatilho}_function();
+#     """)
+
+#     db.session.execute(trigger_function)
+#     db.session.execute(trigger)
+#     db.session.commit()
+
+
+# def criar_gatilho_sqlite():
+
+#     trigger_sql = """
+#                     CREATE TRIGGER atualiza_principal AFTER INSERT ON main.edificios
+#                     BEGIN
+#                         UPDATE main.edificios
+#                             SET principal = False
+#                         WHERE id != NEW.id AND fk_escola = NEW.fk_escola;
+#                     END;
+#                 """
+#     with db.engine.connect() as connection:
+#         connection.execute(text(trigger_sql))
+
+#     # db.session.execute(trigger_sql)
+#     # db.session.commit()

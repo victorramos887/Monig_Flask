@@ -338,19 +338,20 @@ def edificios_editar(id):
 @editar.put('/edificio-principal/<int:id>')
 def edificio_principal(id):
 
-
     edificio = Edificios.query.filter_by(id=id).first()
+
+
     if not edificio:
         return jsonify({
             'mensagem':'Edificio não encontrado', 'status':False
         }), 404
-    
-    body = request.get_json()
 
     try:
 
-        edificio.update(principal=body['principal'])
+        edificio.update_principal()
         db.session.commit()
+
+        
 
         return jsonify({
             'mensagem': 'Alteração realizada com sucesso',
@@ -358,6 +359,8 @@ def edificio_principal(id):
         }), 200
 
     except Exception as e:
+
+        print(e)
         db.session.rollback()
         return jsonify({
             'mensagem':'Erro não tratado',

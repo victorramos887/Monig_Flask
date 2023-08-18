@@ -42,6 +42,7 @@ def create_app(test_config=None):
             SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
             DEBUG=False
         )
+
     #os.path.join(config_dir, 'config', 'client_secrets.json')
     db.app = app  # type: ignore
     db.init_app(app)
@@ -49,6 +50,13 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
         add_opniveis()
+        # Exemplo de uso
+
+        # if test_config is None:
+        #     criar_gatilho_pg("edificioprincipal", "main.edificios", "principal", "fk_escola")
+        # else:
+        #     criar_gatilho_sqlite()
+
 
     #migrate = Migrate(app, db)
 

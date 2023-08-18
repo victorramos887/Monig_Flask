@@ -118,6 +118,17 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
 
         assert atualizarEdificioPrincipal.status_code == 200
         
+        selecionarEdificio_02 = app.test_client().get(
+            f'api/v1/send_frontend/edificio/{response_edificios_02["data"]["id"]}',
+            content_type='application/json'
+        )
+
+
+        #  Verificar se o edificio 2 é o principal
+        response_select_edificio_02 = json.loads(selecionarEdificio_02.get_data())
+        assert selecionarEdificio_02.status_code == 200
+        assert response_select_edificio_02['edificio']['principal'] == True
+        
         #Selecionar edificios
 
         selecionarEdificio_01 = app.test_client().get(
@@ -128,17 +139,3 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
         response_select_edificio_01 = json.loads(selecionarEdificio_01.get_data())
         assert selecionarEdificio_01.status_code == 200
         assert response_select_edificio_01['edificio']['principal'] == False
-
-        # verificando edificios 2
-
-        selecionarEdificio_02 = app.test_client().get(
-            f'api/v1/send_frontend/edificio/{response_edificios_02["id"]}',
-            content_type='application/json'
-        )
-
-
-        #  Verificar se o edificio 2 é o principal
-        response_select_edificio_02 = json.loads(selecionarEdificio_02.get_data())
-        assert selecionarEdificio_02.status_code == 200
-        assert response_select_edificio_02['edificio']['principal'] == True
-
