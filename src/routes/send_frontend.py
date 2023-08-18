@@ -1,7 +1,7 @@
 from flask import Blueprint, json, jsonify, request, render_template, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select
+from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
 
 send_frontend = Blueprint('send_frontend', __name__,
@@ -87,7 +87,7 @@ def get_escolas(id):
 def edificios(id):
 
     edificios = Edificios.query.filter_by(
-        fk_escola=id, status_do_registro=True).all()
+        fk_escola=id, status_do_registro=True).order_by(desc(Edificios.principal)).all()
     result = []
 
     for edificio in edificios:
