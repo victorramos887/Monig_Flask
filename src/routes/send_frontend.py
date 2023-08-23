@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, TipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis, Historico
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -261,3 +261,18 @@ def reservatorios(id):
     return jsonify({
         "reservatorios": [reservatorio.to_json() for reservatorio in reservatorios], "status": True
     })
+
+
+@send_frontend.get('/tipo-de-eventos/<int:id>')
+def tipo_de_eventos(id):
+
+    tipo_de_eventos = TipoDeEventos.query.filter_by(
+        fk_cliente = id
+    ).all()
+
+    return jsonify({
+        "tipo_de_eventos":[
+            tipo_de_evento.to_json() for tipo_de_evento in tipo_de_eventos
+        ],
+        "status":True
+    }), 200

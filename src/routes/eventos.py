@@ -117,3 +117,14 @@ def eventos_cadastro():
         return jsonify({
             "erro":e
         })
+
+
+# #retorno dos eventos
+# @eventos.post('/eventos')# verificar o retorno do json
+# def eventos_retorno():
+
+
+
+#     return {}
+
+    
