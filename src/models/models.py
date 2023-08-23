@@ -710,8 +710,9 @@ class TipoDeEventos(db.Model):
     sazonal_periodo = db.Column(db.Date)
     requer_acao = db.Column(db.Boolean)
     tempo_de_tolerancia = db.Column(db.Integer)
-    unidade_de_tempo = db.Column(db.String)
-    acao = db.Column(db.String)
+    unidade_de_tempo = db.Column(db.String) #atualizar para tabelas auxiliares
+    acao = db.Column(db.Boolean)
+    resposta = db.Column(db.String)
 
     def add_unidade_de_tempo():
         op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
@@ -729,7 +730,7 @@ class TipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
+    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao, resposta):
 
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
@@ -738,9 +739,17 @@ class TipoDeEventos(db.Model):
         self.tempo_de_tolerancia = tempo_de_tolerancia
         self.unidade_de_tempo = unidade_de_tempo
         self.acao = acao
+        self.resposta = resposta
+
+    # def to_json(self):
+    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        data_formatada = self.sazonal_periodo.strftime("%d/%m") if self.sazonal_periodo else None
+        return {
+            attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
+            for attr in self.__table__.columns
+        }
 
 
 def add_opniveis():

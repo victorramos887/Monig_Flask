@@ -8,3 +8,4 @@ from .customizados import *
 from .auth import *
 from .cadastro_opcoes import *
 from .inserir_valores import *
+from .eventos import *
