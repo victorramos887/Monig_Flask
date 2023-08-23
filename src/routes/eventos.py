@@ -54,7 +54,7 @@ def tipoevento():
 
 #cadastro de evento
 @eventos.post('/eventos')
-def evento():
+def eventos():
 
     try:
     
