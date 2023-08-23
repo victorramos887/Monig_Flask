@@ -630,11 +630,11 @@ class Eventos(db.Model):
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.tabela_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
-    cod_usuarios = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
-    usuarios = db.relationship(
-        'Usuarios',
-        backref='main.usuarios'
-    )
+    # cod_usuarios = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
+    # usuarios = db.relationship(
+    #     'Usuarios',
+    #     backref='main.usuarios'
+    #)
 
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -643,7 +643,7 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao, cod_usuarios):
+    def __init__(self, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao): #cod_usuarios
 
         self.fk_tipo = fk_tipo
         self.nome = nome
@@ -653,7 +653,7 @@ class Eventos(db.Model):
         self.local = local
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
-        self.cod_usuarios = cod_usuarios
+        #self.cod_usuarios = cod_usuarios
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -683,15 +683,9 @@ class PrioridadeEventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     prioridade = db.Column(db.String)
 
-    def add_prioridade():
-        op_prioridade = ['Alta', 'Média', 'Baixa']
-        for prioridade in op_prioridade:
-            op_prioridade = PrioridadeEventos.query.filter_by(
-                prioridade=prioridade).first()
-
     def update(self, **kwargs):
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+            for key, value in kwargs.items():
+                setattr(self, key, value)
 
     def __init__(self, prioridade):
         self.prioridade = prioridade
@@ -707,37 +701,27 @@ class TipoDeEventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
-    sazonal_periodo = db.Column(db.Date)
-    requer_acao = db.Column(db.Boolean)
+    sazonal_periodo = db.Column(db.Date, default=None)
+    requer_resposta = db.Column(db.Boolean, default=False)
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
-    acao = db.Column(db.String)
-
-    def add_unidade_de_tempo():
-        op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
-        for unidade_de_tempo in op_unidade_de_tempo:
-            op_unidade_de_tempo = TipoDeEventos.query.filter_by(
-                unidade_de_tempo=unidade_de_tempo).first()
-
-    def add_acao():
-        op_acao = ['Sim', 'Não', 'Nem resposta, nem ação']
-        for acao in op_acao:
-            op_acao = TipoDeEventos.query.filter_by(
-                acao=acao).first()
+    resposta = db.Column(db.Boolean, default=False)
+    resposta_para = db.Column(db.String)
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
+    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
 
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo = sazonal_periodo
-        self.requer_acao = requer_acao
+        self.requer_resposta = requer_resposta
         self.tempo_de_tolerancia = tempo_de_tolerancia
         self.unidade_de_tempo = unidade_de_tempo
-        self.acao = acao
+        self.resposta = resposta
+        self.resposta_para = resposta_para
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -913,11 +897,6 @@ def add_opniveis():
         if not prioridade_eventos:
             prioridade_eventos = PrioridadeEventos(prioridade=prioridade)
             db.session.add(prioridade_eventos)
-    
-    '''for prioridade in op_prioridade:
-        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first()
-        if prioridade_eventos:
-            db.session.add(prioridade_eventos)'''
         
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
