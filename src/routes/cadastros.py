@@ -6,11 +6,12 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
 from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis,
-                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio)
+                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio, TipoDeEventos, Eventos)
 import traceback
 from sqlalchemy.exc import ArgumentError
 
 cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
+
 
 #cadastro de cliente
 @cadastros.post('/cliente')
