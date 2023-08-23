@@ -335,7 +335,7 @@ class AreaUmida(db.Model):
                        for attr in self.__table__.columns}
         jsonRetorno['tipo_area_umida'] = area_umida_descricao
         jsonRetorno['operacao_area_umida'] = operacao
-        jsonRetorno['status_area_umida'] = self.status_area_umida
+        # jsonRetorno['status_area_umida'] = status_area_umida
         return jsonRetorno
 
 
@@ -456,16 +456,6 @@ class PopulacaoPeriodo(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     periodo = db.Column(db.String)
-
-    def add_periodos():
-        op_periodos = ['Manhã', 'Tarde', 'Noite', 'Integral']
-
-        for periodo in op_periodos:
-            op_periodos = PopulacaoPeriodo.query.filter_by(
-                periodo=periodo).first()
-            if not op_periodos:
-                op_periodos = PopulacaoPeriodo(periodo=periodo)
-                db.session.add(op_periodos)
 
     def __init__(self, periodo):
         self.periodo = periodo
@@ -754,6 +744,8 @@ class TipoDeEventos(db.Model):
 
 
 def add_opniveis():
+    op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
+    op_prioridade = ['Alta', 'Média', 'Baixa']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
@@ -895,6 +887,38 @@ def add_opniveis():
         ]
     }
 
+    
+    # tipo_de_evento = TipoDeEventos(
+    #     nome_do_evento='Natal',
+    #     periodicidade='Sazonal',
+    #     sazonal_periodo= '25/12/2023',
+    #     requer_acao=False,
+    #     tempo_de_tolerancia=None,
+    #     unidade_de_tempo= None,
+    #     acao=False,
+    #     resposta_para=None
+    # )
+
+    # db.session.add(tipo_de_evento)
+  
+
+    for nome_da_tabela in op_nome_da_tabela:
+        opnome = TabelasDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
+        if not opnome:
+            opnome = TabelasDeLocais(nome_da_tabela=nome_da_tabela)
+            db.session.add(opnome)
+
+    for prioridade in op_prioridade:
+        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first() 
+        if not prioridade_eventos:
+            prioridade_eventos = PrioridadeEventos(prioridade=prioridade)
+            db.session.add(prioridade_eventos)
+    
+    '''for prioridade in op_prioridade:
+        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first()
+        if prioridade_eventos:
+            db.session.add(prioridade_eventos)'''
+        
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:
@@ -913,6 +937,13 @@ def add_opniveis():
         if not st:
             st = OperacaoAreaUmida(operacao=operacao)
             db.session.add(st)
+
+    # for status in status_area_umida:
+    #     st = StatusAreaUmida.query.filter_by(status=status).first()
+
+    #     if not st:
+    #         st = StatusAreaUmida(status=status)
+    #         db.session.add(st)
 
     for hidrometro in tipohidrometro:
         hid = TipoHidrometro.query.filter_by(
@@ -964,48 +995,3 @@ def add_opniveis():
                         db.session.add(areaumidaequipamento)
 
             db.session.commit()
-
-
-# def criar_gatilho_pg(nome_do_gatilho, tabela, coluna_booleana, fk_coluna):
-#     trigger_function = DDL(f"""
-#         CREATE OR REPLACE FUNCTION {nome_do_gatilho}_function()
-#         RETURNS TRIGGER AS $$
-#         BEGIN
-#             IF NEW.{coluna_booleana} THEN
-#                 UPDATE {tabela}
-#                 SET {coluna_booleana} = false
-#                 WHERE {fk_coluna} = NEW.{fk_coluna};
-#             END IF;
-#             RETURN NEW;
-#         END;
-#         $$ LANGUAGE plpgsql;
-#     """)
-
-#     trigger = DDL(f"""
-#         DROP TRIGGER IF EXISTS {nome_do_gatilho} ON {tabela};
-#         CREATE TRIGGER {nome_do_gatilho}
-#         BEFORE INSERT OR UPDATE ON {tabela}
-#         FOR EACH ROW
-#         EXECUTE FUNCTION {nome_do_gatilho}_function();
-#     """)
-
-#     db.session.execute(trigger_function)
-#     db.session.execute(trigger)
-#     db.session.commit()
-
-
-# def criar_gatilho_sqlite():
-
-#     trigger_sql = """
-#                     CREATE TRIGGER atualiza_principal AFTER INSERT ON main.edificios
-#                     BEGIN
-#                         UPDATE main.edificios
-#                             SET principal = False
-#                         WHERE id != NEW.id AND fk_escola = NEW.fk_escola;
-#                     END;
-#                 """
-#     with db.engine.connect() as connection:
-#         connection.execute(text(trigger_sql))
-
-#     # db.session.execute(trigger_sql)
-#     # db.session.commit()

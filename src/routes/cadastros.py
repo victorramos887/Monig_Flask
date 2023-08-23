@@ -201,6 +201,7 @@ def escolas():
         if e.orig.pgcode == '01004':
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
         return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+  
     except Exception as e:
         db.session.rollback()
         if isinstance(e, HTTPException) and e.code == '500':
@@ -502,6 +503,8 @@ def area_umida():
         operacao_area_umida = formulario['operacao_area_umida']
 
         tipos = TipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+
+        # status_area_umida = StatusAreaUmida.query.filter_by(id=status_area_umida).first()
 
         #status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
         
