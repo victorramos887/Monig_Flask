@@ -5,12 +5,24 @@ from flask import Response
 from pytest import fixture
 import sys
 import os
+import json
+
+
+from datetime import date
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')))
 
 
 fake = Faker()
+
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, date):
+            return o.isoformat()
+        return super().default(o)
+
 
 
 @fixture
@@ -23,6 +35,9 @@ def app():
         'SQLALCHEMY_DATA_BASE_URI': 'sqlite:///test.db'
     })
 
+
+    app.json_encoder = CustomJSONEncoder
+    
     with app.app_context():
         # Cria o banco de dados de testes e tabelas
         from src.models import db
@@ -203,3 +218,67 @@ def new_usuario():
         "senha":  fake.password(),
       
     }
+# data_fake = datetime.now()
+
+
+from datetime import date, datetime
+import random
+import calendar
+
+
+
+@fixture
+def new_tipo_evento():
+
+    return {
+        "nome_do_evento":fake.name(),
+        "periodicidade":fake.random_int(min=1, max=7),
+        "sazonal_periodo":datetime(2020, 3, 11, 14, 0, 0),
+        "requer_acao":fake.boolean(),
+        "tempo_de_tolerancia":fake.random_int(min=1, max=7),
+        "unidade_de_tempo":fake.random_element(
+            elements=(
+                "Semana",
+                "Mês",
+                "Dia",
+                "Ano"
+            )
+        ),
+        "acao":None,
+        "resposta":None
+    }
+
+    # return {
+    #     "nome_do_evento": "Evento de teste",
+    #     "periodicidade": "Diário",
+    #     "sazonal_periodo": fake.date_object(),
+    #     "requer_acao": True,
+    #     "tempo_de_tolerancia": 24,
+    #     "unidade_de_tempo": "Horas",
+    #     "acao": "Sim",
+    #     "resposta": "Resposta do evento de teste",
+    # }
+
+
+@fixture
+def new_evento():
+    
+    return {
+        "fk_tipo":fake.random_int(min=1, max=10),
+        "nome":fake.name(),
+        "datainicio":fake.date_object(),
+        "datefim":fake.data_object(),
+        "prioridade":fake.random_element(
+            element=(
+                "Alta",
+                "Baixa"
+            )
+        ),
+        "local":fake.random_int(min=1, max=1000),
+        "tipo_de_local":fake.random_int(min=1, max=10),
+        "observacao":fake.text(),
+        "cod_usuarios":fake.random_int(min=1, max=10)
+    }
+
+
+

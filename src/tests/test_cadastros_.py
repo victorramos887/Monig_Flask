@@ -153,3 +153,52 @@ def test_cadastro_usuario(app, new_usuario):
         )
 
         assert response.status_code == 200
+
+def test_cadastro_tipo_eventos(app, new_tipo_evento):
+
+    with app.app_context():
+
+        json_data = json.dumps(new_tipo_evento)
+
+        response = app.test_client().post(
+            '/api/v1/cadastro-evento/tipo-evento',
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+
+def test_tipo_evento_post(app, new_tipo_evento):
+    """Teste de cadastro de tipo de evento."""
+    # Mocka a requisição
+    response = app.test_client().post("/api/v1/cadastro-evento/tipo-evento", json=new_tipo_evento)
+
+    # Valida a resposta
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": True,
+        "mensagem": "Cadastro Realizado",
+        "data": {
+            "nome_do_evento": "Evento de teste",
+            "periodicidade": "Diário",
+            "sazonal_periodo": "2023-08-22",
+            "requer_acao": True,
+            "tempo_de_tolerancia": 24,
+            "unidade_de_tempo": "Horas",
+            "acao": "Sim",
+            "resposta": "Resposta do evento de teste",
+        },
+    }
+
+def valor_test_cadastro_eventos(app, new_evento):
+
+
+    with app.app_context():
+
+        json_data = json.dumps(new_evento)
+        
+        response = app.test_client().post(
+            'api/v1/...',
+            data=json_data,
+            context_type='application/json'
+        )
