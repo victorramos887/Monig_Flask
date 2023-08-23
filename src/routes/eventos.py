@@ -9,6 +9,7 @@ from sqlalchemy.exc import ArgumentError
 
 eventos = Blueprint('eventos', __name__, url_prefix = '/api/v1/cadastro-evento')
 
+
 @eventos.post('/tipo-evento')
 def tipoevento():
 
