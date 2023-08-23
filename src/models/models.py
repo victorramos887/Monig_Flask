@@ -161,32 +161,6 @@ class Edificios(db.Model):
     def update(self, **kwargs):
 
         for key, value in kwargs.items():
-            #     if key == 'principal':
-            #         verificar = self.query.filter_by(
-            #             fk_escola=self.fk_escola).count()
-            #         if verificar == 1:
-            #             self.principal = False
-            #             edificioprincipal = self.query.filter_by(
-            #                     principal=True).first()
-            #             if edificioprincipal is not None:
-            #                 edificioprincipal.principal = False  # Corrigido aqui
-            #             self.principal = True
-
-            #         else:
-            #             if value:
-            #                 edificioprincipal = self.query.filter_by(
-            #                     principal=True).first()
-            #                 if edificioprincipal is not None:
-            #                     edificioprincipal.principal = False  # Corrigido aqui
-            #                 self.principal = True
-            #             else:
-            #                 edificios = self.query.filter_by(id=self.id).first()
-            #                 if edificios.principal:
-            #                     edificios.principal = False
-            #                     self.principal = True
-            #                 else:
-            #                     self.principal = False
-            #     else:
             setattr(self, key, value)
 
     def update_principal(self):
@@ -202,17 +176,7 @@ class Edificios(db.Model):
         else:
             return {}     
         
-        # Edificios.query.filter(
-        #     and_(
-        #         Edificios.fk_escola == self.fk_escola,
-        #         Edificios.id != self.id,
-        #         Edificios.principal == True
-        #     )
-        # ).first().update({Edificios.principal: False})
-
-        # self.principal = True
-
-            
+           
             
     def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cnpj_edificio, logradouro_edificio, cep_edificio=None, bairro_edificio=None, complemento_edificio=None, cidade_edificio=None, estado_edificio=None, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
@@ -660,9 +624,8 @@ class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
         jsonEnviar['equipamento_id'] = self.tipo_equipamento_id
         return jsonEnviar
 
+
 # EVENTOS
-
-
 class Eventos(db.Model):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
