@@ -14,7 +14,30 @@ def tipoevento():
 
     try:
         formulario = request.get_json()
-        tipo_evento = TipoDeEventos(**formulario)
+
+        fk_cliente = formulario['fk_cliente']
+        nome_do_evento = formulario['nome_do_tipo_evento']
+        periodicidade = formulario['periodicidade']
+        sazonal_periodo = formulario["dataSazonal"]
+        requer_resposta = formulario["requerResposta"]
+        tempo_de_tolerancia = formulario['tolerancia']
+        unidade_de_tempo = formulario['unidade']
+        resposta = formulario["ehResposta"]
+        resposta_para = formulario["qual_tipo_evento"]
+       
+
+        tipo_evento = TipoDeEventos(
+            fk_cliente=fk_cliente,
+            nome_do_evento=nome_do_evento,
+            periodicidade=periodicidade,
+            sazonal_periodo=sazonal_periodo,
+            requer_resposta=requer_resposta,
+            tempo_de_tolerancia=tempo_de_tolerancia,
+            unidade_de_tempo=unidade_de_tempo,
+            resposta=resposta,
+            resposta_para=resposta_para
+        )
+
         db.session.add(tipo_evento)
         db.session.commit()
         
@@ -53,7 +76,7 @@ def tipoevento():
 
 #cadastro de evento
 @eventos.post('/eventos')
-def cad_evento():
+def eventos_cadastro():
 
     try:
     
