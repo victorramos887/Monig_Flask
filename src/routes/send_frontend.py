@@ -276,3 +276,11 @@ def tipo_de_eventos(id):
         ],
         "status":True
     }), 200
+
+
+@send_frontend.get('/testando')
+def testandoretorno():
+
+    print(request.get_json())
+
+    return "Retorno"
