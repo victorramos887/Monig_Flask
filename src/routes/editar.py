@@ -640,7 +640,7 @@ def tipo_evento_editar(id):
        
       
         # Insere os dados da linha excluída na tabela de histórico
-        historico = Historico(tabela='TipoDeEventos', dados=json.dumps(tipo_evento.to_json()))
+        historico = Historico(tabela='TipoDeEventos', dados=json.dumps(tipo_evento.to_json(), ensure_ascii=False))
         db.session.add(historico)
 
         tipo_evento.update(
@@ -711,8 +711,10 @@ def evento_editar(id):
         observacao = formulario["observacao"]
        
       
-        # Insere os dados da linha excluída na tabela de histórico
-        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json()))
+        # Insere os dados da linha alterada na tabela de histórico
+        #historico = Historico(tabela='Eventos', dados=evento.to_json())
+        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
+
         db.session.add(historico)
 
         evento.update(
