@@ -713,6 +713,7 @@ def evento_editar(id):
       
         # Insere os dados da linha alterada na tabela de histórico
         #historico = Historico(tabela='Eventos', dados=evento.to_json())
+        #observacao: ao salvar na tabela hist. os caracteres não estão sendo salvos corretamentes por conta dessa função abaixo, o ideal seria usar o de cima, porém dá erro.
         historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
 
         db.session.add(historico)
