@@ -708,6 +708,8 @@ class TipoDeEventos(db.Model):
     unidade_de_tempo = db.Column(db.String)
     resposta = db.Column(db.Boolean, default=False)
     resposta_para = db.Column(db.String)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -879,19 +881,6 @@ def add_opniveis():
         ]
     }
 
-    
-    # tipo_de_evento = TipoDeEventos(
-    #     nome_do_evento='Natal',
-    #     periodicidade='Sazonal',
-    #     sazonal_periodo= '25/12/2023',
-    #     requer_acao=False,
-    #     tempo_de_tolerancia=None,
-    #     unidade_de_tempo= None,
-    #     acao=False,
-    #     resposta_para=None
-    # )
-
-    # db.session.add(tipo_de_evento)
   
 
     for nome_da_tabela in op_nome_da_tabela:
