@@ -14,6 +14,7 @@ sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')))
 
 
+
 fake = Faker()
 
 
@@ -218,25 +219,21 @@ def new_usuario():
         "senha":  fake.password(),
       
     }
-# data_fake = datetime.now()
-
 
 from datetime import date, datetime
-import random
-import calendar
-
 
 
 @fixture
 def new_tipo_evento():
 
-    return {
-        "nome_do_evento":fake.name(),
+   return {
+        "fk_cliente":1,
+        "nome_do_tipo_evento":fake.name(),
         "periodicidade":fake.random_int(min=1, max=7),
-        "sazonal_periodo":datetime(2020, 3, 11, 14, 0, 0),
-        "requer_acao":fake.boolean(),
-        "tempo_de_tolerancia":fake.random_int(min=1, max=7),
-        "unidade_de_tempo":fake.random_element(
+        "dataSazonal":datetime(2023, 8, 24, 10, 0, 0) ,#datetime.strptime("2023-02-22 10:10:00", '%Y-%m-%dT%H:%M:%S'),
+        "requerResposta":fake.boolean(),
+        "tolerancia":fake.random_int(min=1, max=7),
+        "unidade":fake.random_element(
             elements=(
                 "Semana",
                 "Mês",
@@ -244,21 +241,9 @@ def new_tipo_evento():
                 "Ano"
             )
         ),
-        "acao":None,
-        "resposta":None
+        "qual_tipo_evento":None,
+        "ehResposta":None
     }
-
-    # return {
-    #     "nome_do_evento": "Evento de teste",
-    #     "periodicidade": "Diário",
-    #     "sazonal_periodo": fake.date_object(),
-    #     "requer_acao": True,
-    #     "tempo_de_tolerancia": 24,
-    #     "unidade_de_tempo": "Horas",
-    #     "acao": "Sim",
-    #     "resposta": "Resposta do evento de teste",
-    # }
-
 
 @fixture
 def new_evento():
@@ -279,6 +264,3 @@ def new_evento():
         "observacao":fake.text(),
         "cod_usuarios":fake.random_int(min=1, max=10)
     }
-
-
-

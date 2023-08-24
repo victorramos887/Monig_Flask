@@ -5,6 +5,9 @@ import json
 
 from dotenv import load_dotenv
 
+from datetime import date, datetime
+
+
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(BASE_DIR)
@@ -15,6 +18,13 @@ ENV_PATH = os.path.join(sys.path[0], '.env')
 
 # Carrega as variáveis de ambiente do arquivo .env
 load_dotenv(ENV_PATH)
+
+
+def date_encoder(obj):
+    if isinstance(obj, (date, datetime)):
+        return obj.isoformat()  # Converte para string no formato ISO 8601
+    raise TypeError("Object of type %s is not JSON serializable" % type(obj))
+
 
 def test_cadastro_escola(app, new_escolas):
     # Converte o objeto para JSON
@@ -154,12 +164,15 @@ def test_cadastro_usuario(app, new_usuario):
 
         assert response.status_code == 200
 
+# def myconverter(o):
+#     if isinstance(o, datetime.datetime):
+#         return o.__str__()
+
 def test_cadastro_tipo_eventos(app, new_tipo_evento):
-
     with app.app_context():
-
-        json_data = json.dumps(new_tipo_evento)
-
+        
+        json_data = json.dumps(new_tipo_evento)       
+        
         response = app.test_client().post(
             '/api/v1/cadastro-evento/tipo-evento',
             data=json_data,
@@ -181,7 +194,7 @@ def test_tipo_evento_post(app, new_tipo_evento):
         "data": {
             "nome_do_evento": "Evento de teste",
             "periodicidade": "Diário",
-            "sazonal_periodo": "2023-08-22",
+            "sazonal_periodo": date.fromisoformat("2023-08-20"),
             "requer_acao": True,
             "tempo_de_tolerancia": 24,
             "unidade_de_tempo": "Horas",

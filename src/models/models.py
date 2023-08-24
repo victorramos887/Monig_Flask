@@ -702,7 +702,7 @@ class TipoDeEventos(db.Model):
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
-    sazonal_periodo = db.Column(db.Date, default=None)
+    sazonal_periodo = db.Column(db.DateTime, default=None)
     requer_resposta = db.Column(db.Boolean, default=False)
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
@@ -728,12 +728,17 @@ class TipoDeEventos(db.Model):
         self.resposta = resposta
         self.resposta_para = resposta_para
 
+
+
     def to_json(self):
-        data_formatada = self.sazonal_periodo.strftime("%d/%m") if self.sazonal_periodo else None
-        return {
-            attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
-            for attr in self.__table__.columns
-        }
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+    # def to_json(self):
+    #     data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
+    #     return {
+    #         attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
+    #         for attr in self.__table__.columns
+    #     }
 
 
 
