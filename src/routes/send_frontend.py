@@ -283,13 +283,21 @@ def tipo_de_eventos(id):
 def get_tipo_de_eventos(id):
 
     tipo_de_evento = TipoDeEventos.query.filter_by(
-        id = id
+        id=id
     ).first()
 
+    if tipo_de_evento is not None:
+        return jsonify({
+            'tipo_de_evento': tipo_de_evento.to_json()
+        })
 
-    return jsonify({
-        'tipo_de_evento':tipo_de_evento.to_json() if tipo_de_eventos else []
-    })
+    else:
+        return jsonify({
+            'message': 'Tipo de evento não encontrado'
+        }), 404
+
+
+
 
 @send_frontend.get('/testando')
 def testandoretorno():

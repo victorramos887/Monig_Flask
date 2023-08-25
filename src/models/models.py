@@ -732,7 +732,7 @@ class TipoDeEventos(db.Model):
     #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
     
     def to_json(self):
-        print("Gezebel")
+
         data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
         return {
             attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
