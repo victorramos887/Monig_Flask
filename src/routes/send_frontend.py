@@ -288,7 +288,7 @@ def get_tipo_de_eventos(id):
 
 
     return jsonify({
-        'tipo_de_evento':tipo_de_evento.to_json()
+        'tipo_de_evento':tipo_de_evento.to_json() if tipo_de_eventos else []
     })
 
 @send_frontend.get('/testando')
