@@ -708,8 +708,8 @@ class TipoDeEventos(db.Model):
     unidade_de_tempo = db.Column(db.String)
     resposta = db.Column(db.Boolean)
     resposta_para = db.Column(db.String)
-    created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    # created_at = db.Column(db.DateTime, default=datetime.now())
+    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -728,17 +728,16 @@ class TipoDeEventos(db.Model):
         self.resposta = resposta
         self.resposta_para = resposta_para
 
-
-
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
     # def to_json(self):
-    #     data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
-    #     return {
-    #         attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
-    #         for attr in self.__table__.columns
-    #     }
+    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+    def to_json(self):
+
+        data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
+        return {
+            attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
+            for attr in self.__table__.columns
+        }
 
 
 

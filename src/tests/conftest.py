@@ -1,30 +1,22 @@
 from random import randint
 from faker import Faker
-
 from flask import Response
 from pytest import fixture
 import sys
 import os
 import json
-
-
 from datetime import date
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')))
 
-
-
 fake = Faker()
-
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, date):
             return o.isoformat()
         return super().default(o)
-
-
 
 @fixture
 def app():
@@ -48,7 +40,6 @@ def app():
         # Limpando banco de dados de teste após cada execução do teste
         db.session.remove()
         db.drop_all()
-
 
 @fixture
 def assert_response():
