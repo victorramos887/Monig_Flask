@@ -702,11 +702,11 @@ class TipoDeEventos(db.Model):
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
-    sazonal_periodo = db.Column(db.DateTime, default=None)
-    requer_resposta = db.Column(db.Boolean, default=False)
+    sazonal_periodo = db.Column(db.DateTime)
+    requer_resposta = db.Column(db.Boolean)
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
-    resposta = db.Column(db.Boolean, default=False)
+    resposta = db.Column(db.Boolean)
     resposta_para = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -715,7 +715,7 @@ class TipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente,nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
+    def __init__(self, fk_cliente, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
 
 
         self.fk_cliente = fk_cliente
