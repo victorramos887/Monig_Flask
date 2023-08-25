@@ -279,6 +279,17 @@ def tipo_de_eventos(id):
     }), 200
 
 
+@send_frontend.get('tipo-de-eventos/<init:id>')
+def get_tipo_de_eventos(id):
+
+    tipo_de_evento = TipoDeEventos.query.filter_by(
+        id = id
+    ).first()
+
+    return jsonify({
+        'tipo_de_evento':tipo_de_evento.to_json()
+    })
+
 @send_frontend.get('/testando')
 def testandoretorno():
 
