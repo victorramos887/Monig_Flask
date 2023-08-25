@@ -279,7 +279,7 @@ def tipo_de_eventos(id):
     }), 200
 
 
-@send_frontend.get('tipo-de-eventos/<init:id>')
+@send_frontend.get('/tipo-de-eventos/<init:id>')
 def get_tipo_de_eventos(id):
 
     tipo_de_evento = TipoDeEventos.query.filter_by(
