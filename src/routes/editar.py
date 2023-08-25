@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, json
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio
+from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Historico,
+                       Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, TipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -612,3 +613,150 @@ def equipamento_editar(id):
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+
+
+
+# EDITAR EVENTOS
+@editar.put('/tipo-evento/<id>')
+def tipo_evento_editar(id):
+    tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
+    formulario = request.get_json()
+
+    if not tipo_evento:
+        return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
+
+    try:
+
+        fk_cliente = formulario['fk_cliente']
+        nome_do_evento = formulario['nome_do_tipo_evento']
+        periodicidade = formulario['periodicidade']
+        sazonal_periodo = formulario["dataSazonal"]
+        requer_resposta = formulario["requerResposta"]
+        tempo_de_tolerancia = formulario['tolerancia']
+        unidade_de_tempo = formulario['unidade']
+        resposta = formulario["ehResposta"]
+        resposta_para = formulario["qual_tipo_evento"]
+       
+      
+        # Insere os dados da linha excluída na tabela de histórico
+        historico = Historico(tabela='TipoDeEventos', dados=json.dumps(tipo_evento.to_json(), ensure_ascii=False))
+        db.session.add(historico)
+
+        tipo_evento.update(
+            fk_cliente=fk_cliente,
+            nome_do_evento=nome_do_evento,
+            periodicidade=periodicidade,
+            sazonal_periodo=sazonal_periodo,
+            requer_resposta=requer_resposta,
+            tempo_de_tolerancia=tempo_de_tolerancia,
+            unidade_de_tempo=unidade_de_tempo,
+            resposta=resposta,
+            resposta_para=resposta_para
+        )
+
+        db.session.commit()
+
+        return jsonify({"tipo":tipo_evento.to_json(), "status": True}), HTTP_200_OK
+    
+    except exc.DBAPIError as e:
+        if e.orig.pgcode == '23503':
+            match = re.search(
+                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+    except Exception as e:
+        if isinstance(e, HTTPException) and e.code == 500:
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+        if isinstance(e, HTTPException) and e.code == 400:
+            # flash("Erro, 4 não salva")
+            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+
+
+
+# EVENTOS
+@editar.put('/evento/<id>')
+def evento_editar(id):
+    evento = Eventos.query.filter_by(id=id).first()
+    formulario = request.get_json()
+
+    if not evento:
+        return jsonify({'mensagem':'evento não encontrado', "status": False}), 404
+
+    try:
+
+        fk_tipo = formulario['fk_tipo']
+        nome = formulario['nome']
+        datainicio = formulario['datainicio']
+        datafim = formulario["datafim"]
+        prioridade = formulario["prioridade"]
+        local = formulario['local']
+        tipo_de_local = formulario['tipo_de_local']
+        observacao = formulario["observacao"]
+       
+      
+        # Insere os dados da linha alterada na tabela de histórico
+        #historico = Historico(tabela='Eventos', dados=evento.to_json())
+        #observacao: ao salvar na tabela hist. os caracteres não estão sendo salvos corretamentes por conta dessa função abaixo, o ideal seria usar o de cima, porém dá erro.
+        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
+
+        db.session.add(historico)
+
+        evento.update(
+            fk_tipo=fk_tipo,
+            nome=nome,
+            datainicio=datainicio,
+            datafim=datafim,
+            prioridade=prioridade,
+            local=local,
+            tipo_de_local=tipo_de_local,
+            observacao=observacao
+        )
+
+        db.session.commit()
+
+        return jsonify({"evento":evento.to_json(), "status": True}), HTTP_200_OK
+    except exc.DBAPIError as e:
+        if e.orig.pgcode == '23503':
+            match = re.search(
+                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+    except Exception as e:
+        if isinstance(e, HTTPException) and e.code == 500:
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+        if isinstance(e, HTTPException) and e.code == 400:
+            # flash("Erro, 4 não salva")
+            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+

@@ -14,6 +14,7 @@ def historico():
 
     historico = Historico.query.all()
     return jsonify([json.dumps(h.to_json()) for h in historico])
+   
 
 
 # RETORNA TODAS AS ESCOLAS

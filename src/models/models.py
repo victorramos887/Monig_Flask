@@ -699,6 +699,7 @@ class TipoDeEventos(db.Model):
     __tablename__ = 'tipo_de_eventos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_evento = db.Column(db.String)
     periodicidade = db.Column(db.String)
     sazonal_periodo = db.Column(db.Date, default=None)
@@ -707,13 +708,17 @@ class TipoDeEventos(db.Model):
     unidade_de_tempo = db.Column(db.String)
     resposta = db.Column(db.Boolean, default=False)
     resposta_para = db.Column(db.String)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
+    def __init__(self, fk_cliente,nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
     
+
+        self.fk_cliente = fk_cliente
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo = sazonal_periodo
@@ -729,6 +734,7 @@ class TipoDeEventos(db.Model):
             attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
             for attr in self.__table__.columns
         }
+
 
 
 def add_opniveis():
@@ -875,19 +881,6 @@ def add_opniveis():
         ]
     }
 
-    
-    # tipo_de_evento = TipoDeEventos(
-    #     nome_do_evento='Natal',
-    #     periodicidade='Sazonal',
-    #     sazonal_periodo= '25/12/2023',
-    #     requer_acao=False,
-    #     tempo_de_tolerancia=None,
-    #     unidade_de_tempo= None,
-    #     acao=False,
-    #     resposta_para=None
-    # )
-
-    # db.session.add(tipo_de_evento)
   
 
     for nome_da_tabela in op_nome_da_tabela:
