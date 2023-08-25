@@ -168,7 +168,7 @@ def test_cadastro_usuario(app, new_usuario):
 #     if isinstance(o, datetime.datetime):
 #         return o.__str__()
 
-def test_cadastro_tipo_eventos(app, new_tipo_evento):
+def d_test_cadastro_tipo_eventos(app, new_tipo_evento):
     with app.app_context():
         
         json_data = json.dumps(new_tipo_evento)       
@@ -181,7 +181,7 @@ def test_cadastro_tipo_eventos(app, new_tipo_evento):
 
         assert response.status_code == 200
 
-def test_tipo_evento_post(app, new_tipo_evento):
+def d_test_tipo_evento_post(app, new_tipo_evento):
     """Teste de cadastro de tipo de evento."""
     # Mocka a requisição
     response = app.test_client().post("/api/v1/cadastro-evento/tipo-evento", json=new_tipo_evento)

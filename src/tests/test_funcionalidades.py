@@ -20,7 +20,7 @@ load_dotenv(ENV_PATH)
 
 
 def test_edificios_cadastros_principal(app, new_escolas, new_edificios):
-
+    """Testando o cadstro de edificos e verificando se ele é incluido como principal."""
     #cadastrar escola
 
     json_escola = json.dumps(new_escolas)
@@ -63,7 +63,7 @@ def test_edificios_cadastros_principal(app, new_escolas, new_edificios):
 
 
 def test_edificios_update_principal(app, new_escolas, new_edificios):
-    
+    """Testando se a trocar de edificio principal é realizada."""
     #cadastrar escola
 
     json_escola = json.dumps(new_escolas)
