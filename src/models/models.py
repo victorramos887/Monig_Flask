@@ -704,54 +704,24 @@ class TipoDeEventos(db.Model):
     sazonal_periodo = db.Column(db.Date, default=None)
     requer_resposta = db.Column(db.Boolean, default=False)
     tempo_de_tolerancia = db.Column(db.Integer)
-<<<<<<< HEAD
-    unidade_de_tempo = db.Column(db.String) #atualizar para tabelas auxiliares
-    acao = db.Column(db.Boolean)
-    resposta = db.Column(db.String)
-
-    def add_unidade_de_tempo():
-        op_unidade_de_tempo = ['Horas', 'Dias', 'Semanas', 'Meses']
-        for unidade_de_tempo in op_unidade_de_tempo:
-            op_unidade_de_tempo = TipoDeEventos.query.filter_by(
-                unidade_de_tempo=unidade_de_tempo).first()
-
-    def add_acao():
-        op_acao = ['Sim', 'Não', 'Nem resposta, nem ação']
-        for acao in op_acao:
-            op_acao = TipoDeEventos.query.filter_by(
-                acao=acao).first()
-=======
     unidade_de_tempo = db.Column(db.String)
     resposta = db.Column(db.Boolean, default=False)
     resposta_para = db.Column(db.String)
->>>>>>> 9ce232dca640cfb4f9a048d9f14f2e796a5bd19d
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-<<<<<<< HEAD
-    def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao, resposta):
-=======
     def __init__(self, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
->>>>>>> 9ce232dca640cfb4f9a048d9f14f2e796a5bd19d
-
+    
         self.nome_do_evento = nome_do_evento
         self.periodicidade = periodicidade
         self.sazonal_periodo = sazonal_periodo
         self.requer_resposta = requer_resposta
         self.tempo_de_tolerancia = tempo_de_tolerancia
         self.unidade_de_tempo = unidade_de_tempo
-<<<<<<< HEAD
-        self.acao = acao
-        self.resposta = resposta
-
-    # def to_json(self):
-    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-=======
         self.resposta = resposta
         self.resposta_para = resposta_para
->>>>>>> 9ce232dca640cfb4f9a048d9f14f2e796a5bd19d
 
     def to_json(self):
         data_formatada = self.sazonal_periodo.strftime("%d/%m") if self.sazonal_periodo else None
