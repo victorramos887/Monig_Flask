@@ -286,6 +286,7 @@ def get_tipo_de_eventos(id):
         id = id
     ).first()
 
+
     return jsonify({
         'tipo_de_evento':tipo_de_evento.to_json()
     })
