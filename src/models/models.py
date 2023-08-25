@@ -728,8 +728,6 @@ class TipoDeEventos(db.Model):
         self.resposta = resposta
         self.resposta_para = resposta_para
 
-
-
     # def to_json(self):
     #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
     
