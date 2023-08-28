@@ -16,26 +16,27 @@ def tipoevento():
         formulario = request.get_json()
 
         fk_cliente = formulario.get("fk_cliente", None)
-        nome_do_evento = formulario.get("nome_do_tipo_evento", None)
-        periodicidade = formulario.get("periodicidade", None)
-        sazonal_periodo = formulario.get("dataSazonal", None)
-        requer_resposta = formulario.get("requerResposta", False)
+        nome_tipo_evento = formulario.get("nome_do_tipo_evento", None)
+        recorrente = formulario.get("recorrente", False)
+        dia = formulario.get("dia", None)
+        mes = formulario.get("mes", None)
+        requer_acao= formulario.get("requerAcao", False)
         tempo_de_tolerancia = formulario.get("tolerancia", None)
         unidade_de_tempo = formulario.get("unidade", None)
-        resposta = formulario.get("ehResposta", False)
-        resposta_para = formulario.get("qual_tipo_evento", None)
+        acao= formulario.get("ehAcao", False)
        
 
         tipo_evento = TipoDeEventos(
             fk_cliente=fk_cliente,
-            nome_do_evento=nome_do_evento,
-            periodicidade=periodicidade,
-            sazonal_periodo=sazonal_periodo,
-            requer_resposta=requer_resposta,
+            nome_tipo_evento=nome_tipo_evento,
+            recorrente=recorrente,
+            dia=dia,
+            mes= mes,
+            requer_acao=requer_acao,
             tempo_de_tolerancia=tempo_de_tolerancia,
             unidade_de_tempo=unidade_de_tempo,
-            resposta=resposta,
-            resposta_para=resposta_para
+            acao=acao
+            
         )
 
         db.session.add(tipo_evento)

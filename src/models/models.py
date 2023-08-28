@@ -700,14 +700,14 @@ class TipoDeEventos(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
-    nome_do_evento = db.Column(db.String)
-    periodicidade = db.Column(db.String)
-    sazonal_periodo = db.Column(db.DateTime)
-    requer_resposta = db.Column(db.Boolean)
+    nome_tipo_evento = db.Column(db.String)
+    recorrente = db.Column(db.Boolean)
+    dia = db.Column(db.String)
+    mes = db.Column(db.String)
+    requer_acao = db.Column(db.Boolean)
     tempo_de_tolerancia = db.Column(db.Integer)
     unidade_de_tempo = db.Column(db.String)
-    resposta = db.Column(db.Boolean)
-    resposta_para = db.Column(db.String)
+    acao = db.Column(db.Boolean)
     # created_at = db.Column(db.DateTime, default=datetime.now())
     # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -715,29 +715,30 @@ class TipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_do_evento, periodicidade, sazonal_periodo, requer_resposta, tempo_de_tolerancia, unidade_de_tempo, resposta, resposta_para):
+    def __init__(self, fk_cliente, nome_tipo_evento, recorrente, dia, mes, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
 
 
         self.fk_cliente = fk_cliente
-        self.nome_do_evento = nome_do_evento
-        self.periodicidade = periodicidade
-        self.sazonal_periodo = sazonal_periodo
-        self.requer_resposta = requer_resposta
+        self.nome_tipo_evento = nome_tipo_evento
+        self.recorrente = recorrente
+        self.dia = dia
+        self.mes = mes
+        self.requer_acao = requer_acao
         self.tempo_de_tolerancia = tempo_de_tolerancia
         self.unidade_de_tempo = unidade_de_tempo
-        self.resposta = resposta
-        self.resposta_para = resposta_para
+        self.acao = acao
+        
 
-    # def to_json(self):
-    #     return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
     def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+    # def to_json(self):
 
-        data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
-        return {
-            attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
-            for attr in self.__table__.columns
-        }
+    #     data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
+    #     return {
+    #         attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
+    #         for attr in self.__table__.columns
+    #     }
 
 
 

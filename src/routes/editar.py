@@ -628,16 +628,16 @@ def tipo_evento_editar(id):
 
     try:
 
-        fk_cliente = formulario['fk_cliente']
-        nome_do_evento = formulario['nome_do_tipo_evento']
-        periodicidade = formulario['periodicidade']
-        sazonal_periodo = formulario["dataSazonal"]
-        requer_resposta = formulario["requerResposta"]
-        tempo_de_tolerancia = formulario['tolerancia']
-        unidade_de_tempo = formulario['unidade']
-        resposta = formulario["ehResposta"]
-        resposta_para = formulario["qual_tipo_evento"]
-       
+        fk_cliente = formulario["fk_cliente"]
+        nome_tipo_evento = formulario["nome_do_tipo_evento"]
+        recorrente = formulario["recorrente"]
+        dia = formulario["dia"]
+        mes = formulario["mes"]
+        requer_acao= formulario["requerAcao"]
+        tempo_de_tolerancia = formulario["tolerancia"]
+        unidade_de_tempo = formulario["unidade"]
+        acao= formulario["ehAcao"]
+        
       
         # Insere os dados da linha excluída na tabela de histórico
         historico = Historico(tabela='TipoDeEventos', dados=json.dumps(tipo_evento.to_json(), ensure_ascii=False))
@@ -645,14 +645,14 @@ def tipo_evento_editar(id):
 
         tipo_evento.update(
             fk_cliente=fk_cliente,
-            nome_do_evento=nome_do_evento,
-            periodicidade=periodicidade,
-            sazonal_periodo=sazonal_periodo,
-            requer_resposta=requer_resposta,
+            nome_tipo_evento=nome_tipo_evento,
+            recorrente=recorrente,
+            dia=dia,
+            mes= mes,
+            requer_acao=requer_acao,
             tempo_de_tolerancia=tempo_de_tolerancia,
             unidade_de_tempo=unidade_de_tempo,
-            resposta=resposta,
-            resposta_para=resposta_para
+            acao=acao
         )
 
         db.session.commit()
@@ -687,6 +687,7 @@ def tipo_evento_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
 
@@ -759,4 +760,7 @@ def evento_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
 
