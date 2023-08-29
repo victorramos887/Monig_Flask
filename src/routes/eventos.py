@@ -34,15 +34,21 @@ def tipoevento():
     
     try:
         formulario = request.get_json()
+
+        print(formulario)
+
         fk_cliente = formulario.get("fk_cliente")
-        nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
-        periodicidade = meses_dict.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
+        nome_do_tipo_de_evento = formulario.get("nome_do_evento")
+        periodicidade = periodicidade.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
+
+        print(periodicidade)
+
         dia = formulario.get("dataRecorrente") if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') and formulario.get('mesRecorrente') != "" else None
         requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
-        tempo = formulario.get('tolerancia', None) if formulario.get('tolerancia') else None
-        unidade = formulario.get('unidade', None) if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta', None) if formulario.get('ehResposta') is not None else False
+        tempo = formulario.get('tolerancia') if formulario.get('tolerancia') else None
+        unidade = formulario.get('unidade') if formulario.get('unidade') else None
+        acao = formulario.get('ehResposta') if formulario.get('ehResposta') is not None else False
 
         tipo_evento = TipoDeEventos(
             fk_cliente=fk_cliente,
