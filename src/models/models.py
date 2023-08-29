@@ -744,7 +744,7 @@ class TipoDeEventos(db.Model):
         12: "Dezembro"
     }
 
-        periodicidade = {False: "Ocoasional", True: "Recorrente"}
+        periodicidade = {False: "Ocasional", True: "Recorrente"}
 
         return {
             attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
