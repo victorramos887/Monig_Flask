@@ -222,7 +222,12 @@ def new_tipo_evento():
         "nome_do_evento":fake.name(),
         "dataRecorrente":fake.random_int(min=1, max=31),
         "mesRecorrente":'Janeiro',
-        "periodicidade":fake.boolean(),
+        "periodicidade":fake.random_element(
+            elements=(
+                "Recorrente",
+                "Ocasional"
+            )
+        ),
         "requerResposta":fake.boolean(),
         "tolerancia":fake.random_int(min=1, max=12),
         "unidade":fake.random_element(

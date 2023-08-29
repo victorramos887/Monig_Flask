@@ -729,7 +729,29 @@ class TipoDeEventos(db.Model):
         self.acao = acao
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        meses_dict = {
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro"
+        }
+
+        periodicidade = {False: "Ocoasional", True: "Recorrente"}
+
+        return {
+            attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
+            periodicidade[getattr(self, attr.name)] if attr.name == "recorente" and getattr(self, attr.name) in periodicidade else
+            getattr(self, attr.name)
+            for attr in self.__table__.columns
+        }
     
     # def to_json(self):
 

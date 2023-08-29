@@ -332,3 +332,24 @@ def test_update_usuario(app, new_usuario):
         )
 
         assert response.status_code == 200
+
+# 
+# def test_get_tipo_de_eventos():
+#     # Use os dados de teste para inserir um tipo de evento na base de dados de teste
+#     with app.app_context():
+#         db.session.add(tipo_de_evento_test)
+#         db.session.commit()
+
+#     # Realize uma requisição GET à rota com o ID do tipo de evento que você acabou de inserir
+#     response = client.get('/tipo-de-evento/1')
+
+#     # Verificações
+#     assert response.status_code == 200  # O código de status deve ser 200 (OK)
+#     data = json.loads(response.data.decode('utf-8'))  # Decodifica o JSON da resposta
+#     assert 'tipo_de_evento' in data  # Verifica se a chave 'tipo_de_evento' está presente nos dados
+#     assert data['tipo_de_evento']['nome'] == tipo_de_evento_test.nome  # Verifica se o nome do tipo de evento é igual ao esperado
+
+#     # Limpeza após o teste (opcional)
+#     with app.app_context():
+#         db.session.delete(tipo_de_evento_test)
+#         db.session.commit()
