@@ -181,7 +181,7 @@ def d_test_cadastro_tipo_eventos(app, new_tipo_evento):
 
         assert response.status_code == 200
 
-def test_tipo_evento_post(app, new_tipo_evento):
+def test_cadastro_tipo_eventos(app, new_tipo_evento):
     """Teste de cadastro de tipo de evento."""
 
     json_dump = json.dumps(new_tipo_evento)
