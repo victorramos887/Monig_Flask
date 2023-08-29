@@ -220,26 +220,41 @@ def new_tipo_evento():
    return {
         "fk_cliente":1,
         "nome_do_evento":fake.name(),
-        # "dataRecorrente":fake.random_int(min=1, max=31),
-        # "mesRecorrente":'Janeiro',
+        "dataRecorrente":fake.random_int(min=1, max=31),
+        "mesRecorrente":'Janeiro',
         "periodicidade":fake.random_element(
             elements=(
                 "Recorrente",
                 "Ocasional"
             )
-        )
-        # "requerResposta":fake.boolean(),
-        # "tolerancia":fake.random_int(min=1, max=12),
-        # "unidade":fake.random_element(
-        #     elements=(
-        #         "Semana",
-        #         "Mês",
-        #         "Dia",
-        #         "Ano"
-        #     )
-        # ),
-        # "ehResposta":fake.boolean()
+        ),
+        "requerResposta":fake.boolean(),
+        "tolerancia":fake.random_int(min=1, max=12),
+        "unidade":fake.random_element(
+            elements=(
+                "Semana",
+                "Mês",
+                "Dia",
+                "Ano"
+            )
+        ),
+        "ehResposta":fake.boolean()
     }
+
+@fixture
+def new_tipo_de_vento_vazio():
+    return {
+        "dataRecorrente": "",
+        "ehResposta": False,
+        "fk_cliente": 1,
+        "mesRecorrente": "",
+        "nome_do_evento": "Reunião",
+        "periodicidade": "Ocasional",
+        "requerResposta": False,
+        "tolerancia": "",
+        "unidade": ""
+    }
+
 
 @fixture
 def new_evento():

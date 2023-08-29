@@ -29,22 +29,24 @@ def tipoevento():
         "Dezembro": 12
     }
 
-    periodicidade = {"Ocasional":False, "Recorrente":True}
+    periodicidade = {
+            "Ocasional":False, 
+            "Recorrente":True
+        }
+    
     try:
 
         formulario = request.get_json()
 
         fk_cliente = formulario.get("fk_cliente")
-        nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = meses_dict.get(formulario.get('periodicidade')) if formulario.get('periodicidade') else None
-        dia = formulario.get("dataRecorrente")
-        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') else None
-        requer_acao = formulario.get('requerResposta')
-        tempo = formulario.get('tolerancia')
-        unidade = formulario.get('unidade')
-        acao = formulario.get('ehResposta')
-
-            
+        nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
+        periodicidade = meses_dict.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
+        dia = formulario.get("dataRecorrente", None) #
+        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') is not None or formulario.get('mesRecorrente') != "" else None #
+        requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
+        tempo = formulario.get('tolerancia', None) #
+        unidade = formulario.get('unidade', None) #
+        acao = formulario.get('ehResposta', None) if formulario.get('ehResponsta') is not None else False
 
         tipo_evento = TipoDeEventos(
             fk_cliente=fk_cliente,
