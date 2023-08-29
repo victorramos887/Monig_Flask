@@ -219,12 +219,12 @@ def new_tipo_evento():
 
    return {
         "fk_cliente":1,
-        "nome_do_tipo_evento":fake.name(),
-        "dia":fake.random_int(min=1, max=31),
-        "mes":'Janeiro',
-        "recorente":fake.boolean(),
-        "requer_acao":fake.boolean(),
-        "tempo":fake.random_int(min=1, max=12),
+        "nome_do_evento":fake.name(),
+        "dataRecorrente":fake.random_int(min=1, max=31),
+        "mesRecorrente":'Janeiro',
+        "periodicidade":fake.boolean(),
+        "requerResposta":fake.boolean(),
+        "tolerancia":fake.random_int(min=1, max=12),
         "unidade":fake.random_element(
             elements=(
                 "Semana",
@@ -233,7 +233,7 @@ def new_tipo_evento():
                 "Ano"
             )
         ),
-        "acao":fake.boolean()
+        "ehResposta":fake.boolean()
     }
 
 @fixture

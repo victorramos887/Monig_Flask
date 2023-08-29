@@ -29,13 +29,13 @@ def tipoevento():
         "Dezembro": 12
     }
 
-
+    periodicidade = {"Ocoasional":False, "Recorrente":True}
     try:
         formulario = request.get_json()
 
         fk_cliente = formulario.get("fk_cliente", None)
         nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
-        recorente = formulario.get('periodicidade', None)
+        recorente = periodicidade.get(formulario.get('periodicidade', None).capitalize())
         dia = formulario.get("dataRecorrente", None)
         mes = meses_dict.get(formulario.get("mesRecorrente", None).capitalize())
         requer_acao = formulario.get('requerResposta', None)
