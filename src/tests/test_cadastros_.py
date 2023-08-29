@@ -207,6 +207,8 @@ def test_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
         data=json_data,
         content_type='application/json'
         )
+    
+    assert response.status_code == 200
 
 
 def valor_test_cadastro_eventos(app, new_evento):

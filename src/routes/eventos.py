@@ -10,8 +10,6 @@ from sqlalchemy.exc import ArgumentError
 eventos = Blueprint('eventos', __name__, url_prefix = '/api/v1/cadastro-evento')
 
 
-
-
 @eventos.post('/tipo-evento')
 def tipoevento():
     meses_dict = {
@@ -35,18 +33,16 @@ def tipoevento():
         }
     
     try:
-
         formulario = request.get_json()
-
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
         periodicidade = meses_dict.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
-        dia = formulario.get("dataRecorrente", None) #
-        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') is not None or formulario.get('mesRecorrente') != "" else None #
+        dia = formulario.get("dataRecorrente", None) if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
+        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') and formulario.get('mesRecorrente') != "" else None
         requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
-        tempo = formulario.get('tolerancia', None) #
-        unidade = formulario.get('unidade', None) #
-        acao = formulario.get('ehResposta', None) if formulario.get('ehResponsta') is not None else False
+        tempo = formulario.get('tolerancia', None) if formulario.get('tolerancia') else None
+        unidade = formulario.get('unidade', None) if formulario.get('unidade') else None
+        acao = formulario.get('ehResposta', None) if formulario.get('ehResposta') is not None else False
 
         tipo_evento = TipoDeEventos(
             fk_cliente=fk_cliente,
