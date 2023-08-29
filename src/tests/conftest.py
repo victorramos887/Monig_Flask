@@ -220,10 +220,11 @@ def new_tipo_evento():
    return {
         "fk_cliente":1,
         "nome_do_tipo_evento":fake.name(),
-        "periodicidade":fake.random_int(min=1, max=7),
-        "dataSazonal":datetime(2023, 8, 24, 10, 0, 0) ,#datetime.strptime("2023-02-22 10:10:00", '%Y-%m-%dT%H:%M:%S'),
-        "requerResposta":fake.boolean(),
-        "tolerancia":fake.random_int(min=1, max=7),
+        "dia":fake.random_int(min=1, max=31),
+        "mes":'Janeiro',
+        "recorente":fake.boolean(),
+        "requer_acao":fake.boolean(),
+        "tempo":fake.random_int(min=1, max=12),
         "unidade":fake.random_element(
             elements=(
                 "Semana",
@@ -232,8 +233,7 @@ def new_tipo_evento():
                 "Ano"
             )
         ),
-        "qual_tipo_evento":None,
-        "ehResposta":None
+        "acao":fake.boolean()
     }
 
 @fixture

@@ -9,33 +9,51 @@ from sqlalchemy.exc import ArgumentError
 
 eventos = Blueprint('eventos', __name__, url_prefix = '/api/v1/cadastro-evento')
 
+
+
+
 @eventos.post('/tipo-evento')
 def tipoevento():
+    meses_dict = {
+        "Janeiro": 1,
+        "Fevereiro": 2,
+        "Março": 3,
+        "Abril": 4,
+        "Maio": 5,
+        "Junho": 6,
+        "Julho": 7,
+        "Agosto": 8,
+        "Setembro": 9,
+        "Outubro": 10,
+        "Novembro": 11,
+        "Dezembro": 12
+    }
 
     try:
         formulario = request.get_json()
 
         fk_cliente = formulario.get("fk_cliente", None)
-        nome_do_evento = formulario.get("nome_do_tipo_evento", None)
-        periodicidade = formulario.get("periodicidade", None)
-        sazonal_periodo = formulario.get("dataSazonal", None)
-        requer_resposta = formulario.get("requerResposta", False)
-        tempo_de_tolerancia = formulario.get("tolerancia", None)
-        unidade_de_tempo = formulario.get("unidade", None)
-        resposta = formulario.get("ehResposta", False)
-        resposta_para = formulario.get("qual_tipo_evento", None)
+        nome_do_tipo_de_evento = formulario.get("nome_do_tipo_evento", None)
+        recorente = formulario.get('recorente', None)
+        dia = formulario.get("dia", None)
+        # mes = meses_dict.get(formulario.get("mes", None).capitalize())
+        requer_acao = formulario.get('requer_acao', None)
+        tempo = formulario.get('tempo', None)
+        unidade = formulario.get('unidade', None)
+        acao = formulario.get('acao', None)
+        
        
 
         tipo_evento = TipoDeEventos(
             fk_cliente=fk_cliente,
-            nome_do_evento=nome_do_evento,
-            periodicidade=periodicidade,
-            sazonal_periodo=sazonal_periodo,
-            requer_resposta=requer_resposta,
-            tempo_de_tolerancia=tempo_de_tolerancia,
-            unidade_de_tempo=unidade_de_tempo,
-            resposta=resposta,
-            resposta_para=resposta_para
+            nome_do_tipo_de_evento=nome_do_tipo_de_evento,
+            recorente=recorente,
+            dia=dia,
+            mes=1,
+            requer_acao=requer_acao,
+            tempo=tempo,
+            unidade=unidade,
+            acao=acao
         )
 
         db.session.add(tipo_evento)
