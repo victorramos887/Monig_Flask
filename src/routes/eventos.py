@@ -37,7 +37,7 @@ def tipoevento():
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
         periodicidade = meses_dict.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
-        dia = formulario.get("dataRecorrente", None) if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
+        dia = formulario.get("dataRecorrente") if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') and formulario.get('mesRecorrente') != "" else None
         requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
         tempo = formulario.get('tolerancia', None) if formulario.get('tolerancia') else None
