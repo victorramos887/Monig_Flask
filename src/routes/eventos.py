@@ -29,18 +29,19 @@ def tipoevento():
         "Dezembro": 12
     }
 
+
     try:
         formulario = request.get_json()
 
         fk_cliente = formulario.get("fk_cliente", None)
-        nome_do_tipo_de_evento = formulario.get("nome_do_tipo_evento", None)
-        recorente = formulario.get('recorente', None)
-        dia = formulario.get("dia", None)
-        # mes = meses_dict.get(formulario.get("mes", None).capitalize())
-        requer_acao = formulario.get('requer_acao', None)
-        tempo = formulario.get('tempo', None)
+        nome_do_tipo_de_evento = formulario.get("nome_do_evento", None)
+        recorente = formulario.get('periodicidade', None)
+        dia = formulario.get("dataRecorrente", None)
+        mes = meses_dict.get(formulario.get("mesRecorrente", None).capitalize())
+        requer_acao = formulario.get('requerResposta', None)
+        tempo = formulario.get('tolerancia', None)
         unidade = formulario.get('unidade', None)
-        acao = formulario.get('acao', None)
+        acao = formulario.get('ehResposta', None)
         
        
 
@@ -49,7 +50,7 @@ def tipoevento():
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
             recorente=recorente,
             dia=dia,
-            mes=1,
+            mes=mes,
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
