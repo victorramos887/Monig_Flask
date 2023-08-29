@@ -6,7 +6,7 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
 from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis,
-                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio, TipoDeEventos, Eventos)
+                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio)
 import traceback
 from sqlalchemy.exc import ArgumentError
 

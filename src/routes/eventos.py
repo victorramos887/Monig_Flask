@@ -15,15 +15,15 @@ def tipoevento():
     try:
         formulario = request.get_json()
 
-        fk_cliente = formulario['fk_cliente']
-        nome_do_evento = formulario['nome_do_tipo_evento']
-        periodicidade = formulario['periodicidade']
-        sazonal_periodo = formulario["dataSazonal"]
-        requer_resposta = formulario["requerResposta"]
-        tempo_de_tolerancia = formulario['tolerancia']
-        unidade_de_tempo = formulario['unidade']
-        resposta = formulario["ehResposta"]
-        resposta_para = formulario["qual_tipo_evento"]
+        fk_cliente = formulario.get("fk_cliente", None)
+        nome_do_evento = formulario.get("nome_do_tipo_evento", None)
+        periodicidade = formulario.get("periodicidade", None)
+        sazonal_periodo = formulario.get("dataSazonal", None)
+        requer_resposta = formulario.get("requerResposta", False)
+        tempo_de_tolerancia = formulario.get("tolerancia", None)
+        unidade_de_tempo = formulario.get("unidade", None)
+        resposta = formulario.get("ehResposta", False)
+        resposta_para = formulario.get("qual_tipo_evento", None)
        
 
         tipo_evento = TipoDeEventos(
@@ -79,9 +79,30 @@ def tipoevento():
 def eventos_cadastro():
 
     try:
-    
+
         formulario = request.get_json()
-        evento = Eventos(**formulario)
+
+        fk_tipo = formulario.get("fk_tipo", None)
+        nome = formulario.get("nome", None)
+        datainicio = formulario.get("datainicio", None)
+        datafim = formulario.get("datafim", None)
+        prioridade = formulario.get("prioridade", None)
+        local = formulario.get("local", None)
+        tipo_de_local = formulario.get("tipo_de_local", None)
+        observacao = formulario.get("observacao", None)
+       
+        
+        evento = Eventos(
+            fk_tipo=fk_tipo,
+            nome=nome,
+            datainicio=datainicio,
+            datafim=datafim,
+            prioridade=prioridade,
+            local=local,
+            tipo_de_local=tipo_de_local,
+            observacao=observacao
+        )
+
         db.session.add(evento)
         db.session.commit()
             
