@@ -701,7 +701,7 @@ class TipoDeEventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_tipo_de_evento = db.Column(db.String)
-    recorente = db.Column(db.Boolean)
+    recorrente = db.Column(db.Boolean)
     dia = db.Column(db.Integer)
     mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)
@@ -716,11 +716,11 @@ class TipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorente, dia, mes, requer_acao, tempo, unidade, acao):
+    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia, mes, requer_acao, tempo, unidade, acao):
 
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
-        self.recorente = recorente
+        self.recorrente = recorrente
         self.dia = dia
         self.mes = mes
         self.requer_acao = requer_acao
@@ -748,7 +748,7 @@ class TipoDeEventos(db.Model):
 
         return {
             attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
-            periodicidade[getattr(self, attr.name)] if attr.name == "recorente" and getattr(self, attr.name) in periodicidade else
+            periodicidade[getattr(self, attr.name)] if attr.name == "recorrente" and getattr(self, attr.name) in periodicidade else
             getattr(self, attr.name)
             for attr in self.__table__.columns
         }
