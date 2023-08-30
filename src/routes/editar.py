@@ -629,18 +629,21 @@ def tipo_evento_editar(id):
     try:
 
         fk_cliente = formulario["fk_cliente"]
-        nome_tipo_evento = formulario["nome_do_tipo_evento"]
-        recorrente = formulario["recorrente"]
-        dia = formulario["dia"]
-        mes = formulario["mes"]
-        requer_acao= formulario["requerAcao"]
+        nome_tipo_evento = formulario["nome_do_evento"]
+        recorrente = formulario["periodicidade"]
+        dia = formulario["dataRecorrente"]
+        mes = formulario["mesRecorrente"]
+        requer_acao= formulario["requerResposta"]
         tempo_de_tolerancia = formulario["tolerancia"]
         unidade_de_tempo = formulario["unidade"]
-        acao= formulario["ehAcao"]
+        acao= formulario["ehResposta"]
         
-      
+        tipo_json = tipo_evento.to_json()
+
+        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S')
+        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S')
         # Insere os dados da linha excluída na tabela de histórico
-        historico = Historico(tabela='TipoDeEventos', dados=json.dumps(tipo_evento.to_json(), ensure_ascii=False))
+        historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
         db.session.add(historico)
 
         tipo_evento.update(
@@ -678,6 +681,7 @@ def tipo_evento_editar(id):
         if e.orig.pgcode == '01004':
             # STRING DATA RIGHT TRUNCATION
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({"status":False, "mensagem":"Erro não tratado", "codigo":str(e)})
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:

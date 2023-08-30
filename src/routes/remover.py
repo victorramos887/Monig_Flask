@@ -32,8 +32,7 @@ def escolas_remover(id):
     
     historico = Historico(tabela='Escolas', dados=escola_json)
     db.session.add(historico)
-
-
+    
     # Confirma as alterações no banco de dados
     db.session.commit()
 
