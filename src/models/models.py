@@ -64,8 +64,6 @@ class Escolas(db.Model):
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
-    escolas_historico = db.relationship(
-        'EscolasHistorico', backref='escolas_historico')
     data_criacao = db.Column(db.DateTime, server_default=func.now())
 
     def update(self, **kwargs):
@@ -82,16 +80,6 @@ class Escolas(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class EscolasHistorico(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'escolas_historico'
-
-    id = db.Column(db.Integer, primary_key=True)
-    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-    cnpj = db.Column(db.String)  # 18
-    nivel = db.Column(db.JSON(db.String))
-    data_alteracao = db.Column(db.DateTime, default=datetime.now)
-
 
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -105,7 +93,8 @@ class Reservatorios(db.Model):
     edificio = db.relationship(
         'Edificios',
         back_populates="reservatorio",
-        secondary="main.reservatorio_edificio"
+        secondary="main.reservatorio_edificio",
+        cascade='all'
     )
 
     def update(self, **kwargs):
@@ -574,6 +563,10 @@ class EscolaNiveis(db.Model):
         'main.escolas.id'), primary_key=True)
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
+    
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
 
 
 class ReservatorioEdificio(db.Model):
