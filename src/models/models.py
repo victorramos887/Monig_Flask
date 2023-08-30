@@ -716,7 +716,7 @@ class TipoDeEventos(db.Model):
             setattr(self, key, value)
 
     def __init__(self, fk_cliente, nome_tipo_evento, recorrente, dia, mes, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
-
+    
 
         self.fk_cliente = fk_cliente
         self.nome_tipo_evento = nome_tipo_evento

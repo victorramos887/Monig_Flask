@@ -219,11 +219,17 @@ def new_tipo_evento():
 
    return {
         "fk_cliente":1,
-        "nome_do_tipo_evento":fake.name(),
-        "periodicidade":fake.random_int(min=1, max=7),
-        "dataSazonal":datetime(2023, 8, 24, 10, 0, 0) ,#datetime.strptime("2023-02-22 10:10:00", '%Y-%m-%dT%H:%M:%S'),
+        "nome_do_evento":fake.name(),
+        "dataRecorrente":fake.random_int(min=1, max=31),
+        "mesRecorrente":'Janeiro',
+        "periodicidade":fake.random_element(
+            elements=(
+                "Recorrente",
+                "Ocasional"
+            )
+        ),
         "requerResposta":fake.boolean(),
-        "tolerancia":fake.random_int(min=1, max=7),
+        "tolerancia":fake.random_int(min=1, max=12),
         "unidade":fake.random_element(
             elements=(
                 "Semana",
@@ -232,9 +238,23 @@ def new_tipo_evento():
                 "Ano"
             )
         ),
-        "qual_tipo_evento":None,
-        "ehResposta":None
+        "ehResposta":fake.boolean()
     }
+
+@fixture
+def new_tipo_de_vento_vazio():
+    return {
+        "dataRecorrente": "",
+        "ehResposta": False,
+        "fk_cliente": 1,
+        "mesRecorrente": "",
+        "nome_do_evento": "Reunião",
+        "periodicidade": "Ocasional",
+        "requerResposta": False,
+        "tolerancia": "",
+        "unidade": ""
+    }
+
 
 @fixture
 def new_evento():
