@@ -288,7 +288,8 @@ def get_tipo_de_eventos(id):
 
     if tipo_de_evento is not None:
         return jsonify({
-            'tipo_de_evento': tipo_de_evento.to_json()
+            'tipo_de_evento': tipo_de_evento.to_json(),
+            "status":True
         })
 
     else:

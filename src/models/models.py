@@ -693,37 +693,59 @@ class TipoDeEventos(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
-    nome_tipo_evento = db.Column(db.String)
+    nome_do_tipo_de_evento = db.Column(db.String)
     recorrente = db.Column(db.Boolean)
-    dia = db.Column(db.String)
-    mes = db.Column(db.String)
+    dia = db.Column(db.Integer)
+    mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)
-    tempo_de_tolerancia = db.Column(db.Integer)
-    unidade_de_tempo = db.Column(db.String)
+    tempo = db.Column(db.Integer)
+    unidade = db.Column(db.String)
     acao = db.Column(db.Boolean)
-    # created_at = db.Column(db.DateTime, default=datetime.now())
-    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_tipo_evento, recorrente, dia, mes, requer_acao, tempo_de_tolerancia, unidade_de_tempo, acao):
-    
+    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia, mes, requer_acao, tempo, unidade, acao):
 
         self.fk_cliente = fk_cliente
-        self.nome_tipo_evento = nome_tipo_evento
+        self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
         self.recorrente = recorrente
         self.dia = dia
         self.mes = mes
         self.requer_acao = requer_acao
-        self.tempo_de_tolerancia = tempo_de_tolerancia
-        self.unidade_de_tempo = unidade_de_tempo
+        self.tempo = tempo
+        self.unidade = unidade
         self.acao = acao
-        
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        meses_dict = {
+        1: "Janeiro",
+        2: "Fevereiro",
+        3: "Março",
+        4: "Abril",
+        5: "Maio",
+        6: "Junho",
+        7: "Julho",
+        8: "Agosto",
+        9: "Setembro",
+        10: "Outubro",
+        11: "Novembro",
+        12: "Dezembro"
+    }
+
+        periodicidade = {False: "Ocasional", True: "Recorrente"}
+
+        return {
+            attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
+            periodicidade[getattr(self, attr.name)] if attr.name == "recorrente" and getattr(self, attr.name) in periodicidade else
+            getattr(self, attr.name)
+            if attr.name not in ["mes", "recorrente"] else None
+            for attr in self.__table__.columns
+        }
     
     # def to_json(self):
 
