@@ -640,8 +640,8 @@ def tipo_evento_editar(id):
         
         tipo_json = tipo_evento.to_json()
 
-        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S')
-        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S')
+        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
+        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
         # Insere os dados da linha excluída na tabela de histórico
         historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
         db.session.add(historico)
