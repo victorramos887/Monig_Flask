@@ -5,6 +5,16 @@ from sqlalchemy import exc, text
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
+
+
+@remover.get('/retornar-historico')
+def get_historico():
+
+    historicos = [historia.to_json() for historia in Historico.query.all()]
+
+    return jsonify(historicos)
+    
+
 #EDITAR ESCOLA
 @remover.put('/escolas/<id>')
 def escolas_remover(id):
@@ -17,7 +27,10 @@ def escolas_remover(id):
     escola.status_do_registro = False
 
      # Insere os dados da linha excluída na tabela de histórico
-    historico = Historico(tabela='Escolas', dados=json.dumps(escola.to_json()))
+    escola_json = escola.to_json()
+    escola_json['data_criacao'] = escola_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
+    
+    historico = Historico(tabela='Escolas', dados=escola_json)
     db.session.add(historico)
 
 
