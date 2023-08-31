@@ -563,9 +563,7 @@ class EscolaNiveis(db.Model):
         'main.escolas.id'), primary_key=True)
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.opniveis.id'), primary_key=True)
-    
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
 
 
 
