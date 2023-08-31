@@ -623,38 +623,58 @@ def tipo_evento_editar(id):
     tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
     formulario = request.get_json()
 
+    meses_dict = {
+        "Janeiro": 1,
+        "Fevereiro": 2,
+        "Março": 3,
+        "Abril": 4,
+        "Maio": 5,
+        "Junho": 6,
+        "Julho": 7,
+        "Agosto": 8,
+        "Setembro": 9,
+        "Outubro": 10,
+        "Novembro": 11,
+        "Dezembro": 12
+    }
+
+    periodicidade = {
+            "Ocasional":False, 
+            "Recorrente":True
+        }
+
     if not tipo_evento:
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
 
     try:
 
-        fk_cliente = formulario["fk_cliente"]
-        nome_tipo_evento = formulario["nome_do_evento"]
-        recorrente = formulario["periodicidade"]
-        dia = formulario["dataRecorrente"]
-        mes = formulario["mesRecorrente"]
-        requer_acao= formulario["requerResposta"]
-        tempo_de_tolerancia = formulario["tolerancia"]
-        unidade_de_tempo = formulario["unidade"]
-        acao= formulario["ehResposta"]
+        fk_cliente = formulario.get("fk_cliente")
+        nome_do_tipo_de_evento = formulario.get("nome_do_evento")
+        periodicidade = periodicidade.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
+        dia = formulario.get("dataRecorrente") if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
+        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') and formulario.get('mesRecorrente') != "" else None
+        requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
+        tempo = formulario.get('tolerancia') if formulario.get('tolerancia') else None
+        unidade = formulario.get('unidade') if formulario.get('unidade') else None
+        acao = formulario.get('ehResposta') if formulario.get('ehResposta') is not None else False
         
         tipo_json = tipo_evento.to_json()
 
-        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S')
-        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S')
+        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
+        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
         # Insere os dados da linha excluída na tabela de histórico
         historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
         db.session.add(historico)
 
         tipo_evento.update(
             fk_cliente=fk_cliente,
-            nome_tipo_evento=nome_tipo_evento,
-            recorrente=recorrente,
+            nome_do_tipo_de_evento=nome_do_tipo_de_evento,
+            recorrente=periodicidade,
             dia=dia,
             mes= mes,
             requer_acao=requer_acao,
-            tempo_de_tolerancia=tempo_de_tolerancia,
-            unidade_de_tempo=unidade_de_tempo,
+            tempo=tempo,
+            unidade=unidade,
             acao=acao
         )
 
