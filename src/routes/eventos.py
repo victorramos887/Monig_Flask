@@ -110,10 +110,10 @@ def eventos_cadastro():
         nome = formulario.get("nome", None)
         datainicio = formulario.get("datainicio", None)
         datafim = formulario.get("datafim", None)
-        prioridade = formulario.get("prioridade", None)
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacao", None)
+        color = formulario.get("color", None)
        
         
         evento = Eventos(
@@ -121,10 +121,10 @@ def eventos_cadastro():
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
-            prioridade=prioridade,
             local=local,
             tipo_de_local=tipo_de_local,
-            observacao=observacao
+            observacao=observacao,
+            color=color
         )
 
         db.session.add(evento)

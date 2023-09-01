@@ -140,6 +140,15 @@ def edificio(id):
         Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
 
     if edificio is None:
+
+        edificios_erro = Edificios.query.filter_by(
+            id=id, status_do_registro=False
+        ).first()
+
+        if edificios_erro:
+
+            return jsonify({'erro': 'Edificio não encontrado',  "status": False, "erro_edificio":edificios_erro.to_json()}), HTTP_400_BAD_REQUEST
+        
         return jsonify({'erro': 'Edificio não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
 
     return jsonify({
@@ -179,7 +188,17 @@ def area_umidas(id):
 
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
-    area_umida = AreaUmida.query.filter_by(id=id).first()
+    area_umida = AreaUmida.query.filter_by(id=id, status_do_registro=True).first()
+
+    if not area_umida:
+
+        erro_area_umida = AreaUmida.query.filter_by(id=id, status_do_registro = False).first()
+
+        if erro_area_umida:
+            return jsonify({'erro': 'Area umida não encontrado',  "status": False, "erro_area_umida":erro_area_umida.to_json()}), HTTP_400_BAD_REQUEST
+        
+        return jsonify({'erro': 'Area umida não encontrado',  "status": False}), HTTP_400_BAD_REQUEST
+    
     return jsonify({'area_umida': area_umida.to_json() if area_umida is not None else area_umida, "status": True})
 
 # TODOS OS EQUIPAMENTOS
@@ -200,8 +219,24 @@ def equipamentos(id):
 
 @send_frontend.get('/equipamento/<int:id>')
 def get_equipamento(id):
-    equipamento = Equipamentos.query.filter_by(id=id).first()
-    return jsonify({'equipamento': equipamento.to_json() if equipamento is not None else equipamento, "status": True})
+    equipamento = Equipamentos.query.filter_by(id=id, status_do_registro=True).first()
+
+    if not equipamento:
+
+        erro_equipamento = Equipamentos.query.filter_by(id=id, status_do_registro=False).first()
+
+        if erro_equipamento:
+            return jsonify({
+                'erro':'Equipamento não encontrado',
+                'status':False,
+                'erro_equipamento':erro_equipamento.to_json()
+            }), HTTP_400_BAD_REQUEST
+
+        return jsonify({
+            {'erro': 'Equipamento não encontrado',  "status": False}
+        }), HTTP_400_BAD_REQUEST
+
+    return jsonify({'equipamento': equipamento.to_json() if equipamento is not None else equipamento, "status": True}), 200
 
 
 # TODAS AS POPULAÇÕES
@@ -209,17 +244,29 @@ def get_equipamento(id):
 def populacao(id):
     populacoes = Populacao.query.filter_by(
         fk_edificios=id, status_do_registro=True).all()
+    
     return jsonify({
         "populacao": [populacao.to_json() for populacao in populacoes],
         "status": True
     })
 
 # RETORNA APENAS UMA
-
-
 @send_frontend.get('/populacao/<int:id>')
 def get_populacao(id):
-    populacao = Populacao.query.filter_by(id=id).first()
+
+    populacao = Populacao.query.filter_by(id=id, status_do_registro=True).first()
+
+    if not populacao:
+
+        erro_populacao = Populacao.query.filter_by(id=id, status_do_registro=False).first()
+
+        if erro_populacao:
+            return jsonify({'erro': 'População não encontrado',  "status": False, "erro_populacao":erro_populacao.to_json()}), HTTP_400_BAD_REQUEST
+
+        return jsonify({
+            'erro': 'Populacao não encontrado',  "status": False
+        }), HTTP_400_BAD_REQUEST
+
     return jsonify({'populacao': populacao.to_json() if populacao is not None else populacao, "status": True})
 
 
@@ -228,6 +275,13 @@ def get_populacao(id):
 def hidrometro(id):
     hidrometros = Hidrometros.query.filter_by(
         fk_edificios=id, status_do_registro=True).all()
+    
+    if not hidrometros:
+        return jsonify({
+            'erro':'Hidrometro não encontrado',
+            'status':False
+        }), HTTP_400_BAD_REQUEST
+
     return jsonify({
         "hidrometro": [hidrometro.to_json() for hidrometro in hidrometros], "status": True
     })
@@ -238,6 +292,20 @@ def hidrometro(id):
 @send_frontend.get('/hidrometro/<int:id>')
 def get_hidrometro(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
+    
+    if not hidrometro:
+
+        erro_hidrometro = Populacao.query.filter_by(id=id, status_do_registro=False).first()
+
+        if erro_hidrometro:
+
+            return jsonify({
+                'erro': 'Hidrometro não encontrado',  "status": False, "erro_hidrometro":erro_hidrometro.to_json()
+            }), HTTP_400_BAD_REQUEST
+        return jsonify({
+            'erro': 'Hidrometro não encontrado',  "status": False
+        }), HTTP_400_BAD_REQUEST
+    
     return jsonify({'hidrometro': hidrometro.to_json() if hidrometro is not None else hidrometro, "status": True})
 
 

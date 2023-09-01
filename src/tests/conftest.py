@@ -263,15 +263,11 @@ def new_evento():
         "fk_tipo":fake.random_int(min=1, max=10),
         "nome":fake.name(),
         "datainicio":fake.date_object(),
-        "datefim":fake.data_object(),
-        "prioridade":fake.random_element(
-            element=(
-                "Alta",
-                "Baixa"
-            )
-        ),
+        "datafim":fake.date_object(),
         "local":fake.random_int(min=1, max=1000),
         "tipo_de_local":fake.random_int(min=1, max=10),
         "observacao":fake.text(),
-        "cod_usuarios":fake.random_int(min=1, max=10)
+        "color":fake.rgb_color()
     }
+
+
