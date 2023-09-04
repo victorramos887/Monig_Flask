@@ -43,18 +43,18 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-# # Historico geral
-# class Historico(db.Model):
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'historico'
+# Historico geral
+class Historico(db.Model):
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'historico'
 
-#     id = db.Column(db.Integer, primary_key=True)
-#     tabela = db.Column(db.String, nullable=False)
-#     dados = db.Column(db.JSON, nullable=False)
-#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
+    id = db.Column(db.Integer, primary_key=True)
+    tabela = db.Column(db.String, nullable=False)
+    dados = db.Column(db.JSON, nullable=False)
+    data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class Escolas(db.Model, VersioningMixin):
@@ -72,8 +72,6 @@ class Escolas(db.Model, VersioningMixin):
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
-    escolas_historico = db.relationship(
-        'EscolasHistorico', backref='escolas_historico')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 

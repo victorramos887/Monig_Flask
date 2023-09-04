@@ -1,18 +1,27 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
 from ..models import Escolas, EscolaNiveis, TipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Historico
-from sqlalchemy import exc, text
+from sqlalchemy import exc, text, select
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
 
+#testar rota para reverter 
+@remover.get('/restaurar-escola/<id>')
+def reverter_escola(id):
+    escola = db.session.query(Escolas).filter_by(id=id).all()
+    if escola and escola.prev():
+        escola.prev().revert()
+        db.session.commit() # salva as mudanças no banco de dados
+        return jsonify({"status": True, 'mensagem': 'Escola restaurada'}), HTTP_200_OK 
+    
 
-@remover.get('/retornar-historico')
-def get_historico():
+# @remover.get('/retornar-historico')
+# def get_historico():
 
-    historicos = [historia.to_json() for historia in Historico.query.all()]
+#     historicos = [historia.to_json() for historia in Historico.query.all()]
 
-    return jsonify(historicos)
+#     return jsonify(historicos)
     
 
 #EDITAR ESCOLA
@@ -20,10 +29,16 @@ def get_historico():
 def escolas_remover(id):
 
     try: 
+
         escola = Escolas.query.filter_by(id=id).first()
         if not escola:
             return jsonify({'status':False,'mensagem': 'Escola não encontrado'}), 404
         
+        niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
+        if niveis:
+            for nivel in niveis:
+                db.session.delete(nivel)
+
         edificios =  Edificios.query.filter_by(fk_escola=id).all()
         if edificios:
             for edificio in edificios:
@@ -36,44 +51,45 @@ def escolas_remover(id):
                         if equipamentos:
                             for equipamento in equipamentos:
                                 equipamento.status_do_registro = False
+                                #db.session.delete(equipamento)
+
                     area_umida.status_do_registro = False
+                    #db.session.delete(area_umida)
             
 
                 hidrometros = Hidrometros.query.filter_by(fk_edificios=edificio.id)
                 if hidrometros:
                     for hidrometro in hidrometros:
                         hidrometro.status_do_registro = False
+                        #db.session.delete(hidrometro)
                 
                 populacao  = Populacao.query.filter_by(fk_edificios=edificio.id)
                 if populacao :
                     for populacao_ in populacao :
                         populacao_.status_do_registro = False
+                        #db.session.delete(populacao)
 
         edificio.status_do_registro = False
+        #db.session.delete(edificio)
 
         reservatorios = Reservatorios.query.filter_by(fk_escola=id).all()
         if reservatorios:
             for reservatorio in reservatorios:
                 reservatorio.status_do_registro = False
+                #db.session.delete(reservatorio)
+                
            
         escola.status_do_registro = False
+        db.session.delete(escola)
         db.session.commit()
         return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
-    
-    #alterar status da linha para False
-    escola.status_do_registro = False
 
-    #  # Insere os dados da linha excluída na tabela de histórico
-    # escola_json = escola.to_json()
-    # escola_json['data_criacao'] = escola_json['create_at'].strftime('%m/%d/%Y %H:%M:%S')
-    
-    # historico = Historico(tabela='Escolas', dados=escola_json)
-    db.session.add(historico)
-    
-    # Confirma as alterações no banco de dados
-    db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status":False, 'mensagem':"Erro não tratado", "codigo":str(e)
+        }), 400
 
-    return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
 
  
     
