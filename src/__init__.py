@@ -3,13 +3,14 @@ import json
 
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
-from .models import db, add_opniveis
+from .models import db, add_opniveis, continuum
 from . import routes
 from datetime import timedelta
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
 from flask_caching import Cache
 from flask_cors import CORS
+
 #from flask_migrate import Migrate
 
 
@@ -50,6 +51,7 @@ def create_app(test_config=None):
     with app.app_context():
         db.create_all()
         add_opniveis()
+        continuum.init_app(app)
         # Exemplo de uso
 
         # if test_config is None:
@@ -60,7 +62,9 @@ def create_app(test_config=None):
 
     #migrate = Migrate(app, db)
 
+    # Continuum(app, db)
     JWTManager(app)
+    
 
     # Blue prints
     for rota in rotas:

@@ -68,9 +68,8 @@ def test_cadastro_area_umida(app, new_area_umida):
             content_type='application/json'
         )
 
-        response_dict = json.loads(response.get_data())
+        # response_dict = json.loads(response.get_data())
 
-        print(response_dict)
         assert response.status_code == 200
 
 
@@ -211,15 +210,21 @@ def test_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
     assert response.status_code == 200
 
 
-def valor_test_cadastro_eventos(app, new_evento):
+def test_cadastro_eventos(app, new_evento):
 
 
     with app.app_context():
 
+
+        new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%d-%m")
+        new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%d-%m")
+
         json_data = json.dumps(new_evento)
         
         response = app.test_client().post(
-            'api/v1/...',
+            'api/v1/cadastro-evento/eventos',
             data=json_data,
-            context_type='application/json'
+            content_type='application/json'
         )
+        print("response")
+        assert response.status_code == 200

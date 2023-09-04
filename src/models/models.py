@@ -4,10 +4,15 @@ from datetime import datetime
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
-
 from flask import current_app
+from flask_continuum import Continuum, VersioningMixin
 
 db = SQLAlchemy()
+
+#Flask Cotinnue
+
+continuum = Continuum(db)
+
 
 
 class Cliente(db.Model):
@@ -38,24 +43,27 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-# Historico geral
-class Historico(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'historico'
+# # Historico geral
+# class Historico(db.Model):
+#     __table_args__ = {'schema': 'main'}
+#     __tablename__ = 'historico'
 
-    id = db.Column(db.Integer, primary_key=True)
-    tabela = db.Column(db.String, nullable=False)
-    dados = db.Column(db.JSON, nullable=False)
-    data_alteracao = db.Column(db.DateTime, default=datetime.now)
+#     id = db.Column(db.Integer, primary_key=True)
+#     tabela = db.Column(db.String, nullable=False)
+#     dados = db.Column(db.JSON, nullable=False)
+#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+#     def to_json(self):
+#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class Escolas(db.Model):
+class Escolas(db.Model, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escolas'
+    # __versioned__ = {
+    #     include
+    # }
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome = db.Column(db.String, unique=True)  # 255
@@ -64,7 +72,10 @@ class Escolas(db.Model):
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    escolas_historico = db.relationship(
+        'EscolasHistorico', backref='escolas_historico')
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -80,6 +91,19 @@ class Escolas(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
+<<<<<<< HEAD
+=======
+# class EscolasHistorico(db.Model):
+#     __table_args__ = {'schema': 'main'}
+#     __tablename__ = 'escolas_historico'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
+#     cnpj = db.Column(db.String)  # 18
+#     nivel = db.Column(db.JSON(db.String))
+#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
+
+>>>>>>> main
 
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -137,7 +161,8 @@ class Edificios(db.Model):
     capacidade_reuso_m3_edificio = db.Column(db.Float)
     agua_de_reuso = db.Column(db.Boolean, default=False)
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
     populacao = db.relationship('Populacao', backref='populacao')
     hidrometros = db.relationship('Hidrometros', backref='hidrometros')
@@ -215,7 +240,8 @@ class Populacao(db.Model):
     funcionarios = db.Column(db.Integer)
     alunos = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     populacao_periodos = db.relationship(
         'PopulacaoPeriodo', backref='populacao_periodos')
@@ -241,6 +267,7 @@ class Populacao(db.Model):
         jsonRetorno['nivel'] = self.opniveis.nivel
         jsonRetorno['alunos'] = self.alunos
         jsonRetorno['funcionarios'] = self.funcionarios
+        jsonRetorno['status_do_registro']=self.status_do_registro
 
         # {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
         return jsonRetorno
@@ -256,7 +283,8 @@ class Hidrometros(db.Model):
         db.Integer, db.ForeignKey('main.tipo_hidrometros.id'), default=1)
     status_do_registro = db.Column(db.Boolean, default=True)
     hidrometro = db.Column(db.String, nullable=False)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_hidrometros = db.relationship(
         'TipoHidrometro', backref='tipo_hidrometros')
 
@@ -289,7 +317,8 @@ class AreaUmida(db.Model):
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
     tipo_area_umida_rel = db.relationship(
         'TipoAreaUmida', backref='aux_tipo_area_umida')
@@ -341,7 +370,8 @@ class Equipamentos(db.Model):
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_equipamento_rel = db.relationship(
         'TiposEquipamentos', backref='main.tipo_equipamentos.id')
 
@@ -445,6 +475,8 @@ class PopulacaoPeriodo(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     periodo = db.Column(db.String)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, periodo):
         self.periodo = periodo
@@ -464,6 +496,8 @@ class TipoAreaUmida(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     tipo = db.Column(db.String, nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, tipo):
         self.tipo = tipo
@@ -483,6 +517,8 @@ class OperacaoAreaUmida(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     operacao = db.Column(db.String, nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, operacao):
         self.operacao = operacao
@@ -501,6 +537,8 @@ class OpNiveis(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nivel = db.Column(db.String, nullable=False, unique=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, nivel):
         self.nivel = nivel
@@ -615,20 +653,11 @@ class Eventos(db.Model):
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
     datafim = db.Column(db.DateTime)
-    prioridade = db.Column(db.Integer, db.ForeignKey(
-        'main.prioridade_eventos.id'))
     local = db.Column(db.Integer)  # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.tabela_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
-    status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
-    # cod_usuarios = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
-    # usuarios = db.relationship(
-    #     'Usuarios',
-    #     backref='main.usuarios'
-    #)
-
+    color = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
 
 
@@ -636,27 +665,25 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, prioridade, local, tipo_de_local, observacao): #cod_usuarios
-
+    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, color, observacao): #cod_usuarios
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
         self.datafim = datafim
-        self.prioridade = prioridade
         self.local = local
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
-        #self.cod_usuarios = cod_usuarios
-
+        self.color = color
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
 
 class TabelasDeLocais(db.Model):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'tabela_de_locais'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -670,21 +697,21 @@ class TabelasDeLocais(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class PrioridadeEventos(db.Model):
-    __table_args__ = {"schema": "main"}
-    __tablename__ = 'prioridade_eventos'
-    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    prioridade = db.Column(db.String)
+# class PrioridadeEventos(db.Model):
+#     __table_args__ = {"schema": "main"}
+#     __tablename__ = 'prioridade_eventos'
+#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+#     prioridade = db.Column(db.String)
 
-    def update(self, **kwargs):
-            for key, value in kwargs.items():
-                setattr(self, key, value)
+#     def update(self, **kwargs):
+#             for key, value in kwargs.items():
+#                 setattr(self, key, value)
 
-    def __init__(self, prioridade):
-        self.prioridade = prioridade
+#     def __init__(self, prioridade):
+#         self.prioridade = prioridade
 
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+#     def to_json(self):
+#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class TipoDeEventos(db.Model):
@@ -762,7 +789,6 @@ class TipoDeEventos(db.Model):
 
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
-    op_prioridade = ['Alta', 'Média', 'Baixa']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
@@ -911,13 +937,7 @@ def add_opniveis():
         if not opnome:
             opnome = TabelasDeLocais(nome_da_tabela=nome_da_tabela)
             db.session.add(opnome)
-
-    for prioridade in op_prioridade:
-        prioridade_eventos = PrioridadeEventos.query.filter_by(prioridade=prioridade).first() 
-        if not prioridade_eventos:
-            prioridade_eventos = PrioridadeEventos(prioridade=prioridade)
-            db.session.add(prioridade_eventos)
-        
+       
     for nivel in opniveis:
         opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:

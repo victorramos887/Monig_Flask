@@ -60,27 +60,65 @@ def escolas_remover(id):
         db.session.commit()
         return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
     
+    #alterar status da linha para False
+    escola.status_do_registro = False
+
+    #  # Insere os dados da linha excluída na tabela de histórico
+    # escola_json = escola.to_json()
+    # escola_json['data_criacao'] = escola_json['create_at'].strftime('%m/%d/%Y %H:%M:%S')
+    
+    # historico = Historico(tabela='Escolas', dados=escola_json)
+    db.session.add(historico)
+    
+    # Confirma as alterações no banco de dados
+    db.session.commit()
+
+    return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
+
+ 
+    
+#edificios
+@remover.delete('/edificios/<id>')
+def edificios_remover(id):
+    edificio = Edificios.query.filter_by(id=id).first()
+
+
+    try:
+        if not edificio:
+            return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404
+    
+        area_umidas =  AreaUmida.query.filter_by(fk_edificios=id).all()
+
+        if area_umidas:
+            for area_umida in area_umidas:
+                equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id).all()
+                if equipamentos:
+                    for equipamento in equipamentos:
+                        equipamento.status_do_registro = False
+                area_umida.status_do_registro = False
+
+        populacoes = Populacao.query.filter_by(fk_edificios=id).all()
+
+        if populacoes:
+            for populacao in populacoes:
+                populacao.status_do_registro = False
+
+        hidrometros = Hidrometros.query.filter_by(fk_edificios=id).all()
+
+        if hidrometros:
+            for hidrometro in hidrometros:
+                hidrometro.status_do_registro = False
+
+        edificio.status_do_registro = False
+
+        db.session.commit()
+        return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK
+
     except Exception as e:
         db.session.rollback()
         return jsonify({
             "status":False, 'mensagem':"Erro não tratado", "codigo":str(e)
         }), 400
-
- 
-    
-#edificios
-@remover.put('/edificios/<id>')
-def edificios_remover(id):
-    edificio = Edificios.query.filter_by(id=id).first()
-  
-    if not edificio:
-        return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
-
-    edificio.status_do_registro = False
-
-    db.session.commit()
-
-    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
 
 
 #hidrometro
