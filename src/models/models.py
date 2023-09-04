@@ -91,19 +91,6 @@ class Escolas(db.Model, VersioningMixin):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-<<<<<<< HEAD
-=======
-# class EscolasHistorico(db.Model):
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'escolas_historico'
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-#     cnpj = db.Column(db.String)  # 18
-#     nivel = db.Column(db.JSON(db.String))
-#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
-
->>>>>>> main
 
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
