@@ -26,11 +26,11 @@ def escolas_remover(id):
     #alterar status da linha para False
     escola.status_do_registro = False
 
-     # Insere os dados da linha excluída na tabela de histórico
-    escola_json = escola.to_json()
-    escola_json['data_criacao'] = escola_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
+    #  # Insere os dados da linha excluída na tabela de histórico
+    # escola_json = escola.to_json()
+    # escola_json['data_criacao'] = escola_json['create_at'].strftime('%m/%d/%Y %H:%M:%S')
     
-    historico = Historico(tabela='Escolas', dados=escola_json)
+    # historico = Historico(tabela='Escolas', dados=escola_json)
     db.session.add(historico)
     
     # Confirma as alterações no banco de dados
