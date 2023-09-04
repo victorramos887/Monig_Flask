@@ -90,11 +90,11 @@ class Reservatorios(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False)
     status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     edificio = db.relationship(
         'Edificios',
         back_populates="reservatorio",
         secondary="main.reservatorio_edificio",
-        cascade='all'
     )
 
     def update(self, **kwargs):
@@ -621,6 +621,8 @@ class Eventos(db.Model):
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.tabela_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
+    status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     # cod_usuarios = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     # usuarios = db.relationship(
     #     'Usuarios',
@@ -628,7 +630,7 @@ class Eventos(db.Model):
     #)
 
     created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -700,8 +702,11 @@ class TipoDeEventos(db.Model):
     unidade = db.Column(db.String)
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now())
+    status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+   
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
