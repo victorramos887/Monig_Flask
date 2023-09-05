@@ -44,17 +44,17 @@ class Cliente(db.Model):
 
 
 # Historico geral
-class Historico(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'historico'
+# class Historico(db.Model):
+#     __table_args__ = {'schema': 'main'}
+#     __tablename__ = 'historico'
 
-    id = db.Column(db.Integer, primary_key=True)
-    tabela = db.Column(db.String, nullable=False)
-    dados = db.Column(db.JSON, nullable=False)
-    data_alteracao = db.Column(db.DateTime, default=datetime.now)
+#     id = db.Column(db.Integer, primary_key=True)
+#     tabela = db.Column(db.String, nullable=False)
+#     dados = db.Column(db.JSON, nullable=False)
+#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
 
-    def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+#     def to_json(self):
+#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
 class Escolas(db.Model, VersioningMixin):
@@ -90,7 +90,7 @@ class Escolas(db.Model, VersioningMixin):
 
 
 
-class Reservatorios(db.Model):
+class Reservatorios(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
 
@@ -99,7 +99,8 @@ class Reservatorios(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False)
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     edificio = db.relationship(
         'Edificios',
         back_populates="reservatorio",
@@ -214,7 +215,7 @@ class Edificios(db.Model, VersioningMixin):
         return jsonRetorn
 
 
-class Populacao(db.Model):
+class Populacao(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao'
 
@@ -259,7 +260,7 @@ class Populacao(db.Model):
         return jsonRetorno
 
 
-class Hidrometros(db.Model):
+class Hidrometros(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'hidrometros'
 
@@ -287,7 +288,7 @@ class Hidrometros(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AreaUmida(db.Model):
+class AreaUmida(db.Model, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'area_umida'
@@ -343,7 +344,7 @@ class AreaUmida(db.Model):
         return jsonRetorno
 
 
-class Equipamentos(db.Model):
+class Equipamentos(db.Model, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'equipamentos'
@@ -627,7 +628,7 @@ class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
 
 
 # EVENTOS
-class Eventos(db.Model):
+class Eventos(db.Model, VersioningMixin):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
@@ -679,7 +680,7 @@ class AuxDeLocais(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AuxTipoDeEventos(db.Model):
+class AuxTipoDeEventos(db.Model, VersioningMixin):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'aux_tipo_de_eventos'
 
