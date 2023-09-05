@@ -130,7 +130,7 @@ class Reservatorios(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class Edificios(db.Model):
+class Edificios(db.Model, VersioningMixin):
 
     '''__table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
                       db.Index('ix_edificio_nome_escola',
@@ -587,7 +587,7 @@ class TipoHidrometro(db.Model):
 
 
 # Tabelas auxiliares MxM
-class EscolaNiveis(db.Model):
+class EscolaNiveis(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
 
