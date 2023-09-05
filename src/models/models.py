@@ -72,8 +72,6 @@ class Escolas(db.Model, VersioningMixin):
     telefone = db.Column(db.String(16))  # 16
     status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
-    escolas_historico = db.relationship(
-        'EscolasHistorico', backref='escolas_historico')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -91,16 +89,6 @@ class Escolas(db.Model, VersioningMixin):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class EscolasHistorico(db.Model):
-    __table_args__ = {'schema': 'main'}
-    __tablename__ = 'escolas_historico'
-
-    id = db.Column(db.Integer, primary_key=True)
-    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-    cnpj = db.Column(db.String)  # 18
-    nivel = db.Column(db.JSON(db.String))
-    data_alteracao = db.Column(db.DateTime, default=datetime.now)
-
 
 class Reservatorios(db.Model):
     __table_args__ = {'schema': 'main'}
@@ -111,10 +99,11 @@ class Reservatorios(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False)
     status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     edificio = db.relationship(
         'Edificios',
         back_populates="reservatorio",
-        secondary="main.reservatorio_edificio"
+        secondary="main.reservatorio_edificio",
     )
 
     def update(self, **kwargs):
@@ -597,6 +586,8 @@ class EscolaNiveis(db.Model, VersioningMixin):
         'main.opniveis.id'), primary_key=True)
 
 
+
+
 class ReservatorioEdificio(db.Model):
 
     # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
@@ -651,7 +642,7 @@ class Eventos(db.Model):
     observacao = db.Column(db.Text)
     color = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
-    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -721,8 +712,11 @@ class TipoDeEventos(db.Model):
     unidade = db.Column(db.String)
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
-    created_at = db.Column(db.DateTime, default=datetime.now())
+    status_do_registro = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+   
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
