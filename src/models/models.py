@@ -121,6 +121,7 @@ class Reservatorios(db.Model):
 
 class Edificios(db.Model, VersioningMixin):
 
+    # trunk-ignore(ruff/D300)
     '''__table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
                       db.Index('ix_edificio_nome_escola',
                                'nome_do_edificio', 'fk_escola', unique=True),
@@ -219,9 +220,9 @@ class Populacao(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
-    fk_niveis = db.Column(db.Integer, db.ForeignKey('main.opniveis.id'))
+    fk_niveis = db.Column(db.Integer, db.ForeignKey('main.aux_opniveis.id'))
     fk_periodo = db.Column(db.Integer, db.ForeignKey(
-        'main.populacao_periodos.id'))
+        'main.aux_populacao_periodos.id'))
     funcionarios = db.Column(db.Integer)
     alunos = db.Column(db.Integer)
     status_do_registro = db.Column(db.Boolean, default=True)
@@ -229,8 +230,8 @@ class Populacao(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     populacao_periodos = db.relationship(
-        'PopulacaoPeriodo', backref='populacao_periodos')
-    opniveis = db.relationship('OpNiveis', backref='opniveis')
+        'AuxPopulacaoPeriodo', backref='populacao_periodos')
+    opniveis = db.relationship('AuxOpNiveis', backref='opniveis')
     # hidrometros = db.relationship('Hidrometros', backref='hidrometros')
 
     def update(self, **kwargs):
@@ -265,13 +266,13 @@ class Hidrometros(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     fk_hidrometro = db.Column(
-        db.Integer, db.ForeignKey('main.tipo_hidrometros.id'), default=1)
+        db.Integer, db.ForeignKey('main.aux_tipo_hidrometros.id'), default=1)
     status_do_registro = db.Column(db.Boolean, default=True)
     hidrometro = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_hidrometros = db.relationship(
-        'TipoHidrometro', backref='tipo_hidrometros')
+        'AuxTipoHidrometro', backref='tipo_hidrometros')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -306,10 +307,10 @@ class AreaUmida(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
     tipo_area_umida_rel = db.relationship(
-        'TipoAreaUmida', backref='aux_tipo_area_umida')
+        'AuxTipoAreaUmida', backref='aux_tipo_area_umida')
 
     operacao_area_umida_rel = db.relationship(
-        'OperacaoAreaUmida', backref='aux_operacao_area_umida'
+        'AuxOperacaoAreaUmida', backref='aux_operacao_area_umida'
     )
 
     # status_area_umida_rel = db.relationship(
@@ -350,7 +351,7 @@ class Equipamentos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_area_umida = db.Column(db.Integer, db.ForeignKey('main.area_umida.id'))
     tipo_equipamento = db.Column(
-        db.Integer, db.ForeignKey('main.tipo_equipamentos.id'))
+        db.Integer, db.ForeignKey('main.aux_tipo_equipamentos.id'))
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
@@ -358,7 +359,7 @@ class Equipamentos(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_equipamento_rel = db.relationship(
-        'TiposEquipamentos', backref='main.tipo_equipamentos.id')
+        'AuxTiposEquipamentos', backref='main.aux_tipo_equipamentos.id')
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -383,8 +384,6 @@ class Equipamentos(db.Model):
         return jsonRetorno
 
 # Tabela auxiliar
-
-
 class Customizados(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_customizado_cliente'
@@ -449,17 +448,17 @@ class PopulacaoNiveis(db.Model):
     populacao_id = db.Column(db.Integer, db.ForeignKey(
         'main.populacao.id'), primary_key=True)
     nivel_escola_id = db.Column(db.Integer, db.ForeignKey(
-        'main.opniveis.id'), primary_key=True)
+        'main.aux_opniveis.id'), primary_key=True)
 
 
-class PopulacaoPeriodo(db.Model):
+class AuxPopulacaoPeriodo(db.Model):
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'populacao_periodos'
+    __tablename__ = 'aux_populacao_periodos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     periodo = db.Column(db.String)
-    # created_at = db.Column(db.DateTime, default=datetime.now())
-    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, periodo):
         self.periodo = periodo
@@ -472,15 +471,15 @@ class PopulacaoPeriodo(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class TipoAreaUmida(db.Model):
+class AuxTipoAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_tipo_area_umida'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     tipo = db.Column(db.String, nullable=False, unique=True)
-    # created_at = db.Column(db.DateTime, default=datetime.now())
-    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, tipo):
         self.tipo = tipo
@@ -493,15 +492,15 @@ class TipoAreaUmida(db.Model):
             setattr(self, key, value)
 
 
-class OperacaoAreaUmida(db.Model):
+class AuxOperacaoAreaUmida(db.Model):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_operacao_area_umida'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     operacao = db.Column(db.String, nullable=False, unique=True)
-    # created_at = db.Column(db.DateTime, default=datetime.now())
-    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, operacao):
         self.operacao = operacao
@@ -514,14 +513,14 @@ class OperacaoAreaUmida(db.Model):
             setattr(self, key, value)
 
 
-class OpNiveis(db.Model):
+class AuxOpNiveis(db.Model):
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'opniveis'
+    __tablename__ = 'aux_opniveis'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nivel = db.Column(db.String, nullable=False, unique=True)
-    # created_at = db.Column(db.DateTime, default=datetime.now())
-    # updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
     def __init__(self, nivel):
         self.nivel = nivel
@@ -534,10 +533,10 @@ class OpNiveis(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class TiposEquipamentos(db.Model):
+class AuxTiposEquipamentos(db.Model):
 
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'tipo_equipamentos'
+    __tablename__ = 'aux_tipo_equipamentos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     aparelho_sanitario = db.Column(db.String, nullable=False)
@@ -559,9 +558,9 @@ class TiposEquipamentos(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class TipoHidrometro(db.Model):
+class AuxTipoHidrometro(db.Model):
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'tipo_hidrometros'
+    __tablename__ = 'aux_tipo_hidrometros'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     tipo_hidrometro = db.Column(db.String, nullable=False)
@@ -583,7 +582,7 @@ class EscolaNiveis(db.Model, VersioningMixin):
     escola_id = db.Column(db.Integer, db.ForeignKey(
         'main.escolas.id'), primary_key=True)
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
-        'main.opniveis.id'), primary_key=True)
+        'main.aux_opniveis.id'), primary_key=True)
 
 
 
@@ -600,17 +599,17 @@ class ReservatorioEdificio(db.Model):
         'main.reservatorios.id'), primary_key=True)
 
 
-class TipoDeAreaUmidaTipoDeEquipamento(db.Model):
+class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
     __table_args__ = {'schema': 'main'}
-    __tablename__ = 'area_umida_equipamento'
+    __tablename__ = 'aux_area_umida_equipamento'
 
     tipo_equipamento_id = db.Column(db.Integer, db.ForeignKey(
-        'main.tipo_equipamentos.id'), primary_key=True)
+        'main.aux_tipo_equipamentos.id'), primary_key=True)
     tipo_area_umida_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_area_umida.id'), primary_key=True)
 
     tipo_equipamento_string = db.relationship(
-        'TiposEquipamentos',
+        'AuxTiposEquipamentos',
         backref='tipo_equipamentos'
     )
 
@@ -632,13 +631,13 @@ class Eventos(db.Model):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    fk_tipo = db.Column(db.Integer, db.ForeignKey('main.tipo_de_eventos.id'))
+    fk_tipo = db.Column(db.Integer, db.ForeignKey('main.aux_tipo_de_eventos.id'))
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
     datafim = db.Column(db.DateTime)
     local = db.Column(db.Integer)  # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
-        'main.tabela_de_locais.id'))  # 3
+        'main.aux_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
     color = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -660,9 +659,9 @@ class Eventos(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
-class TabelasDeLocais(db.Model):
+class AuxDeLocais(db.Model):
     __table_args__ = {"schema": "main"}
-    __tablename__ = 'tabela_de_locais'
+    __tablename__ = 'aux_de_locais'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -680,26 +679,9 @@ class TabelasDeLocais(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-# class PrioridadeEventos(db.Model):
-#     __table_args__ = {"schema": "main"}
-#     __tablename__ = 'prioridade_eventos'
-#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     prioridade = db.Column(db.String)
-
-#     def update(self, **kwargs):
-#             for key, value in kwargs.items():
-#                 setattr(self, key, value)
-
-#     def __init__(self, prioridade):
-#         self.prioridade = prioridade
-
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-class TipoDeEventos(db.Model):
+class AuxTipoDeEventos(db.Model):
     __table_args__ = {"schema": "main"}
-    __tablename__ = 'tipo_de_eventos'
+    __tablename__ = 'aux_tipo_de_eventos'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
@@ -713,7 +695,6 @@ class TipoDeEventos(db.Model):
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     status_do_registro = db.Column(db.Boolean, default=True)
-    data_criacao = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     created_at = db.Column(db.DateTime, default=datetime.now())
    
@@ -760,15 +741,6 @@ class TipoDeEventos(db.Model):
             for attr in self.__table__.columns
         }
     
-    # def to_json(self):
-
-    #     data_formatada = str(self.sazonal_periodo) if self.sazonal_periodo else None
-    #     return {
-    #         attr.name: data_formatada if attr.name == "sazonal_periodo" else getattr(self, attr.name)
-    #         for attr in self.__table__.columns
-    #     }
-
-
 
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
@@ -916,50 +888,50 @@ def add_opniveis():
   
 
     for nome_da_tabela in op_nome_da_tabela:
-        opnome = TabelasDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
+        opnome = AuxDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
         if not opnome:
-            opnome = TabelasDeLocais(nome_da_tabela=nome_da_tabela)
+            opnome = AuxDeLocais(nome_da_tabela=nome_da_tabela)
             db.session.add(opnome)
        
     for nivel in opniveis:
-        opnivel = OpNiveis.query.filter_by(nivel=nivel).first()
+        opnivel = AuxOpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:
-            opnivel = OpNiveis(nivel=nivel)
+            opnivel = AuxOpNiveis(nivel=nivel)
             db.session.add(opnivel)
 
     for areaumida in tipoareaumida:
-        tipo = TipoAreaUmida.query.filter_by(tipo=areaumida).first()
+        tipo = AuxTipoAreaUmida.query.filter_by(tipo=areaumida).first()
         if not tipo:
-            tipo = TipoAreaUmida(tipo=areaumida)
+            tipo = AuxTipoAreaUmida(tipo=areaumida)
             db.session.add(tipo)
 
     for operacao in operacaoareaumida:
-        st = OperacaoAreaUmida.query.filter_by(operacao=operacao).first()
+        st = AuxOperacaoAreaUmida.query.filter_by(operacao=operacao).first()
 
         if not st:
-            st = OperacaoAreaUmida(operacao=operacao)
+            st = AuxOperacaoAreaUmida(operacao=operacao)
             db.session.add(st)
 
     for hidrometro in tipohidrometro:
-        hid = TipoHidrometro.query.filter_by(
+        hid = AuxTipoHidrometro.query.filter_by(
             tipo_hidrometro=hidrometro).first()
 
         if not hid:
-            hid = TipoHidrometro(tipo_hidrometro=hidrometro)
+            hid = AuxTipoHidrometro(tipo_hidrometro=hidrometro)
             db.session.add(hid)
 
     for periodo in populacao_periodos:
-        operiodo = PopulacaoPeriodo.query.filter_by(periodo=periodo).first()
+        operiodo = AuxPopulacaoPeriodo.query.filter_by(periodo=periodo).first()
         if not operiodo:
-            operiodo = PopulacaoPeriodo(periodo=periodo)
+            operiodo = AuxPopulacaoPeriodo(periodo=periodo)
             db.session.add(operiodo)
 
     for equipamento in tipoequipamento['tipoequipamento']:
-        oequipamento = TiposEquipamentos.query.filter_by(
+        oequipamento = AuxTiposEquipamentos.query.filter_by(
             aparelho_sanitario=equipamento['aparelho_sanitario']).first()
 
         if not oequipamento:
-            oequipamento = TiposEquipamentos(
+            oequipamento = AuxTiposEquipamentos(
                 aparelho_sanitario=equipamento['aparelho_sanitario'],
                 vazao=equipamento['vazao'],
                 peso=equipamento['peso']
@@ -969,23 +941,23 @@ def add_opniveis():
     db.session.commit()
 
     for key, values in tipoareaumidaequipamento.items():
-        idarea = TipoAreaUmida.query.filter_by(tipo=key).first()
+        idarea = AuxTipoAreaUmida.query.filter_by(tipo=key).first()
         if idarea:
             idarea = idarea.id
 
             for value in values:
-                idEquipamento = TiposEquipamentos.query.filter_by(
+                idEquipamento = AuxTiposEquipamentos.query.filter_by(
                     aparelho_sanitario=value).first()
                 if idEquipamento:
                     idEquipamento = idEquipamento.id
 
-                    query = TipoDeAreaUmidaTipoDeEquipamento.query.filter_by(
+                    query = AuxTipoDeAreaUmidaTipoDeEquipamento.query.filter_by(
                         tipo_equipamento_id=idEquipamento,
                         tipo_area_umida_id=idarea
                     )
 
                     if not query.first():
-                        areaumidaequipamento = TipoDeAreaUmidaTipoDeEquipamento(
+                        areaumidaequipamento = AuxTipoDeAreaUmidaTipoDeEquipamento(
                             tipo_equipamento_id=idEquipamento, tipo_area_umida_id=idarea)
                         db.session.add(areaumidaequipamento)
 

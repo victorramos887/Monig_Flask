@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import or_, and_
-from ..models import Escolas, Edificios, Hidrometros, TipoHidrometro, AreaUmida, Equipamentos, TiposEquipamentos, TipoDeAreaUmidaTipoDeEquipamento,db
+from ..models import Escolas, Edificios, Hidrometros, AuxTipoHidrometro, AreaUmida, Equipamentos,db
 import pandas as pd
 import math
 
@@ -63,7 +63,7 @@ def inserirGuarulhos():
             db.session.commit()
                        
             if type(tipohidrometro) == str:
-                tipo = TipoHidrometro.query.filter_by(tipo_hidrometro = tipohidrometro).first()
+                tipo = AuxTipoHidrometro.query.filter_by(tipo_hidrometro = tipohidrometro).first()
 
                 if tipo:
                     tipo = tipo.id

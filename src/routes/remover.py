@@ -1,6 +1,6 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, EscolaNiveis, TipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Historico
+from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Historico
 from sqlalchemy import exc, text, select
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
@@ -14,14 +14,6 @@ def reverter_escola(id):
         escola.prev().revert()
         db.session.commit() # salva as mudanças no banco de dados
         return jsonify({"status": True, 'mensagem': 'Escola restaurada'}), HTTP_200_OK 
-    
-
-# @remover.get('/retornar-historico')
-# def get_historico():
-
-#     historicos = [historia.to_json() for historia in Historico.query.all()]
-
-#     return jsonify(historicos)
     
 
 #EDITAR ESCOLA
@@ -50,35 +42,34 @@ def escolas_remover(id):
                         equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id)
                         if equipamentos:
                             for equipamento in equipamentos:
-                                equipamento.status_do_registro = False
-                                #db.session.delete(equipamento)
+                                # equipamento.status_do_registro = False
+                                db.session.delete(equipamento)
 
                     area_umida.status_do_registro = False
-                    #db.session.delete(area_umida)
+                    db.session.delete(area_umida)
             
 
                 hidrometros = Hidrometros.query.filter_by(fk_edificios=edificio.id)
                 if hidrometros:
                     for hidrometro in hidrometros:
-                        hidrometro.status_do_registro = False
-                        #db.session.delete(hidrometro)
+                        # hidrometro.status_do_registro = False
+                        db.session.delete(hidrometro)
                 
                 populacao  = Populacao.query.filter_by(fk_edificios=edificio.id)
-                if populacao :
+                if populacao:
                     for populacao_ in populacao :
-                        populacao_.status_do_registro = False
-                        #db.session.delete(populacao)
+                        # populacao_.status_do_registro = False
+                        db.session.delete(populacao_)
 
         edificio.status_do_registro = False
-        #db.session.delete(edificio)
+        db.session.delete(edificio)
 
         reservatorios = Reservatorios.query.filter_by(fk_escola=id).all()
         if reservatorios:
             for reservatorio in reservatorios:
-                reservatorio.status_do_registro = False
-                #db.session.delete(reservatorio)
+                # reservatorio.status_do_registro = False
+                db.session.delete(reservatorio)
                 
-           
         escola.status_do_registro = False
         db.session.delete(escola)
         db.session.commit()
@@ -91,8 +82,6 @@ def escolas_remover(id):
         }), 400
 
 
- 
-    
 #edificios
 @remover.put('/edificios/<id>')
 def edificios_remover(id):
@@ -194,7 +183,7 @@ def reservatorio_remover(id):
 #tipo-evento
 @remover.put('/tipo-evento/<id>')
 def tipo_evento_remover(id):
-    tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
+    tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
   
     if not tipo_evento:
         return jsonify({'status':False,'mensagem': 'Tipo de Evento não encontrado'}), 404

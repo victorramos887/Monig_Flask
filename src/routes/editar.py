@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                       Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, TipoDeEventos, Eventos)
+                       Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -110,17 +110,6 @@ def escolas_editar(id):
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
     try:
-
-        escola_json = escola.to_json()
-        escola_json['data_criacao'] = escola_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_escola = Historico(tabela="Escola", dados=escola_json)
-        db.session.add(historico_escola)
-
-        edificio_json = edificio.to_json()
-        edificio_json['data_criacao'] = edificio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_edificio = Historico(tabela="Edificio", dados=edificio_json)
-        db.session.add(historico_edificio)
-
        #verificando niveis das escolas
         escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
 
@@ -133,7 +122,7 @@ def escolas_editar(id):
 
         niveis=body["nivel"]
         
-        niveis = [OpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
+        niveis = [AuxOpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
 
         # Obtenha todos os níveis de ensino associados à escola
         niveis_atuais = [n.nivel_ensino_id for n in escola_niveis]
@@ -143,7 +132,7 @@ def escolas_editar(id):
         niveis_removidos = set(niveis_atuais) - set(niveis)
 
         for nivel in niveis_adicionados:
-            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+            op_nivel = AuxOpNiveis.query.filter_by(id=nivel).first()
                 
             if op_nivel:
                 escola_nivel = EscolaNiveis(
@@ -155,7 +144,7 @@ def escolas_editar(id):
 
         # Remova os níveis de ensino que não estão mais presentes
         for nivel in niveis_removidos:
-            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
+            op_nivel = AuxOpNiveis.query.filter_by(id=nivel).first()
             if op_nivel:
                 escola_nivel = EscolaNiveis.query.filter_by(
                     escola_id=escola.id,
@@ -464,8 +453,8 @@ def populacao_editar(id):
         alunos = body['alunos']
         fk_edificios = body['fk_edificios']
         funcionarios = body['funcionarios']
-        nivel = OpNiveis.query.filter_by(nivel=body['nivel']).first()
-        periodo = PopulacaoPeriodo.query.filter_by(
+        nivel = AuxOpNiveis.query.filter_by(nivel=body['nivel']).first()
+        periodo = AuxPopulacaoPeriodo.query.filter_by(
             periodo=body['periodo']).first()
 
         print(periodo.id)
@@ -540,7 +529,7 @@ def area_umida_editar(id):
         else:
             status = False
 
-        tipo_area_umida = TipoAreaUmida.query.filter_by(
+        tipo_area_umida = AuxTipoAreaUmida.query.filter_by(
             tipo=body['tipo_area_umida']).first()
 
         umida.update(
@@ -609,7 +598,7 @@ def equipamento_editar(id):
         db.session.add(historico_equipamento)
     
         fk_area_umida = body['fk_area_umida']
-        tipo_equipamento = TiposEquipamentos.query.filter_by(
+        tipo_equipamento = AuxTiposEquipamentos.query.filter_by(
             aparelho_sanitario=body['tipo_equipamento']).first()
         quantTotal = body['quantTotal']
         quantProblema = body['quantProblema']
@@ -666,7 +655,7 @@ def equipamento_editar(id):
 # EDITAR EVENTOS
 @editar.put('/tipo-evento/<id>')
 def tipo_evento_editar(id):
-    tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
+    tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
     formulario = request.get_json()
 
     meses_dict = {

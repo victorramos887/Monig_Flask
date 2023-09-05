@@ -5,8 +5,7 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, OpNiveis,
-                      TipoAreaUmida, TiposEquipamentos, Reservatorios, PopulacaoPeriodo, OperacaoAreaUmida, ReservatorioEdificio)
+from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, AuxOpNiveis, AuxTipoAreaUmida, AuxTiposEquipamentos, Reservatorios, AuxPopulacaoPeriodo, AuxOperacaoAreaUmida, ReservatorioEdificio)
 import traceback
 from sqlalchemy.exc import ArgumentError
 
@@ -155,7 +154,7 @@ def escolas():
 
         # VERIFICAR NÍVEIS
 
-        niveis_query = OpNiveis.query.filter(OpNiveis.nivel.in_(nivel)).all()
+        niveis_query = AuxOpNiveis.query.filter(AuxOpNiveis.nivel.in_(nivel)).all()
         #realizar controle, de que não foi cadastrado nível
 
         escola_niveis = [EscolaNiveis(
@@ -224,12 +223,6 @@ def reservatorios():
        
         fk_escola = formulario['fk_escola']
         nome_do_reservatorio = formulario['nome']
-      
-        # Criando ou obtendo o edifício associado ao reservatório
-        # edificio_id = formulario['fk_escola']
-        # edificio = Edificios.query.filter_by(id=edificio_id).first()
-        # if edificio is None:
-        #     return jsonify({'status': False, "mensagem": "Edifício não encontrado."}), HTTP_400_BAD_REQUEST
 
         #CRIANDO O RESERVATORIO
         reservatorio = Reservatorios(
@@ -430,7 +423,7 @@ def hidrometros():
 def populacao():
 
     formulario = request.get_json()
-    nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
+    nivel = db.session.query(AuxOpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
 
     try:
 
@@ -438,8 +431,8 @@ def populacao():
         funcionarios = formulario['funcionarios']
         fk_edificios = formulario['fk_edificios']
 
-        nivel = db.session.query(OpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
-        periodo = db.session.query(PopulacaoPeriodo.id).filter_by(periodo=formulario['periodo']).scalar()
+        nivel = db.session.query(AuxOpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
+        periodo = db.session.query(AuxPopulacaoPeriodo.id).filter_by(periodo=formulario['periodo']).scalar()
         
         populacao = Populacao(
             alunos=alunos,
@@ -514,7 +507,7 @@ def area_umida():
         else:
             status_area_umida = False
 
-        operacao = OperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
+        operacao = AuxOperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
         
         umida = AreaUmida(
             fk_edificios = fk_edificios,
@@ -577,8 +570,7 @@ def equipamentos():
         quantTotal = formulario['quantTotal']
         quantProblema = formulario['quantProblema']
         quantInutil = formulario['quantInutil']
-
-        tipo_equipamento = TiposEquipamentos.query.filter_by(aparelho_sanitario=tipo_equipamento).first().id
+        tipo_equipamento = AuxTiposEquipamentos.query.filter_by(aparelho_sanitario=tipo_equipamento).first().id
 
         # descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
 
