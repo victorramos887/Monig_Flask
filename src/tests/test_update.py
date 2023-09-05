@@ -1,5 +1,6 @@
 import os
 import sys
+# trunk-ignore(ruff/F401)
 from time import sleep
 import json
 from dotenv import load_dotenv
@@ -34,6 +35,7 @@ def test_update_escola(app, new_escolas, update_escola):
             content_type='application/json'
         )
 
+        # trunk-ignore(bandit/B101)
         assert insertrescola.status_code == 200
 
         response_dict = json.loads(insertrescola.get_data())
@@ -45,6 +47,7 @@ def test_update_escola(app, new_escolas, update_escola):
             content_type='application/json'
         )
 
+        # trunk-ignore(bandit/B101)
         assert response.status_code == 200
 
 
@@ -139,7 +142,8 @@ def test_update_hidrometro(app, new_hidrometro, new_edificios):
 
         json_data = json.dumps(new_hidrometro)
         response = app.test_client().post(
-            f"/api/v1/cadastros/hidrometros",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/hidrometros",  
             data=json_data,
             content_type='application/json'
         )
@@ -179,7 +183,8 @@ def test_update_populacao(app, new_edificios, new_populacao):
 
         json_data = json.dumps(new_populacao)
         response = app.test_client().post(
-            f"/api/v1/cadastros/populacao",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/populacao",  
             data=json_data,
             content_type='application/json'
         )
@@ -219,7 +224,8 @@ def test_update_area_umida(app, new_edificios, new_area_umida):
 
         json_data = json.dumps(new_area_umida)
         response = app.test_client().post(
-            f"/api/v1/cadastros/area-umida",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/area-umida",  
             data=json_data,
             content_type='application/json'
         )
@@ -258,7 +264,8 @@ def test_update_equipamentos(app, new_area_umida, new_equipamentos):
 
         json_data = json.dumps(new_equipamentos)
         response = app.test_client().post(
-            f"/api/v1/cadastros/equipamentos",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/equipamentos",  
             data=json_data,
             content_type='application/json'
         )

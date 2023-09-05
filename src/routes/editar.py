@@ -1,6 +1,6 @@
-from flask import Blueprint, jsonify, request, json
+from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Historico,
+from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
                        Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, TipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
@@ -663,8 +663,8 @@ def tipo_evento_editar(id):
         tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
         tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
         # Insere os dados da linha excluída na tabela de histórico
-        historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
-        db.session.add(historico)
+        # historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
+        # db.session.add(historico)
 
         tipo_evento.update(
             fk_cliente=fk_cliente,
@@ -739,9 +739,9 @@ def evento_editar(id):
         # Insere os dados da linha alterada na tabela de histórico
         #historico = Historico(tabela='Eventos', dados=evento.to_json())
         #observacao: ao salvar na tabela hist. os caracteres não estão sendo salvos corretamentes por conta dessa função abaixo, o ideal seria usar o de cima, porém dá erro.
-        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
+        # historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
 
-        db.session.add(historico)
+        # db.session.add(historico)
 
         evento.update(
             fk_tipo=fk_tipo,
