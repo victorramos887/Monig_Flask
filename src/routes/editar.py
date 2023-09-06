@@ -213,10 +213,6 @@ def reservatorio_editar(id):
         return jsonify({'mensagem': 'reservatorio não encontrado', "status": False}), 404
 
     try:
-        reservatorio_json = reservatorio.to_json()
-        reservatorio_json['data_criacao'] = reservatorio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_reservatorio = Historico(tabela="Reservatorio", dados=reservatorio_json)
-        db.session.add(historico_reservatorio)
     
         reservatorio.update(
             nome_do_reservatorio=body['nome']
@@ -261,27 +257,25 @@ def reservatorio_editar(id):
 # EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
 def edificios_editar(id):
+    
     edificio = Edificios.query.filter_by(id=id).first()
-    print(edificio)
+  
     body = request.get_json()
 
-    reservatorios = body.pop('reservatorio')
+    reservatorios = body.pop('reservatorio') #remove reservatorio de body
 
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado', "status": False}), 404
 
+
     try:
 
-        # edificio_json = edificio.to_json()
-        # edificio_json['data_criacao'] = edificio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        # historico_edificio = Historico(tabela="Edificio", dados=edificio_json)
-        # db.session.add(historico_edificio)
-    
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
-
-        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios if reservatorio is not None]
+        
+        #verificar essa linha 
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorios).first().id for reservatorio in reservatorios if reservatorio is not None]
+          
         edificio.update(**body)
-
 
         reservatorioatual = [n.reservatorio_id for n in EdificioRes]
         
@@ -289,6 +283,7 @@ def edificios_editar(id):
         reservatorio_remover = set(reservatorioatual) - set(reservatorios)
         for reservatorio in reservatorio_adicionado:
             reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
+            print(reservatorios_edificios)
 
             if reservatorios_edificios:
 
@@ -296,7 +291,6 @@ def edificios_editar(id):
                     edificio_id=id,
                     reservatorio_id=reservatorios_edificios.id
                 )
-                print(reservatorio)
                 db.session.add(edificios_reservatorio)
 
         for reservatorio in reservatorio_remover:
@@ -311,10 +305,10 @@ def edificios_editar(id):
                 if edificios_reservatorio:
                     db.session.delete(edificios_reservatorio)
   
-
         db.session.commit()
 
         return jsonify({"edificio": edificio.to_json(), "status": True}), HTTP_200_OK
+
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
@@ -354,7 +348,6 @@ def edificio_principal(id):
 
     edificio = Edificios.query.filter_by(id=id).first()
 
-
     if not edificio:
         return jsonify({
             'mensagem':'Edificio não encontrado', 'status':False
@@ -390,11 +383,7 @@ def hidrometro_editar(id):
         return jsonify({'mensagem': 'Hidrometro não encontrado', "status": False}), 404
     
     try:
-        hidrometro_json = hidrometro.to_json()
-        hidrometro_json['data_criacao'] = hidrometro_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_hidrometro = Historico(tabela="hidrometro", dados=hidrometro_json)
-        db.session.add(historico_hidrometro)
-    
+       
         hidrometro.update(**body)
 
         db.session.commit()
@@ -439,11 +428,7 @@ def populacao_editar(id):
         return jsonify({'mensagem': 'Populacao não encontrado', "status": False}), 404
 
     try:
-        populacao_json = populacao.to_json()
-        populacao_json['data_criacao'] = populacao_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_populacao = Historico(tabela="populacao", dados=populacao_json)
-        db.session.add(historico_populacao)
-    
+        
         print(body)
         alunos = body['alunos']
         fk_edificios = body['fk_edificios']
@@ -509,11 +494,7 @@ def area_umida_editar(id):
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
 
     try:
-        umida_json =umida.to_json()
-        umida_json['data_criacao'] =umida_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_umida = Historico(tabela="Area-umida", dados=umida_json)
-        db.session.add(historico_umida)
-    
+       
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
@@ -587,11 +568,6 @@ def equipamento_editar(id):
         return jsonify({'mensagem': 'Equipamento não encontrado', "status": False}), 404
     try:
 
-        equipamento_json = equipamento.to_json()
-        equipamento_json['data_criacao'] = equipamento_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_equipamento = Historico(tabela="equipamento", dados=equipamento_json)
-        db.session.add(historico_equipamento)
-    
         fk_area_umida = body['fk_area_umida']
         tipo_equipamento = AuxTiposEquipamentos.query.filter_by(
             aparelho_sanitario=body['tipo_equipamento']).first()
@@ -677,14 +653,6 @@ def tipo_evento_editar(id):
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
 
     try:
-
-        tipo_json = tipo_evento.to_json()
-        tipo_json['data_criacao'] = tipo_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
-        #tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
-
-        historico_tipo_evento = Historico(tabela="tipo_evento", dados=tipo_json)
-        db.session.add(historico_tipo_evento)
         
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
@@ -756,12 +724,7 @@ def evento_editar(id):
         return jsonify({'mensagem':'evento não encontrado', "status": False}), 404
 
     try:
-        evento_json = evento.to_json()
-        evento_json['data_criacao'] = evento_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        evento_json['created_at'] = evento_json['created_at'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_evento = Historico(tabela="Evento", dados=evento_json)
-        db.session.add(historico_evento)
-
+       
         fk_tipo = formulario['fk_tipo']
         nome = formulario['nome']
         datainicio = formulario['datainicio']

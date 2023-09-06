@@ -502,6 +502,17 @@ def area_umida():
         else:
             status_area_umida = False
 
+        tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+
+        # status_area_umida = StatusAreaUmida.query.filter_by(id=status_area_umida).first()
+
+        #status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
+        
+        # if status_area_umida == "Aberto":
+        #     status_area_umida = True
+        # else:
+        #     status_area_umida = False
+
         operacao = AuxOperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
         
         umida = AreaUmida(

@@ -1,7 +1,7 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Historico
-from sqlalchemy import exc, text, select
+from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros
+from sqlalchemy import exc, text
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
@@ -85,21 +85,48 @@ def escolas_remover(id):
 #edificios
 @remover.put('/edificios/<id>')
 def edificios_remover(id):
-    edificio = Edificios.query.filter_by(id=id).first()
-  
-    if not edificio:
-        return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
-
-    db.session.delete(edificio)
-
-    edificio.status_do_registro = False
-
-       # Insere os dados da linha excluída na tabela de histórico
-    # historico = Historico(tabela='Edificios', dados=json.dumps(edificio.to_json()))
-    # db.session.add(historico)
-
     
-    db.session.commit()
+    try: 
+
+        edificio = Edificios.query.filter_by(id=id).first()
+        if not edificio:
+            return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
+       
+        area_umidas =  AreaUmida.query.filter_by(fk_edificios=id).all()
+        if area_umidas:
+            for area_umida in area_umidas:
+            
+                equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id)
+                if equipamentos:
+                    for equipamento in equipamentos:
+                        # equipamento.status_do_registro = False
+                        db.session.delete(equipamento)
+
+            area_umida.status_do_registro = False
+            db.session.delete(area_umida)
+    
+
+        hidrometros = Hidrometros.query.filter_by(fk_edificios=edificio.id)
+        if hidrometros:
+            for hidrometro in hidrometros:
+                # hidrometro.status_do_registro = False
+                db.session.delete(hidrometro)
+        
+        populacao  = Populacao.query.filter_by(fk_edificios=edificio.id)
+        if populacao:
+            for populacao_ in populacao :
+                # populacao_.status_do_registro = False
+                db.session.delete(populacao_)
+
+        db.session.delete(edificio)
+        db.session.commit()
+        return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status":False, 'mensagem':"Erro não tratado", "codigo":str(e)
+        }), 400
 
     return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK
 
@@ -113,7 +140,7 @@ def hidrometro_remover(id):
     if not hidrometro:
         return jsonify({'status':False,'mensagem': 'hidrometro não encontrado'}), 404
     
-    hidrometro.status_do_registro = False
+    db.session.delete(hidrometro)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'hidrometo removido'}), HTTP_200_OK 
@@ -127,7 +154,7 @@ def populacao_remover(id):
     if not populacao:
         return jsonify({'status':False,'mensagem': 'População não encontrado'}), 404
     
-    populacao.status_do_registro = False
+    db.session.delete(populacao)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'População removida'}), HTTP_200_OK 
@@ -145,9 +172,9 @@ def area_umida_remover(id):
             equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id)
             if equipamentos:
                 for equipamento in equipamentos:
-                    equipamento.status_do_registro = False
+                    db.session.delete(equipamento)
 
-    area_umida.status_do_registro = False
+    db.session.delete(area_umida)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Área Úmida removida'}), HTTP_200_OK 
@@ -162,7 +189,7 @@ def equipamentos_remover(id):
     if not equipamento:
         return jsonify({'status':False,'mensagem': 'Equipamento não encontrado'}), 404
     
-    equipamento.status_do_registro = False
+    db.session.delete(equipamento)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Equipamento removido'}), HTTP_200_OK 
@@ -177,7 +204,7 @@ def reservatorio_remover(id):
     if not reservatorio:
         return jsonify({'status':False,'mensagem': 'Reservatório não encontrado'}), 404
     
-    reservatorio.status_do_registro = False
+    db.session.delete(reservatorio)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Reservatório removido'}), HTTP_200_OK 
@@ -190,7 +217,7 @@ def tipo_evento_remover(id):
     if not tipo_evento:
         return jsonify({'status':False,'mensagem': 'Tipo de Evento não encontrado'}), 404
     
-    tipo_evento.status_do_registro = False
+    db.session.delete(tipo_evento)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Tipo de Evento removido'}), HTTP_200_OK 
@@ -204,7 +231,7 @@ def evento_remover(id):
     if not evento:
         return jsonify({'status':False,'mensagem': 'Evento não encontrado'}), 404
     
-    evento.status_do_registro = False
+    db.session.delete(evento)
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Evento removido'}), HTTP_200_OK 

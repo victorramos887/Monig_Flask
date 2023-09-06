@@ -2,18 +2,18 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, Historico
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
 
-# Verificar Historico de Deleção
-@send_frontend.get('/historico')
-def historico():
+# # Verificar Historico de Deleção
+# @send_frontend.get('/historico')
+# def historico():
 
-    historico = Historico.query.all()
-    return jsonify([json.dumps(h.to_json()) for h in historico])
+#     historico = Historico.query.all()
+#     return jsonify([json.dumps(h.to_json()) for h in historico])
    
 
 
