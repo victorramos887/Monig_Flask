@@ -4,7 +4,7 @@ import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
-from ..models import Eventos, TipoDeEventos, db
+from ..models import Eventos, AuxTipoDeEventos, db
 from sqlalchemy.exc import ArgumentError
 
 eventos = Blueprint('eventos', __name__, url_prefix = '/api/v1/cadastro-evento')
@@ -50,7 +50,7 @@ def tipoevento():
         unidade = formulario.get('unidade') if formulario.get('unidade') else None
         acao = formulario.get('ehResposta') if formulario.get('ehResposta') is not None else False
 
-        tipo_evento = TipoDeEventos(
+        tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
             recorrente=periodicidade,

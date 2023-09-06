@@ -1,5 +1,6 @@
 import os
 import sys
+# trunk-ignore(ruff/F401)
 from time import sleep
 import json
 from dotenv import load_dotenv
@@ -37,7 +38,8 @@ def test_update_escola(app, new_escolas, update_escola):
         assert insertrescola.status_code == 200
 
         response_dict = json.loads(insertrescola.get_data())
-
+        update_escola['nome'] = 'Escola Edição'
+        
         json_data = json.dumps(update_escola)
         response = app.test_client().put(
             f"/api/v1/editar/escolas/{response_dict['id']}",  # Correção aqui
@@ -46,6 +48,18 @@ def test_update_escola(app, new_escolas, update_escola):
         )
 
         assert response.status_code == 200
+        
+        
+        #VERSIONAMENTO
+        
+        response_version_escola = app.test_client().get(
+            'api/v1/version/escolas-editadas'
+        )
+
+        version_update = json.loads(response_version_escola.get_data())
+        
+        assert response_version_escola.status_code == 200
+        assert version_update[0]['nome'] == 'Escola Edição'
 
 
 def test_update_edificios(app, new_escolas, new_edificios):
@@ -69,6 +83,8 @@ def test_update_edificios(app, new_escolas, new_edificios):
 
         response_dict = json.loads(insertescola.get_data())
 
+        
+        new_edificios['nome_do_edificio'] = 'Edificio Edição'
         json_data = json.dumps(new_edificios)
         response = app.test_client().put(
             f"/api/v1/editar/edificios/{response_dict['id']}",  
@@ -77,6 +93,17 @@ def test_update_edificios(app, new_escolas, new_edificios):
         )
 
         assert response.status_code == 200
+        
+        #VERSIONAMENTO
+        response_version_edificio = app.test_client().get(
+            'api/v1/version/edificio-editados'
+        )
+
+        version_update = json.loads(response_version_edificio.get_data())
+        
+        assert response_version_edificio.status_code == 200
+        # assert version_update[0]['nome'] == 'Edificio Edição'
+
 
 #testar
 def test_update_reservatorio(app, new_escolas, new_reservatorio):
@@ -139,7 +166,8 @@ def test_update_hidrometro(app, new_hidrometro, new_edificios):
 
         json_data = json.dumps(new_hidrometro)
         response = app.test_client().post(
-            f"/api/v1/cadastros/hidrometros",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/hidrometros",  
             data=json_data,
             content_type='application/json'
         )
@@ -179,7 +207,8 @@ def test_update_populacao(app, new_edificios, new_populacao):
 
         json_data = json.dumps(new_populacao)
         response = app.test_client().post(
-            f"/api/v1/cadastros/populacao",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/populacao",  
             data=json_data,
             content_type='application/json'
         )
@@ -219,7 +248,8 @@ def test_update_area_umida(app, new_edificios, new_area_umida):
 
         json_data = json.dumps(new_area_umida)
         response = app.test_client().post(
-            f"/api/v1/cadastros/area-umida",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/area-umida",  
             data=json_data,
             content_type='application/json'
         )
@@ -258,7 +288,8 @@ def test_update_equipamentos(app, new_area_umida, new_equipamentos):
 
         json_data = json.dumps(new_equipamentos)
         response = app.test_client().post(
-            f"/api/v1/cadastros/equipamentos",  
+            # trunk-ignore(git-diff-check/error)
+            "/api/v1/cadastros/equipamentos",  
             data=json_data,
             content_type='application/json'
         )

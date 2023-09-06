@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request
-from src.models.models import TiposEquipamentos
-from ..models import ( db, Customizados, Escolas, EscolaNiveis, OpNiveis, TipoAreaUmida, 
-TiposEquipamentos, PopulacaoPeriodo, AreaUmida, TipoDeAreaUmidaTipoDeEquipamento, OperacaoAreaUmida )
+from ..models import ( db, Customizados, Escolas, EscolaNiveis, AuxOpNiveis, AuxTipoAreaUmida, 
+AuxTiposEquipamentos, AuxPopulacaoPeriodo, AreaUmida, AuxTipoDeAreaUmidaTipoDeEquipamento, AuxOperacaoAreaUmida )
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -11,7 +10,7 @@ options = Blueprint('options', __name__, url_prefix='/api/v1/options')
 @options.get('/niveis')
 def niveis():
 
-    opcoes_pers = OpNiveis.query.all()
+    opcoes_pers = AuxOpNiveis.query.all()
     opcoes_pre_definidos = [op.nivel for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     opcoes_pers_str = [
@@ -22,7 +21,7 @@ def niveis():
 # AreaUmida
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
-    opcoes_pers = TipoAreaUmida.query.all()
+    opcoes_pers = AuxTipoAreaUmida.query.all()
     opcoes_pre_definidos = [op.tipo for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + \
@@ -34,7 +33,7 @@ def tipo_area_umida():
 @options.get('operacao_area_umida')
 def operacao_area_umida():
 
-    opcoes_pers = OperacaoAreaUmida.query.all()
+    opcoes_pers = AuxOperacaoAreaUmida.query.all()
     opcoes_pre_definidos = [op.operacao for op in opcoes_pers]
     return jsonify(opcoes_pre_definidos)
 
@@ -49,7 +48,7 @@ def tipo_equipamento(area_umida):
     else:
         return jsonify([])
 
-    opcoes_pers = TipoDeAreaUmidaTipoDeEquipamento.query.filter_by(tipo_area_umida_id=tipoareaumida_id).all()
+    opcoes_pers = AuxTipoDeAreaUmidaTipoDeEquipamento.query.filter_by(tipo_area_umida_id=tipoareaumida_id).all()
     opcoes_pre_definidos = [op.to_json()['tipo'] for op in opcoes_pers]
     print(opcoes_pre_definidos)
     return jsonify({
@@ -60,7 +59,7 @@ def tipo_equipamento(area_umida):
 @options.get('/periodo')
 def periodo():
 
-    opcoes_pers = PopulacaoPeriodo.query.all()
+    opcoes_pers = AuxPopulacaoPeriodo.query.all()
     opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + \
@@ -76,8 +75,8 @@ def nivel_populacao(id):
     if not escola:
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
-    result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
-        .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+    result = db.session.query(EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
+        .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
         .filter(EscolaNiveis.escola_id == escola.id) \
         .all()
 

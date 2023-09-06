@@ -52,13 +52,6 @@ def create_app(test_config=None):
         db.create_all()
         add_opniveis()
         continuum.init_app(app)
-        # Exemplo de uso
-
-        # if test_config is None:
-        #     criar_gatilho_pg("edificioprincipal", "main.edificios", "principal", "fk_escola")
-        # else:
-        #     criar_gatilho_sqlite()
-
 
     #migrate = Migrate(app, db)
 
