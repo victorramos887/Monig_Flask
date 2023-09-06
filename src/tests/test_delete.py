@@ -404,3 +404,269 @@ def test_deleta_edificio(app, new_escolas, new_edificios, new_area_umida, new_eq
             assert response_hidrometro_version.status_code == 200
         # -----------------------------------------------------------
     #------------------------------------------------------------
+    
+
+def test_deletar_hidrometro(app, new_escolas, new_hidrometro):
+    
+    with app.app_context():
+        
+        
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+        
+        
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+        
+        
+        json_hidrometro = json.dumps(new_hidrometro)
+        
+        response_hidrometro = app.test_client().post(
+            'api/v1/cadastros/hidrometros',
+            data=json_hidrometro,
+            content_type='application/json'
+        )
+        
+        assert response_hidrometro.status_code == 200
+        
+        
+        #DELETAR HIDROMETRO
+        
+        response_deletar_hidrometro = app.test_client().put(
+            'api/v1/remover/hidrometros/1'
+        )
+        
+        assert response_deletar_hidrometro.status_code == 200
+        
+
+
+def test_deletar_populacao(app, new_escolas, new_populacao):
+    
+    with app.app_context():
+        
+        
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+        
+        
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+        
+        
+        json_populacao = json.dumps(new_populacao)
+        
+        response_populacao = app.test_client().post(
+            'api/v1/cadastros/populacao',
+            data=json_populacao,
+            content_type='application/json'
+        )
+        
+        assert response_populacao.status_code == 200
+        
+        
+        #DELETAR HIDROMETRO
+        
+        response_deletar_populacao = app.test_client().put(
+            'api/v1/remover/populacao/1'
+        )
+        
+        assert response_deletar_populacao.status_code == 200
+        
+def test_deletar_area_umida(app, new_escolas, new_area_umida, new_equipamentos):
+    
+    with app.app_context():
+        
+        
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+        
+        
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+        
+        
+        json_area_umida = json.dumps(new_area_umida)
+        
+        response_area_umida = app.test_client().post(
+            'api/v1/cadastros/area-umida',
+            data=json_area_umida,
+            content_type='application/json'
+        )
+
+        assert response_area_umida.status_code == 200
+        
+        for i in range(0, 5):
+            
+            json_equipamento = json.dumps(new_equipamentos)
+            
+            response_equipamento_insert = app.test_client().post(
+                'api/v1/cadastros/equipamentos',
+                data=json_equipamento,
+                content_type='application/json'
+            )
+            
+            assert response_equipamento_insert.status_code == 200
+        
+        #DELETAR AREA UMIDA
+        
+        response_deletar_populacao = app.test_client().put(
+            'api/v1/remover/area-umida/1'
+        )
+        
+        assert response_deletar_populacao.status_code == 200
+        
+        #VERSÃO
+        
+        response_area_umida_version = app.test_client().get(
+            f"api/v1/version/area-umida-deletada/1"
+        )
+        
+        assert response_area_umida_version.status_code == 200
+        
+        for i in range(0, 5):
+            response_equipamentos_version = app.test_client().get(
+                f"api/v1/version/equipamento-deletado/{i+1}"
+            )
+        
+            assert response_equipamentos_version.status_code == 200
+
+
+
+def test_deletar_equipamentos(app, new_escolas, new_area_umida, new_equipamentos):
+    
+    with app.app_context():
+        
+        
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+        
+        
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+        
+        
+        json_area_umida = json.dumps(new_area_umida)
+        
+        response_area_umida = app.test_client().post(
+            'api/v1/cadastros/area-umida',
+            data=json_area_umida,
+            content_type='application/json'
+        )
+
+        assert response_area_umida.status_code == 200
+        
+            
+        json_equipamento = json.dumps(new_equipamentos)
+        
+        response_equipamento_insert = app.test_client().post(
+            'api/v1/cadastros/equipamentos',
+            data=json_equipamento,
+            content_type='application/json'
+        )
+        
+        assert response_equipamento_insert.status_code == 200
+        
+        #DELETAR EQUIPAMENTO
+        
+        response_deletar_equipamento = app.test_client().put(
+            'api/v1/remover/equipamentos/1'
+        )
+        
+        assert response_deletar_equipamento.status_code == 200
+        
+        #VERSÃO
+        
+        response_equipamentos_version = app.test_client().get(
+            f"api/v1/version/equipamento-deletado/1"
+        )
+    
+        assert response_equipamentos_version.status_code == 200
+    
+
+
+def test_deletar_reservatorio(app, new_escolas, new_reservatorio):
+    
+    with app.app_context():
+        
+        
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+        
+        json_reservatorio = json.dumps(new_reservatorio)
+        
+        response_reservatorio_insert = app.test_client().post(
+            'api/v1/cadastros/reservatorios',
+            data=json_reservatorio,
+            content_type='application/json'
+        )
+        
+        assert response_reservatorio_insert.status_code == 200
+        
+        #DELETAR RESERVATÓRIO
+        
+        response_deletar_reservaotorio = app.test_client().put(
+            'api/v1/remover/reservatorios/1'
+        )
+        
+        assert response_deletar_reservaotorio.status_code == 200

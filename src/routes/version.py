@@ -53,7 +53,30 @@ def escolas_removidas():
     
     return jsonify(json)
 
-
+@version.get('/escolas-editadas')
+def escola_editadas():
+    
+    EscolaVersion = version_class(Escolas)
+    queryEscolaVersionEditada = EscolaVersion.query.filter_by(operation_type=1).all()
+    
+    json = []
+    
+    for query in queryEscolaVersionEditada:
+        
+        json.append({
+            "nome": query.nome,
+            "cnpj":query.cnpj,
+            "email":query.email,
+            "telefone":query.telefone,
+            "create_at":query.created_at,
+            "updated_at":query.updated_at,
+            "id_version":query.transaction_id,
+            "Current":True if query.end_transaction_id is None else False,
+            "Operacao": "Update"
+        })
+        
+    return jsonify(json)
+    
 @version.get('/escola-deletada/<int:id>')
 def escola_removida(id):
     
@@ -79,7 +102,7 @@ def escola_removida(id):
     return jsonify({
         "mensagem":"Escola não encontrada!"
     }), 400
-    
+
 @version.get('/edificio-deletado/<int:id>')
 def edificio_version_removido(id):
     
@@ -110,6 +133,42 @@ def edificio_version_removido(id):
     return jsonify({
         "mensagem":"Edificio não encontrado!"
     }), 400
+
+@version.get('/edificio-editados')
+def edificio_version_editado():
+    
+    EdificioVersion = version_class(Edificios)
+    queryEdificiosVersionEditado = EdificioVersion.query.filter_by(operation_type=1).all()
+    
+    json = []
+    if queryEdificiosVersionEditado:
+        for query in queryEdificiosVersionEditado: 
+            print(query)   
+            json.append({
+                "fk_escola":query.fk_escola,
+                "nome":query.nome_do_edificio,
+                "numero":query.numero_edificio,
+                "cep_edificio":query.cep_edificio,
+                "bairro":query.bairro_edificio,
+                "cidade":query.cidade_edificio,
+                "estado":query.estado_edificio,
+                "cnpj":query.cnpj_edificio,
+                "logradouro":query.logradouro_edificio,
+                "complemento":query.complemento_edificio,
+                "pavimentos":query.pavimentos_edificio,
+                "area_total":query.area_total_edificio,
+                "capacidade_reuso":query.capacidade_reuso_m3_edificio,
+                "agua_de_reuso":query.agua_de_reuso
+            })
+            
+            return jsonify(json), 200
+        
+        
+    
+    return jsonify({
+        "mensagem":"Edificio não encontrado!"
+    }), 400
+
     
 @version.get('/area-umida-deletada/<int:id>')
 def area_umida_version_removida(id):
