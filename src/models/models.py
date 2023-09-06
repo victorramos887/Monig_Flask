@@ -214,7 +214,7 @@ class Edificios(db.Model, VersioningMixin):
         return jsonRetorn
 
 
-class Populacao(db.Model):
+class Populacao(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao'
 
@@ -259,7 +259,7 @@ class Populacao(db.Model):
         return jsonRetorno
 
 
-class Hidrometros(db.Model):
+class Hidrometros(db.Model, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'hidrometros'
 
@@ -287,7 +287,7 @@ class Hidrometros(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AreaUmida(db.Model):
+class AreaUmida(db.Model, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'area_umida'
@@ -343,7 +343,7 @@ class AreaUmida(db.Model):
         return jsonRetorno
 
 
-class Equipamentos(db.Model):
+class Equipamentos(db.Model, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'equipamentos'

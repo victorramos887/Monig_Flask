@@ -61,8 +61,8 @@ def escolas_remover(id):
                         # populacao_.status_do_registro = False
                         db.session.delete(populacao_)
 
-        edificio.status_do_registro = False
-        db.session.delete(edificio)
+                edificio.status_do_registro = False
+                db.session.delete(edificio)
 
         reservatorios = Reservatorios.query.filter_by(fk_escola=id).all()
         if reservatorios:
@@ -90,16 +90,18 @@ def edificios_remover(id):
     if not edificio:
         return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
 
+    db.session.delete(edificio)
+
     edificio.status_do_registro = False
 
        # Insere os dados da linha excluída na tabela de histórico
-    historico = Historico(tabela='Edificios', dados=json.dumps(edificio.to_json()))
-    db.session.add(historico)
+    # historico = Historico(tabela='Edificios', dados=json.dumps(edificio.to_json()))
+    # db.session.add(historico)
 
     
     db.session.commit()
 
-    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
+    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK
 
 
 #hidrometro

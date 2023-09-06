@@ -272,10 +272,10 @@ def edificios_editar(id):
 
     try:
 
-        edificio_json = edificio.to_json()
-        edificio_json['data_criacao'] = edificio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_edificio = Historico(tabela="Edificio", dados=edificio_json)
-        db.session.add(historico_edificio)
+        # edificio_json = edificio.to_json()
+        # edificio_json['data_criacao'] = edificio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
+        # historico_edificio = Historico(tabela="Edificio", dados=edificio_json)
+        # db.session.add(historico_edificio)
     
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
 
@@ -361,11 +361,6 @@ def edificio_principal(id):
         }), 404
 
     try:
-        edificio_json = edificio.to_json()
-        edificio_json['data_criacao'] = edificio_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
-        historico_edificio = Historico(tabela="Edificio", dados=edificio_json)
-        db.session.add(historico_edificio)
-
         edificio.update_principal()
         db.session.commit()
 
