@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from ..models import AuxTiposEquipamentos, db
+from ..models import TiposEquipamentos, db
 
 
 cadopcoes = Blueprint("cadopcoes", __name__,
@@ -10,7 +10,7 @@ def tiposCadastro():
 
     # PEGAR INFORMACOES DO JSON
     sends = request.get_json()
-    tipos = [AuxTiposEquipamentos(**send) for send in sends]
+    tipos = [TiposEquipamentos(**send) for send in sends]
     db.session.add_all(tipos)
     db.session.commit()
     return jsonify({

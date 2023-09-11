@@ -1,6 +1,6 @@
 
 from flask import Blueprint, jsonify, request
-from ..models import db, Customizados
+from ..models import db,Customizados
 
 
 customizados= Blueprint('customizados', __name__, url_prefix = '/api/v1/cadastrar/option')

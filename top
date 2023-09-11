@@ -1,0 +1,261 @@
+[33mcommit 3c4db5fae4b933782ff498c02a6db5432701132b[m[33m ([m[1;36mHEAD -> [m[1;32majustes[m[33m, [m[1;31morigin/ajustes[m[33m)[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Sep 6 15:58:07 2023 -0300
+
+    alteracoes nas rotas de remover e editar
+
+[33mcommit 5910a7e662b930959bb35e36af0a5cf64576556a[m
+Merge: 497f4fc 4840b58
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Sep 5 17:53:03 2023 -0300
+
+    Merge branch 'main' into ajustes
+
+[33mcommit 497f4fc93a857b41969d1de691b2686e6449f553[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Sep 5 17:51:56 2023 -0300
+
+    alterações nas rotas remover e editar
+
+[33mcommit 4840b5864bd644e95c46ea487fbb8c2e94ad6634[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Sep 5 11:18:36 2023 -0300
+
+    iniciando testes
+
+[33mcommit 2a160fb8e652f492ae54b102c5c4d680a6923793[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Sep 5 10:36:52 2023 -0300
+
+    update: atulização nomenclaturas
+
+[33mcommit 48208282eef8a792903a92d0b29fa1a735fd67de[m
+Merge: 3005441 eaf2935
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Sep 5 09:23:27 2023 -0300
+
+    merge: ajustes
+
+[33mcommit 3005441ccb1ea3a9626a90fc4a8badb20435f743[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Sep 5 09:21:31 2023 -0300
+
+    update: versionamento de edificios
+
+[33mcommit 0c33f98af66618ae5a384e63325c43ad6d2fe707[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Sep 5 09:18:04 2023 -0300
+
+    update: alteracoes na edição de escola
+
+[33mcommit eaf29357fb06334531b8351ecbd591fbec061123[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Sep 4 18:00:14 2023 -0300
+
+    atualização rota remover - escolas
+
+[33mcommit c609552822086fb1d2df113a1b92e37f8406b95b[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Sep 4 15:14:39 2023 -0300
+
+    merge
+
+[33mcommit 1d58f7ec42b21d74dd11c737288b6c4324b7b36b[m
+Merge: 0cce187 5fc10a4
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Sep 4 15:12:27 2023 -0300
+
+    Merge branch 'ajustes' of https://github.com/victorramos887/Monig_Flask into ajustes
+
+[33mcommit 0cce1876f199cb8e2d7762cb0bb9b01d8fa972a7[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Sep 4 15:10:18 2023 -0300
+
+    atualizacao merge
+
+[33mcommit 5fc10a40acffb4cb3b60363d52b281a003be805c[m
+Merge: a6a29aa 90518fe
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Mon Sep 4 15:06:55 2023 -0300
+
+    merge: rota main
+
+[33mcommit 90518fe8ea8b8274f7c0ba2eacbb02caa230ceb3[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Mon Sep 4 15:05:59 2023 -0300
+
+    configuração
+
+[33mcommit 1395b93c6713520e450b3d2779d00e3f24ca717b[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Sep 1 16:28:33 2023 -0300
+
+    versão 1
+
+[33mcommit c8f716f66b6e5a8c92f5c58b1b1be7868f62ffdc[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Sep 1 11:49:14 2023 -0300
+
+    alteracoes em cadastro de evento
+
+[33mcommit a6a29aa65d9a137139001d246e6e617a417c2b25[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Aug 31 12:01:42 2023 -0300
+
+    alteracoes na rota - remover
+
+[33mcommit 7ed0622b8a12e09c3bdf1ea3ba6a642012bd725a[m
+Merge: 435289b 69455fd
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Aug 31 11:05:20 2023 -0300
+
+    Merge branch 'main' into ajustes
+
+[33mcommit 435289b7c4a4b05344359eca288ac1ff63a07b7a[m
+Merge: bcc2379 df6f5f5
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Aug 30 17:56:05 2023 -0300
+
+    atualizacao
+
+[33mcommit bcc2379b10540751ebf9aee96d5b42974b6374c5[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Aug 30 17:51:17 2023 -0300
+
+    alteracao rota remover - escola
+
+[33mcommit 69455fd4b2a93acd8fe456b7ceb5118dc2426e84[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 13:39:34 2023 -0300
+
+    update:
+
+[33mcommit bbc07862f4528adbf1ef5f7067c0f979e5ff49b3[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 13:34:02 2023 -0300
+
+    update: alteracao no recebimento
+
+[33mcommit bf16e34128298a01e9a9181b06ca950283f3dd02[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 13:28:56 2023 -0300
+
+    update: strtime
+
+[33mcommit df6f5f54972c3c74540a8d18b60da2cde7b88e92[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 11:50:17 2023 -0300
+
+    descartar
+
+[33mcommit 16e7cb234b62b0d7ced5150b3084da5a21d338f0[m
+Merge: e19362a 4b6552c
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 10:16:05 2023 -0300
+
+    merge: main
+
+[33mcommit 4b6552ca85faa7f6ad5c21d9dad4420f1a5ef84a[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Aug 30 10:13:44 2023 -0300
+
+    update: rota de remoção escola
+
+[33mcommit 441855fbbf57480b868362ef597bcd948604f61f[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 16:15:34 2023 -0300
+
+    analisando recorrente
+
+[33mcommit 984af477639512b05c9fa5a6a7529c58fbee3a35[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 15:48:51 2023 -0300
+
+    ocasional
+
+[33mcommit 85a47dabef46733704ac9fefe590db9654b09bc9[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 15:47:07 2023 -0300
+
+    alteracoes
+
+[33mcommit bb356fd61e0a7c7be376eef4bc3b365f9500f9b2[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 15:42:57 2023 -0300
+
+    data recorrente
+
+[33mcommit 18695887c2b6e835ff5f7d679dbbb3e407dfcde4[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 15:20:29 2023 -0300
+
+    av
+
+[33mcommit 2cd61aca0fb51060cf5b424568fee4d35c154e15[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 14:57:46 2023 -0300
+
+    alteraco ocasional tipo de evento
+
+[33mcommit 889b69bd9c7e88927806ce3011b3039cfa707a05[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 14:53:44 2023 -0300
+
+    ocazionaal
+
+[33mcommit a97897affe9e0c143642808f424c3a7f4dd6c683[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 14:43:35 2023 -0300
+
+    aleracoes no banco
+
+[33mcommit cc80b4ea1b3472986534496530d8c7a0bd47e3db[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 14:10:04 2023 -0300
+
+    alteracoes mes e periodicidade
+
+[33mcommit 87b7d01f280f28a5c894c9d0d56d209c32e69f69[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 13:53:29 2023 -0300
+
+    analise
+
+[33mcommit 917f0adae30080120f2bdcc14ed1a7d2c60c6de4[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 13:47:02 2023 -0300
+
+    enviar alteracos json
+
+[33mcommit 8953eecccc248e7bca26379791b3841422f6b868[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 13:37:39 2023 -0300
+
+    alteracoes em tipo de eventos
+
+[33mcommit ec3e9f220f2852e501e9930329dcfeabff9663ed[m
+Merge: b887918 7913830
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Aug 29 13:13:38 2023 -0300
+
+    aleracoes merge
+
+[33mcommit e19362a98b054aac83e538696bece1b23726aa15[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Aug 28 14:16:18 2023 -0300
+
+    atualizacao tipo de evento e rotas
+
+[33mcommit 6acf2a687dbb8829f67489919665488034aee94c[m
+Merge: 7913830 b887918
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Aug 25 14:52:07 2023 -0300
+
+    Merge branch 'main' into ajustes
+
+[33mcommit 791383065749767853932002bcd5439431989a37[m
+Merge: f2836a2 90fca28
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Aug 25 14:46:55 2023 -0300
+
+    Merge branch 'ajustes' of https://github.com/victorramos887/Monig_Flask into aj
