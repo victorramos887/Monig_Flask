@@ -33,7 +33,7 @@ RUN pip install -r requirements.txt
 
 # copy project
 COPY entrypoint.sh /usr/src/
-RUN chmod u+x /usr/src/entrypoint.sh
+RUN chmod u+x /usr/entrypoint.sh
 
 COPY . /usr/src/
 
