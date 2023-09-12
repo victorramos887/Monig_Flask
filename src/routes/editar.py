@@ -662,6 +662,7 @@ def tipo_evento_editar(id):
 
         tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
         tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
+        
         # Insere os dados da linha excluída na tabela de histórico
         historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
         db.session.add(historico)
@@ -734,13 +735,14 @@ def evento_editar(id):
         local = formulario['local']
         tipo_de_local = formulario['tipo_de_local']
         observacao = formulario["observacao"]
-       
-      
-        # Insere os dados da linha alterada na tabela de histórico
-        #historico = Historico(tabela='Eventos', dados=evento.to_json())
-        #observacao: ao salvar na tabela hist. os caracteres não estão sendo salvos corretamentes por conta dessa função abaixo, o ideal seria usar o de cima, porém dá erro.
-        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
+        
+        evento_json = evento.to_json()
 
+        evento_json['created_at'] = evento_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if evento_json['updated_at'] else None
+        evento_json['updated_at'] = evento_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if evento_json['updated_at'] else None
+        
+        # Insere os dados da linha excluída na tabela de histórico
+        historico = Historico(tabela='TipoDeEventos', dados=evento_json)
         db.session.add(historico)
 
         evento.update(

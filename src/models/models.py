@@ -631,6 +631,7 @@ class Eventos(db.Model):
         'main.tabela_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
     color = db.Column(db.String)
+    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -700,6 +701,7 @@ class TipoDeEventos(db.Model):
     unidade = db.Column(db.String)
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
+    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
