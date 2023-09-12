@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, TipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, OpNiveis
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -46,8 +46,8 @@ def get_escolas(id):
     edificio = Edificios.query.filter_by(fk_escola=id).first()
     edificio_json = edificio.to_json() if edificio is not None else None
 
-    result = db.session.query(EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
-        .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+    result = db.session.query(EscolaNiveis.escola_id, OpNiveis.nivel) \
+        .join(OpNiveis, OpNiveis.id == EscolaNiveis.nivel_ensino_id) \
         .filter(EscolaNiveis.escola_id == escola.id) \
         .all()
 
@@ -335,7 +335,7 @@ def reservatorios(id):
 @send_frontend.get('/tipo-de-eventos/<int:id>')
 def tipo_de_eventos(id):
 
-    tipo_de_eventos = AuxTipoDeEventos.query.filter_by(
+    tipo_de_eventos = TipoDeEventos.query.filter_by(
         fk_cliente = id
     ).all()
 
@@ -350,7 +350,7 @@ def tipo_de_eventos(id):
 @send_frontend.get('/tipo-de-evento/<int:id>')
 def get_tipo_de_eventos(id):
 
-    tipo_de_evento = AuxTipoDeEventos.query.filter_by(
+    tipo_de_evento = TipoDeEventos.query.filter_by(
         id=id
     ).first()
 
