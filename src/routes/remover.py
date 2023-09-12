@@ -5,6 +5,16 @@ from sqlalchemy import exc, text
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
 
+
+
+@remover.get('/retornar-historico')
+def get_historico():
+
+    historicos = [historia.to_json() for historia in Historico.query.all()]
+
+    return jsonify(historicos)
+    
+
 #EDITAR ESCOLA
 @remover.put('/escolas/<id>')
 def escolas_remover(id):
@@ -17,10 +27,12 @@ def escolas_remover(id):
     escola.status_do_registro = False
 
      # Insere os dados da linha excluída na tabela de histórico
-    historico = Historico(tabela='Escolas', dados=json.dumps(escola.to_json()))
+    escola_json = escola.to_json()
+    escola_json['data_criacao'] = escola_json['data_criacao'].strftime('%m/%d/%Y %H:%M:%S')
+    
+    historico = Historico(tabela='Escolas', dados=escola_json)
     db.session.add(historico)
-
-
+    
     # Confirma as alterações no banco de dados
     db.session.commit()
 
@@ -29,23 +41,47 @@ def escolas_remover(id):
  
     
 #edificios
-@remover.put('/edificios/<id>')
+@remover.delete('/edificios/<id>')
 def edificios_remover(id):
     edificio = Edificios.query.filter_by(id=id).first()
-  
-    if not edificio:
-        return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
 
-    edificio.status_do_registro = False
 
-       # Insere os dados da linha excluída na tabela de histórico
-    historico = Historico(tabela='Edificios', dados=json.dumps(edificio.to_json()))
-    db.session.add(historico)
-
+    try:
+        if not edificio:
+            return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404
     
-    db.session.commit()
+        area_umidas =  AreaUmida.query.filter_by(fk_edificios=id).all()
 
-    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK 
+        if area_umidas:
+            for area_umida in area_umidas:
+                equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id).all()
+                if equipamentos:
+                    for equipamento in equipamentos:
+                        equipamento.status_do_registro = False
+                area_umida.status_do_registro = False
+
+        populacoes = Populacao.query.filter_by(fk_edificios=id).all()
+
+        if populacoes:
+            for populacao in populacoes:
+                populacao.status_do_registro = False
+
+        hidrometros = Hidrometros.query.filter_by(fk_edificios=id).all()
+
+        if hidrometros:
+            for hidrometro in hidrometros:
+                hidrometro.status_do_registro = False
+
+        edificio.status_do_registro = False
+
+        db.session.commit()
+        return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "status":False, 'mensagem':"Erro não tratado", "codigo":str(e)
+        }), 400
 
 
 #hidrometro
@@ -121,33 +157,31 @@ def reservatorio_remover(id):
     return jsonify({"status": True, 'mensagem': 'Reservatório removido'}), HTTP_200_OK 
 
 
-
 # EVENTOS
 @remover.put('/tipo-evento/<id>')
 def tipo_evento_remover(id):
     tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
 
     if not tipo_evento:
-        return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
-    
+        return jsonify({'status':False,'mensagem': 'Tipo de Evento não encontrado'}), 404
+       
     tipo_evento.status_do_registro = False
     db.session.commit()
 
-    return jsonify({"status": True, 'mensagem': 'Reservatório removido'}), HTTP_200_OK 
-
-
-
-
-# EVENTOS
+    return jsonify({"status": True, 'mensagem': 'Tipo de Evento removido'}), HTTP_200_OK 
+    
+    
+    
 @remover.put('/evento/<id>')
 def evento_remover(id):
     evento = Eventos.query.filter_by(id=id).first()
 
     if not evento:
-        return jsonify({'mensagem':'evento não encontrado', "status": False}), 404
-    
+        return jsonify({'status':False,'mensagem': 'Evento não encontrado'}), 404
+       
+   
     evento.status_do_registro = False
     db.session.commit()
 
-    return jsonify({"status": True, 'mensagem': 'Reservatório removido'}), HTTP_200_OK 
-
+    return jsonify({"status": True, 'mensagem': 'Evento removido'}), HTTP_200_OK 
+  

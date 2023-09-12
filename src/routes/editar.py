@@ -1,7 +1,7 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, json
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                       Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
+from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente, Historico,
+                       Usuarios, TipoAreaUmida, TiposEquipamentos, OpNiveis, PopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, TipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -110,6 +110,7 @@ def escolas_editar(id):
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
     try:
+
        #verificando niveis das escolas
         escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
 
@@ -122,7 +123,7 @@ def escolas_editar(id):
 
         niveis=body["nivel"]
         
-        niveis = [AuxOpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
+        niveis = [OpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
 
         # Obtenha todos os níveis de ensino associados à escola
         niveis_atuais = [n.nivel_ensino_id for n in escola_niveis]
@@ -132,7 +133,7 @@ def escolas_editar(id):
         niveis_removidos = set(niveis_atuais) - set(niveis)
 
         for nivel in niveis_adicionados:
-            op_nivel = AuxOpNiveis.query.filter_by(id=nivel).first()
+            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
                 
             if op_nivel:
                 escola_nivel = EscolaNiveis(
@@ -144,7 +145,7 @@ def escolas_editar(id):
 
         # Remova os níveis de ensino que não estão mais presentes
         for nivel in niveis_removidos:
-            op_nivel = AuxOpNiveis.query.filter_by(id=nivel).first()
+            op_nivel = OpNiveis.query.filter_by(id=nivel).first()
             if op_nivel:
                 escola_nivel = EscolaNiveis.query.filter_by(
                     escola_id=escola.id,
@@ -213,7 +214,6 @@ def reservatorio_editar(id):
         return jsonify({'mensagem': 'reservatorio não encontrado', "status": False}), 404
 
     try:
-    
         reservatorio.update(
             nome_do_reservatorio=body['nome']
         )
@@ -249,33 +249,26 @@ def reservatorio_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        return jsonify({
-            "status":False,"mensagem":"Erro não tratado", "codigo":e
-        }), HTTP_400_BAD_REQUEST
-
 
 # EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
 def edificios_editar(id):
-    
     edificio = Edificios.query.filter_by(id=id).first()
-  
+    print(edificio)
     body = request.get_json()
 
-    reservatorios = body.pop('reservatorio') #remove reservatorio de body
+    reservatorios = body.pop('reservatorio')
 
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado', "status": False}), 404
 
-
     try:
-        
+
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
-        
-        #verificar essa linha 
-        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorios).first().id for reservatorio in reservatorios if reservatorio is not None]
-          
+
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios if reservatorio is not None]
         edificio.update(**body)
+
 
         reservatorioatual = [n.reservatorio_id for n in EdificioRes]
         
@@ -283,7 +276,6 @@ def edificios_editar(id):
         reservatorio_remover = set(reservatorioatual) - set(reservatorios)
         for reservatorio in reservatorio_adicionado:
             reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
-            print(reservatorios_edificios)
 
             if reservatorios_edificios:
 
@@ -291,6 +283,7 @@ def edificios_editar(id):
                     edificio_id=id,
                     reservatorio_id=reservatorios_edificios.id
                 )
+                print(reservatorio)
                 db.session.add(edificios_reservatorio)
 
         for reservatorio in reservatorio_remover:
@@ -305,6 +298,7 @@ def edificios_editar(id):
                 if edificios_reservatorio:
                     db.session.delete(edificios_reservatorio)
   
+
         db.session.commit()
 
         return jsonify({"edificio": edificio.to_json(), "status": True}), HTTP_200_OK
@@ -347,6 +341,7 @@ def edificio_principal(id):
 
     edificio = Edificios.query.filter_by(id=id).first()
 
+
     if not edificio:
         return jsonify({
             'mensagem':'Edificio não encontrado', 'status':False
@@ -356,6 +351,8 @@ def edificio_principal(id):
 
         edificio.update_principal()
         db.session.commit()
+
+        
 
         return jsonify({
             'mensagem': 'Alteração realizada com sucesso',
@@ -381,9 +378,7 @@ def hidrometro_editar(id):
 
     if not hidrometro:
         return jsonify({'mensagem': 'Hidrometro não encontrado', "status": False}), 404
-    
     try:
-       
         hidrometro.update(**body)
 
         db.session.commit()
@@ -428,13 +423,12 @@ def populacao_editar(id):
         return jsonify({'mensagem': 'Populacao não encontrado', "status": False}), 404
 
     try:
-        
         print(body)
         alunos = body['alunos']
         fk_edificios = body['fk_edificios']
         funcionarios = body['funcionarios']
-        nivel = AuxOpNiveis.query.filter_by(nivel=body['nivel']).first()
-        periodo = AuxPopulacaoPeriodo.query.filter_by(
+        nivel = OpNiveis.query.filter_by(nivel=body['nivel']).first()
+        periodo = PopulacaoPeriodo.query.filter_by(
             periodo=body['periodo']).first()
 
         print(periodo.id)
@@ -484,17 +478,17 @@ def populacao_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 # EDITAR AREA UMIDA
+
+
 @editar.put('/area-umida/<id>')
 def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
     body = request.get_json()
-
-    #print(umida.to_json())
+    print(umida.to_json())
     if not umida or umida is None:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
 
     try:
-       
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
@@ -505,7 +499,7 @@ def area_umida_editar(id):
         else:
             status = False
 
-        tipo_area_umida = AuxTipoAreaUmida.query.filter_by(
+        tipo_area_umida = TipoAreaUmida.query.filter_by(
             tipo=body['tipo_area_umida']).first()
 
         umida.update(
@@ -569,7 +563,7 @@ def equipamento_editar(id):
     try:
 
         fk_area_umida = body['fk_area_umida']
-        tipo_equipamento = AuxTiposEquipamentos.query.filter_by(
+        tipo_equipamento = TiposEquipamentos.query.filter_by(
             aparelho_sanitario=body['tipo_equipamento']).first()
         quantTotal = body['quantTotal']
         quantProblema = body['quantProblema']
@@ -626,7 +620,7 @@ def equipamento_editar(id):
 # EDITAR EVENTOS
 @editar.put('/tipo-evento/<id>')
 def tipo_evento_editar(id):
-    tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
+    tipo_evento = TipoDeEventos.query.filter_by(id=id).first()
     formulario = request.get_json()
 
     meses_dict = {
@@ -653,7 +647,7 @@ def tipo_evento_editar(id):
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
 
     try:
-        
+
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
         periodicidade = periodicidade.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
@@ -663,7 +657,14 @@ def tipo_evento_editar(id):
         tempo = formulario.get('tolerancia') if formulario.get('tolerancia') else None
         unidade = formulario.get('unidade') if formulario.get('unidade') else None
         acao = formulario.get('ehResposta') if formulario.get('ehResposta') is not None else False
+        
+        tipo_json = tipo_evento.to_json()
 
+        tipo_json['created_at'] = tipo_json['created_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
+        tipo_json['updated_at'] = tipo_json['updated_at'].strftime('%m/%d/%Y %H:%M:%S') if tipo_json['updated_at'] else None
+        # Insere os dados da linha excluída na tabela de histórico
+        historico = Historico(tabela='TipoDeEventos', dados=tipo_json)
+        db.session.add(historico)
 
         tipo_evento.update(
             fk_cliente=fk_cliente,
@@ -724,7 +725,7 @@ def evento_editar(id):
         return jsonify({'mensagem':'evento não encontrado', "status": False}), 404
 
     try:
-       
+
         fk_tipo = formulario['fk_tipo']
         nome = formulario['nome']
         datainicio = formulario['datainicio']
@@ -733,7 +734,14 @@ def evento_editar(id):
         local = formulario['local']
         tipo_de_local = formulario['tipo_de_local']
         observacao = formulario["observacao"]
-    
+       
+      
+        # Insere os dados da linha alterada na tabela de histórico
+        #historico = Historico(tabela='Eventos', dados=evento.to_json())
+        #observacao: ao salvar na tabela hist. os caracteres não estão sendo salvos corretamentes por conta dessa função abaixo, o ideal seria usar o de cima, porém dá erro.
+        historico = Historico(tabela='Eventos', dados=json.dumps(evento.to_json(), ensure_ascii=False, indent=4))
+
+        db.session.add(historico)
 
         evento.update(
             fk_tipo=fk_tipo,
