@@ -269,7 +269,7 @@ def edificios_editar(id):
 
 
     try:
-        
+
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
         
         #verificar essa linha 
@@ -308,6 +308,7 @@ def edificios_editar(id):
         db.session.commit()
 
         return jsonify({"edificio": edificio.to_json(), "status": True}), HTTP_200_OK
+
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
@@ -353,7 +354,6 @@ def edificio_principal(id):
         }), 404
 
     try:
-
         edificio.update_principal()
         db.session.commit()
 

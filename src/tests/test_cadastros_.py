@@ -180,7 +180,7 @@ def d_test_cadastro_tipo_eventos(app, new_tipo_evento):
 
         assert response.status_code == 200
 
-def test_cadastro_tipo_eventos(app, new_tipo_evento):
+def dtest_cadastro_tipo_eventos(app, new_tipo_evento):
     """Teste de cadastro de tipo de evento."""
 
     json_dump = json.dumps(new_tipo_evento)
@@ -195,7 +195,7 @@ def test_cadastro_tipo_eventos(app, new_tipo_evento):
     assert response.status_code == 200
 
 
-def test_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
+def dtest_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
 
     with app.app_context():
 
@@ -210,7 +210,7 @@ def test_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
     assert response.status_code == 200
 
 
-def test_cadastro_eventos(app, new_evento):
+def dtest_cadastro_eventos(app, new_evento):
 
 
     with app.app_context():

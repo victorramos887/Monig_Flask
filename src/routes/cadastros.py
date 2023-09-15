@@ -150,7 +150,6 @@ def escolas():
         )
     
         db.session.add(escola)
-        
 
         # VERIFICAR NÍVEIS
 
@@ -162,7 +161,6 @@ def escolas():
         ) for nivel in niveis_query]
         db.session.add_all(escola_niveis)
         
-
         edificio = Edificios(
             fk_escola = int(escola.id),
             cnpj_edificio=cnpj,
@@ -176,11 +174,11 @@ def escolas():
             bairro_edificio=bairro
         )
 
-
         db.session.add(edificio)
         db.session.commit()
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json(), "dada_edificio":edificio.to_json()}), HTTP_200_OK
+
     except ArgumentError as e:
         db.session.rollback()
         error_message = str(e)
@@ -495,6 +493,12 @@ def area_umida():
         localizacao_area_umida = formulario['localizacao_area_umida']
         status_area_umida = formulario['status_area_umida']
         operacao_area_umida = formulario['operacao_area_umida']
+        tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+       
+        if status_area_umida == "Aberto":
+            status_area_umida = True
+        else:
+            status_area_umida = False
 
         tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
 

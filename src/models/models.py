@@ -13,8 +13,6 @@ db = SQLAlchemy()
 
 continuum = Continuum(db)
 
-
-
 class Cliente(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -661,8 +659,10 @@ class Eventos(db.Model, VersioningMixin):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 class AuxDeLocais(db.Model):
+
     __table_args__ = {"schema": "main"}
     __tablename__ = 'aux_de_locais'
+
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -885,8 +885,6 @@ def add_opniveis():
             "Bebedouro"
         ]
     }
-
-  
 
     for nome_da_tabela in op_nome_da_tabela:
         opnome = AuxDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
