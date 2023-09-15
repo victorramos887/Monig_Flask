@@ -1,12 +1,11 @@
-#!/usr/bin/env bash
-
 set -e
+echo "Start Flask!!!"
 
-# ls /usr/src/app/
-echo "Reset DB!!"
+# flask resetdb
 
-flask resetdb
+echo "Reset db!!!"
 
-echo "Run wsgi!!"
+
+echo "------------------------------------"
 
 gunicorn --bind 0.0.0.0:${APP_PORT} src:app
