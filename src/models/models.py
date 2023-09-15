@@ -687,7 +687,8 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_tipo_de_evento = db.Column(db.String)
-    periodicidade = db.Column(db.Boolean)
+    recorrente = db.Column(db.Boolean)
+   # periodicidade = db.Column(db.Boolean)
     dia = db.Column(db.Integer)
     mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)
@@ -704,11 +705,11 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_do_tipo_de_evento, periodicidade, dia, mes, requer_acao, tempo, unidade, acao):
+    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None):
 
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
-        self.periodicidade = periodicidade
+        self.recorrente = recorrente
         self.dia = dia
         self.mes = mes
         self.requer_acao = requer_acao
@@ -731,14 +732,10 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         11: "Novembro",
         12: "Dezembro"
     }
-
-        periodicidade = {False: "Ocasional", True: "Recorrente"}
-
+       
         return {
-            attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
-            periodicidade[getattr(self, attr.name)] if attr.name == "recorrente" and getattr(self, attr.name) in periodicidade else
-            getattr(self, attr.name)
-            if attr.name not in ["mes", "recorrente"] else None
+                attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
+                getattr(self, attr.name)
             for attr in self.__table__.columns
         }
     
