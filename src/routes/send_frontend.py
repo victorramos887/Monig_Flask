@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -365,6 +365,36 @@ def get_tipo_de_eventos(id):
             'message': 'Tipo de evento não encontrado'
         }), 404
 
+
+
+@send_frontend.get('/eventos')
+def get_eventos():
+
+    eventos = Eventos.query.filter_by().all()
+    
+    return jsonify({
+            "eventos":[
+                evento.to_json() for evento in eventos
+            ],
+            "status":True
+        }), 200
+
+
+@send_frontend.get('/evento/<int:id>')
+def get_evento(id):
+
+    evento = Eventos.query.filter_by(
+        id=id
+    ).first()
+    
+    if evento is not None:
+        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":evento.to_json()}), HTTP_200_OK
+    else:
+        return jsonify({
+            'message': 'Evento não encontrado'
+        }), 404
+        
+        
 #retorno de locais por tipo de local
 
 #tipo de locais
@@ -377,3 +407,5 @@ def testandoretorno():
     print(request.get_json())
 
     return "Retorno"
+
+

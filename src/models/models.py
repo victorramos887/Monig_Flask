@@ -655,8 +655,26 @@ class Eventos(db.Model, VersioningMixin):
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
         self.color = color
+            
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        
+        colors = {
+        "verde": "#9cb56e",
+        "rosa": "#d57272",
+        "azul": "#99C8E9",
+        "roxo": "#BCA2E1",
+        "amarelo": "#FEE57F",
+        "laranja": "#F27B37"
+    }
+       
+        return {
+                attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
+                getattr(self, attr.name)
+            for attr in self.__table__.columns
+        }
+        
+    
+       
 
 class AuxDeLocais(db.Model):
 
@@ -741,6 +759,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
     
 
 def add_opniveis():
+
     op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
@@ -883,6 +902,7 @@ def add_opniveis():
         ]
     }
 
+    
     for nome_da_tabela in op_nome_da_tabela:
         opnome = AuxDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
         if not opnome:
