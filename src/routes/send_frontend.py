@@ -395,6 +395,45 @@ def get_evento(id):
         }), 404
         
         
+
+@send_frontend.get('/eventos-tipo/<int:recorrente>')
+def get_tipos_recorrente_ocasional(recorrente):
+
+        #ocasional
+        if recorrente == 0:
+            tipo_ocasional = AuxTipoDeEventos.query.filter_by(
+                recorrente=False
+            ).all()
+            
+            return jsonify({
+            "tipo_ocasional":[
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_ocasional
+            ],
+                "status":True
+            }), 200
+
+ 
+        if recorrente == 1:
+            tipo_recorrente = AuxTipoDeEventos.query.filter_by(
+                recorrente=True
+            ).all()
+            
+            return jsonify({
+            "tipo_recorrente":[
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_recorrente
+            ],
+                "status":True
+            }), 200
+            
+        else:
+            return jsonify({
+            'message': 'verifique o valor informado'
+        }), 404
+           
+           
+       
+      
+        
 #retorno de locais por tipo de local
 
 #tipo de locais
