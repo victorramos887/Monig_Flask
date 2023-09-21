@@ -273,7 +273,7 @@ def edificios_editar(id):
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
         
         #verificar essa linha 
-        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorios).first().id for reservatorio in reservatorios if reservatorio is not None]
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios if reservatorio is not None]
           
         edificio.update(**body)
 
@@ -341,8 +341,8 @@ def edificios_editar(id):
         
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-# EDITAR HIDROMETRO
 
+# EDITAR HIDROMETRO
 @editar.put('/edificio-principal/<int:id>')
 def edificio_principal(id):
 

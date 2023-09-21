@@ -46,38 +46,46 @@ def register():
 #login
 @auth.post('/login')
 def login():
-    email = request.json.get('email', '')
-    senha = request.json.get('senha', '')
+    
 
     try:
+        
+        email = request.json.get('email', '')
+        senha = request.json.get('senha', '')
+        
+        # print(senha, email)
         user = Usuarios.query.filter_by(email = email).first()
+        print(user)
 
     except exc.DBAPIError as e:
 
         if e.orig.pgcode == '42703':
-            return {'error':'Verifique os nomes das colunas no banco de dados', "status":False}
+            return {'error':'Verifique os nomes das colunas no banco de dados', "status":False, "codigo":str(e)}
         else:
-            return {'error':'ERRO NÃO TRATADO', "status":False}
+            return {'error':'ERRO NÃO TRATADO', "status":False, "codigo":str(e)}
 
-    if user is None:
-        return jsonify({'ERRO':'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST
+    try:
+        if user is None:
+            return jsonify({'ERRO':'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST
 
-    if user:
-        if check := check_password_hash(user.senha, senha):
-            reflesh = create_refresh_token(identity= user.id)
-            access = create_access_token(identity= user.id)
-            return jsonify({
-                'user': {
-                    'reflesh':reflesh,
-                    'access':access,
-                    'email':email
-                }, 
-                "status":True
-            }), HTTP_200_OK
-    else:
-        return jsonify({'error':'senha incorreta'}), HTTP_409_CONFLICT
-    return jsonify({
-                'error':'Error',"status":False
+        if user:
+            if check := check_password_hash(user.senha, senha):
+                reflesh = create_refresh_token(identity= user.id)
+                access = create_access_token(identity= user.id)
+                return jsonify({
+                    'user': {
+                        'reflesh':reflesh,
+                        'access':access,
+                        'email':email
+                    }, 
+                    "status":True
+                }), HTTP_200_OK
+            else:
+                return jsonify({'error':'senha incorreta'}), HTTP_409_CONFLICT
+    except Exception as e:
+        
+        return jsonify({
+                'error':'Error',"status":False, "erro":"Mensagem", "codigo":str(e)
             }), HTTP_400_BAD_REQUEST
 
 

@@ -25,3 +25,20 @@ resource "aws_alb_listener" "fp-alb-listener" {
     type = "forward"
   }
 }
+
+resource "aws_lb_listener" "lb_api_https" {
+    load_balancer_arn   =   "${aws_alb.alb.arn}"
+    port            =   "443"
+    protocol        =   "HTTPS"
+    ssl_policy      =   "ELBSecurityPolicy-TLS-1-2-Ext-2018-06"
+    certificate_arn     =   aws_acm_certificate.acm_certificate.arn
+    default_action {
+        target_group_arn    =   "${aws_alb_target_group.target_group.arn}"
+        type            =   "forward"
+    }
+}
+
+resource "aws_lb_listener_certificate" "ssl_certificate" {
+  listener_arn=aws_lb_listener.lb_api_https.arn
+  certificate_arn = aws_acm_certificate.acm_certificate.arn
+}

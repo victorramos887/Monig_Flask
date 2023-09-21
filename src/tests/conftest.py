@@ -262,12 +262,11 @@ def new_evento():
     return {
         "fk_tipo":fake.random_int(min=1, max=10),
         "nome":fake.name(),
-        "datainicio":fake.date_object(),
-        "datafim":fake.date_object(),
+        "datainicio":None,#fake.date_object(),
+        "datafim":None, #fake.date_object(),
         "local":fake.random_int(min=1, max=1000),
-        "tipo_de_local":fake.random_int(min=1, max=10),
+        "tipo_de_local":fake.random_element(elements=['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']),
         "observacao":fake.text(),
-        "color":fake.rgb_color()
     }
 
 
