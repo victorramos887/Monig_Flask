@@ -7,7 +7,6 @@ from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDe
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
-
 # # Verificar Historico de Deleção
 # @send_frontend.get('/historico')
 # def historico():
@@ -15,7 +14,9 @@ send_frontend = Blueprint('send_frontend', __name__,
 #     historico = Historico.query.all()
 #     return jsonify([json.dumps(h.to_json()) for h in historico])
    
-
+@send_frontend.get('/verificando')
+def testeando():
+    return "Docker Retorn"
 
 # RETORNA TODAS AS ESCOLAS
 @send_frontend.get('/escolas')

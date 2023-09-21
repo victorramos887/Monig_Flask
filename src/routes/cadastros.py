@@ -278,9 +278,6 @@ def reservatorios():
         reservatorio = Reservatorios(
         fk_escola = fk_escola,
         nome_do_reservatorio = nome_do_reservatorio)
-            
-        # Associando o reservatório ao edifício
-        # edificio.reservatorio.append(reservatorio)    
 
         db.session.add(reservatorio)
         db.session.commit()
@@ -599,17 +596,9 @@ def area_umida():
             status_area_umida = False
 
         tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
-
-        # status_area_umida = StatusAreaUmida.query.filter_by(id=status_area_umida).first()
-
-        #status_area_umida = StatusAreaUmida.query.filter_by(status=status_area_umida).first()
-        
-        # if status_area_umida == "Aberto":
-        #     status_area_umida = True
-        # else:
-        #     status_area_umida = False
-
         operacao = AuxOperacaoAreaUmida.query.filter_by(operacao=operacao_area_umida).first()
+        
+        print(tipos, ' -- tipos')
         
         umida = AreaUmida(
             fk_edificios = fk_edificios,

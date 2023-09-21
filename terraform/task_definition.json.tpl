@@ -10,6 +10,15 @@
             "protocol":"tcp"
          }
       ],
+      "logConfiguration": {
+        "logDriver" : "awslogs",
+        "options" : {
+          "awslogs-create-group": "true",
+          "awslogs-region" : "us-east-2",
+          "awslogs-group" : "log-cluster-flask",
+          "awslogs-stream-prefix": "flask-app"
+        }
+      },
       "environment":[
          {
             "name":"SECRET_KEY",

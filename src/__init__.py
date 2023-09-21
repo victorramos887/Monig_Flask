@@ -60,12 +60,13 @@ def create_app(test_config=None):
         SQLALCHEMY_DATABASE_URI = app.config["SQLALCHEMY_DATABASE_URI"]
         if not database_exists(SQLALCHEMY_DATABASE_URI):
             create_database(SQLALCHEMY_DATABASE_URI)            
-        print('Criando banco de dados!!!')
-        
+            print('Criando banco de dados!!!')
+            
         continuum.init_app(app)
-        create_schema_sql = text('CREATE SCHEMA IF NOT EXISTS main;')
-        db.session.execute(create_schema_sql)
-        db.session.commit()
+        if test_config is None:
+            create_schema_sql = text('CREATE SCHEMA IF NOT EXISTS main;')
+            db.session.execute(create_schema_sql)
+            db.session.commit()
         db.create_all()
         add_opniveis()
 
@@ -89,6 +90,6 @@ app = create_app()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, ssl_context=('cert.pem', 'key.pem'))
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})

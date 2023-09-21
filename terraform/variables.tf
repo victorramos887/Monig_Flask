@@ -26,6 +26,21 @@ variable "rt_wide_route" {
   description = "Route in the SiteSeer Route Table"
   default     = "0.0.0.0/0"
 }
+
+variable "cluster_name" {
+
+  description = " Nome da aplicação ECS "
+  default = "flask-app"
+  
+}
+
+variable "server_name" {
+
+  description = " Nome da serviço ECS "
+  default = "flask-app-service"
+  
+}
+
 variable "subnet_count" {
   description = "no of subnets"
   default = 2
@@ -47,7 +62,7 @@ variable "rds_instance_type" {
 # Change monig to postgres
 variable "rds_identifier" {
   description = "db identifier"
-  default     = "moing"
+  default     = "monig"
 }
 variable "rds_storage_type" {
   description = "db storage type"
@@ -151,4 +166,15 @@ variable "app_port" {
 variable "flask_debug" {
   description = "Debug run"
   default     = 1
+}
+
+variable "log_group_name" {
+  type = string
+  description = "O nome do grupo de logs do CloudWatch"
+  default = "/aws/ecs/flask-app-service"
+}
+
+variable "dominio" {
+  description = "Dominio utilizado para api."
+  default="moing.com.br"
 }

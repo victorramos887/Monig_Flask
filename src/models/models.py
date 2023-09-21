@@ -583,11 +583,8 @@ class EscolaNiveis(db.Model, VersioningMixin):
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_opniveis.id'), primary_key=True)
 
-
-
-
 class ReservatorioEdificio(db.Model):
-
+    
     # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio'
@@ -638,7 +635,7 @@ class Eventos(db.Model, VersioningMixin):
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.aux_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
-    color = db.Column(db.String)
+    
     created_at = db.Column(db.DateTime, default=datetime.now())
 
 
@@ -646,7 +643,7 @@ class Eventos(db.Model, VersioningMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, color, observacao): #cod_usuarios
+    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao): #cod_usuarios
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
@@ -654,8 +651,6 @@ class Eventos(db.Model, VersioningMixin):
         self.local = local
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
-        self.color = color
-            
     def to_json(self):
         
         colors = {
@@ -723,8 +718,8 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None):
-
+    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None):
+    
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
         self.recorrente = recorrente
@@ -759,8 +754,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
     
 
 def add_opniveis():
-
-    op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
+    op_nome_da_tabela = ['Escola', 'Edificação','Área Úmida', 'Reservatório', 'Equipamento', 'Hidrômetro']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']

@@ -5,7 +5,7 @@ import json
 
 from dotenv import load_dotenv
 
-from datetime import date, datetime
+import datetime
 
 
 # Define o diretório base do projeto
@@ -68,7 +68,8 @@ def test_cadastro_area_umida(app, new_area_umida):
             content_type='application/json'
         )
 
-        # response_dict = json.loads(response.get_data())
+        response_dict = json.loads(response.get_data())
+        print(response_dict)
 
         assert response.status_code == 200
 
@@ -210,21 +211,36 @@ def dtest_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
     assert response.status_code == 200
 
 
-def dtest_cadastro_eventos(app, new_evento):
+def test_cadastro_eventos(app, new_evento):
 
 
     with app.app_context():
 
 
-        new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%d-%m")
-        new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%d-%m")
+        # new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%d-%m")
+        # new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%d-%m")
+        
+        # new_evento['datainicio'] = datetime.datetime.strptime(new_evento['datainicio'], '%Y-%m-%d %H:%M:%S')
+        # new_evento['datafim'] = datetime.datetime.strptime(new_evento['datafim'], '%Y-%m-%d %H:%M:%S')
+        # new_evento['datainicio'] = '2023-02-23'
+        # new_evento['datafim'] = '2023-02-28'
 
-        json_data = json.dumps(new_evento)
+        
+        # new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%m-%d %H:%M:%S")
+        # new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%m-%d %H:%M:%S")
+
+
+        #json_data = json.dumps(new_evento, indent=4, ensure_ascii=True, default=None)
+        
+        #print(json.dumps(new_evento))
+        
+        
+        
         
         response = app.test_client().post(
             'api/v1/cadastro-evento/eventos',
-            data=json_data,
+            data=json.dumps(new_evento),
             content_type='application/json'
         )
-        print("response")
+        print(response.get_data())
         assert response.status_code == 200
