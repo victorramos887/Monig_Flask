@@ -584,7 +584,7 @@ class EscolaNiveis(db.Model, VersioningMixin):
         'main.aux_opniveis.id'), primary_key=True)
 
 class ReservatorioEdificio(db.Model):
-
+    
     # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio'
