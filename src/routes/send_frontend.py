@@ -433,34 +433,33 @@ def get_tipos_recorrente_ocasional(recorrente):
 
         
 #retorno tipo_de_local
-@send_frontend.get('/tipo_de_local')
+@send_frontend.get('/tipo-de-local')
 def get_tipo_local():
 
             tipo_local = AuxDeLocais.query.all()
             
             return jsonify({
             "tipo_de_local":[
-                {"id":local.id, "nome":local.nome_da_tabela, } for local in tipo_local
+                {"id":local.id, "nome":local.nome_da_tabela } for local in tipo_local
             ],
                 "status":True
             }), 200
             
-
-
+        
+        
 @send_frontend.get('/local/<int:tipo>')
 def get_local(tipo):
     
-    try:
-        #filtrar o tipo
-        tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() #ex 1 = edificacoes
-        
-    except:
-          return jsonify({
-            "message": "Tabela não encontrada",
-            "status":False
+    #filtrar o tipo
+    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() 
+    
+    #VERIFICAR PORQUE RETORNA 500 QUANDO DIGITA UM VALOR QUE NÃO ESTÁ NA TABELA 
+    if tipo_local is None:
+        return jsonify({
+            "message": "Tipo de local não encontrado",
+            "status": False
         }), 400
 
-        
     tabela = tipo_local.nome_da_tabela
     
     tabelas = {
@@ -472,20 +471,27 @@ def get_local(tipo):
         'Hidrômetro': Hidrometros
     }
     
-    modelo = tabelas.get(tabela) #ex.Escolas
+    modelo = tabelas.get(tabela) 
     
-    if modelo is not None:   
-        tabelas_ = modelo.query.all()#todas as escolas
+    if modelo == Escolas:
+        tabela = modelo.query.with_entities(Escolas.id, Escolas.nome).all()
+    elif modelo == Edificios:
+        tabela = modelo.query.with_entities(Edificios.id, Edificios.nome_do_edificio).all()
+    elif modelo == AreaUmida:
+        tabela = modelo.query.with_entities(AreaUmida.id, AreaUmida.nome_area_umida).all()
+    elif modelo == Reservatorios:
+        tabela = modelo.query.with_entities(Reservatorios.id, Reservatorios.nome_do_reservatorio).all()
+    elif modelo == Equipamentos:
+        tabela = modelo.query.with_entities(AuxTiposEquipamentos.id, AuxTiposEquipamentos.aparelho_sanitario).all()
+    elif modelo == Hidrometros:
+        tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
         
-                   
-        return jsonify({
-            "local":[
-                {"data": l.to_json()} for l in tabelas_
-            ],
-                    "status":True
-                }), 200
-        
 
-      
+    return jsonify({
+        "local": [
+            {"id": l[0], "nome": l[1]} for l in tabela
+        ],
+            "status":True
+        }), 200
 
-
+   
