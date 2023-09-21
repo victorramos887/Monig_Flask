@@ -430,8 +430,7 @@ def get_tipos_recorrente_ocasional(recorrente):
         }), 404
            
 
-      
-      
+        
 #retorno tipo_de_local
 @send_frontend.get('/tipo_de_local')
 def get_tipo_local():
@@ -450,8 +449,17 @@ def get_tipo_local():
 @send_frontend.get('/local/<int:tipo>')
 def get_local(tipo):
     
-    #filtrar o tipo
-    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() #ex 1 = edificacoes
+    try:
+        #filtrar o tipo
+        tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() #ex 1 = edificacoes
+        
+    except:
+          return jsonify({
+            "message": "Tabela não encontrada",
+            "status":False
+        }), 400
+
+        
     tabela = tipo_local.nome_da_tabela
     
     tabelas = {
@@ -463,18 +471,11 @@ def get_local(tipo):
         'Hidrômetro': Hidrometros
     }
     
-    # colunas = {
-    #     'Escola': 'nome',
-    #     'Edificação': 'nome_do_edificio',
-    #     'Área Umida': 'nome_area_umida',
-    #     'Reservatório': 'nome_do_reservatorio',
-    #     'Equipamento': 'aparelho_sanitario',
-    #     'Hidrômetro': 'hidrometro'
-    # }
-    
     modelo = tabelas.get(tabela) #ex.Escolas
+    
     if modelo is not None:   
         tabelas_ = modelo.query.all()#todas as escolas
+        
                    
         return jsonify({
             "local":[
@@ -483,12 +484,7 @@ def get_local(tipo):
                     "status":True
                 }), 200
         
-    else:
 
-        return jsonify({
-            "message": "Tabela não encontrada",
-            "status":False
-        }), 400
-
+      
 
 
