@@ -16,23 +16,32 @@ cadastros = Blueprint('cadastros', __name__, url_prefix = '/api/v1/cadastros')
 @cadastros.post('/cliente')
 def cliente():
 
- try:
+    try:
 
-    formulario = request.get_json()
-    cliente = Cliente(**formulario)
-    db.session.add(cliente)
-    db.session.commit()
+        formulario = request.get_json()
+    
+    except Exception as e :
+        return jsonify({
+             "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
         
-    return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":cliente.to_json()}), HTTP_200_OK
-   
- except ArgumentError as e:
+    try:
+        cliente = Cliente(**formulario)
+        db.session.add(cliente)
+        db.session.commit()
+            
+        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":cliente.to_json()}), HTTP_200_OK
+    
+    except ArgumentError as e:
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
         print(json_error)
         return json_error
     
- except exc.DBAPIError as e:
+    except exc.DBAPIError as e:
         db.session.rollback()
         if e.orig.pgcode == '23505':
             # extrai o nome do campo da mensagem de erro
@@ -45,7 +54,7 @@ def cliente():
             return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
         return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
- except Exception as e:
+    except Exception as e:
         db.session.rollback()
         if isinstance(e, HTTPException) and e.code == '500':
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -64,12 +73,28 @@ def usuario():
 
     try:
         formulario = request.get_json()
+        
+    except Exception as e :
+        return jsonify({
+             "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+    
+    try:
         cod_cliente = formulario['cod_cliente']
         nome = formulario['nome']
         email = formulario['email']
         senha = formulario['senha']
+    
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
         
 
+    try:
         #COLOCANDO LIMITE NA SENHA
         if len(senha) < 6:
             return jsonify({'error':'Senha muito curta'}), HTTP_400_BAD_REQUEST
@@ -125,8 +150,14 @@ def usuario():
 #Cadastros das escolas
 @cadastros.post('/escolas')
 def escolas():
-
-    formulario = request.get_json()
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
 
     try:
         nome = formulario["nome"]
@@ -142,6 +173,13 @@ def escolas():
         estado = formulario["estado"]
         bairro = formulario["bairro"]
         
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
+        
+    try:
         escola = Escolas(
             nome=nome,
             cnpj=cnpj,
@@ -150,7 +188,6 @@ def escolas():
         )
     
         db.session.add(escola)
-        
 
         # VERIFICAR NÍVEIS
 
@@ -162,7 +199,6 @@ def escolas():
         ) for nivel in niveis_query]
         db.session.add_all(escola_niveis)
         
-
         edificio = Edificios(
             fk_escola = int(escola.id),
             cnpj_edificio=cnpj,
@@ -176,11 +212,11 @@ def escolas():
             bairro_edificio=bairro
         )
 
-
         db.session.add(edificio)
         db.session.commit()
 
         return jsonify({'status':True, 'id': escola.id, "mensagem":"Cadastro Realizado","data":escola.to_json(), "dada_edificio":edificio.to_json()}), HTTP_200_OK
+
     except ArgumentError as e:
         db.session.rollback()
         error_message = str(e)
@@ -218,12 +254,26 @@ def escolas():
 @cadastros.post('/reservatorios')
 def reservatorios():
 
-    formulario = request.get_json()
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+        
     try:
        
         fk_escola = formulario['fk_escola']
         nome_do_reservatorio = formulario['nome']
-
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
+    
+    try:
         #CRIANDO O RESERVATORIO
         reservatorio = Reservatorios(
         fk_escola = fk_escola,
@@ -275,7 +325,14 @@ def edificios():
 
     try:
         formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
 
+    try:
         fk_escola = formulario['fk_escola']
         agua_de_reuso = formulario['agua_de_reuso']
         area_total_edificio = formulario['area_total_edificio'] if formulario['area_total_edificio'] != "" else 0.0
@@ -290,9 +347,13 @@ def edificios():
         numero_edificio = formulario['numero_edificio']
         pavimentos_edificio = formulario['pavimentos_edificio'] if formulario['pavimentos_edificio'] != "" else 0.0
         reservatorios = formulario['reservatorio']
-
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
         
-
+    try:
         edificio = Edificios(
             fk_escola=fk_escola,
             numero_edificio=numero_edificio,
@@ -310,8 +371,6 @@ def edificios():
         )
         
         db.session.add(edificio)
-
-        
 
 
         for reservatorio_enviado in reservatorios:
@@ -369,8 +428,16 @@ def edificios():
 @cadastros.post('/hidrometros')
 def hidrometros():
 
-    formulario = request.get_json()
-
+    try:
+        formulario = request.get_json()
+        
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+        
     try:
         hidrometros = Hidrometros(**formulario)
         db.session.add(hidrometros)
@@ -421,16 +488,31 @@ def hidrometros():
 
 @cadastros.post('/populacao')
 def populacao():
-
-    formulario = request.get_json()
-    nivel = db.session.query(AuxOpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
+    
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
 
     try:
-
+        
         alunos = formulario['alunos']
+        nivel = formulario['nivel']
+        periodo = formulario['periodo']
         funcionarios = formulario['funcionarios']
         fk_edificios = formulario['fk_edificios']
-
+        
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
+        
+    try:
         nivel = db.session.query(AuxOpNiveis.id).filter_by(nivel=formulario['nivel']).scalar()
         periodo = db.session.query(AuxPopulacaoPeriodo.id).filter_by(periodo=formulario['periodo']).scalar()
         
@@ -486,8 +568,15 @@ def populacao():
 @cadastros.post('/area-umida')
 def area_umida():
 
-    formulario = request.get_json()
-
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+        
     try:
         fk_edificios = formulario['fk_edificios']
         tipo_area_umida = formulario['tipo_area_umida']
@@ -495,6 +584,19 @@ def area_umida():
         localizacao_area_umida = formulario['localizacao_area_umida']
         status_area_umida = formulario['status_area_umida']
         operacao_area_umida = formulario['operacao_area_umida']
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400
+        
+    try:
+        tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+       
+        if status_area_umida == "Aberto":
+            status_area_umida = True
+        else:
+            status_area_umida = False
 
         tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
 
@@ -560,9 +662,15 @@ def area_umida():
 @cadastros.post('/equipamentos')
 def equipamentos():
 
-    formulario = request.get_json()
-
-    #CONTINUAR DAQUI
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+        
     try:
         fk_area_umida = formulario['fk_area_umida']
         tipo_equipamento = formulario['tipo_equipamento']
@@ -570,6 +678,13 @@ def equipamentos():
         quantTotal = formulario['quantTotal']
         quantProblema = formulario['quantProblema']
         quantInutil = formulario['quantInutil']
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+            "status": False
+        }), 400 
+        
+    try:
         tipo_equipamento = AuxTiposEquipamentos.query.filter_by(aparelho_sanitario=tipo_equipamento).first().id
 
         # descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id

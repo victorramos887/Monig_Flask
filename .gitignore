@@ -18,3 +18,36 @@ __pycache__/
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+
+# Diretórios locais .terraform 
+**/.terraform/* 
+
+# Arquivos .tfstate 
+*.tfstate 
+*.tfstate.* 
+
+# Arquivos de log de falhas 
+crash.log 
+
+# Ignore quaisquer arquivos .tfvars gerados automaticamente para cada execução do Terraform. A maioria dos 
+# arquivos .tfvars são gerenciados como parte da configuração e, portanto, devem ser incluídos no 
+# controle de versão. 
+# 
+# example.tfvars 
+
+# Ignore os arquivos de substituição, pois eles geralmente são usados ​​para substituir recursos localmente e, portanto, 
+# não são verificados em 
+override.tf 
+override.tf.json 
+*_override.tf 
+*_override.tf.json 
+
+# Inclui os arquivos de substituição que você deseja para adicionar ao controle de versão usando padrão negado 
+# 
+# !example_override.tf
+
+# Inclui arquivos tfplan para ignorar a saída do comando do plano: terraform plan -out=tfplan 
+# exemplo: *tfplan* 
+
+.idea/

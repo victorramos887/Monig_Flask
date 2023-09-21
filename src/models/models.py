@@ -13,8 +13,6 @@ db = SQLAlchemy()
 
 continuum = Continuum(db)
 
-
-
 class Cliente(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -657,12 +655,32 @@ class Eventos(db.Model, VersioningMixin):
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
         self.color = color
+            
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        
+        colors = {
+        "verde": "#9cb56e",
+        "rosa": "#d57272",
+        "azul": "#99C8E9",
+        "roxo": "#BCA2E1",
+        "amarelo": "#FEE57F",
+        "laranja": "#F27B37"
+    }
+       
+        return {
+                attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
+                getattr(self, attr.name)
+            for attr in self.__table__.columns
+        }
+        
+    
+       
 
 class AuxDeLocais(db.Model):
+
     __table_args__ = {"schema": "main"}
     __tablename__ = 'aux_de_locais'
+
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome_da_tabela = db.Column(db.String)
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -688,6 +706,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_tipo_de_evento = db.Column(db.String)
     recorrente = db.Column(db.Boolean)
+   # periodicidade = db.Column(db.Boolean)
     dia = db.Column(db.Integer)
     mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)
@@ -704,7 +723,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia, mes, requer_acao, tempo, unidade, acao):
+    def __init__(self, fk_cliente, nome_do_tipo_de_evento, recorrente, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None):
 
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
@@ -731,19 +750,16 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         11: "Novembro",
         12: "Dezembro"
     }
-
-        periodicidade = {False: "Ocasional", True: "Recorrente"}
-
+       
         return {
-            attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
-            periodicidade[getattr(self, attr.name)] if attr.name == "recorrente" and getattr(self, attr.name) in periodicidade else
-            getattr(self, attr.name)
-            if attr.name not in ["mes", "recorrente"] else None
+                attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
+                getattr(self, attr.name)
             for attr in self.__table__.columns
         }
     
 
 def add_opniveis():
+
     op_nome_da_tabela = ['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
@@ -886,8 +902,7 @@ def add_opniveis():
         ]
     }
 
-  
-
+    
     for nome_da_tabela in op_nome_da_tabela:
         opnome = AuxDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
         if not opnome:

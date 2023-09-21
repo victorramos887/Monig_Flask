@@ -35,11 +35,11 @@ def test_update_escola(app, new_escolas, update_escola):
             content_type='application/json'
         )
 
-        # trunk-ignore(bandit/B101)
         assert insertrescola.status_code == 200
 
         response_dict = json.loads(insertrescola.get_data())
-
+        update_escola['nome'] = 'Escola Edição'
+        
         json_data = json.dumps(update_escola)
         response = app.test_client().put(
             f"/api/v1/editar/escolas/{response_dict['id']}",  # Correção aqui
@@ -47,8 +47,19 @@ def test_update_escola(app, new_escolas, update_escola):
             content_type='application/json'
         )
 
-        # trunk-ignore(bandit/B101)
         assert response.status_code == 200
+        
+        
+        #VERSIONAMENTO
+        
+        response_version_escola = app.test_client().get(
+            'api/v1/version/escolas-editadas'
+        )
+
+        version_update = json.loads(response_version_escola.get_data())
+        
+        assert response_version_escola.status_code == 200
+        assert version_update[0]['nome'] == 'Escola Edição'
 
 
 def test_update_edificios(app, new_escolas, new_edificios):
@@ -72,6 +83,8 @@ def test_update_edificios(app, new_escolas, new_edificios):
 
         response_dict = json.loads(insertescola.get_data())
 
+        
+        new_edificios['nome_do_edificio'] = 'Edificio Edição'
         json_data = json.dumps(new_edificios)
         response = app.test_client().put(
             f"/api/v1/editar/edificios/{response_dict['id']}",  
@@ -80,6 +93,17 @@ def test_update_edificios(app, new_escolas, new_edificios):
         )
 
         assert response.status_code == 200
+        
+        #VERSIONAMENTO
+        response_version_edificio = app.test_client().get(
+            'api/v1/version/edificio-editados'
+        )
+
+        version_update = json.loads(response_version_edificio.get_data())
+        
+        assert response_version_edificio.status_code == 200
+        # assert version_update[0]['nome'] == 'Edificio Edição'
+
 
 #testar
 def test_update_reservatorio(app, new_escolas, new_reservatorio):
