@@ -194,6 +194,14 @@ def eventos_cadastro():
     try:
 
         formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+    
+    try:
 
         fk_tipo = formulario.get("fk_tipo", None)
         nome = formulario.get("nome", None)

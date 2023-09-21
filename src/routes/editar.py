@@ -668,7 +668,7 @@ def tipo_evento_editar(id):
         tipo_evento.update(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
-            recorrente=periodicidade,
+            periodicidade=periodicidade,
             dia=dia,
             mes= mes,
             requer_acao=requer_acao,
