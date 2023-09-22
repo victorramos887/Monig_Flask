@@ -2,7 +2,7 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -367,11 +367,10 @@ def get_tipo_de_eventos(id):
         }), 404
 
 
-
 @send_frontend.get('/eventos')
 def get_eventos():
 
-    eventos = Eventos.query.filter_by().all()
+    eventos = Eventos.query.all()
     
     return jsonify({
             "eventos":[
@@ -431,21 +430,73 @@ def get_tipos_recorrente_ocasional(recorrente):
             'message': 'verifique o valor informado'
         }), 404
            
-           
-       
-      
+
         
-#retorno de locais por tipo de local
+#retorno tipo_de_local
+@send_frontend.get('/tipo-de-local')
+def get_tipo_local():
 
-#tipo de locais
+            tipo_local = AuxDeLocais.query.all()
+            
+            return jsonify({
+            "tipo_de_local":[
+                {"id":local.id, "nome":local.nome_da_tabela } for local in tipo_local
+            ],
+                "status":True
+            }), 200
+            
+        
+        
+@send_frontend.get('/local/<int:tipo>')
+def get_local(tipo):
+    
+    #filtrar o tipo
+    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() 
 
-#tipo de evento
-
-@send_frontend.get('/testando')
-def testandoretorno():
-
-    print(request.get_json())
-
-    return "Retorno"
-
+    if tipo_local is None:
+         return jsonify({
+             "message": "Tipo de local não encontrado",
+             "status": False
+         }), 400
+         
+    tabela = tipo_local.nome_da_tabela
+    
+    tabelas = {
+        'Escola': Escolas,
+        'Edificação': Edificios,
+        'Área Úmida': AreaUmida,
+        'Reservatório': Reservatorios,
+        'Equipamento': Equipamentos,
+        'Hidrômetro': Hidrometros
+    }
+        
+    modelo = tabelas.get(tabela) 
+    
+    if modelo == Escolas:
+        tabela = modelo.query.with_entities(Escolas.id, Escolas.nome).all()
+    elif modelo == Edificios:
+        tabela = modelo.query.with_entities(Edificios.id, Edificios.nome_do_edificio).all()
+    elif modelo == AreaUmida:
+        tabela = modelo.query.with_entities(AreaUmida.id, AreaUmida.nome_area_umida).all()
+    elif modelo == Reservatorios:
+        tabela = modelo.query.with_entities(Reservatorios.id, Reservatorios.nome_do_reservatorio).all()
+    elif modelo == Equipamentos:
+        tabela = modelo.query.with_entities(AuxTiposEquipamentos.id, AuxTiposEquipamentos.aparelho_sanitario).all()
+    elif modelo == Hidrometros:
+        tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
+        
+        return jsonify({
+        "local": [
+            {"id": l[0], "nome": l[1]} for l in tabela
+        ],
+            "status":True
+        }), 200
+        
+    else:
+         return jsonify({
+             "message": "Tabela não encontrada",
+             "status": False
+         }), 400
+        
+    
 
