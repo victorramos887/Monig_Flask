@@ -4,16 +4,15 @@ from datetime import datetime
 from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
-from flask import current_app
-from flask_continuum import Continuum, VersioningMixin
+from flask_continuum import VersioningMixin, Continuum
+# from flask_alembic import Alembic
 
 db = SQLAlchemy()
-
-#Flask Cotinnue
-
+Base = declarative_base()
+# alembic = Alembic()
 continuum = Continuum(db)
 
-class Cliente(db.Model):
+class Cliente(db.Model, Base):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'cliente'
@@ -23,7 +22,9 @@ class Cliente(db.Model):
     email = db.Column(db.String(55), unique=True, nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     telefone = db.Column(db.String(12))
+    valor = db.Column(db.String)
     usuarios = db.relationship('Usuarios', backref='usuarios')
+    
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -31,8 +32,9 @@ class Cliente(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome, cnpj, email, telefone):
+    def __init__(self, nome, cnpj, email, telefone, valor):
         self.nome = nome
+        self.valor = valor
         self.email = email
         self.cnpj = cnpj
         self.telefone = telefone
@@ -41,21 +43,7 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-# Historico geral
-# class Historico(db.Model):
-#     __table_args__ = {'schema': 'main'}
-#     __tablename__ = 'historico'
-
-#     id = db.Column(db.Integer, primary_key=True)
-#     tabela = db.Column(db.String, nullable=False)
-#     dados = db.Column(db.JSON, nullable=False)
-#     data_alteracao = db.Column(db.DateTime, default=datetime.now)
-
-#     def to_json(self):
-#         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
-
-class Escolas(db.Model, VersioningMixin):
+class Escolas(db.Model, Base, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escolas'
@@ -88,7 +76,7 @@ class Escolas(db.Model, VersioningMixin):
 
 
 
-class Reservatorios(db.Model, VersioningMixin):
+class Reservatorios(db.Model, Base, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
 
@@ -118,7 +106,7 @@ class Reservatorios(db.Model, VersioningMixin):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class Edificios(db.Model, VersioningMixin):
+class Edificios(db.Model, Base, VersioningMixin):
 
     # trunk-ignore(ruff/D300)
     '''__table_args__ = (db.UniqueConstraint('nome_do_edificio', 'fk_escola', name='nome_edifico_unico'),
@@ -213,7 +201,7 @@ class Edificios(db.Model, VersioningMixin):
         return jsonRetorn
 
 
-class Populacao(db.Model, VersioningMixin):
+class Populacao(db.Model, Base, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao'
 
@@ -258,7 +246,7 @@ class Populacao(db.Model, VersioningMixin):
         return jsonRetorno
 
 
-class Hidrometros(db.Model, VersioningMixin):
+class Hidrometros(db.Model, Base, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'hidrometros'
 
@@ -286,7 +274,7 @@ class Hidrometros(db.Model, VersioningMixin):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AreaUmida(db.Model, VersioningMixin):
+class AreaUmida(db.Model, Base, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'area_umida'
@@ -307,14 +295,9 @@ class AreaUmida(db.Model, VersioningMixin):
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
     tipo_area_umida_rel = db.relationship(
         'AuxTipoAreaUmida', backref='aux_tipo_area_umida')
-
     operacao_area_umida_rel = db.relationship(
         'AuxOperacaoAreaUmida', backref='aux_operacao_area_umida'
     )
-
-    # status_area_umida_rel = db.relationship(
-    #     'StatusAreaUmida', backref='aux_status_area_umida'
-    # )
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -341,8 +324,7 @@ class AreaUmida(db.Model, VersioningMixin):
         # jsonRetorno['status_area_umida'] = status_area_umida
         return jsonRetorno
 
-
-class Equipamentos(db.Model, VersioningMixin):
+class Equipamentos(db.Model, Base, VersioningMixin):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'equipamentos'
@@ -383,17 +365,17 @@ class Equipamentos(db.Model, VersioningMixin):
         return jsonRetorno
 
 # Tabela auxiliar
-class Customizados(db.Model):
+class Customizados(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_customizado_cliente'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    nivel_escola = db.Column(db.JSON(db.String))
-    tipo_area_umida = db.Column(db.JSON(db.String))
-    status_area_umida = db.Column(db.JSON(db.String))
-    tipo_equipamento = db.Column(db.JSON(db.String))
-    descricao_equipamento = db.Column(db.JSON(db.String))
-    periodo_populacao = db.Column(db.JSON(db.String))
+    nivel_escola = db.Column(db.String)
+    tipo_area_umida = db.Column(db.String)
+    status_area_umida = db.Column(db.String)
+    tipo_equipamento = db.Column(db.String)
+    descricao_equipamento = db.Column(db.String)
+    periodo_populacao = db.Column(db.String)
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -411,7 +393,7 @@ class Customizados(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # USUARIOS
-class Usuarios(db.Model):
+class Usuarios(db.Model, Base):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'usuarios'
@@ -440,7 +422,7 @@ class Usuarios(db.Model):
 # TABELAS DE OPÇÕES
 
 
-class PopulacaoNiveis(db.Model):
+class PopulacaoNiveis(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao_niveis'
 
@@ -450,7 +432,7 @@ class PopulacaoNiveis(db.Model):
         'main.aux_opniveis.id'), primary_key=True)
 
 
-class AuxPopulacaoPeriodo(db.Model):
+class AuxPopulacaoPeriodo(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_populacao_periodos'
 
@@ -470,7 +452,7 @@ class AuxPopulacaoPeriodo(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AuxTipoAreaUmida(db.Model):
+class AuxTipoAreaUmida(db.Model, Base):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_tipo_area_umida'
@@ -491,7 +473,7 @@ class AuxTipoAreaUmida(db.Model):
             setattr(self, key, value)
 
 
-class AuxOperacaoAreaUmida(db.Model):
+class AuxOperacaoAreaUmida(db.Model, Base):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_operacao_area_umida'
@@ -512,7 +494,7 @@ class AuxOperacaoAreaUmida(db.Model):
             setattr(self, key, value)
 
 
-class AuxOpNiveis(db.Model):
+class AuxOpNiveis(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_opniveis'
 
@@ -532,7 +514,7 @@ class AuxOpNiveis(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AuxTiposEquipamentos(db.Model):
+class AuxTiposEquipamentos(db.Model, Base):
 
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_tipo_equipamentos'
@@ -557,7 +539,7 @@ class AuxTiposEquipamentos(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AuxTipoHidrometro(db.Model):
+class AuxTipoHidrometro(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_tipo_hidrometros'
 
@@ -574,7 +556,7 @@ class AuxTipoHidrometro(db.Model):
 
 
 # Tabelas auxiliares MxM
-class EscolaNiveis(db.Model, VersioningMixin):
+class EscolaNiveis(db.Model, Base, VersioningMixin):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
 
@@ -583,7 +565,7 @@ class EscolaNiveis(db.Model, VersioningMixin):
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_opniveis.id'), primary_key=True)
 
-class ReservatorioEdificio(db.Model):
+class ReservatorioEdificio(db.Model, Base):
 
     # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
@@ -595,7 +577,7 @@ class ReservatorioEdificio(db.Model):
         'main.reservatorios.id'), primary_key=True)
 
 
-class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
+class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model, Base):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_area_umida_equipamento'
 
@@ -623,7 +605,7 @@ class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
 
 
 # EVENTOS
-class Eventos(db.Model, VersioningMixin):
+class Eventos(db.Model, Base, VersioningMixin):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
@@ -671,7 +653,7 @@ class Eventos(db.Model, VersioningMixin):
     
        
 
-class AuxDeLocais(db.Model):
+class AuxDeLocais(db.Model, Base):
 
     __table_args__ = {"schema": "main"}
     __tablename__ = 'aux_de_locais'
@@ -693,7 +675,7 @@ class AuxDeLocais(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-class AuxTipoDeEventos(db.Model, VersioningMixin):
+class AuxTipoDeEventos(db.Model, Base, VersioningMixin):
     __table_args__ = {"schema": "main"}
     __tablename__ = 'aux_tipo_de_eventos'
 
@@ -709,6 +691,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
     unidade = db.Column(db.String)
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
+    color = db.Column(db.String)
     status_do_registro = db.Column(db.Boolean, default=True)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     created_at = db.Column(db.DateTime, default=datetime.now())
@@ -718,7 +701,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None):
+    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None, color=None):
     
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
@@ -729,6 +712,7 @@ class AuxTipoDeEventos(db.Model, VersioningMixin):
         self.tempo = tempo
         self.unidade = unidade
         self.acao = acao
+        self.color = color
 
     def to_json(self):
         meses_dict = {
@@ -972,3 +956,7 @@ def add_opniveis():
                         db.session.add(areaumidaequipamento)
 
             db.session.commit()
+
+continuum.configure(
+    
+)

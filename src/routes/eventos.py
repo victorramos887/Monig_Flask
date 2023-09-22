@@ -6,6 +6,8 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from ..models import Eventos, Escolas, Edificios, AreaUmida, Reservatorios, Hidrometros, AuxTipoDeEventos, AuxDeLocais, db
 from sqlalchemy.exc import ArgumentError
+from random import randint
+
 
 eventos = Blueprint('eventos', __name__, url_prefix='/api/v1/cadastro-evento')
 
@@ -74,13 +76,18 @@ def tipoeventoocasional():
     try:
         #Verificar no models, deixar enviar como None
         
+        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        
+        print()
+        
         tipoevento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_evento,
             recorrente=False,
             requer_acao=requerResposta,
             tempo=tolerencia,
-            unidade=unidade
+            unidade=unidade,
+            color=color
         )
 
         db.session.add(tipoevento)
@@ -138,6 +145,9 @@ def tipoeventorecorrente():
             'unidade') if formulario.get('unidade') else None
         acao = formulario.get('ehResposta') if formulario.get(
             'ehResposta') is not None else False
+        
+        #COR ALEATÓRIA
+        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
 
         tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
@@ -148,7 +158,8 @@ def tipoeventorecorrente():
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
-            acao=acao
+            acao=acao,
+            color=color
         )
 
         db.session.add(tipo_evento)
