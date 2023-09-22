@@ -452,25 +452,24 @@ def get_local(tipo):
     
     #filtrar o tipo
     tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() 
-    
-    #VERIFICAR PORQUE RETORNA 500 QUANDO DIGITA UM VALOR QUE NÃO ESTÁ NA TABELA 
-    if tipo_local is None:
-        return jsonify({
-            "message": "Tipo de local não encontrado",
-            "status": False
-        }), 400
 
+    if tipo_local is None:
+         return jsonify({
+             "message": "Tipo de local não encontrado",
+             "status": False
+         }), 400
+         
     tabela = tipo_local.nome_da_tabela
     
     tabelas = {
         'Escola': Escolas,
         'Edificação': Edificios,
-        'Área Umida': AreaUmida,
+        'Área Úmida': AreaUmida,
         'Reservatório': Reservatorios,
         'Equipamento': Equipamentos,
         'Hidrômetro': Hidrometros
     }
-    
+        
     modelo = tabelas.get(tabela) 
     
     if modelo == Escolas:
@@ -486,12 +485,18 @@ def get_local(tipo):
     elif modelo == Hidrometros:
         tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
         
-
-    return jsonify({
+        return jsonify({
         "local": [
             {"id": l[0], "nome": l[1]} for l in tabela
         ],
             "status":True
         }), 200
+        
+    else:
+         return jsonify({
+             "message": "Tabela não encontrada",
+             "status": False
+         }), 400
+        
+    
 
-   
