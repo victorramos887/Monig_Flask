@@ -32,7 +32,10 @@ def create_app(test_config=None):
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
-            SQLALCHEMY_DATABASE_URI='postgresql://postgres:postgres@localhost:5432/monig',
+            SQLALCHEMY_DATABASE_URI='postgresql://{user}:{pw}@{url}/{db}'.format(user=os.getenv("POSTGRES_USER"),
+                                                                                    pw=os.getenv("POSTGRES_PASSWORD"),
+                                                                                    url=os.getenv("POSTGRES_ENDPOINT"),
+                                                                                    db=os.getenv("POSTGRES_DATABASE")),
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),

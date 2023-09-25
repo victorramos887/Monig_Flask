@@ -23,6 +23,7 @@ def app():
     # Configura a aplicação para usar o banco de dados de teste
 
     from src import create_app
+    from src.models import add_opniveis
     app = create_app({
         'TESTING': True,
         'SQLALCHEMY_DATA_BASE_URI': 'sqlite:///test.db'
@@ -35,6 +36,7 @@ def app():
         # Cria o banco de dados de testes e tabelas
         from src.models import db
         db.create_all()
+        add_opniveis()
         yield app
 
         # Limpando banco de dados de teste após cada execução do teste
