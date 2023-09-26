@@ -87,6 +87,7 @@ def tipoeventoocasional():
             requer_acao=requerResposta,
             tempo=tolerencia,
             unidade=unidade,
+            acao=ehResposta,
             color=color
         )
 
@@ -95,7 +96,7 @@ def tipoeventoocasional():
         
         return jsonify({
                 "status":True,
-                "tipo_de_evento":'tipoevento'
+                "tipo_de_evento":tipoevento.to_json()
             }), 200 #Terminar Retorno
 
     except exc.DBAPIError as e:

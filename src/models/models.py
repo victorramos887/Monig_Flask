@@ -57,7 +57,6 @@ class Escolas(db.Model):
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
     telefone = db.Column(db.String(25))  # 16
-    status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -86,7 +85,6 @@ class Reservatorios(db.Model):
         db.Integer, autoincrement=True, primary_key=True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     edificio = db.relationship(
@@ -136,7 +134,6 @@ class Edificios(db.Model):
     area_total_edificio = db.Column(db.Float)
     capacidade_reuso_m3_edificio = db.Column(db.Float)
     agua_de_reuso = db.Column(db.Boolean, default=False)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
@@ -216,7 +213,6 @@ class Populacao(db.Model):
         'main.aux_populacao_periodos.id'))
     funcionarios = db.Column(db.Integer)
     alunos = db.Column(db.Integer)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -244,7 +240,6 @@ class Populacao(db.Model):
         jsonRetorno['nivel'] = self.opniveis.nivel
         jsonRetorno['alunos'] = self.alunos
         jsonRetorno['funcionarios'] = self.funcionarios
-        jsonRetorno['status_do_registro'] = self.status_do_registro
 
         # {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
         return jsonRetorno
@@ -260,7 +255,6 @@ class Hidrometros(db.Model):
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     fk_hidrometro = db.Column(
         db.Integer, db.ForeignKey('main.aux_tipo_hidrometros.id'), default=1)
-    status_do_registro = db.Column(db.Boolean, default=True)
     hidrometro = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -296,7 +290,6 @@ class AreaUmida(db.Model):
     )
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
@@ -345,7 +338,6 @@ class Equipamentos(db.Model):
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_equipamento_rel = db.relationship(
@@ -719,7 +711,6 @@ class AuxTipoDeEventos(db.Model):
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_tipo_de_evento = db.Column(db.String)
     recorrente = db.Column(db.Boolean)
-   # periodicidade = db.Column(db.Boolean)
     dia = db.Column(db.Integer)
     mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)
@@ -728,7 +719,6 @@ class AuxTipoDeEventos(db.Model):
     acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     color = db.Column(db.String)
-    status_do_registro = db.Column(db.Boolean, default=True)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     created_at = db.Column(db.DateTime, default=datetime.now())
 

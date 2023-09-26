@@ -17,7 +17,7 @@ def reverter_escola(id):
         return jsonify({"status": True, 'mensagem': 'Escola restaurada'}), HTTP_200_OK 
     
 
-#EDITAR ESCOLA
+
 @remover.put('/escolas/<id>')
 def escolas_remover(id):
 
@@ -31,47 +31,39 @@ def escolas_remover(id):
         if niveis:
             for nivel in niveis:
                 db.session.delete(nivel)
+        
+        reservatorios = Reservatorios.query.filter_by(fk_escola=id).all()
+        if reservatorios:
+            for reservatorio in reservatorios:
+                db.session.delete(reservatorio)
 
         edificios =  Edificios.query.filter_by(fk_escola=id).all()
         if edificios:
             for edificio in edificios:
 
-                area_umidas =  AreaUmida.query.filter_by(fk_edificios=id).all()
+                area_umidas =  AreaUmida.query.filter_by(fk_edificios=edificio.id).all()
                 if area_umidas:
                     for area_umida in area_umidas:
                     
                         equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id)
                         if equipamentos:
                             for equipamento in equipamentos:
-                                # equipamento.status_do_registro = False
                                 db.session.delete(equipamento)
 
-                    area_umida.status_do_registro = False
                     db.session.delete(area_umida)
-            
 
                 hidrometros = Hidrometros.query.filter_by(fk_edificios=edificio.id)
                 if hidrometros:
                     for hidrometro in hidrometros:
-                        # hidrometro.status_do_registro = False
                         db.session.delete(hidrometro)
                 
                 populacao  = Populacao.query.filter_by(fk_edificios=edificio.id)
                 if populacao:
                     for populacao_ in populacao :
-                        # populacao_.status_do_registro = False
                         db.session.delete(populacao_)
 
-                edificio.status_do_registro = False
-                db.session.delete(edificio)
+        db.session.delete(edificio)
 
-        reservatorios = Reservatorios.query.filter_by(fk_escola=id).all()
-        if reservatorios:
-            for reservatorio in reservatorios:
-                # reservatorio.status_do_registro = False
-                db.session.delete(reservatorio)
-                
-        escola.status_do_registro = False
         db.session.delete(escola)
         db.session.commit()
         return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK 
@@ -92,30 +84,26 @@ def edificios_remover(id):
         if not edificio:
             return jsonify({'status':False,'mensagem': 'Edificio não encontrado'}), 404 
        
-        area_umidas =  AreaUmida.query.filter_by(fk_edificios=id).all()
+        area_umidas =  AreaUmida.query.filter_by(fk_edificios=edificio.id).all()
         if area_umidas:
             for area_umida in area_umidas:
             
                 equipamentos = Equipamentos.query.filter_by(fk_area_umida=area_umida.id)
                 if equipamentos:
                     for equipamento in equipamentos:
-                        # equipamento.status_do_registro = False
                         db.session.delete(equipamento)
 
-            area_umida.status_do_registro = False
             db.session.delete(area_umida)
     
 
         hidrometros = Hidrometros.query.filter_by(fk_edificios=edificio.id)
         if hidrometros:
             for hidrometro in hidrometros:
-                # hidrometro.status_do_registro = False
                 db.session.delete(hidrometro)
         
         populacao  = Populacao.query.filter_by(fk_edificios=edificio.id)
         if populacao:
             for populacao_ in populacao :
-                # populacao_.status_do_registro = False
                 db.session.delete(populacao_)
 
         db.session.delete(edificio)
@@ -128,9 +116,7 @@ def edificios_remover(id):
             "status":False, 'mensagem':"Erro não tratado", "codigo":str(e)
         }), 400
 
-    return jsonify({"status": True, 'mensagem': 'Edificio removido'}), HTTP_200_OK
-
-
+    
 #hidrometro
 @remover.put('/hidrometros/<id>')
 def hidrometro_remover(id):
