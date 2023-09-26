@@ -719,7 +719,6 @@ class AuxTipoDeEventos(db.Model):
     fk_cliente = db.Column(db.Integer, db.ForeignKey("main.cliente.id"))
     nome_do_tipo_de_evento = db.Column(db.String)
     recorrente = db.Column(db.Boolean)
-   # periodicidade = db.Column(db.Boolean)
     dia = db.Column(db.Integer)
     mes = db.Column(db.Integer)
     requer_acao = db.Column(db.Boolean)

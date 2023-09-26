@@ -334,10 +334,10 @@ def reservatorios(id):
 
 
 @send_frontend.get('/tipo-de-eventos/<int:id>')
-def tipo_de_eventos(id):
-
+def tipo_de_eventos(id):  
+   
     tipo_de_eventos = AuxTipoDeEventos.query.filter_by(
-        fk_cliente = id
+        recorrente = True if id == 1 else False
     ).all()
 
     return jsonify({
