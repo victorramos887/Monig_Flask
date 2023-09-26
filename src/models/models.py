@@ -6,9 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
-# from flask_continuum impor, Continuum
-# from flask_alembic import Alembic
-# from flask_migrate import Migrate
+
 
 db = SQLAlchemy()
 
@@ -20,7 +18,6 @@ make_versioned(user_cls=None)
 
 class Cliente(db.Model):
 
-    
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'cliente'
 
@@ -29,9 +26,9 @@ class Cliente(db.Model):
     email = db.Column(db.String(55), unique=True, nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
     telefone = db.Column(db.String(12))
-    
+
     usuarios = db.relationship('Usuarios', backref='usuarios')
-    
+
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -51,13 +48,9 @@ class Cliente(db.Model):
 
 class Escolas(db.Model):
 
-    
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escolas'
-    # __versioned__ = {
-    #     include
-    # }
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome = db.Column(db.String, unique=True)  # 255
@@ -83,9 +76,8 @@ class Escolas(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
-
 class Reservatorios(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorios'
@@ -117,7 +109,6 @@ class Reservatorios(db.Model):
 
 
 class Edificios(db.Model):
-
 
     __versioned__ = {}
     # trunk-ignore(ruff/D300)
@@ -164,7 +155,8 @@ class Edificios(db.Model):
 
     def update_principal(self):
         print(self.id)
-        escola_principal = Edificios.query.filter(Edificios.fk_escola == self.fk_escola, Edificios.principal == True).first()
+        escola_principal = Edificios.query.filter(
+            Edificios.fk_escola == self.fk_escola, Edificios.principal == True).first()
         print(escola_principal.fk_escola)
         if escola_principal:
             escola_principal.principal = False
@@ -173,10 +165,8 @@ class Edificios(db.Model):
 
             return self.to_json()
         else:
-            return {}     
-        
-           
-            
+            return {}
+
     def __init__(self, fk_escola, numero_edificio, nome_do_edificio, cnpj_edificio, logradouro_edificio, cep_edificio=None, bairro_edificio=None, complemento_edificio=None, cidade_edificio=None, estado_edificio=None, agua_de_reuso=False, capacidade_reuso_m3_edificio=None, pavimentos_edificio=None, area_total_edificio=None, principal=False):
 
         self.fk_escola = fk_escola
@@ -214,7 +204,7 @@ class Edificios(db.Model):
 
 
 class Populacao(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao'
@@ -254,14 +244,14 @@ class Populacao(db.Model):
         jsonRetorno['nivel'] = self.opniveis.nivel
         jsonRetorno['alunos'] = self.alunos
         jsonRetorno['funcionarios'] = self.funcionarios
-        jsonRetorno['status_do_registro']=self.status_do_registro
+        jsonRetorno['status_do_registro'] = self.status_do_registro
 
         # {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
         return jsonRetorno
 
 
 class Hidrometros(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'hidrometros'
@@ -292,7 +282,6 @@ class Hidrometros(db.Model):
 
 class AreaUmida(db.Model):
 
-    
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'area_umida'
@@ -342,9 +331,9 @@ class AreaUmida(db.Model):
         # jsonRetorno['status_area_umida'] = status_area_umida
         return jsonRetorno
 
+
 class Equipamentos(db.Model):
-    
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'equipamentos'
@@ -385,6 +374,8 @@ class Equipamentos(db.Model):
         return jsonRetorno
 
 # Tabela auxiliar
+
+
 class Customizados(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_customizado_cliente'
@@ -413,6 +404,8 @@ class Customizados(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 # USUARIOS
+
+
 class Usuarios(db.Model):
 
     __versioned__ = {}
@@ -444,7 +437,7 @@ class Usuarios(db.Model):
 
 
 class PopulacaoNiveis(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'populacao_niveis'
@@ -580,7 +573,7 @@ class AuxTipoHidrometro(db.Model):
 
 # Tabelas auxiliares MxM
 class EscolaNiveis(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
@@ -590,9 +583,9 @@ class EscolaNiveis(db.Model):
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_opniveis.id'), primary_key=True)
 
+
 class ReservatorioEdificio(db.Model):
-    
-    
+
     __versioned__ = {}
     # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
@@ -633,12 +626,13 @@ class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
 
 # EVENTOS
 class Eventos(db.Model):
-    
+
     __versioned__ = {}
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    fk_tipo = db.Column(db.Integer, db.ForeignKey('main.aux_tipo_de_eventos.id'))
+    fk_tipo = db.Column(db.Integer, db.ForeignKey(
+        'main.aux_tipo_de_eventos.id'))
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
     datafim = db.Column(db.DateTime)
@@ -646,15 +640,17 @@ class Eventos(db.Model):
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.aux_de_locais.id'))  # 3
     observacao = db.Column(db.Text)
-    
-    created_at = db.Column(db.DateTime, default=datetime.now())
 
+    tipodeevento = db.relationship(
+        'AuxTipoDeEventos', backref='tipodeevento')
+
+    created_at = db.Column(db.DateTime, default=datetime.now())
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao): #cod_usuarios
+    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao):  # cod_usuarios
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
@@ -662,25 +658,36 @@ class Eventos(db.Model):
         self.local = local
         self.tipo_de_local = tipo_de_local
         self.observacao = observacao
+
     def to_json(self):
-        
+
         colors = {
-        "verde": "#9cb56e",
-        "rosa": "#d57272",
-        "azul": "#99C8E9",
-        "roxo": "#BCA2E1",
-        "amarelo": "#FEE57F",
-        "laranja": "#F27B37"
-    }
-       
+            "verde": "#9cb56e",
+            "rosa": "#d57272",
+            "azul": "#99C8E9",
+            "roxo": "#BCA2E1",
+            "amarelo": "#FEE57F",
+            "laranja": "#F27B37"
+        }
+
         return {
-                attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
-                getattr(self, attr.name)
+            attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
+            getattr(self, attr.name)
             for attr in self.__table__.columns
         }
-        
+
+    def retornoFullCalendar(self):
     
-       
+        calendar = {
+            "id": self.id,
+            "title": self.nome,
+            "start": str(self.datainicio).format("%d/%m/%Y"),
+            "end": str(self.datafim).format("%d/%m/%Y"),
+            "color": self.tipodeevento.color
+        }
+
+        return calendar
+
 
 class AuxDeLocais(db.Model):
 
@@ -724,14 +731,13 @@ class AuxTipoDeEventos(db.Model):
     status_do_registro = db.Column(db.Boolean, default=True)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     created_at = db.Column(db.DateTime, default=datetime.now())
-   
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
     def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None, color=None):
-    
+
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
         self.recorrente = recorrente
@@ -745,29 +751,30 @@ class AuxTipoDeEventos(db.Model):
 
     def to_json(self):
         meses_dict = {
-        1: "Janeiro",
-        2: "Fevereiro",
-        3: "Março",
-        4: "Abril",
-        5: "Maio",
-        6: "Junho",
-        7: "Julho",
-        8: "Agosto",
-        9: "Setembro",
-        10: "Outubro",
-        11: "Novembro",
-        12: "Dezembro"
-    }
-       
+            1: "Janeiro",
+            2: "Fevereiro",
+            3: "Março",
+            4: "Abril",
+            5: "Maio",
+            6: "Junho",
+            7: "Julho",
+            8: "Agosto",
+            9: "Setembro",
+            10: "Outubro",
+            11: "Novembro",
+            12: "Dezembro"
+        }
+
         return {
-                attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
-                getattr(self, attr.name)
+            attr.name: meses_dict[getattr(self, attr.name)] if attr.name == "mes" and getattr(self, attr.name) in meses_dict else
+            getattr(self, attr.name)
             for attr in self.__table__.columns
         }
-    
+
 
 def add_opniveis():
-    op_nome_da_tabela = ['Escola', 'Edificação','Área Úmida', 'Reservatório', 'Equipamento', 'Hidrômetro']
+    op_nome_da_tabela = ['Escola', 'Edificação', 'Área Úmida',
+                         'Reservatório', 'Equipamento', 'Hidrômetro']
     opniveis = ['Médio', 'Superior', 'Fundamental', 'CEU', 'Berçario', 'EJA']
     tipoareaumida = ['Banheiro', 'Cozinha', 'Lavanderia',
                      'Piscina', 'Jardim', 'Areas Umida Comum']
@@ -909,13 +916,13 @@ def add_opniveis():
         ]
     }
 
-    
     for nome_da_tabela in op_nome_da_tabela:
-        opnome = AuxDeLocais.query.filter_by(nome_da_tabela=nome_da_tabela).first()
+        opnome = AuxDeLocais.query.filter_by(
+            nome_da_tabela=nome_da_tabela).first()
         if not opnome:
             opnome = AuxDeLocais(nome_da_tabela=nome_da_tabela)
             db.session.add(opnome)
-       
+
     for nivel in opniveis:
         opnivel = AuxOpNiveis.query.filter_by(nivel=nivel).first()
         if not opnivel:
