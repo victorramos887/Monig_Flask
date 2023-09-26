@@ -6,6 +6,8 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from ..models import Eventos, Escolas, Edificios, AreaUmida, Reservatorios, Hidrometros, AuxTipoDeEventos, AuxDeLocais, db
 from sqlalchemy.exc import ArgumentError
+from random import randint
+
 
 eventos = Blueprint('eventos', __name__, url_prefix='/api/v1/cadastro-evento')
 
@@ -74,13 +76,18 @@ def tipoeventoocasional():
     try:
         #Verificar no models, deixar enviar como None
         
+        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        
+        print()
+        
         tipoevento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_evento,
             recorrente=False,
             requer_acao=requerResposta,
             tempo=tolerencia,
-            unidade=unidade
+            unidade=unidade,
+            color=color
         )
 
         db.session.add(tipoevento)
@@ -138,6 +145,9 @@ def tipoeventorecorrente():
             'unidade') if formulario.get('unidade') else None
         acao = formulario.get('ehResposta') if formulario.get(
             'ehResposta') is not None else False
+        
+        #COR ALEATÓRIA
+        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
 
         tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
@@ -148,7 +158,8 @@ def tipoeventorecorrente():
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
-            acao=acao
+            acao=acao,
+            color=color
         )
 
         db.session.add(tipo_evento)
@@ -203,13 +214,13 @@ def eventos_cadastro():
     
     try:
 
-        fk_tipo = formulario.get("fk_tipo", None)
-        nome = formulario.get("nome", None)
-        datainicio = formulario.get("datainicio", None)
-        datafim = formulario.get("datafim", None)
+        fk_tipo = formulario.get("tipo_de_evento", None)
+        nome = formulario.get("nome_do_evento", None)
+        datainicio = formulario.get("data_inicio", None)
+        datafim = formulario.get("data_fim", None)
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None) # VERIFICAR SE HÁ UM ID NO 
-        observacao = formulario.get("observacao", None)
+        observacao = formulario.get("observacoes", None)
 
 
         #Tratamento de tipo_de_local
@@ -223,7 +234,7 @@ def eventos_cadastro():
             }), 400
             
         
-        local_fk = obter_local(tipo_de_local,local)
+        local_fk = obter_local(tipo_de_local, local)
         
         if not local_fk:
             return jsonify({
@@ -231,8 +242,19 @@ def eventos_cadastro():
                 "status":False
             }), 400
             
+            
+        tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=fk_tipo).first()
+        
+        if not tipo_de_evento_fk:
+            
+            return jsonify({
+                "mensagem":f"Não foi encontrado o tipo de evento {fk_tipo}",
+                "status":False
+            }), 400
+            
+        
         evento = Eventos(
-            fk_tipo=fk_tipo,
+            fk_tipo=tipo_de_evento_fk.id,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,

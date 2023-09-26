@@ -1,13 +1,24 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                       Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
+                       Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
+
+def obter_local(tipo_de_local, nome):
+    consultas = {
+        "Escola": Escolas.query.filter_by(nome=nome).first(),
+        "Edificação": Edificios.query.filter_by(nome_do_edificio=nome).first(),
+        "Área Úmida": AreaUmida.query.filter_by(nome_area_umida=nome).first(),
+        "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
+        "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
+    }
+    
+    return consultas.get(tipo_de_local)
 
 # EDITAR Cliente
 @editar.put('/cliente/<id>')
@@ -725,24 +736,49 @@ def evento_editar(id):
 
     try:
        
-        fk_tipo = formulario['fk_tipo']
-        nome = formulario['nome']
-        datainicio = formulario['datainicio']
-        datafim = formulario["datafim"]
-        prioridade = formulario["prioridade"]
+        fk_tipo = formulario['tipo_de_evento']
+        nome = formulario['nome_do_evento']
+        datainicio = formulario['data_inicio']
+        datafim = formulario["data_fim"]
         local = formulario['local']
         tipo_de_local = formulario['tipo_de_local']
-        observacao = formulario["observacao"]
-    
+        observacao = formulario["observacoes"]
+
+        
+        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        
+        if not tipo_de_local_fk:
+            return jsonify({
+                "mensagem":f"Não foi encontrado a tabela {formulario.get('tipo_de_local')}",
+                "status":False
+            }), 400
+            
+        
+        local_fk = obter_local(tipo_de_local, local)
+        
+        if not local_fk:
+            return jsonify({
+                "mensagem":f"Não foi encontrado o local {local}",
+                "status":False
+            }), 400
+            
+            
+        tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=fk_tipo).first()
+        
+        if not tipo_de_evento_fk:
+            
+            return jsonify({
+                "mensagem":f"Não foi encontrado o tipo de evento {fk_tipo}",
+                "status":False
+            }), 400
 
         evento.update(
-            fk_tipo=fk_tipo,
+            fk_tipo=tipo_de_evento_fk.id,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
-            prioridade=prioridade,
-            local=local,
-            tipo_de_local=tipo_de_local,
+            local=local_fk.id,
+            tipo_de_local=tipo_de_local_fk.id,
             observacao=observacao
         )
 
@@ -768,6 +804,8 @@ def evento_editar(id):
         if e.orig.pgcode == '01004':
             # STRING DATA RIGHT TRUNCATION
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        
+        return jsonify({'status': False, 'mensagem': "Erro não tratado", 'codigo': f'{e}'}), 400
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:

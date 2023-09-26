@@ -370,11 +370,20 @@ def get_tipo_de_eventos(id):
 @send_frontend.get('/eventos')
 def get_eventos():
 
+
+#     {
+#     "id": 1,
+#     "title": "FESTA JUNINA",
+#     "start": "2023-08-25",
+#     "end": "2023-08-28",
+#     "color": "#FF6666"
+#   }
+
     eventos = Eventos.query.all()
     
     return jsonify({
             "eventos":[
-                evento.to_json() for evento in eventos
+                evento.retornoFullCalendar() for evento in eventos
             ],
             "status":True
         }), 200
@@ -485,20 +494,17 @@ def get_local(tipo):
     elif modelo == Hidrometros:
         tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
    
+        
     else:
          return jsonify({
              "message": "Tabela não encontrada",
              "status": False
          }), 400
-              
+        
+    
     return jsonify({
     "local": [
         {"id": l[0], "nome": l[1]} for l in tabela
     ],
         "status":True
     }), 200
-        
-   
-        
-    
-
