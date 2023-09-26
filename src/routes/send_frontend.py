@@ -484,19 +484,21 @@ def get_local(tipo):
         tabela = modelo.query.with_entities(AuxTiposEquipamentos.id, AuxTiposEquipamentos.aparelho_sanitario).all()
     elif modelo == Hidrometros:
         tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
-        
-        return jsonify({
-        "local": [
-            {"id": l[0], "nome": l[1]} for l in tabela
-        ],
-            "status":True
-        }), 200
-        
+   
     else:
          return jsonify({
              "message": "Tabela não encontrada",
              "status": False
          }), 400
+              
+    return jsonify({
+    "local": [
+        {"id": l[0], "nome": l[1]} for l in tabela
+    ],
+        "status":True
+    }), 200
+        
+   
         
     
 
