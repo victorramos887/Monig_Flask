@@ -384,3 +384,96 @@ def test_update_usuario(app, new_usuario):
 #     with app.app_context():
 #         db.session.delete(tipo_de_evento_test)
 #         db.session.commit()
+
+
+
+
+def test_update_usuario(app, new_usuario):
+
+    with app.app_context():
+
+        app.config.update({'testing': True})
+
+        usuario = json.dumps(new_usuario)
+        insertusuario = app.test_client().post(
+            'api/v1/cadastros/usuario',
+            data=usuario,
+            content_type='application/json'
+        )
+
+        assert insertusuario.status_code == 200
+        
+
+        json_data = json.dumps(new_usuario)
+        response_dict = json.loads(insertusuario.get_data())
+        
+        response = app.test_client().put(
+            f"/api/v1/editar/usuario/{response_dict['data']['id']}",  
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        
+        
+ 
+
+def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new_evento_ocasional):
+    
+    json_data = json.dumps(new_tipo_ocasional)
+
+    with app.app_context():
+        
+        app.config.update({'testing': True})
+        
+        #cadastrar escola para puxar o local e não gerar erro
+        json_data = json.dumps(new_escola_evento)
+    
+        response = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_data,
+            content_type='application/json'
+        )
+    
+        assert response.status_code == 200
+    
+        #cadastrar tipo_evento
+        tipo = json.dumps(new_tipo_ocasional)
+
+        inserttipo = app.test_client().post(
+            '/api/v1/cadastro-evento/tipo-de-evento-ocasional',
+            data=tipo,
+            content_type='application/json'
+        )
+
+        assert inserttipo.status_code == 200
+        
+        #cadastrar o evento
+        json_data = json.dumps(new_evento_ocasional)
+
+        response = app.test_client().post(
+            'api/v1/cadastro-evento/eventos',
+            data=json_data,
+            content_type='application/json'
+        )
+        assert response.status_code == 200
+
+        #editar um evento
+        response_dict = json.loads(response.get_data())
+        print(response.get_data())
+        
+        json_data = json.dumps(new_evento_ocasional)
+        response = app.test_client().put(
+            f"/api/v1/editar/evento/{response_dict['data']['id']}",  
+            data=json_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        
+       # pytest -v -k "test_update_evento_ocasional"
+
+
+        
+        
+        
