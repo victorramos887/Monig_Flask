@@ -6,6 +6,7 @@ import json
 from dotenv import load_dotenv
 
 
+
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(BASE_DIR)
@@ -416,7 +417,6 @@ def test_update_usuario(app, new_usuario):
         assert response.status_code == 200
         
         
- 
 
 def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new_evento_ocasional):
     
@@ -448,9 +448,10 @@ def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new
 
         assert inserttipo.status_code == 200
         
-        #cadastrar o evento
+        #cadastrar o evento  
+        
         json_data = json.dumps(new_evento_ocasional)
-
+        
         response = app.test_client().post(
             'api/v1/cadastro-evento/eventos',
             data=json_data,
@@ -458,6 +459,7 @@ def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new
         )
         assert response.status_code == 200
 
+        
         #editar um evento
         response_dict = json.loads(response.get_data())
         print(response.get_data())
@@ -465,15 +467,12 @@ def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new
         json_data = json.dumps(new_evento_ocasional)
         response = app.test_client().put(
             f"/api/v1/editar/evento/{response_dict['data']['id']}",  
-            data=json_data,
+             data=json_data,
             content_type='application/json'
         )
 
         assert response.status_code == 200
         
+
+        
        # pytest -v -k "test_update_evento_ocasional"
-
-
-        
-        
-        

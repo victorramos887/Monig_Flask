@@ -371,7 +371,8 @@ def get_eventos():
 #     "title": "FESTA JUNINA",
 #     "start": "2023-08-25",
 #     "end": "2023-08-28",
-#     "color": "#FF6666"
+#     "color": "#FF6666",
+#     "recorrente": false
 #   }
 
     eventos = Eventos.query.all()
@@ -382,6 +383,7 @@ def get_eventos():
             ],
             "status":True
         }), 200
+    
 
 
 @send_frontend.get('/evento/<int:id>')
@@ -399,7 +401,7 @@ def get_evento(id):
         }), 404
         
         
-
+#retorna evento ocasional ou recorrente
 @send_frontend.get('/eventos-tipo/<int:recorrente>')
 def get_tipos_recorrente_ocasional(recorrente):
 
@@ -411,7 +413,7 @@ def get_tipos_recorrente_ocasional(recorrente):
             
             return jsonify({
             "tipo_ocasional":[
-                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_ocasional
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id, "recorrente":"False"} for tipo in tipo_ocasional
             ],
                 "status":True
             }), 200
@@ -424,7 +426,7 @@ def get_tipos_recorrente_ocasional(recorrente):
             
             return jsonify({
             "tipo_recorrente":[
-                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_recorrente
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id, "recorrente":"True"} for tipo in tipo_recorrente
             ],
                 "status":True
             }), 200

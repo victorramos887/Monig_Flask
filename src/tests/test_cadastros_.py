@@ -5,7 +5,7 @@ import json
 
 from dotenv import load_dotenv
 
-import datetime
+from datetime import datetime, date
 
 
 # Define o diretório base do projeto
@@ -233,8 +233,6 @@ def test_cadastro_eventos(app, new_evento):
         #json_data = json.dumps(new_evento, indent=4, ensure_ascii=True, default=None)
         
         #print(json.dumps(new_evento))
-        
-        
         
         
         response = app.test_client().post(

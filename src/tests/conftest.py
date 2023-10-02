@@ -5,7 +5,7 @@ from pytest import fixture
 import sys
 import os
 import json
-from datetime import date, datetime
+from datetime import date
 
 
 sys.path.insert(0, os.path.abspath(
