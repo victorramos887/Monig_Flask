@@ -76,8 +76,9 @@ def tipoeventoocasional():
     try:
         #Verificar no models, deixar enviar como None
         
-        color = "%06x" % randint(0, 0xFFFFFF)
+        #color = "%06x" % randint(0, 0xFFFFFF)
         # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        color = '6ECB04'
         
         print()
         
@@ -147,8 +148,9 @@ def tipoeventorecorrente():
             'ehResposta') is not None else False
         
         #COR ALEATÓRIA
-        color = "%06x" % randint(0, 0xFFFFFF)
+        #color = "%06x" % randint(0, 0xFFFFFF)
         #color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        color = "0474CB"
 
         tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
@@ -203,18 +205,27 @@ def tipoeventorecorrente():
 @eventos.post('/eventos')
 def eventos_cadastro():
 
-    {
-        "data":"2023-09-19",
-        "local":"Local 1",
-        "nome_do_evento":"Reunião",
-        "observacoes":"",
-        "tipo_de_evento":"Manutenção",
-        "tipo_de_local":"Escola"
-    }
 
+#     data
+# : 
+# "2023-10-15"
+# local
+# : 
+# "Escola Maria Luiza Santos"
+# nome_do_evento
+# : 
+# "Nome do Evento"
+# observacoes
+# : 
+# "Cypress Observação teste!!!"
+# tipo_de_evento
+# : 
+# "João Lucas"
+# tipo_de_local
+# : 
+# "Reservatório"
 
     try:
-
         formulario = request.get_json()
     except Exception as e:
         return jsonify({
@@ -224,10 +235,7 @@ def eventos_cadastro():
         }), 400
     
     try:
-        
-        
         #Verficando tipo de evento
-        
         try:
             tipo_de_evento = formulario.get("tipo_de_evento", None)
             
@@ -256,14 +264,15 @@ def eventos_cadastro():
         fk_tipo = formulario.get("tipo_de_evento", None)
         nome = formulario.get("nome_do_evento", None)
         local = formulario.get("local", None)
-        tipo_de_local = formulario.get("tipo_de_local", None) # VERIFICAR SE HÁ UM ID NO 
+        tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
         
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
             
-        else:          
+        else:
+            print("alguma coisa")
             datainicio = formulario.get("data",None)
             datafim = formulario.get("data",None)
             
@@ -282,6 +291,8 @@ def eventos_cadastro():
             
         
         local_fk = obter_local(tipo_de_local, local)
+        print(tipo_de_local_fk)
+        print(local_fk)
         
         if not local_fk:
             return jsonify({

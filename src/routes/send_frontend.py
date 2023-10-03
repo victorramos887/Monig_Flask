@@ -370,15 +370,6 @@ def get_tipo_de_eventos(id):
 @send_frontend.get('/eventos')
 def get_eventos():
 
-
-#     {
-#     "id": 1,
-#     "title": "FESTA JUNINA",
-#     "start": "2023-08-25",
-#     "end": "2023-08-28",
-#     "color": "#FF6666"
-#   }
-
     eventos = Eventos.query.all()
     
     return jsonify({
@@ -456,20 +447,19 @@ def get_tipo_local():
             
         
         
-@send_frontend.get('/local/<int:tipo>')
+@send_frontend.get('/local/<str:tipo>')
 def get_local(tipo):
     
     #filtrar o tipo
-    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() 
+    tabela = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
 
-    if tipo_local is None:
+    if tabela is None:
          return jsonify({
              "message": "Tipo de local não encontrado",
              "status": False
          }), 400
          
-    tabela = tipo_local.nome_da_tabela
-    
+   
     tabelas = {
         'Escola': Escolas,
         'Edificação': Edificios,
