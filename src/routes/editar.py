@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED,HTTP_500_INTERNAL_SERVER_ERROR
-from ..models import ( Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                       Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
+from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
+from ..models import (Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
+                      Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -17,10 +17,12 @@ def obter_local(tipo_de_local, nome):
         "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
         "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
     }
-    
+
     return consultas.get(tipo_de_local)
 
 # EDITAR Cliente
+
+
 @editar.put('/cliente/<id>')
 def cliente_editar(id):
     cliente = Cliente.query.filter_by(id=id).first()
@@ -86,7 +88,7 @@ def usuario_editar(id):
             tabela = match.group(1) if match else 'tabela desconhecida'
             coluna = match.group(2) if match else 'coluna desconhecida'
             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({ 'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
         if e.orig.pgcode == '23505':
             # UNIQUE VIOLATION
@@ -96,8 +98,8 @@ def usuario_editar(id):
             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
         if e.orig.pgcode == '01004':
-            #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -121,7 +123,7 @@ def escolas_editar(id):
         return jsonify({'mensagem': 'Escola não encontrado', "status": False}), 404
 
     try:
-       #verificando niveis das escolas
+       # verificando niveis das escolas
         escola_niveis = EscolaNiveis.query.filter_by(escola_id=id).all()
 
         escola.update(
@@ -131,9 +133,10 @@ def escolas_editar(id):
             telefone=body["telefone"]
         )
 
-        niveis=body["nivel"]
-        
-        niveis = [AuxOpNiveis.query.filter_by(nivel=nivel).first().id for nivel in niveis]
+        niveis = body["nivel"]
+
+        niveis = [AuxOpNiveis.query.filter_by(
+            nivel=nivel).first().id for nivel in niveis]
 
         # Obtenha todos os níveis de ensino associados à escola
         niveis_atuais = [n.nivel_ensino_id for n in escola_niveis]
@@ -144,13 +147,13 @@ def escolas_editar(id):
 
         for nivel in niveis_adicionados:
             op_nivel = AuxOpNiveis.query.filter_by(id=nivel).first()
-                
+
             if op_nivel:
                 escola_nivel = EscolaNiveis(
                     escola_id=escola.id,
                     nivel_ensino_id=op_nivel.id
                 )
-                
+
                 db.session.add(escola_nivel)
 
         # Remova os níveis de ensino que não estão mais presentes
@@ -176,7 +179,7 @@ def escolas_editar(id):
         db.session.commit()
 
         return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK
-    
+
     except exc.DBAPIError as e:
         if '23503' in str(e):
             match = re.search(
@@ -194,12 +197,12 @@ def escolas_editar(id):
             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        #if e.orig.pgcode == '01004':
+        # if e.orig.pgcode == '01004':
         if '01004' in str(e):
-            #STRING DATA RIGHT TRUNCATION
-            return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        return jsonify({'status':False, 'mensagem': "Erro não tratado", 'codigo':f'{e}'}), HTTP_400_BAD_REQUEST
+        return jsonify({'status': False, 'mensagem': "Erro não tratado", 'codigo': f'{e}'}), HTTP_400_BAD_REQUEST
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -210,7 +213,7 @@ def escolas_editar(id):
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
         return jsonify({
-            "status":False,"mensagem":"Erro não tratado", "codigo":e
+            "status": False, "mensagem": "Erro não tratado", "codigo": e
         }), HTTP_400_BAD_REQUEST
 
 
@@ -224,7 +227,7 @@ def reservatorio_editar(id):
         return jsonify({'mensagem': 'reservatorio não encontrado', "status": False}), 404
 
     try:
-    
+
         reservatorio.update(
             nome_do_reservatorio=body['nome']
         )
@@ -261,39 +264,40 @@ def reservatorio_editar(id):
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
         return jsonify({
-            "status":False,"mensagem":"Erro não tratado", "codigo":e
+            "status": False, "mensagem": "Erro não tratado", "codigo": e
         }), HTTP_400_BAD_REQUEST
 
 
 # EDITAR EDIFICIOS
 @editar.put('/edificios/<id>')
 def edificios_editar(id):
-    
+
     edificio = Edificios.query.filter_by(id=id).first()
-  
+
     body = request.get_json()
 
-    reservatorios = body.pop('reservatorio') #remove reservatorio de body
+    reservatorios = body.pop('reservatorio')  # remove reservatorio de body
 
     if not edificio:
         return jsonify({'mensagem': 'Edificio não encontrado', "status": False}), 404
 
-
     try:
 
         EdificioRes = ReservatorioEdificio.query.filter_by(edificio_id=id)
-        
-        #verificar essa linha 
-        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first().id for reservatorio in reservatorios if reservatorio is not None]
-          
+
+        # verificar essa linha
+        reservatorios = [Reservatorios.query.filter_by(nome_do_reservatorio=reservatorio).first(
+        ).id for reservatorio in reservatorios if reservatorio is not None]
+
         edificio.update(**body)
 
         reservatorioatual = [n.reservatorio_id for n in EdificioRes]
-        
+
         reservatorio_adicionado = set(reservatorios) - set(reservatorioatual)
         reservatorio_remover = set(reservatorioatual) - set(reservatorios)
         for reservatorio in reservatorio_adicionado:
-            reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
+            reservatorios_edificios = Reservatorios.query.filter_by(
+                id=reservatorio).first()
             print(reservatorios_edificios)
 
             if reservatorios_edificios:
@@ -305,17 +309,18 @@ def edificios_editar(id):
                 db.session.add(edificios_reservatorio)
 
         for reservatorio in reservatorio_remover:
-            reservatorios_edificios = Reservatorios.query.filter_by(id=reservatorio).first()
+            reservatorios_edificios = Reservatorios.query.filter_by(
+                id=reservatorio).first()
 
             if reservatorios_edificios:
 
                 edificios_reservatorio = ReservatorioEdificio.query.filter_by(
                     edificio_id=id,
-                    reservatorio_id=reservatorios_edificios.id         
+                    reservatorio_id=reservatorios_edificios.id
                 ).first()
                 if edificios_reservatorio:
                     db.session.delete(edificios_reservatorio)
-  
+
         db.session.commit()
 
         return jsonify({"edificio": edificio.to_json(), "status": True}), HTTP_200_OK
@@ -341,7 +346,7 @@ def edificios_editar(id):
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
         return jsonify({'status': False, 'mensagem': "Erro não tratado", 'codigo': f'{e}'}), HTTP_400_BAD_REQUEST
-    
+
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
@@ -349,7 +354,7 @@ def edificios_editar(id):
         if isinstance(e, HTTPException) and e.code == 400:
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        
+
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
@@ -361,7 +366,7 @@ def edificio_principal(id):
 
     if not edificio:
         return jsonify({
-            'mensagem':'Edificio não encontrado', 'status':False
+            'mensagem': 'Edificio não encontrado', 'status': False
         }), 404
 
     try:
@@ -370,7 +375,7 @@ def edificio_principal(id):
 
         return jsonify({
             'mensagem': 'Alteração realizada com sucesso',
-            'status':True
+            'status': True
         }), 200
 
     except Exception as e:
@@ -378,11 +383,10 @@ def edificio_principal(id):
         print(e)
         db.session.rollback()
         return jsonify({
-            'mensagem':'Erro não tratado',
-            'codigo':str(e),
-            'status':False
+            'mensagem': 'Erro não tratado',
+            'codigo': str(e),
+            'status': False
         }), 404
-
 
 
 @editar.put('/hidrometros/<id>')
@@ -392,9 +396,9 @@ def hidrometro_editar(id):
 
     if not hidrometro:
         return jsonify({'mensagem': 'Hidrometro não encontrado', "status": False}), 404
-    
+
     try:
-       
+
         hidrometro.update(**body)
 
         db.session.commit()
@@ -439,7 +443,7 @@ def populacao_editar(id):
         return jsonify({'mensagem': 'Populacao não encontrado', "status": False}), 404
 
     try:
-        
+
         print(body)
         alunos = body['alunos']
         fk_edificios = body['fk_edificios']
@@ -495,17 +499,19 @@ def populacao_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 # EDITAR AREA UMIDA
+
+
 @editar.put('/area-umida/<id>')
 def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
     body = request.get_json()
 
-    #print(umida.to_json())
+    # print(umida.to_json())
     if not umida or umida is None:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
 
     try:
-       
+
         fk_edificios = body['fk_edificios']
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
@@ -632,8 +638,6 @@ def equipamento_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
-
-
 # EDITAR EVENTOS
 @editar.put('/tipo-evento/<id>')
 def tipo_evento_editar(id):
@@ -656,32 +660,38 @@ def tipo_evento_editar(id):
     }
 
     periodicidade = {
-            "Ocasional":False, 
-            "Recorrente":True
-        }
+        "Ocasional": False,
+        "Recorrente": True
+    }
 
     if not tipo_evento:
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
 
     try:
-        
+
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = periodicidade.get(formulario.get('periodicidade')) if formulario.get('periodicidade') is not None else False
-        dia = formulario.get("dataRecorrente") if formulario.get('dataRecorrente') and formulario.get("dataRecorrente") !="" else None
-        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get('mesRecorrente') and formulario.get('mesRecorrente') != "" else None
-        requer_acao = formulario.get('requerResposta', None) if formulario.get('requerResposta') is not None else False
-        tempo = formulario.get('tolerancia') if formulario.get('tolerancia') else None
-        unidade = formulario.get('unidade') if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta') if formulario.get('ehResposta') is not None else False
-
+        periodicidade = periodicidade.get(formulario.get(
+            'periodicidade')) if formulario.get('periodicidade') is not None else False
+        dia = formulario.get("dataRecorrente") if formulario.get(
+            'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
+        mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
+            'mesRecorrente') and formulario.get('mesRecorrente') != "" else None
+        requer_acao = formulario.get('requerResposta', None) if formulario.get(
+            'requerResposta') is not None else False
+        tempo = formulario.get('tolerancia') if formulario.get(
+            'tolerancia') else None
+        unidade = formulario.get(
+            'unidade') if formulario.get('unidade') else None
+        acao = formulario.get('ehResposta') if formulario.get(
+            'ehResposta') is not None else False
 
         tipo_evento.update(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
             periodicidade=periodicidade,
             dia=dia,
-            mes= mes,
+            mes=mes,
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
@@ -690,8 +700,8 @@ def tipo_evento_editar(id):
 
         db.session.commit()
 
-        return jsonify({"tipo":tipo_evento.to_json(), "status": True}), HTTP_200_OK
-    
+        return jsonify({"tipo": tipo_evento.to_json(), "status": True}), HTTP_200_OK
+
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
@@ -711,7 +721,7 @@ def tipo_evento_editar(id):
         if e.orig.pgcode == '01004':
             # STRING DATA RIGHT TRUNCATION
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        return jsonify({"status":False, "mensagem":"Erro não tratado", "codigo":str(e)})
+        return jsonify({"status": False, "mensagem": "Erro não tratado", "codigo": str(e)})
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -722,7 +732,6 @@ def tipo_evento_editar(id):
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-
 
 
 # EVENTOS
@@ -732,59 +741,85 @@ def evento_editar(id):
     formulario = request.get_json()
 
     if not evento:
-        return jsonify({'mensagem':'evento não encontrado', "status": False}), 404
+        return jsonify({'mensagem': 'evento não encontrado', "status": False}), 404
 
     try:
-       
-        fk_tipo = formulario['tipo_de_evento']
-        nome = formulario['nome_do_evento']
-        datainicio = formulario['data_inicio']
-        datafim = formulario["data_fim"]
-        local = formulario['local']
-        tipo_de_local = formulario['tipo_de_local']
-        observacao = formulario["observacoes"]
 
-        
-        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
-        
-        if not tipo_de_local_fk:
-            return jsonify({
-                "mensagem":f"Não foi encontrado a tabela {formulario.get('tipo_de_local')}",
-                "status":False
-            }), 400
-            
-        
-        local_fk = obter_local(tipo_de_local, local)
-        
-        if not local_fk:
-            return jsonify({
-                "mensagem":f"Não foi encontrado o local {local}",
-                "status":False
-            }), 400
-            
-            
-        tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=fk_tipo).first()
-        
-        if not tipo_de_evento_fk:
-            
-            return jsonify({
-                "mensagem":f"Não foi encontrado o tipo de evento {fk_tipo}",
-                "status":False
-            }), 400
+        fk_tipo = AuxTipoDeEventos.query.filter_by(
+            nome_do_tipo_de_evento=formulario['tipo_de_evento']).first()
 
-        evento.update(
-            fk_tipo=tipo_de_evento_fk.id,
-            nome=nome,
-            datainicio=datainicio,
-            datafim=datafim,
-            local=local_fk.id,
-            tipo_de_local=tipo_de_local_fk.id,
-            observacao=observacao
-        )
+        if fk_tipo is None:
+            return jsonify({'mensagem': 'Tipo de evento não encontrado!!!', "status": False}), 404
 
-        db.session.commit()
+        if fk_tipo.recorrente:
 
-        return jsonify({"evento":evento.to_json(), "status": True}), HTTP_200_OK
+            fk_tipo = fk_tipo.id
+            nome = formulario['nome_do_evento']
+            datainicio = formulario['data_inicio']
+            datafim = formulario["data_fim"]
+
+            tipodelocal = AuxDeLocais.query.filter_by(
+                nome_da_tabela=formulario['tipo_de_local']).first()
+
+            if tipodelocal is None:
+                return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+
+            local = obter_local(
+                formulario['tipo_de_local'], formulario['local'])
+
+            if local is None:
+                return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+
+            tipo_de_local = tipodelocal.id
+            observacao = formulario["observacoes"]
+
+            evento.update(
+                fk_tipo=fk_tipo,
+                nome=nome,
+                datainicio=datainicio,
+                datafim=datafim,
+                local=local.id,
+                tipo_de_local=tipo_de_local,
+                observacao=observacao
+            )
+
+            db.session.commit()
+
+        else:
+            
+            fk_tipo = fk_tipo.id
+            nome = formulario['nome_do_evento']
+            datainicio = formulario['data']
+            
+            tipodelocal = AuxDeLocais.query.filter_by(
+                nome_da_tabela=formulario['tipo_de_local']).first()
+
+            if tipodelocal is None:
+                return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+
+            local = obter_local(
+                formulario['tipo_de_local'], formulario['local'])
+            
+            print(local)
+
+            if local is None:
+                return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+
+            tipo_de_local = tipodelocal.id
+            observacao = formulario["observacoes"]
+            
+            
+            evento.update(
+                fk_tipo=fk_tipo,
+                nome=nome,
+                datainicio=datainicio,
+                local=local.id,
+                tipo_de_local=tipo_de_local,
+                observacao=observacao
+            )
+            db.session.commit()
+
+        return jsonify({"evento": evento.to_json(), "status": True}), HTTP_200_OK
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
@@ -804,8 +839,8 @@ def evento_editar(id):
         if e.orig.pgcode == '01004':
             # STRING DATA RIGHT TRUNCATION
             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        
-        return jsonify({'status': False, 'mensagem': "Erro não tratado", 'codigo': f'{e}'}), 400
+
+        return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
 
     except Exception as e:
         if isinstance(e, HTTPException) and e.code == 500:
@@ -815,6 +850,6 @@ def evento_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-
-
+        
+        print(e)
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400

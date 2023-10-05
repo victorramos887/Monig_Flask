@@ -643,6 +643,9 @@ class Eventos(db.Model):
 
     tipodeevento = db.relationship(
         'AuxTipoDeEventos', backref='tipodeevento')
+    tipodelocal = db.relationship(
+        'AuxDeLocais', backref='tipodelocal'
+    )
 
     created_at = db.Column(db.DateTime, default=datetime.now())
 
@@ -669,12 +672,33 @@ class Eventos(db.Model):
             "amarelo": "#FEE57F",
             "laranja": "#F27B37"
         }
-
-        return {
+        retorno = {
             attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
             getattr(self, attr.name)
             for attr in self.__table__.columns
         }
+        
+        retorno['tipodoevento'] = self.tipodeevento.recorrente
+        retorno['fk_tipo'] = self.tipodeevento.nome_do_tipo_de_evento
+        retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
+        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
+        retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+        
+        
+        if self.tipodelocal.nome_da_tabela == "Escola":
+            retorno['local'] = Escolas.query.filter_by(id =self.local).first().nome
+        elif self.tipodelocal.nome_da_tabela == "Edificação":
+            retorno['local'] = Edificios.query.filter_by(id =self.local).first().nome_do_edificio
+        elif self.tipodelocal.nome_da_tabela == "Área Úmida":
+            retorno['local'] = AreaUmida.query.filter_by(id =self.local).first().nome_area_umida
+        elif self.tipodelocal.nome_da_tabela == "Reservatório":
+            retorno['local'] = Reservatorios.query.filter_by(id =self.local).first().nome_do_reservatorio
+        elif self.tipodelocal.nome_da_tabela == "Hidrômetro":
+            retorno['local'] = Hidrometros.query.filter_by(id =self.local).first().hidrometro
+        else:
+            retorno['local'] = ""
+
+        return retorno
 
     def retornoFullCalendar(self):
     

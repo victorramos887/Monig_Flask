@@ -386,9 +386,10 @@ def get_evento(id):
     evento = Eventos.query.filter_by(
         id=id
     ).first()
+    print(evento)
     
     if evento is not None:
-        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":evento.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, "mensagem":"Retorno de evento.","data":evento.to_json()}), HTTP_200_OK
     else:
         return jsonify({
             'message': 'Evento não encontrado'
@@ -447,19 +448,20 @@ def get_tipo_local():
             
         
         
-@send_frontend.get('/local/<str:tipo>')
+@send_frontend.get('/local/<string:tipo>')
 def get_local(tipo):
     
     #filtrar o tipo
-    tabela = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
+    tipo_local = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
 
-    if tabela is None:
+    if tipo_local is None:
          return jsonify({
              "message": "Tipo de local não encontrado",
              "status": False
          }), 400
          
-   
+    tabela = tipo_local.nome_da_tabela
+    
     tabelas = {
         'Escola': Escolas,
         'Edificação': Edificios,

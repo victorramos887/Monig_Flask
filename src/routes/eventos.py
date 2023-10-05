@@ -205,26 +205,6 @@ def tipoeventorecorrente():
 @eventos.post('/eventos')
 def eventos_cadastro():
 
-
-#     data
-# : 
-# "2023-10-15"
-# local
-# : 
-# "Escola Maria Luiza Santos"
-# nome_do_evento
-# : 
-# "Nome do Evento"
-# observacoes
-# : 
-# "Cypress Observação teste!!!"
-# tipo_de_evento
-# : 
-# "João Lucas"
-# tipo_de_local
-# : 
-# "Reservatório"
-
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -275,13 +255,10 @@ def eventos_cadastro():
             print("alguma coisa")
             datainicio = formulario.get("data",None)
             datafim = formulario.get("data",None)
-            
-        
-            
 
         #Tratamento de tipo_de_local
         
-        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=1).first()
         
         if not tipo_de_local_fk:
             return jsonify({
@@ -291,8 +268,6 @@ def eventos_cadastro():
             
         
         local_fk = obter_local(tipo_de_local, local)
-        print(tipo_de_local_fk)
-        print(local_fk)
         
         if not local_fk:
             return jsonify({
@@ -356,3 +331,5 @@ def eventos_cadastro():
         return jsonify({
             "erro": e
         })
+
+
