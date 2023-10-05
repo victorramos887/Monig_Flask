@@ -255,10 +255,14 @@ def eventos_cadastro():
             print("alguma coisa")
             datainicio = formulario.get("data",None)
             datafim = formulario.get("data",None)
+            
+        
 
         #Tratamento de tipo_de_local
         
-        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=1).first()
+        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        
+        print(tipo_de_local_fk)
         
         if not tipo_de_local_fk:
             return jsonify({
