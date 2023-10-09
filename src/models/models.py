@@ -707,7 +707,8 @@ class Eventos(db.Model):
             "title": self.nome,
             "start": str(self.datainicio).format("%d/%m/%Y"),
             "end": str(self.datafim).format("%d/%m/%Y"),
-            "color": self.tipodeevento.color
+            "color": self.tipodeevento.color,
+            "recorrente":self.tipodeevento.recorrente
         }
 
         return calendar

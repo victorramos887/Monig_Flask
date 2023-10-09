@@ -819,7 +819,7 @@ def evento_editar(id):
             )
             db.session.commit()
 
-        return jsonify({"evento": evento.to_json(), "status": True}), HTTP_200_OK
+        return jsonify({"evento": evento.to_json(), "status": True, "mensagem":"Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(

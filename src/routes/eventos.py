@@ -303,7 +303,7 @@ def eventos_cadastro():
         db.session.add(evento)
         db.session.commit()
 
-        return jsonify({'status': True, "mensagem": "Cadastro Realizado", "data": evento.to_json()}), HTTP_200_OK
+        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data": evento.to_json()}), HTTP_200_OK
 
     except ArgumentError as e:
         error_message = str(e)
