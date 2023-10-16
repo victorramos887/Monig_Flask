@@ -786,7 +786,36 @@ class AuxTipoDeEventos(db.Model):
             for attr in self.__table__.columns
         }
 
+#CONSUMO
 
+class ConsumoAgua(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'consumo_agua'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    consumo_m3 = db.Column(db.Integer, nullable=False, unique=True)
+    inicio_medicao= db.Column(db.DateTime)
+    fim_medicao = db.Column(db.DateTime)
+    fk_hidrometro = db.Column(db.Integer, db.ForeignKey("main.hidrometros.id"))
+    fk_escola = db.Column(db.Integer, db.ForeignKey("main.escolas.id"))
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def __init__(self, consumo_m3, inicio_medicao, fim_medicao):
+        self.consumo_m3 = consumo_m3
+        self.inicio_medicao = inicio_medicao
+        self.fim_medicao = fim_medicao
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            
+            
+            
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação', 'Área Úmida',
                          'Reservatório', 'Equipamento', 'Hidrômetro']
