@@ -329,10 +329,10 @@ def reservatorios(id):
 
 
 @send_frontend.get('/tipo-de-eventos/<int:id>')
-def tipo_de_eventos(id):
-
+def tipo_de_eventos(id):  
+   
     tipo_de_eventos = AuxTipoDeEventos.query.filter_by(
-        fk_cliente = id
+        recorrente = True if id == 1 else False
     ).all()
 
     return jsonify({
@@ -392,9 +392,10 @@ def get_evento(id):
     evento = Eventos.query.filter_by(
         id=id
     ).first()
+    print(evento)
     
     if evento is not None:
-        return jsonify({'status':True, "mensagem":"Cadastro Realizado","data":evento.to_json()}), HTTP_200_OK
+        return jsonify({'status':True, "mensagem":"Retorno de evento.","data":evento.to_json()}), HTTP_200_OK
     else:
         return jsonify({
             'message': 'Evento não encontrado'
@@ -453,11 +454,11 @@ def get_tipo_local():
             
         
         
-@send_frontend.get('/local/<int:tipo>')
+@send_frontend.get('/local/<string:tipo>')
 def get_local(tipo):
     
     #filtrar o tipo
-    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first() 
+    tipo_local = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
 
     if tipo_local is None:
          return jsonify({

@@ -76,7 +76,9 @@ def tipoeventoocasional():
     try:
         #Verificar no models, deixar enviar como None
         
-        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        #color = "%06x" % randint(0, 0xFFFFFF)
+        # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        color = '6ECB04'
         
         print()
         
@@ -87,8 +89,7 @@ def tipoeventoocasional():
             requer_acao=requerResposta,
             tempo=tolerencia,
             unidade=unidade,
-            acao=ehResposta,
-            color=color
+            color=f"#{color}"
         )
 
         db.session.add(tipoevento)
@@ -112,7 +113,6 @@ def tipoeventoocasional():
         return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
 
     except Exception as e:
-
         return jsonify({
             "mensagem": "Não foi possível inserir no banco de dados!",
             "status": False,
@@ -148,7 +148,9 @@ def tipoeventorecorrente():
             'ehResposta') is not None else False
         
         #COR ALEATÓRIA
-        color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        #color = "%06x" % randint(0, 0xFFFFFF)
+        #color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+        color = "0474CB"
 
         tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
@@ -160,7 +162,7 @@ def tipoeventorecorrente():
             tempo=tempo,
             unidade=unidade,
             acao=acao,
-            color=color
+            color=f"#{color}"
         )
 
         db.session.add(tipo_evento)
@@ -204,7 +206,6 @@ def tipoeventorecorrente():
 def eventos_cadastro():
 
     try:
-
         formulario = request.get_json()
     except Exception as e:
         return jsonify({
@@ -214,19 +215,54 @@ def eventos_cadastro():
         }), 400
     
     try:
+        #Verficando tipo de evento
+        try:
+            tipo_de_evento = formulario.get("tipo_de_evento", None)
+            
+            if not tipo_de_evento:
+                return jsonify({
+                    "mensagem": "Tipo de evento está Nulo!!!",
+                    "status": False
+                }), 400
+                
+            tipodeevento = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=tipo_de_evento).first()
+            
+            if not tipodeevento:
+                return jsonify({
+                    "mensagem":f"Não foi encontrado o tipo de evento {tipo_de_evento}",
+                    "status": False
+                }), 400
+
+        except Exception as e:
+            return jsonify({
+                "mensagem":"Não foi possível tratar o tipo de evento!",
+                "codigo":str(e),
+                "status":False
+            }), 400
+
 
         fk_tipo = formulario.get("tipo_de_evento", None)
         nome = formulario.get("nome_do_evento", None)
-        datainicio = formulario.get("data_inicio", None)
-        datafim = formulario.get("data_fim", None)
         local = formulario.get("local", None)
-        tipo_de_local = formulario.get("tipo_de_local", None) # VERIFICAR SE HÁ UM ID NO 
+        tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
-
+        
+        if tipodeevento.recorrente:
+            datainicio = formulario.get("data_inicio", None)
+            datafim = formulario.get("data_fim", None)
+            
+        else:
+            print("alguma coisa")
+            datainicio = formulario.get("data",None)
+            datafim = formulario.get("data",None)
+            
+        
 
         #Tratamento de tipo_de_local
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        
+        print(tipo_de_local_fk)
         
         if not tipo_de_local_fk:
             return jsonify({
@@ -267,7 +303,7 @@ def eventos_cadastro():
         db.session.add(evento)
         db.session.commit()
 
-        return jsonify({'status': True, "mensagem": "Cadastro Realizado", "data": evento.to_json()}), HTTP_200_OK
+        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data": evento.to_json()}), HTTP_200_OK
 
     except ArgumentError as e:
         error_message = str(e)
@@ -299,3 +335,5 @@ def eventos_cadastro():
         return jsonify({
             "erro": e
         })
+
+
