@@ -797,12 +797,15 @@ class ConsumoAgua(db.Model):
     consumo_m3 = db.Column(db.Integer, nullable=False, unique=True)
     inicio_medicao= db.Column(db.DateTime)
     fim_medicao = db.Column(db.DateTime)
-    fk_hidrometro = db.Column(db.Integer, db.ForeignKey("main.hidrometros.id"))
+    fk_hidrometro = db.Column(
+        db.Integer, db.ForeignKey('main.hidrometros.id'))
     fk_escola = db.Column(db.Integer, db.ForeignKey("main.escolas.id"))
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
-    def __init__(self, consumo_m3, inicio_medicao, fim_medicao):
+    def __init__(self, fk_escola, fk_hidrometro, consumo_m3, inicio_medicao, fim_medicao):
+        self.fk_escola = fk_escola
+        self.fk_hidrometro = fk_hidrometro
         self.consumo_m3 = consumo_m3
         self.inicio_medicao = inicio_medicao
         self.fim_medicao = fim_medicao
