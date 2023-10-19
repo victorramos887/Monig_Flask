@@ -683,9 +683,7 @@ def tipo_evento_editar(id):
             'tolerancia') else None
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta') if formulario.get(
-            'ehResposta') is not None else False
-
+        
         tipo_evento.update(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
@@ -695,7 +693,7 @@ def tipo_evento_editar(id):
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
-            acao=acao
+           
         )
 
         db.session.commit()
@@ -757,6 +755,7 @@ def evento_editar(id):
             nome = formulario['nome_do_evento']
             datainicio = formulario['data_inicio']
             datafim = formulario["data_fim"]
+          
 
             tipodelocal = AuxDeLocais.query.filter_by(
                 nome_da_tabela=formulario['tipo_de_local']).first()
@@ -790,6 +789,8 @@ def evento_editar(id):
             fk_tipo = fk_tipo.id
             nome = formulario['nome_do_evento']
             datainicio = formulario['data']
+            encerramento = formulario['encerramento']
+            data_encerramento = formulario['dataEncerramento']
             
             tipodelocal = AuxDeLocais.query.filter_by(
                 nome_da_tabela=formulario['tipo_de_local']).first()
@@ -815,6 +816,8 @@ def evento_editar(id):
                 datainicio=datainicio,
                 local=local.id,
                 tipo_de_local=tipo_de_local,
+                encerramento = encerramento,
+                data_encerramento = data_encerramento,
                 observacao=observacao
             )
             db.session.commit()

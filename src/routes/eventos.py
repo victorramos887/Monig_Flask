@@ -61,7 +61,6 @@ def tipoeventoocasional():
     try:
 
         fk_cliente = formulario.get('fk_cliente')
-        ehResposta = formulario.get('ehResposta')
         nome_do_evento = formulario.get('nome_do_evento')
         requerResposta = formulario.get('requerResposta')
         tolerencia = formulario.get('tolerencia')
@@ -144,8 +143,7 @@ def tipoeventorecorrente():
             'tolerancia') else None
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta') if formulario.get(
-            'ehResposta') is not None else False
+       
         
         #COR ALEATÓRIA
         #color = "%06x" % randint(0, 0xFFFFFF)
@@ -161,7 +159,6 @@ def tipoeventorecorrente():
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
-            acao=acao,
             color=f"#{color}"
         )
 
@@ -246,6 +243,8 @@ def eventos_cadastro():
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
+        encerramento = formulario.get("encerramento", False)
+        data_encerramento = formulario.get("dataEncerramento", None)
         
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
@@ -298,6 +297,8 @@ def eventos_cadastro():
             local=local_fk.id,
             tipo_de_local=tipo_de_local_fk.id,
             observacao=observacao,
+            encerramento=encerramento, 
+            data_encerramento=data_encerramento
         )
 
         db.session.add(evento)

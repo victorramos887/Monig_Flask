@@ -5,6 +5,7 @@ from flask import current_app
 
 from alembic import context
 from src.models import add_opniveis
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -65,7 +66,7 @@ def run_migrations_offline():
     """
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url, target_metadata=get_metadata(), literal_binds=True, include_schemas=True
+        url=url, target_metadata=get_metadata(), literal_binds=True
     )
 
     with context.begin_transaction():
@@ -110,7 +111,6 @@ def run_migrations_online():
 
 if context.is_offline_mode():
     run_migrations_offline()
-    add_opniveis()
 else:
     run_migrations_online()
     add_opniveis()

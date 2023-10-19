@@ -748,9 +748,11 @@ def consumos():
     try:    
         fk_escola = formulario['fk_escola']
         fk_hidrometro = formulario['fk_hidrometro']
-        consumo_m3 = formulario['consumo_m3']
-        inicio_medicao = formulario['inicio_medicao']
-        fim_medicao = formulario['fim_medicao']
+        consumo = formulario['consumo']
+        data = formulario['data']
+        dataInicioPeriodo = formulario['dataInicioPeriodo']
+        dataFimPeriodo = formulario['dataFimPeriodo']
+        valor = formulario['valor']
         
     except Exception as e:
         return jsonify({
@@ -763,9 +765,11 @@ def consumos():
         consumo = ConsumoAgua(
             fk_escola = fk_escola,
             fk_hidrometro = fk_hidrometro,
-            consumo_m3 = consumo_m3,
-            inicio_medicao = inicio_medicao,
-            fim_medicao = fim_medicao
+            consumo = consumo,
+            data = data,
+            dataInicioPeriodo = dataInicioPeriodo,
+            dataFimPeriodo = dataFimPeriodo,
+            valor = valor
         )
 
         db.session.add(consumo)

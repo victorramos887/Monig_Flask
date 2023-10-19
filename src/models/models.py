@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
+#run_after_create_db
 
 
 db = SQLAlchemy()
@@ -622,6 +623,7 @@ class Eventos(db.Model):
     __versioned__ = {}
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
+    
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_tipo = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_de_eventos.id'))
@@ -631,6 +633,8 @@ class Eventos(db.Model):
     local = db.Column(db.Integer)  # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.aux_de_locais.id'))  # 3
+    encerramento = db.Column(db.Boolean)
+    data_encerramento = db.Column(db.DateTime)
     observacao = db.Column(db.Text)
 
     tipodeevento = db.relationship(
@@ -645,14 +649,16 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao):  # cod_usuarios
+    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento, encerramento=False):  # cod_usuarios
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
         self.datafim = datafim
         self.local = local
         self.tipo_de_local = tipo_de_local
+        self.encerramento = encerramento
         self.observacao = observacao
+        self.data_encerramento = data_encerramento
 
     def to_json(self):
 
@@ -741,7 +747,6 @@ class AuxTipoDeEventos(db.Model):
     requer_acao = db.Column(db.Boolean)
     tempo = db.Column(db.Integer)
     unidade = db.Column(db.String)
-    acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     color = db.Column(db.String)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -751,7 +756,7 @@ class AuxTipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None, color=None):
+    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, color=None):
 
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
@@ -761,7 +766,6 @@ class AuxTipoDeEventos(db.Model):
         self.requer_acao = requer_acao
         self.tempo = tempo
         self.unidade = unidade
-        self.acao = acao
         self.color = color
 
     def to_json(self):
@@ -790,25 +794,30 @@ class AuxTipoDeEventos(db.Model):
 
 class ConsumoAgua(db.Model):
 
+    __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'consumo_agua'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    consumo_m3 = db.Column(db.Integer, nullable=False, unique=True)
-    inicio_medicao= db.Column(db.DateTime)
-    fim_medicao = db.Column(db.DateTime)
+    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    data = db.Column(db.DateTime)
+    dataFimPeriodo = db.Column(db.DateTime)
+    dataInicioPeriodo = db.Column(db.DateTime)
+    valor = db.Column(db.Float)
     fk_hidrometro = db.Column(
         db.Integer, db.ForeignKey('main.hidrometros.id'))
     fk_escola = db.Column(db.Integer, db.ForeignKey("main.escolas.id"))
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
-    def __init__(self, fk_escola, fk_hidrometro, consumo_m3, inicio_medicao, fim_medicao):
+    def __init__(self, fk_escola, fk_hidrometro, consumo, data, dataFimPeriodo, dataInicioPeriodo, valor):
         self.fk_escola = fk_escola
         self.fk_hidrometro = fk_hidrometro
-        self.consumo_m3 = consumo_m3
-        self.inicio_medicao = inicio_medicao
-        self.fim_medicao = fim_medicao
+        self.consumo = consumo
+        self.data = data
+        self.dataFimPeriodo = dataFimPeriodo
+        self.dataInicioPeriodo = dataInicioPeriodo
+        self.valor = valor
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
@@ -1014,7 +1023,8 @@ def add_opniveis():
                 peso=equipamento['peso']
             )
             db.session.add(oequipamento)
-
+            
+    
     db.session.commit()
 
     for key, values in tipoareaumidaequipamento.items():
@@ -1040,5 +1050,5 @@ def add_opniveis():
 
             db.session.commit()
 
-
+    #db.run_after_create_db(add_opniveis)
 sa.orm.configure_mappers()
