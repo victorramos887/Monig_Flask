@@ -63,7 +63,7 @@ def tipoeventoocasional():
         fk_cliente = formulario.get('fk_cliente')
         nome_do_evento = formulario.get('nome_do_evento')
         requerResposta = formulario.get('requerResposta')
-        tolerencia = formulario.get('tolerencia')
+        tempo = formulario.get('tolerencia')
         unidade = formulario.get('unidade')
 
     except Exception as e:
@@ -79,14 +79,13 @@ def tipoeventoocasional():
         # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = '6ECB04'
         
-        print()
         
         tipoevento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_evento,
             recorrente=False,
             requer_acao=requerResposta,
-            tempo=tolerencia,
+            tempo=tempo,
             unidade=unidade,
             color=f"#{color}"
         )
@@ -117,6 +116,7 @@ def tipoeventoocasional():
             "status": False,
             "codigo": e
         }), 400
+
 
 
 @eventos.post('/tipo-evento-recorrente')
@@ -251,12 +251,10 @@ def eventos_cadastro():
             datafim = formulario.get("data_fim", None)
             
         else:
-            print("alguma coisa")
-            datainicio = formulario.get("data",None)
-            datafim = formulario.get("data",None)
+                datainicio = formulario.get("data", None)
+                datafim = formulario.get("dataEncerramento", None)
             
         
-
         #Tratamento de tipo_de_local
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
