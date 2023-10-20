@@ -1,16 +1,16 @@
-"""iniciando o banco
+"""empty message
 
-Revision ID: 1d670465394e
+Revision ID: bed76f6afd97
 Revises: 
-Create Date: 2023-09-25 11:22:11.932692
+Create Date: 2023-10-19 15:10:33.055854
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+import geoalchemy2
 
 # revision identifiers, used by Alembic.
-revision = '1d670465394e'
+revision = 'bed76f6afd97'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -178,22 +178,18 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_main_equipamentos_version_operation_type'), ['operation_type'], unique=False)
         batch_op.create_index(batch_op.f('ix_main_equipamentos_version_transaction_id'), ['transaction_id'], unique=False)
 
-    op.create_table('escola_niveis_version',
-    sa.Column('escola_id', sa.Integer(), autoincrement=False, nullable=False),
-    sa.Column('nivel_ensino_id', sa.Integer(), autoincrement=False, nullable=False),
-    sa.Column('transaction_id', sa.BigInteger(), autoincrement=False, nullable=False),
-    sa.Column('end_transaction_id', sa.BigInteger(), nullable=True),
-    sa.Column('operation_type', sa.SmallInteger(), nullable=False),
-    sa.PrimaryKeyConstraint('escola_id', 'nivel_ensino_id', 'transaction_id'),
+    op.create_table('escola_niveis_version_custom',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('escola_id', sa.Integer(), nullable=True),
+    sa.Column('nivel_ensino_id', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('transacao', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
     schema='main'
     )
-    with op.batch_alter_table('escola_niveis_version', schema='main') as batch_op:
-        batch_op.create_index(batch_op.f('ix_main_escola_niveis_version_end_transaction_id'), ['end_transaction_id'], unique=False)
-        batch_op.create_index(batch_op.f('ix_main_escola_niveis_version_operation_type'), ['operation_type'], unique=False)
-        batch_op.create_index(batch_op.f('ix_main_escola_niveis_version_transaction_id'), ['transaction_id'], unique=False)
-
     op.create_table('escolas',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4674, from_text='ST_GeomFromEWKT', name='geometry'), nullable=True),
     sa.Column('nome', sa.String(), nullable=True),
     sa.Column('cnpj', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=True),
@@ -205,8 +201,12 @@ def upgrade():
     sa.UniqueConstraint('nome'),
     schema='main'
     )
+    # with op.batch_alter_table('escolas', schema='main') as batch_op:
+    #     batch_op.create_index('idx_escolas_geom', ['geom'], unique=False, postgresql_using='gist')
+
     op.create_table('escolas_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False),
+    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4674, from_text='ST_GeomFromEWKT', name='geometry'), autoincrement=False, nullable=True),
     sa.Column('nome', sa.String(), autoincrement=False, nullable=True),
     sa.Column('cnpj', sa.String(), autoincrement=False, nullable=True),
     sa.Column('email', sa.String(), autoincrement=False, nullable=True),
@@ -221,6 +221,7 @@ def upgrade():
     schema='main'
     )
     with op.batch_alter_table('escolas_version', schema='main') as batch_op:
+        # batch_op.create_index('idx_escolas_version_geom', ['geom'], unique=False, postgresql_using='gist')
         batch_op.create_index(batch_op.f('ix_main_escolas_version_end_transaction_id'), ['end_transaction_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_main_escolas_version_operation_type'), ['operation_type'], unique=False)
         batch_op.create_index(batch_op.f('ix_main_escolas_version_transaction_id'), ['transaction_id'], unique=False)
@@ -303,6 +304,7 @@ def upgrade():
     op.create_table('reservatorio_edificio_version',
     sa.Column('edificio_id', sa.Integer(), autoincrement=False, nullable=False),
     sa.Column('reservatorio_id', sa.Integer(), autoincrement=False, nullable=False),
+    sa.Column('created_at', sa.DateTime(), autoincrement=False, nullable=True),
     sa.Column('transaction_id', sa.BigInteger(), autoincrement=False, nullable=False),
     sa.Column('end_transaction_id', sa.BigInteger(), nullable=True),
     sa.Column('operation_type', sa.SmallInteger(), nullable=False),
@@ -314,6 +316,15 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_main_reservatorio_edificio_version_operation_type'), ['operation_type'], unique=False)
         batch_op.create_index(batch_op.f('ix_main_reservatorio_edificio_version_transaction_id'), ['transaction_id'], unique=False)
 
+    op.create_table('reservatorio_edificio_version_custom',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('edificio_id', sa.Integer(), nullable=True),
+    sa.Column('reservatorio_id', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.Column('transacao', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    schema='main'
+    )
     op.create_table('reservatorios_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False),
     sa.Column('fk_escola', sa.Integer(), autoincrement=False, nullable=True),
@@ -391,6 +402,7 @@ def upgrade():
     op.create_table('escola_niveis',
     sa.Column('escola_id', sa.Integer(), nullable=False),
     sa.Column('nivel_ensino_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['escola_id'], ['main.escolas.id'], ),
     sa.ForeignKeyConstraint(['nivel_ensino_id'], ['main.aux_opniveis.id'], ),
     sa.PrimaryKeyConstraint('escola_id', 'nivel_ensino_id'),
@@ -489,6 +501,7 @@ def upgrade():
     op.create_table('reservatorio_edificio',
     sa.Column('edificio_id', sa.Integer(), nullable=False),
     sa.Column('reservatorio_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['edificio_id'], ['main.edificios.id'], ),
     sa.ForeignKeyConstraint(['reservatorio_id'], ['main.reservatorios.id'], ),
     sa.PrimaryKeyConstraint('edificio_id', 'reservatorio_id'),
@@ -532,11 +545,21 @@ def upgrade():
     sa.PrimaryKeyConstraint('populacao_id', 'nivel_escola_id'),
     schema='main'
     )
+    #op.drop_table('spatial_ref_sys')
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    # op.create_table('spatial_ref_sys',
+    # sa.Column('srid', sa.INTEGER(), autoincrement=False, nullable=False),
+    # sa.Column('auth_name', sa.VARCHAR(length=256), autoincrement=False, nullable=True),
+    # sa.Column('auth_srid', sa.INTEGER(), autoincrement=False, nullable=True),
+    # sa.Column('srtext', sa.VARCHAR(length=2048), autoincrement=False, nullable=True),
+    # sa.Column('proj4text', sa.VARCHAR(length=2048), autoincrement=False, nullable=True),
+    # sa.CheckConstraint('srid > 0 AND srid <= 998999', name='spatial_ref_sys_srid_check'),
+    # sa.PrimaryKeyConstraint('srid', name='spatial_ref_sys_pkey')
+    # )
     op.drop_table('populacao_niveis', schema='main')
     op.drop_table('eventos', schema='main')
     op.drop_table('equipamentos', schema='main')
@@ -563,6 +586,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_main_reservatorios_version_end_transaction_id'))
 
     op.drop_table('reservatorios_version', schema='main')
+    op.drop_table('reservatorio_edificio_version_custom', schema='main')
     with op.batch_alter_table('reservatorio_edificio_version', schema='main') as batch_op:
         batch_op.drop_index(batch_op.f('ix_main_reservatorio_edificio_version_transaction_id'))
         batch_op.drop_index(batch_op.f('ix_main_reservatorio_edificio_version_operation_type'))
@@ -597,15 +621,14 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_main_escolas_version_transaction_id'))
         batch_op.drop_index(batch_op.f('ix_main_escolas_version_operation_type'))
         batch_op.drop_index(batch_op.f('ix_main_escolas_version_end_transaction_id'))
+        # batch_op.drop_index('idx_escolas_version_geom', postgresql_using='gist')
 
     op.drop_table('escolas_version', schema='main')
-    op.drop_table('escolas', schema='main')
-    with op.batch_alter_table('escola_niveis_version', schema='main') as batch_op:
-        batch_op.drop_index(batch_op.f('ix_main_escola_niveis_version_transaction_id'))
-        batch_op.drop_index(batch_op.f('ix_main_escola_niveis_version_operation_type'))
-        batch_op.drop_index(batch_op.f('ix_main_escola_niveis_version_end_transaction_id'))
+    # with op.batch_alter_table('escolas', schema='main') as batch_op:
+    #     batch_op.drop_index('idx_escolas_geom', postgresql_using='gist')
 
-    op.drop_table('escola_niveis_version', schema='main')
+    op.drop_table('escolas', schema='main')
+    op.drop_table('escola_niveis_version_custom', schema='main')
     with op.batch_alter_table('equipamentos_version', schema='main') as batch_op:
         batch_op.drop_index(batch_op.f('ix_main_equipamentos_version_transaction_id'))
         batch_op.drop_index(batch_op.f('ix_main_equipamentos_version_operation_type'))
