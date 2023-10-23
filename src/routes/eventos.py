@@ -241,8 +241,10 @@ def eventos_cadastro():
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
-       
+        encerramento = formulario.get("encerramento", False)
+        data_encerramento = formulario.get("dataEncerramento", None)
         
+        print(tipodeevento.recorrente)
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
@@ -250,9 +252,7 @@ def eventos_cadastro():
         else:
             datainicio = formulario.get("data", None)
             datafim = formulario.get("dataEncerramento", None)
-            encerramento = formulario.get("encerramento", False)
-            data_encerramento = formulario.get("dataEncerramento", None)
-        
+            
     
         #Tratamento de tipo_de_local
         

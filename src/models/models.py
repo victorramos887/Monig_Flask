@@ -6,10 +6,10 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
-from geoalchemy2.types import Geometry
-from shapely import wkb
-from geoalchemy2 import WKBElement
-from geoalchemy2.shape import to_shape
+#from geoalchemy2.types import Geometry
+# from shapely import wkb
+# from geoalchemy2 import WKBElement
+# from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
@@ -56,7 +56,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
+    #geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
@@ -84,16 +84,16 @@ class Escolas(db.Model):
             "telefone": self.telefone,
         }
 
-        if self.geom is not None:
-            print(func.st_y(self.geom))
-            point = to_shape(self.geom)
-            retorno["lat"] = point.y
-            retorno["lon"] = point.x
-        else:
-            retorno["lat"] = None
-            retorno["lon"] = None
+        # if self.geom is not None:
+        #     print(func.st_y(self.geom))
+        #     point = to_shape(self.geom)
+        #     retorno["lat"] = point.y
+        #     retorno["lon"] = point.x
+        # else:
+        #     retorno["lat"] = None
+        #     retorno["lon"] = None
 
-        return retorno
+        # return retorno
 
 
 class Reservatorios(db.Model):
@@ -726,6 +726,7 @@ class Eventos(db.Model):
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
         retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+        
        
         
         
