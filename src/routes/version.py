@@ -1,10 +1,44 @@
 from flask import Blueprint, jsonify
 from sqlalchemy_continuum import version_class
-from ..models import Escolas, Edificios, AreaUmida, Equipamentos, Hidrometros, Populacao,db
+from ..models import Escolas, Edificios, AreaUmida, Equipamentos, Hidrometros, Populacao, Eventos,db
 
 version = Blueprint('version', __name__, url_prefix='/api/v1/version')
 
 
+
+# article = Article(name=u'New article', content=u'Some content')
+# session.add(article)
+# session.commit(article)
+# version = article.versions[0]
+# session.delete(article)
+# session.commit()
+# version.revert()
+
+
+@version.get('/eventos-retornar-delete-tudo')
+def eventos_retornar_delete_tudo():
+    
+    # Recupera todos os registros da tabela de versão
+    eventos_deletados = version_class(Eventos).query.filter_by(operation_type=2).all()
+    
+    # Para cada registro, reverte o registro usando a função merge() da classe Session
+    for evento_deletado in eventos_deletados:
+        print(f"Nome: {evento_deletado.nome} -- id: {evento_deletado.id}")
+       
+        evento = Eventos.query.get(evento_deletado.id)
+        evento.version.revert()
+
+    db.session.commit()
+    
+    return jsonify({
+        "status":True
+    })
+    
+    
+    
+    
+    
+    
 @version.get('/escolas/<int:id>')
 def escolas(id):
 

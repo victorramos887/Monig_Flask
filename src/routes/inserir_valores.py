@@ -20,9 +20,9 @@ def inserirGuarulhos():
         dfAreaUmida = pd.read_csv(
             areaumida, header=0, sep=";", encoding='latin-1')
 
+        
         for index, row in dfEscola.iterrows():
-            
-            
+                      
             nome = row['Unidade Escolar'].upper()
             endereco = str(row['Logradouro']).split(',')
             if len(endereco) >= 2:
@@ -43,7 +43,7 @@ def inserirGuarulhos():
                 telefone='0',
                 email='-'
             )
-
+            
             db.session.add(escolainsert)
             db.session.commit()
 

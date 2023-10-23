@@ -15,6 +15,7 @@ config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
+from src.models import add_opniveis
 
 def get_engine():
     try:

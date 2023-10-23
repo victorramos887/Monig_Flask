@@ -1,13 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func, text, DDL, and_, not_
 from datetime import datetime
-from sqlalchemy import inspect
+from sqlalchemy import inspect, func
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
-#run_after_create_db
-
+from geoalchemy2.types import Geometry
+from shapely import wkb
+from geoalchemy2 import WKBElement
+from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
@@ -54,6 +56,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
@@ -72,8 +75,25 @@ class Escolas(db.Model):
         self.email = email
         self.telefone = telefone
 
+
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        retorno = {
+            "id": self.id,
+            "nome": self.nome,
+            "cnpj": self.cnpj,
+            "telefone": self.telefone,
+        }
+
+        if self.geom is not None:
+            print(func.st_y(self.geom))
+            point = to_shape(self.geom)
+            retorno["lat"] = point.y
+            retorno["lon"] = point.x
+        else:
+            retorno["lat"] = None
+            retorno["lon"] = None
+
+        return retorno
 
 
 class Reservatorios(db.Model):
@@ -91,8 +111,10 @@ class Reservatorios(db.Model):
     edificio = db.relationship(
         'Edificios',
         back_populates="reservatorio",
-        secondary="main.reservatorio_edificio",
+        secondary="main.reservatorio_edificio"
     )
+    
+    
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -567,7 +589,6 @@ class AuxTipoHidrometro(db.Model):
 # Tabelas auxiliares MxM
 class EscolaNiveis(db.Model):
 
-    __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis'
 
@@ -575,12 +596,21 @@ class EscolaNiveis(db.Model):
         'main.escolas.id'), primary_key=True)
     nivel_ensino_id = db.Column(db.Integer, db.ForeignKey(
         'main.aux_opniveis.id'), primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
 
+class EscolaNiveisVersion(db.Model):
+    
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'escola_niveis_version_custom'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    escola_id = db.Column(db.Integer)
+    nivel_ensino_id = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    transacao = db.Column(db.Integer)
 
 class ReservatorioEdificio(db.Model):
 
-    __versioned__ = {}
-    # esta podendo ter nomes de reservatorios iguais para o mesmo edificio
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio'
 
@@ -588,6 +618,21 @@ class ReservatorioEdificio(db.Model):
         'main.edificios.id'), primary_key=True)
     reservatorio_id = db.Column(db.Integer, db.ForeignKey(
         'main.reservatorios.id'), primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+
+class ReservatorioEdificiosVersion(db.Model):
+    
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'reservatorio_edificio_version_custom'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    edificio_id = db.Column(db.Integer)
+    reservatorio_id = db.Column(db.Integer)
+    
+    created_at = db.Column(db.DateTime)
+    transacao = db.Column(db.Integer)
+    
+
 
 
 class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):

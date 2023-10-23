@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import (Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                      Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, AuxTipoDeEventos, Eventos)
+                      Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, ReservatorioEdificiosVersion, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
+from datetime import datetime
+
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
@@ -178,7 +180,7 @@ def escolas_editar(id):
 
         db.session.commit()
 
-        return jsonify({"escola": escola.to_json(), "status": True}), HTTP_200_OK
+        return jsonify({"mensagem": "Cadastro atualizado!", "escola": escola.to_json(), "status": True}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         if '23503' in str(e):
@@ -275,7 +277,6 @@ def edificios_editar(id):
     edificio = Edificios.query.filter_by(id=id).first()
 
     body = request.get_json()
-
     reservatorios = body.pop('reservatorio')  # remove reservatorio de body
 
     if not edificio:
@@ -295,10 +296,10 @@ def edificios_editar(id):
 
         reservatorio_adicionado = set(reservatorios) - set(reservatorioatual)
         reservatorio_remover = set(reservatorioatual) - set(reservatorios)
+
         for reservatorio in reservatorio_adicionado:
             reservatorios_edificios = Reservatorios.query.filter_by(
                 id=reservatorio).first()
-            print(reservatorios_edificios)
 
             if reservatorios_edificios:
 
@@ -307,6 +308,16 @@ def edificios_editar(id):
                     reservatorio_id=reservatorios_edificios.id
                 )
                 db.session.add(edificios_reservatorio)
+
+                # versionamento
+                edificios_reservatorio_version = ReservatorioEdificiosVersion(
+                    edificio_id=id,
+                    reservatorio_id=reservatorios_edificios.id,
+                    transacao=1,
+                    created_at=datetime.now()
+                )
+
+                db.session.add(edificios_reservatorio_version)
 
         for reservatorio in reservatorio_remover:
             reservatorios_edificios = Reservatorios.query.filter_by(
@@ -321,9 +332,18 @@ def edificios_editar(id):
                 if edificios_reservatorio:
                     db.session.delete(edificios_reservatorio)
 
+                    edificios_reservatorio_version = ReservatorioEdificiosVersion(
+                        edificio_id=id,
+                        reservatorio_id=reservatorios_edificios.id,
+                        transacao=2,
+                        created_at=datetime.now()
+                    )
+                    print("remover")
+                    db.session.add(edificios_reservatorio_version)
+
         db.session.commit()
 
-        return jsonify({"edificio": edificio.to_json(), "status": True}), HTTP_200_OK
+        return jsonify({"mensagem": "Cadastro atualizado!", "edificio": edificio.to_json(), "status": True}), HTTP_200_OK
 
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
@@ -789,7 +809,7 @@ def evento_editar(id):
             db.session.commit()
 
         else:
-            
+
             fk_tipo = fk_tipo.id
             nome = formulario['nome_do_evento']
             datainicio = formulario['data']
@@ -804,7 +824,7 @@ def evento_editar(id):
 
             local = obter_local(
                 formulario['tipo_de_local'], formulario['local'])
-            
+
             print(local)
 
             if local is None:
@@ -827,7 +847,7 @@ def evento_editar(id):
             )
             db.session.commit()
 
-        return jsonify({"evento": evento.to_json(), "status": True, "mensagem":"Edição realizada com sucesso!!!"}), HTTP_200_OK
+        return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
@@ -858,6 +878,5 @@ def evento_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        
         print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
