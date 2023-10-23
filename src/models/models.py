@@ -681,6 +681,7 @@ class Eventos(db.Model):
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
         retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+       
         
         
         if self.tipodelocal.nome_da_tabela == "Escola":

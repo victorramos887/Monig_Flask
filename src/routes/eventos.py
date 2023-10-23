@@ -63,7 +63,7 @@ def tipoeventoocasional():
         fk_cliente = formulario.get('fk_cliente')
         nome_do_evento = formulario.get('nome_do_evento')
         requerResposta = formulario.get('requerResposta')
-        tempo = formulario.get('tolerencia')
+        tempo = formulario.get('tolerancia')
         unidade = formulario.get('unidade')
 
     except Exception as e:
@@ -129,10 +129,7 @@ def tipoeventorecorrente():
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = formulario.get('periodicidade') if formulario.get('periodicidade') is not None else False
-
-        print(periodicidade)
-
+        # periodicidade = formulario.get('periodicidade') if formulario.get('periodicidade') is not None else False
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -204,6 +201,7 @@ def eventos_cadastro():
 
     try:
         formulario = request.get_json()
+        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -243,18 +241,19 @@ def eventos_cadastro():
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
-        encerramento = formulario.get("encerramento", False)
-        data_encerramento = formulario.get("dataEncerramento", None)
+       
         
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
             
         else:
-                datainicio = formulario.get("data", None)
-                datafim = formulario.get("dataEncerramento", None)
-            
+            datainicio = formulario.get("data", None)
+            datafim = formulario.get("dataEncerramento", None)
+            encerramento = formulario.get("encerramento", False)
+            data_encerramento = formulario.get("dataEncerramento", None)
         
+    
         #Tratamento de tipo_de_local
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
@@ -302,7 +301,7 @@ def eventos_cadastro():
         db.session.add(evento)
         db.session.commit()
 
-        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data": evento.to_json()}), HTTP_200_OK
+        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data":evento.to_json()}), HTTP_200_OK
 
     except ArgumentError as e:
         error_message = str(e)
