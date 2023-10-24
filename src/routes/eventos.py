@@ -61,10 +61,9 @@ def tipoeventoocasional():
     try:
 
         fk_cliente = formulario.get('fk_cliente')
-        ehResposta = formulario.get('ehResposta')
         nome_do_evento = formulario.get('nome_do_evento')
         requerResposta = formulario.get('requerResposta')
-        tolerencia = formulario.get('tolerencia')
+        tempo = formulario.get('tolerancia')
         unidade = formulario.get('unidade')
 
     except Exception as e:
@@ -87,7 +86,7 @@ def tipoeventoocasional():
             nome_do_tipo_de_evento=nome_do_evento,
             recorrente=False,
             requer_acao=requerResposta,
-            tempo=tolerencia,
+            tempo=tempo,
             unidade=unidade,
             color=f"#{color}"
         )
@@ -96,9 +95,9 @@ def tipoeventoocasional():
         db.session.commit()
 
         return jsonify({
-            "status": True,
-            "tipo_de_evento": 'tipoevento'
-        }), 200  # Terminar Retorno
+                "status":True,
+                "tipo_de_evento":tipoevento.to_json()
+            }), 200 #Terminar Retorno
 
     except exc.DBAPIError as e:
         db.session.rollback()
@@ -118,6 +117,7 @@ def tipoeventoocasional():
             "status": False,
             "codigo": e
         }), 400
+
 
 
 @eventos.post('/tipo-evento-recorrente')
@@ -145,12 +145,11 @@ def tipoeventorecorrente():
             'tolerancia') else None
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta') if formulario.get(
-            'ehResposta') is not None else False
-
-        # COR ALEATÓRIA
-        # color = "%06x" % randint(0, 0xFFFFFF)
-        # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
+       
+        
+        #COR ALEATÓRIA
+        #color = "%06x" % randint(0, 0xFFFFFF)
+        #color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = "0474CB"
 
         tipo_evento = AuxTipoDeEventos(
@@ -162,7 +161,6 @@ def tipoeventorecorrente():
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade,
-            acao=acao,
             color=f"#{color}"
         )
 
@@ -208,6 +206,7 @@ def eventos_cadastro_unitario():
 
     try:
         formulario = request.get_json()
+        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -247,21 +246,23 @@ def eventos_cadastro_unitario():
         local = formulario.get("local", None)
         tipo_de_local = formulario.get("tipo_de_local", None)
         observacao = formulario.get("observacoes", None)
-
+        encerramento = formulario.get("encerramento", False)
+        data_encerramento = formulario.get("dataEncerramento", None)
+        
+        print(tipodeevento.recorrente)
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
 
         else:
-            print("alguma coisa")
             datainicio = formulario.get("data", None)
-            datafim = formulario.get("data", None)
-
-        # Tratamento de tipo_de_local
-
-        tipo_de_local_fk = AuxDeLocais.query.filter_by(
-            nome_da_tabela=tipo_de_local).first()
-
+            datafim = formulario.get("dataEncerramento", None)
+            
+    
+        #Tratamento de tipo_de_local
+        
+        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        
         print(tipo_de_local_fk)
 
         if not tipo_de_local_fk:
@@ -296,12 +297,14 @@ def eventos_cadastro_unitario():
             local=local_fk.id,
             tipo_de_local=tipo_de_local_fk.id,
             observacao=observacao,
+            encerramento=encerramento, 
+            data_encerramento=data_encerramento
         )
 
         db.session.add(evento)
         db.session.commit()
 
-        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data": evento.to_json()}), HTTP_200_OK
+        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data":evento.to_json()}), HTTP_200_OK
 
     except ArgumentError as e:
         error_message = str(e)

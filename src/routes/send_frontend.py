@@ -7,12 +7,7 @@ from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDe
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
-# # Verificar Historico de Deleção
-# @send_frontend.get('/historico')
-# def historico():
 
-#     historico = Historico.query.all()
-#     return jsonify([json.dumps(h.to_json()) for h in historico])
    
 @send_frontend.get('/verificando')
 def testeando():
@@ -23,7 +18,7 @@ def testeando():
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
 
-    escolas = Escolas.query.filter_by(status_do_registro=True).all()
+    escolas = Escolas.query.all()
     return jsonify({
         'return': [escola.to_json() for escola in escolas],
         'status': True,
@@ -35,7 +30,8 @@ def escolas():
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
-
+    print(escola)
+    
     if not escola:
         return jsonify({
             "status": False,
@@ -88,7 +84,7 @@ def get_escolas(id):
 def edificios(id):
 
     edificios = Edificios.query.filter_by(
-        fk_escola=id, status_do_registro=True).order_by(desc(Edificios.principal)).all()
+        fk_escola=id).order_by(desc(Edificios.principal)).all()
     result = []
 
     for edificio in edificios:
@@ -110,7 +106,7 @@ def edificios(id):
 
         # Reservatorios
         reservatorios = Reservatorios.query.filter(
-            Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
+            Reservatorios.fk_escola == id).all()
         info_reservatorios = [reservatorio.to_json()
                               for reservatorio in reservatorios]
 
@@ -135,14 +131,14 @@ def edificios(id):
 def edificio(id):
 
     edificio = Edificios.query.filter_by(
-        id=id, status_do_registro=True).first()
+        id=id).first()
     reservatorios = Reservatorios.query.filter(
-        Reservatorios.fk_escola == id, Reservatorios.status_do_registro == True).all()
+        Reservatorios.fk_escola == id).all()
 
     if edificio is None:
 
         edificios_erro = Edificios.query.filter_by(
-            id=id, status_do_registro=False
+            id=id
         ).first()
 
         if edificios_erro:
@@ -161,7 +157,7 @@ def edificio(id):
 def area_umidas(id):
     # fk_edificios = request.args.get('')
     areas_umidas = AreaUmida.query.filter_by(
-        fk_edificios=id, status_do_registro=True).all()
+        fk_edificios=id).all()
     result = list()
     for area_umida in areas_umidas:
         # População
@@ -188,11 +184,11 @@ def area_umidas(id):
 
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
-    area_umida = AreaUmida.query.filter_by(id=id, status_do_registro=True).first()
+    area_umida = AreaUmida.query.filter_by(id=id).first()
 
     if not area_umida:
 
-        erro_area_umida = AreaUmida.query.filter_by(id=id, status_do_registro = False).first()
+        erro_area_umida = AreaUmida.query.filter_by(id=id).first()
 
         if erro_area_umida:
             return jsonify({'erro': 'Area umida não encontrado',  "status": False, "erro_area_umida":erro_area_umida.to_json()}), HTTP_400_BAD_REQUEST
@@ -208,7 +204,7 @@ def get_area_umida(id):
 def equipamentos(id):
 
     equipamentos = Equipamentos.query.filter_by(
-        fk_area_umida=id, status_do_registro=True).all()
+        fk_area_umida=id).all()
 
     return jsonify({
         f'equipamentos': [equipamento.to_json() for equipamento in equipamentos], "status": True
@@ -219,11 +215,11 @@ def equipamentos(id):
 
 @send_frontend.get('/equipamento/<int:id>')
 def get_equipamento(id):
-    equipamento = Equipamentos.query.filter_by(id=id, status_do_registro=True).first()
+    equipamento = Equipamentos.query.filter_by(id=id).first()
 
     if not equipamento:
 
-        erro_equipamento = Equipamentos.query.filter_by(id=id, status_do_registro=False).first()
+        erro_equipamento = Equipamentos.query.filter_by(id=id).first()
 
         if erro_equipamento:
             return jsonify({
@@ -243,7 +239,7 @@ def get_equipamento(id):
 @send_frontend.get('/populacao-table/<int:id>')
 def populacao(id):
     populacoes = Populacao.query.filter_by(
-        fk_edificios=id, status_do_registro=True).all()
+        fk_edificios=id).all()
     
     return jsonify({
         "populacao": [populacao.to_json() for populacao in populacoes],
@@ -254,11 +250,11 @@ def populacao(id):
 @send_frontend.get('/populacao/<int:id>')
 def get_populacao(id):
 
-    populacao = Populacao.query.filter_by(id=id, status_do_registro=True).first()
+    populacao = Populacao.query.filter_by(id=id).first()
 
     if not populacao:
 
-        erro_populacao = Populacao.query.filter_by(id=id, status_do_registro=False).first()
+        erro_populacao = Populacao.query.filter_by(id=id).first()
 
         if erro_populacao:
             return jsonify({'erro': 'População não encontrado',  "status": False, "erro_populacao":erro_populacao.to_json()}), HTTP_400_BAD_REQUEST
@@ -274,7 +270,7 @@ def get_populacao(id):
 @send_frontend.get('/hidrometros-table/<int:id>')
 def hidrometro(id):
     hidrometros = Hidrometros.query.filter_by(
-        fk_edificios=id, status_do_registro=True).all()
+        fk_edificios=id).all()
     
     if not hidrometros:
         return jsonify({
@@ -295,7 +291,7 @@ def get_hidrometro(id):
     
     if not hidrometro:
 
-        erro_hidrometro = Populacao.query.filter_by(id=id, status_do_registro=False).first()
+        erro_hidrometro = Populacao.query.filter_by(id=id).first()
 
         if erro_hidrometro:
 
@@ -313,7 +309,7 @@ def get_hidrometro(id):
 def get_reservatorio(id):
 
     reservatorio = Reservatorios.query.filter_by(
-        id=id, status_do_registro=True
+        id=id
     ).first()
 
     return jsonify({
@@ -326,7 +322,7 @@ def get_reservatorio(id):
 @send_frontend.get('/reservatorios-table/<int:id>')
 def reservatorios(id):
     reservatorios = Reservatorios.query.filter_by(
-        fk_escola=id, status_do_registro=True).all()
+        fk_escola=id).all()
     return jsonify({
         "reservatorios": [reservatorio.to_json() for reservatorio in reservatorios], "status": True
     })
@@ -369,6 +365,16 @@ def get_tipo_de_eventos(id):
 @send_frontend.get('/eventos')
 def get_eventos():
 
+
+#     {
+#     "id": 1,
+#     "title": "FESTA JUNINA",
+#     "start": "2023-08-25",
+#     "end": "2023-08-28",
+#     "color": "#FF6666",
+#     "recorrente": false
+#   }
+
     eventos = Eventos.query.all()
     
     return jsonify({
@@ -377,6 +383,7 @@ def get_eventos():
             ],
             "status":True
         }), 200
+    
 
 
 @send_frontend.get('/evento/<int:id>')
@@ -395,7 +402,7 @@ def get_evento(id):
         }), 404
         
         
-
+#retorna evento ocasional ou recorrente
 @send_frontend.get('/eventos-tipo/<int:recorrente>')
 def get_tipos_recorrente_ocasional(recorrente):
 
@@ -407,7 +414,7 @@ def get_tipos_recorrente_ocasional(recorrente):
             
             return jsonify({
             "tipo_ocasional":[
-                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_ocasional
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id, "recorrente":"False"} for tipo in tipo_ocasional
             ],
                 "status":True
             }), 200
@@ -420,7 +427,7 @@ def get_tipos_recorrente_ocasional(recorrente):
             
             return jsonify({
             "tipo_recorrente":[
-                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id} for tipo in tipo_recorrente
+                {"nome":tipo.nome_do_tipo_de_evento, "id":tipo.id, "recorrente":"True"} for tipo in tipo_recorrente
             ],
                 "status":True
             }), 200
@@ -484,6 +491,7 @@ def get_local(tipo):
         tabela = modelo.query.with_entities(AuxTiposEquipamentos.id, AuxTiposEquipamentos.aparelho_sanitario).all()
     elif modelo == Hidrometros:
         tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
+   
         
     else:
          return jsonify({

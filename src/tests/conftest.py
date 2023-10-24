@@ -7,6 +7,7 @@ import os
 import json
 from datetime import date
 
+
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), '..')))
 
@@ -272,3 +273,50 @@ def new_evento():
     }
 
 
+@fixture
+def new_tipo_ocasional():
+    return {
+        "fk_cliente":1,
+        "nome_do_evento": "Festa",
+        "requerResposta":fake.boolean(),
+        "tolerancia":fake.random_int(min=1, max=12),
+        "unidade":fake.random_element(
+            elements=(
+                "Semana",
+                "Mês",
+                "Dia",
+                "Ano"
+            )
+        ),
+        "ehResposta":fake.boolean()
+    }
+
+@fixture
+def new_escola_evento():
+    # criar novas escolas aleatórias
+    return {
+        'nome': "Local 1",
+        'cnpj': cnpj(),
+        'email': fake.email(),
+        'telefone': fake.phone_number(),
+        'bairro': fake.city_suffix(),
+        'cep': fake.postcode(),
+        'cidade': fake.city(),
+        'estado': fake.state_abbr(),
+        'complemento': fake.secondary_address(),
+        'logradouro': fake.street_name(),
+        'nivel': [niveis, niveis],
+        'numero': fake.random_int(min=1, max=1000)
+    }
+
+@fixture
+def new_evento_ocasional(): 
+    return {
+        "tipo_de_evento": "Festa",
+        "nome_do_evento": fake.name(),
+        "data_inicio": None,
+        "data_fim": None,
+        "local": "Local 1",
+        "tipo_de_local": "Escola",
+        "observacoes": fake.text()
+    }

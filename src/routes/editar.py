@@ -663,7 +663,8 @@ def equipamento_editar(id):
 def tipo_evento_editar(id):
     tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
     formulario = request.get_json()
-
+    print(formulario)
+    
     meses_dict = {
         "Janeiro": 1,
         "Fevereiro": 2,
@@ -688,11 +689,13 @@ def tipo_evento_editar(id):
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
 
     try:
-
+       
+        
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = periodicidade.get(formulario.get(
-            'periodicidade')) if formulario.get('periodicidade') is not None else False
+        recorrente = formulario.get("recorrente")
+        # periodicidade = periodicidade.get(formulario.get(
+        #     'periodicidade')) if formulario.get('periodicidade') is not None else False
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -703,19 +706,18 @@ def tipo_evento_editar(id):
             'tolerancia') else None
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
-        acao = formulario.get('ehResposta') if formulario.get(
-            'ehResposta') is not None else False
-
+        
+             
         tipo_evento.update(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
-            periodicidade=periodicidade,
             dia=dia,
             mes=mes,
+            recorrente = recorrente,
             requer_acao=requer_acao,
             tempo=tempo,
-            unidade=unidade,
-            acao=acao
+            unidade=unidade
+           
         )
 
         db.session.commit()
@@ -777,6 +779,7 @@ def evento_editar(id):
             nome = formulario['nome_do_evento']
             datainicio = formulario['data_inicio']
             datafim = formulario["data_fim"]
+          
 
             tipodelocal = AuxDeLocais.query.filter_by(
                 nome_da_tabela=formulario['tipo_de_local']).first()
@@ -810,7 +813,9 @@ def evento_editar(id):
             fk_tipo = fk_tipo.id
             nome = formulario['nome_do_evento']
             datainicio = formulario['data']
-
+            encerramento = formulario['encerramento']
+            data_encerramento = formulario['dataEncerramento']
+            
             tipodelocal = AuxDeLocais.query.filter_by(
                 nome_da_tabela=formulario['tipo_de_local']).first()
 
@@ -827,13 +832,17 @@ def evento_editar(id):
 
             tipo_de_local = tipodelocal.id
             observacao = formulario["observacoes"]
-
+            datafim = formulario.get("dataEncerramento", None)
+            
             evento.update(
                 fk_tipo=fk_tipo,
                 nome=nome,
                 datainicio=datainicio,
+                datafim=datafim,
                 local=local.id,
                 tipo_de_local=tipo_de_local,
+                encerramento = encerramento,
+                data_encerramento = data_encerramento,
                 observacao=observacao
             )
             db.session.commit()

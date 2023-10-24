@@ -6,10 +6,10 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
-from geoalchemy2.types import Geometry
-from shapely import wkb
-from geoalchemy2 import WKBElement
-from geoalchemy2.shape import to_shape
+#from geoalchemy2.types import Geometry
+# from shapely import wkb
+# from geoalchemy2 import WKBElement
+# from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
@@ -56,12 +56,11 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
+    #geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
     telefone = db.Column(db.String(25))  # 16
-    status_do_registro = db.Column(db.Boolean, default=True)
     edificios = db.relationship('Edificios', backref='edificios')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -86,16 +85,16 @@ class Escolas(db.Model):
             "email":self.email
         }
 
-        if self.geom is not None:
-            print(func.st_y(self.geom))
-            point = to_shape(self.geom)
-            retorno["lat"] = point.y
-            retorno["lon"] = point.x
-        else:
-            retorno["lat"] = None
-            retorno["lon"] = None
+        # if self.geom is not None:
+        #     print(func.st_y(self.geom))
+        #     point = to_shape(self.geom)
+        #     retorno["lat"] = point.y
+        #     retorno["lon"] = point.x
+        # else:
+        #     retorno["lat"] = None
+        #     retorno["lon"] = None
 
-        return retorno
+        # return retorno
 
 
 class Reservatorios(db.Model):
@@ -108,7 +107,6 @@ class Reservatorios(db.Model):
         db.Integer, autoincrement=True, primary_key=True)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     nome_do_reservatorio = db.Column(db.String, nullable=False)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     edificio = db.relationship(
@@ -160,7 +158,6 @@ class Edificios(db.Model):
     area_total_edificio = db.Column(db.Float)
     capacidade_reuso_m3_edificio = db.Column(db.Float)
     agua_de_reuso = db.Column(db.Boolean, default=False)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     area_umida = db.relationship('AreaUmida', backref='area_umida')
@@ -240,7 +237,6 @@ class Populacao(db.Model):
         'main.aux_populacao_periodos.id'))
     funcionarios = db.Column(db.Integer)
     alunos = db.Column(db.Integer)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -268,7 +264,6 @@ class Populacao(db.Model):
         jsonRetorno['nivel'] = self.opniveis.nivel
         jsonRetorno['alunos'] = self.alunos
         jsonRetorno['funcionarios'] = self.funcionarios
-        jsonRetorno['status_do_registro'] = self.status_do_registro
 
         # {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
         return jsonRetorno
@@ -284,7 +279,6 @@ class Hidrometros(db.Model):
     fk_edificios = db.Column(db.Integer, db.ForeignKey('main.edificios.id'))
     fk_hidrometro = db.Column(
         db.Integer, db.ForeignKey('main.aux_tipo_hidrometros.id'), default=1)
-    status_do_registro = db.Column(db.Boolean, default=True)
     hidrometro = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
@@ -320,7 +314,6 @@ class AreaUmida(db.Model):
     )
     nome_area_umida = db.Column(db.String)
     localizacao_area_umida = db.Column(db.String)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     equipamentos = db.relationship('Equipamentos', backref='equipamentos')
@@ -369,7 +362,6 @@ class Equipamentos(db.Model):
     quantTotal = db.Column(db.Integer)
     quantProblema = db.Column(db.Integer)
     quantInutil = db.Column(db.Integer)
-    status_do_registro = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_equipamento_rel = db.relationship(
@@ -677,6 +669,7 @@ class Eventos(db.Model):
     __versioned__ = {}
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
+    
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_tipo = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_de_eventos.id'))
@@ -686,6 +679,8 @@ class Eventos(db.Model):
     local = db.Column(db.Integer)  # 200
     tipo_de_local = db.Column(db.Integer, db.ForeignKey(
         'main.aux_de_locais.id'))  # 3
+    encerramento = db.Column(db.Boolean)
+    data_encerramento = db.Column(db.DateTime)
     observacao = db.Column(db.Text)
 
     tipodeevento = db.relationship(
@@ -700,14 +695,16 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao):  # cod_usuarios
+    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento, encerramento=False):  # cod_usuarios
         self.fk_tipo = fk_tipo
         self.nome = nome
         self.datainicio = datainicio
         self.datafim = datafim
         self.local = local
         self.tipo_de_local = tipo_de_local
+        self.encerramento = encerramento
         self.observacao = observacao
+        self.data_encerramento = data_encerramento
 
     def to_json(self):
 
@@ -730,6 +727,8 @@ class Eventos(db.Model):
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
         retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+        
+       
         
         
         if self.tipodelocal.nome_da_tabela == "Escola":
@@ -757,7 +756,7 @@ class Eventos(db.Model):
             "color": self.tipodeevento.color,
             "recorrente":self.tipodeevento.recorrente
         }
-
+        
         return calendar
 
 
@@ -796,10 +795,8 @@ class AuxTipoDeEventos(db.Model):
     requer_acao = db.Column(db.Boolean)
     tempo = db.Column(db.Integer)
     unidade = db.Column(db.String)
-    acao = db.Column(db.Boolean)
     usuario = db.Column(db.Integer,  db.ForeignKey('main.usuarios.id'))
     color = db.Column(db.String)
-    status_do_registro = db.Column(db.Boolean, default=True)
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     created_at = db.Column(db.DateTime, default=datetime.now())
 
@@ -807,7 +804,7 @@ class AuxTipoDeEventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, acao=None, color=None):
+    def __init__(self, fk_cliente=None, nome_do_tipo_de_evento=None, recorrente=None, dia=None, mes=None, requer_acao=None, tempo=None, unidade=None, color=None):
 
         self.fk_cliente = fk_cliente
         self.nome_do_tipo_de_evento = nome_do_tipo_de_evento
@@ -817,7 +814,6 @@ class AuxTipoDeEventos(db.Model):
         self.requer_acao = requer_acao
         self.tempo = tempo
         self.unidade = unidade
-        self.acao = acao
         self.color = color
 
     def to_json(self):
@@ -842,7 +838,44 @@ class AuxTipoDeEventos(db.Model):
             for attr in self.__table__.columns
         }
 
+#CONSUMO
 
+class ConsumoAgua(db.Model):
+
+    __versioned__ = {}
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'consumo_agua'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    data = db.Column(db.DateTime)
+    dataFimPeriodo = db.Column(db.DateTime)
+    dataInicioPeriodo = db.Column(db.DateTime)
+    valor = db.Column(db.Float)
+    fk_hidrometro = db.Column(
+        db.Integer, db.ForeignKey('main.hidrometros.id'))
+    fk_escola = db.Column(db.Integer, db.ForeignKey("main.escolas.id"))
+    created_at = db.Column(db.DateTime, default=datetime.now())
+    updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+
+    def __init__(self, fk_escola, fk_hidrometro, consumo, data, dataFimPeriodo, dataInicioPeriodo, valor):
+        self.fk_escola = fk_escola
+        self.fk_hidrometro = fk_hidrometro
+        self.consumo = consumo
+        self.data = data
+        self.dataFimPeriodo = dataFimPeriodo
+        self.dataInicioPeriodo = dataInicioPeriodo
+        self.valor = valor
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+            
+            
+            
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação', 'Área Úmida',
                          'Reservatório', 'Equipamento', 'Hidrômetro']
@@ -1038,7 +1071,8 @@ def add_opniveis():
                 peso=equipamento['peso']
             )
             db.session.add(oequipamento)
-
+            
+    
     db.session.commit()
 
     for key, values in tipoareaumidaequipamento.items():
@@ -1064,5 +1098,5 @@ def add_opniveis():
 
             db.session.commit()
 
-
+    #db.run_after_create_db(add_opniveis)
 sa.orm.configure_mappers()
