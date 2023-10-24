@@ -375,7 +375,7 @@ def get_eventos():
 #     "recorrente": false
 #   }
 
-    eventos = Eventos.query.all()
+    eventos = Eventos.query.all()#busca todos os eventos
     
     return jsonify({
             "eventos":[
@@ -383,6 +383,7 @@ def get_eventos():
             ],
             "status":True
         }), 200
+    
     
 
 
@@ -457,9 +458,9 @@ def get_tipo_local():
 @send_frontend.get('/local/<string:tipo>')
 def get_local(tipo):
     
-    #filtrar o tipo
+    #filtrar o tipo - ex. Escola
     tipo_local = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
-
+    
     if tipo_local is None:
          return jsonify({
              "message": "Tipo de local não encontrado",
@@ -506,3 +507,78 @@ def get_local(tipo):
     ],
         "status":True
     }), 200
+    
+    
+ #TESTE   fornecer o tipo e local
+@send_frontend.get('/local-escola/<string:tipo>/<int:local>')
+def get_localescola(tipo, local):
+    
+    
+    #filtrar o tipo
+    tipo_local = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first() 
+
+    if tipo_local is None:
+         return jsonify({
+             "message": "Tipo de local não encontrado",
+             "status": False
+         }), 400
+         
+    tabela = tipo_local.nome_da_tabela
+    
+    tabelas = {
+        'Escola': Escolas,
+        'Edificação': Edificios,
+        'Área Úmida': AreaUmida,
+        'Reservatório': Reservatorios,
+        'Equipamento': Equipamentos,
+        'Hidrômetro': Hidrometros
+    }
+        
+    modelo = tabelas.get(tabela) 
+    
+     #tipo de local recebido modelo -> Escola() -> Escolas
+    if modelo == Escolas:
+        #busca todas as escolas 
+        tabela = modelo.query.filter_by(id=local).with_entities(Escolas.id, Escolas.nome, Escolas.id).all()
+        # return jsonify({
+        #     "Escola": [
+        #         {"id_escola": l[0], "nome_do_local": l[1]} for l in tabela
+        #     ],
+        #     "status": True
+        # }), 200
+        
+    elif modelo == Edificios:
+        tabela = modelo.query.filter_by(id=local).with_entities(Edificios.id, Edificios.nome_do_edificio, Edificios.fk_escola).all()
+        
+        # return jsonify({
+        #     "Edificação": [
+        #         {"id_edificio": l[0], "id_escola": l[1], "nome_do_local": l[2]} for l in tabela
+        #     ],
+        #     "status": True
+        # }), 200
+       
+    #Continuar
+    elif modelo == AreaUmida:
+        tabela = modelo.query.with_entities(AreaUmida.id, AreaUmida.nome_area_umida).all()
+    elif modelo == Reservatorios:
+        tabela = modelo.query.with_entities(Reservatorios.id, Reservatorios.nome_do_reservatorio).all()
+    elif modelo == Equipamentos:
+        tabela = modelo.query.with_entities(AuxTiposEquipamentos.id, AuxTiposEquipamentos.aparelho_sanitario).all()
+    elif modelo == Hidrometros:
+        tabela = modelo.query.with_entities(Hidrometros.id, Hidrometros.hidrometro).all()
+
+      
+    else:
+         return jsonify({
+             "message": "Tabela não encontrada",
+             "status": False
+         }), 400
+        
+    
+    return jsonify({
+        "local-escola": [
+            {"id_tabela": l[0], "nome_do_local": l[1], "id_escola": l[2]} for l in tabela
+        ],
+        "status": True
+      }), 200
+      

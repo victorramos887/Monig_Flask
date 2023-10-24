@@ -192,20 +192,20 @@ def escolas():
             AuxOpNiveis.nivel.in_(nivel)).all()
         # realizar controle, de que não foi cadastrado nível
 
-        escola_niveis = [EscolaNiveis(
-            nivel_ensino_id=nivel.id, escola_id=escola.id
-        ) for nivel in niveis_query]
-        db.session.add_all(escola_niveis)
+        # escola_niveis = [EscolaNiveis(
+        #     nivel_ensino_id=nivel.id, escola_id=escola.id
+        # ) for nivel in niveis_query]
+        # db.session.add_all(escola_niveis)
 
-        # Versionamento
-        escola_niveis_version = [EscolaNiveisVersion(
-            niviel_ensino_id=nivel.id,
-            escola_id=escola.id,
-            transacao=0,
-            created_at=datetime.now()
-        ) for nivel in niveis_query]
+        # # Versionamento
+        # escola_niveis_version = [EscolaNiveisVersion(
+        #     niviel_ensino_id=nivel.id,
+        #     escola_id=escola.id,
+        #     transacao=0,
+        #     created_at=datetime.now()
+        # ) for nivel in niveis_query]
 
-        db.session.add_all(escola_niveis_version)
+        # db.session.add_all(escola_niveis_version)
 
         edificio = Edificios(
             fk_escola=int(escola.id),
@@ -389,13 +389,13 @@ def edificios():
 
                 db.session.add(reservatorio)
 
-                reservatorio_vesion = ReservatorioEdificioVersion(
-                    edificio_id=edificio.id,
-                    reservatorio_id=reserv.id,
-                    transacao=0,
-                    created_at=datetime.now()
-                )
-                db.session.add(reservatorio_vesion)
+                # reservatorio_vesion = ReservatorioEdificioVersion(
+                #     edificio_id=edificio.id,
+                #     reservatorio_id=reserv.id,
+                #     transacao=0,
+                #     created_at=datetime.now()
+                # )
+                # db.session.add(reservatorio_vesion)
 
             else:
                 db.session.rollback()

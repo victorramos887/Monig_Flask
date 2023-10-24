@@ -754,6 +754,7 @@ class Eventos(db.Model):
             "end": str(self.datafim).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
             "recorrente":self.tipodeevento.recorrente
+            
         }
         
         return calendar
