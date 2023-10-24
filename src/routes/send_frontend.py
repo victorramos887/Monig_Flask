@@ -61,7 +61,6 @@ def get_escolas(id):
             "id": escola_json["id"],
             "nivel": nivelRetorno,
             "nome": escola_json["nome"],
-            "status_do_registro": escola_json["status_do_registro"],
             "telefone": escola_json["telefone"],
             "logradouro": edificio_json["logradouro_edificio"],
             "bairro": edificio_json["bairro_edificio"],

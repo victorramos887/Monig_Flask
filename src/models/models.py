@@ -83,6 +83,7 @@ class Escolas(db.Model):
             "nome": self.nome,
             "cnpj": self.cnpj,
             "telefone": self.telefone,
+            "email":self.email
         }
 
         if self.geom is not None:
