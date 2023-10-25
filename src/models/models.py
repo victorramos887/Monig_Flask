@@ -751,12 +751,13 @@ class Eventos(db.Model):
             "id": self.id,
             "title": self.nome,
             "start": str(self.datainicio).format("%d/%m/%Y"),
-            "end": str(self.datafim).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
             "recorrente":self.tipodeevento.recorrente
             
         }
-        
+        if self.datafim is not None:
+            calendar["end"] = str(self.datafim).format("%d/%m/%Y")
+
         return calendar
 
 
