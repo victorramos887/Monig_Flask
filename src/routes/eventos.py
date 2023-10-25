@@ -256,7 +256,11 @@ def eventos_cadastro_unitario():
 
         else:
             datainicio = formulario.get("data", None)
-            datafim = formulario.get("dataEncerramento", None)
+            datafim = None
+            # if not formulario["dataEncerramento"]:
+            #     datafim = None
+            # else:
+            #     datafim = formulario["dataEncerramento"]
             
     
         #Tratamento de tipo_de_local

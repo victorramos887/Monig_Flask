@@ -701,7 +701,7 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, fk_escola, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento=None, encerramento=False):  # cod_usuarios
+    def __init__(self, fk_tipo, fk_escola, nome, datainicio, local, tipo_de_local, observacao, datafim=None, data_encerramento=None, encerramento=False):  # cod_usuarios
         self.fk_tipo = fk_tipo
         self.fk_escola = fk_escola
         self.nome = nome
@@ -732,7 +732,7 @@ class Eventos(db.Model):
         retorno['tipodoevento'] = self.tipodeevento.recorrente
         retorno['fk_tipo'] = self.tipodeevento.nome_do_tipo_de_evento
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
-        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
+        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d") if self.datafim is not None else None
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
                
         if self.tipodelocal.nome_da_tabela == "Escola":
