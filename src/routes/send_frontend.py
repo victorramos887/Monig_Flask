@@ -78,6 +78,18 @@ def get_escolas(id):
         "mensagem": "Escola não encontrada."
     }), 404
 
+    
+@send_frontend.post('/escola-lista')
+def escola_lista():
+    data = request.json
+    
+    query = Escolas.query.filter(Escolas.id.in_(data["escolas"])).all()
+    
+    return jsonify({
+        'return': [escola.to_json() for escola in query],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
+    }), 200
 
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
 @send_frontend.get('/edificios-table/<int:id>')
@@ -362,27 +374,18 @@ def get_tipo_de_eventos(id):
         }), 404
 
 
-@send_frontend.get('/eventos')
+@send_frontend.post('/eventos')
 def get_eventos():
-
-
-#     {
-#     "id": 1,
-#     "title": "FESTA JUNINA",
-#     "start": "2023-08-25",
-#     "end": "2023-08-28",
-#     "color": "#FF6666",
-#     "recorrente": false
-#   }
-
-    eventos = Eventos.query.all()
-    
+    data = request.json
+    print(data)
+    query = Eventos.query.filter(Eventos.fk_escola.in_(data["escolas"])).all()
     return jsonify({
             "eventos":[
-                evento.retornoFullCalendar() for evento in eventos
+                evento.retornoFullCalendar() for evento in query
             ],
             "status":True
         }), 200
+    
     
 
 

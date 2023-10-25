@@ -49,8 +49,6 @@ def tipoeventoocasional():
 
     try:
         formulario = request.get_json()
-        print(formulario, "Valor")
-        # tipo_evento
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -79,7 +77,7 @@ def tipoeventoocasional():
         # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = '6ECB04'
 
-        print()
+        
 
         tipoevento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
@@ -90,6 +88,8 @@ def tipoeventoocasional():
             unidade=unidade,
             color=f"#{color}"
         )
+   
+        print(tipoevento)
 
         db.session.add(tipoevento)
         db.session.commit()
@@ -289,8 +289,35 @@ def eventos_cadastro_unitario():
                 "status": False
             }), 400
 
+        #Escola
+        print(f"Tipo de local --- {tipo_de_local}")
+        if tipo_de_local == "Escola":
+            fk_escola = local_fk.id
+            print(local_fk)
+        
+        elif tipo_de_local == "Edificação":
+            edificio_ = Edificios.query.filter_by(id=local_fk.id).first()
+            fk_escola = edificio_.fk_escola
+        
+        elif tipo_de_local == "Área Úmida":
+            areaumida_ = AreaUmida.query.filter_by(id=local_fk.id).first()
+            fk_edificio = areaumida_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola
+
+        elif tipo_de_local == "Reservatório":
+            reservatorio_ = Reservatorios.query.filter_by(id=local_fk.id).first()
+            fk_escola = reservatorio_.fk_escola
+        
+        else:
+            hidrometro_ = Hidrometros.query.filter_by(id=local_fk.id).first()
+            fk_edificio = hidrometro_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola       
+            
         evento = Eventos(
             fk_tipo=tipo_de_evento_fk.id,
+            fk_escola = fk_escola,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
@@ -385,7 +412,7 @@ def eventos_cadastro_coletivo():
 
         for escola in escolas:
 
-            query_escola = Escolas.query.filter_by(nome=escola).first()
+            query_escola = Escolas.query.filter_by(id=escola).first()
 
             if not query_escola:
                 return jsonify({
@@ -410,6 +437,7 @@ def eventos_cadastro_coletivo():
                 }), 400
 
             evento = Eventos(
+                fk_escola=query_escola.id,
                 fk_tipo=tipo_de_evento_fk.id,
                 nome=nome,
                 datainicio=datainicio,

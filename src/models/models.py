@@ -167,6 +167,7 @@ class Edificios(db.Model):
         back_populates="edificio",
         secondary="main.reservatorio_edificio"
     )
+    
 
     def update(self, **kwargs):
 
@@ -672,6 +673,9 @@ class Eventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_tipo = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_de_eventos.id'))
+    fk_escola = db.Column(db.Integer, db.ForeignKey(
+        'main.escolas.id'
+    ))
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
     datafim = db.Column(db.DateTime)
@@ -687,6 +691,9 @@ class Eventos(db.Model):
     tipodelocal = db.relationship(
         'AuxDeLocais', backref='tipodelocal'
     )
+    escola = db.relationship(
+        "Escolas", backref="escola"
+    )
 
     created_at = db.Column(db.DateTime, default=datetime.now())
 
@@ -694,8 +701,9 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento, encerramento=False):  # cod_usuarios
+    def __init__(self, fk_tipo, fk_escola, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento=None, encerramento=False):  # cod_usuarios
         self.fk_tipo = fk_tipo
+        self.fk_escola = fk_escola
         self.nome = nome
         self.datainicio = datainicio
         self.datafim = datafim
@@ -726,10 +734,7 @@ class Eventos(db.Model):
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
         retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
-        
-       
-        
-        
+               
         if self.tipodelocal.nome_da_tabela == "Escola":
             retorno['local'] = Escolas.query.filter_by(id =self.local).first().nome
         elif self.tipodelocal.nome_da_tabela == "Edificação":
@@ -753,7 +758,8 @@ class Eventos(db.Model):
             "start": str(self.datainicio).format("%d/%m/%Y"),
             "end": str(self.datafim).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
-            "recorrente":self.tipodeevento.recorrente
+            "recorrente":self.tipodeevento.recorrente,
+            "escola":self.escola.nome
         }
         
         return calendar
