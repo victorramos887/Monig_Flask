@@ -5,7 +5,7 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import  generate_password_hash
-from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, ConsumoAgua, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, AuxOpNiveis, AuxTipoAreaUmida, AuxTiposEquipamentos, Reservatorios, AuxPopulacaoPeriodo, AuxOperacaoAreaUmida, ReservatorioEdificio)
+from ..models import (Escolas, Edificios, EscolaNiveis, EscolaNiveisVersion, db, AreaUmida, ConsumoAgua, Usuarios, Cliente, Equipamentos, Populacao, Hidrometros, AuxOpNiveis, AuxTipoAreaUmida, AuxTiposEquipamentos, Reservatorios, AuxPopulacaoPeriodo, AuxOperacaoAreaUmida, ReservatorioEdificio)
 import traceback
 from sqlalchemy.exc import ArgumentError
 from datetime import datetime

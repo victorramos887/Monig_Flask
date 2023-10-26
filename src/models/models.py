@@ -6,10 +6,10 @@ from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
 from sqlalchemy_continuum import make_versioned
-#from geoalchemy2.types import Geometry
-# from shapely import wkb
-# from geoalchemy2 import WKBElement
-# from geoalchemy2.shape import to_shape
+from geoalchemy2.types import Geometry
+from shapely import wkb
+from geoalchemy2 import WKBElement
+from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
@@ -56,7 +56,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    #geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
+    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
@@ -82,18 +82,18 @@ class Escolas(db.Model):
             "nome": self.nome,
             "cnpj": self.cnpj,
             "telefone": self.telefone,
+            "email":self.email
         }
 
-        # if self.geom is not None:
-        #     print(func.st_y(self.geom))
-        #     point = to_shape(self.geom)
-        #     retorno["lat"] = point.y
-        #     retorno["lon"] = point.x
-        # else:
-        #     retorno["lat"] = None
-        #     retorno["lon"] = None
+        if self.geom is not None:
+            point = to_shape(self.geom)
+            retorno["lat"] = point.y
+            retorno["lon"] = point.x
+        else:
+            retorno["lat"] = None
+            retorno["lon"] = None
 
-        # return retorno
+        return retorno
 
 
 class Reservatorios(db.Model):
@@ -167,6 +167,7 @@ class Edificios(db.Model):
         back_populates="edificio",
         secondary="main.reservatorio_edificio"
     )
+    
 
     def update(self, **kwargs):
 
@@ -672,6 +673,9 @@ class Eventos(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_tipo = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_de_eventos.id'))
+    fk_escola = db.Column(db.Integer, db.ForeignKey(
+        'main.escolas.id'
+    ))
     nome = db.Column(db.String)
     datainicio = db.Column(db.DateTime)
     datafim = db.Column(db.DateTime)
@@ -687,6 +691,9 @@ class Eventos(db.Model):
     tipodelocal = db.relationship(
         'AuxDeLocais', backref='tipodelocal'
     )
+    escola = db.relationship(
+        "Escolas", backref="escola"
+    )
 
     created_at = db.Column(db.DateTime, default=datetime.now())
 
@@ -694,8 +701,9 @@ class Eventos(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, fk_tipo, nome, datainicio, datafim, local, tipo_de_local, observacao, data_encerramento, encerramento=False):  # cod_usuarios
+    def __init__(self, fk_tipo, fk_escola, nome, datainicio, local, tipo_de_local, observacao, datafim=None, data_encerramento=None, encerramento=False):  # cod_usuarios
         self.fk_tipo = fk_tipo
+        self.fk_escola = fk_escola
         self.nome = nome
         self.datainicio = datainicio
         self.datafim = datafim
@@ -724,12 +732,9 @@ class Eventos(db.Model):
         retorno['tipodoevento'] = self.tipodeevento.recorrente
         retorno['fk_tipo'] = self.tipodeevento.nome_do_tipo_de_evento
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
-        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d")
+        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d") if self.datafim is not None else None
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
-        
-       
-        
-        
+               
         if self.tipodelocal.nome_da_tabela == "Escola":
             retorno['local'] = Escolas.query.filter_by(id =self.local).first().nome
         elif self.tipodelocal.nome_da_tabela == "Edificação":
@@ -752,8 +757,8 @@ class Eventos(db.Model):
             "title": self.nome,
             "start": str(self.datainicio).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
-            "recorrente":self.tipodeevento.recorrente
-            
+            "recorrente":self.tipodeevento.recorrente,
+            "escola":self.escola.nome
         }
         if self.datafim is not None:
             calendar["end"] = str(self.datafim).format("%d/%m/%Y")

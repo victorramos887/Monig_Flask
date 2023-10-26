@@ -40,7 +40,7 @@ def obter_local(tipo_de_local, nome):
         "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
         "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
     }
-    
+
     return consultas.get(tipo_de_local)
 
 
@@ -49,8 +49,6 @@ def tipoeventoocasional():
 
     try:
         formulario = request.get_json()
-        print(formulario, "Valor")
-        #tipo_evento
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -73,13 +71,14 @@ def tipoeventoocasional():
         }), 400
 
     try:
-        #Verificar no models, deixar enviar como None
-        
-        #color = "%06x" % randint(0, 0xFFFFFF)
+        # Verificar no models, deixar enviar como None
+
+        # color = "%06x" % randint(0, 0xFFFFFF)
         # color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = '6ECB04'
+
         
-        
+
         tipoevento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_evento,
@@ -89,10 +88,12 @@ def tipoeventoocasional():
             unidade=unidade,
             color=f"#{color}"
         )
+   
+        print(tipoevento)
 
         db.session.add(tipoevento)
         db.session.commit()
-        
+
         return jsonify({
                 "status":True,
                 "tipo_de_evento":tipoevento.to_json()
@@ -129,7 +130,11 @@ def tipoeventorecorrente():
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        # periodicidade = formulario.get('periodicidade') if formulario.get('periodicidade') is not None else False
+        periodicidade = formulario.get('periodicidade') if formulario.get(
+            'periodicidade') is not None else False
+
+        print(periodicidade)
+
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -197,7 +202,7 @@ def tipoeventorecorrente():
 
 # cadastro de evento
 @eventos.post('/eventos')
-def eventos_cadastro():
+def eventos_cadastro_unitario():
 
     try:
         formulario = request.get_json()
@@ -208,33 +213,33 @@ def eventos_cadastro():
             "status": False,
             "codigo": e
         }), 400
-    
+
     try:
-        #Verficando tipo de evento
+        # Verficando tipo de evento
         try:
             tipo_de_evento = formulario.get("tipo_de_evento", None)
-            
+
             if not tipo_de_evento:
                 return jsonify({
                     "mensagem": "Tipo de evento está Nulo!!!",
                     "status": False
                 }), 400
-                
-            tipodeevento = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=tipo_de_evento).first()
-            
+
+            tipodeevento = AuxTipoDeEventos.query.filter_by(
+                nome_do_tipo_de_evento=tipo_de_evento).first()
+
             if not tipodeevento:
                 return jsonify({
-                    "mensagem":f"Não foi encontrado o tipo de evento {tipo_de_evento}",
+                    "mensagem": f"Não foi encontrado o tipo de evento {tipo_de_evento}",
                     "status": False
                 }), 400
 
         except Exception as e:
             return jsonify({
-                "mensagem":"Não foi possível tratar o tipo de evento!",
-                "codigo":str(e),
-                "status":False
+                "mensagem": "Não foi possível tratar o tipo de evento!",
+                "codigo": str(e),
+                "status": False
             }), 400
-
 
         fk_tipo = formulario.get("tipo_de_evento", None)
         nome = formulario.get("nome_do_evento", None)
@@ -248,10 +253,14 @@ def eventos_cadastro():
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
-            
+
         else:
             datainicio = formulario.get("data", None)
-            datafim = formulario.get("dataEncerramento", None)
+            datafim = None
+            # if not formulario["dataEncerramento"]:
+            #     datafim = None
+            # else:
+            #     datafim = formulario["dataEncerramento"]
             
     
         #Tratamento de tipo_de_local
@@ -259,35 +268,60 @@ def eventos_cadastro():
         tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
         
         print(tipo_de_local_fk)
-        
+
         if not tipo_de_local_fk:
             return jsonify({
-                "mensagem":f"Não foi encontrado a tabela {formulario.get('tipo_de_local')}",
-                "status":False
+                "mensagem": f"Não foi encontrado a tabela {formulario.get('tipo_de_local')}",
+                "status": False
             }), 400
-            
-        
+
         local_fk = obter_local(tipo_de_local, local)
-        
+
         if not local_fk:
             return jsonify({
-                "mensagem":f"Não foi encontrado o local {local}",
-                "status":False
+                "mensagem": f"Não foi encontrado o local {local}",
+                "status": False
             }), 400
-            
-            
-        tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(nome_do_tipo_de_evento=fk_tipo).first()
-        
+
+        tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(
+            nome_do_tipo_de_evento=fk_tipo).first()
+
         if not tipo_de_evento_fk:
-            
+
             return jsonify({
-                "mensagem":f"Não foi encontrado o tipo de evento {fk_tipo}",
-                "status":False
+                "mensagem": f"Não foi encontrado o tipo de evento {fk_tipo}",
+                "status": False
             }), 400
-            
+
+        #Escola
+        print(f"Tipo de local --- {tipo_de_local}")
+        if tipo_de_local == "Escola":
+            fk_escola = local_fk.id
+            print(local_fk)
         
+        elif tipo_de_local == "Edificação":
+            edificio_ = Edificios.query.filter_by(id=local_fk.id).first()
+            fk_escola = edificio_.fk_escola
+        
+        elif tipo_de_local == "Área Úmida":
+            areaumida_ = AreaUmida.query.filter_by(id=local_fk.id).first()
+            fk_edificio = areaumida_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola
+
+        elif tipo_de_local == "Reservatório":
+            reservatorio_ = Reservatorios.query.filter_by(id=local_fk.id).first()
+            fk_escola = reservatorio_.fk_escola
+        
+        else:
+            hidrometro_ = Hidrometros.query.filter_by(id=local_fk.id).first()
+            fk_edificio = hidrometro_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola       
+            
         evento = Eventos(
             fk_tipo=tipo_de_evento_fk.id,
+            fk_escola = fk_escola,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
@@ -335,3 +369,120 @@ def eventos_cadastro():
         })
 
 
+@eventos.post("/cadastro-coletivo-eventos")
+def eventos_cadastro_coletivo():
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({
+            "mensagem": "Não foi possível recuperar o formulario!",
+            "status": False,
+            "codigo": e
+        }), 400
+
+    try:
+        try:
+            tipo_de_evento = formulario.get("tipo_de_evento", None)
+            print(tipo_de_evento)
+
+            if not tipo_de_evento:
+                return jsonify({
+                    "mensagem": "Tipo de evento está Nulo!!!",
+                    "status": False
+                }), 400
+
+            tipodeevento = AuxTipoDeEventos.query.filter_by(
+                nome_do_tipo_de_evento=tipo_de_evento).first()
+
+            if not tipodeevento:
+                return jsonify({
+                    "mensagem": f"Não foi encontrado o tipo de evento {tipo_de_evento}",
+                    "status": False
+                }), 400
+        except Exception as e:
+            return jsonify({
+                "mensagem": "Não foi possível tratar o tipo de evento!",
+                "codigo": str(e),
+                "status": False
+            }), 400
+
+        fk_tipo = formulario.get("tipo_de_evento", None)
+        nome = formulario.get("nome_do_evento", None)
+        escolas = formulario.get("escolas", None)
+        observacao = formulario.get("observacoes", None)
+
+        tipo_de_local = AuxDeLocais.query.filter_by(
+            nome_da_tabela="Escola").first()
+
+        for escola in escolas:
+
+            query_escola = Escolas.query.filter_by(id=escola).first()
+
+            if not query_escola:
+                return jsonify({
+                    "mensagem": f"Não foi possível encontrar a escola {escola}",
+                    "status": False
+                }), 400
+
+            if tipodeevento.recorrente:
+                datainicio = formulario.get("data_inicio", None)
+                datafim = formulario.get("data_fim", None)
+            else:
+                datainicio = formulario.get("data", None)
+                datafim = formulario.get("data", None)
+
+            tipo_de_evento_fk = AuxTipoDeEventos.query.filter_by(
+                nome_do_tipo_de_evento=fk_tipo).first()
+
+            if not tipo_de_evento_fk:
+                return jsonify({
+                    "mensagem": f"Não foi encontrado o tipo de evento {fk_tipo}",
+                    "status": False
+                }), 400
+
+            evento = Eventos(
+                fk_escola=query_escola.id,
+                fk_tipo=tipo_de_evento_fk.id,
+                nome=nome,
+                datainicio=datainicio,
+                datafim=datafim,
+                local=query_escola.id,
+                tipo_de_local=tipo_de_local.id,
+                observacao=observacao,
+            )
+
+            db.session.add(evento)
+
+        db.session.commit()
+        return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data": evento.to_json()}), HTTP_200_OK
+
+    except ArgumentError as e:
+        error_message = str(e)
+        error_data = {'error': error_message}
+        json_error = json.dumps(error_data)
+        print(json_error)
+        return json_error
+
+    except exc.DBAPIError as e:
+        db.session.rollback()
+        if e.orig.pgcode == '23505':
+            # extrai o nome do campo da mensagem de erro
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho.', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+        return jsonify({'status': False, 'mensagem': 'Erro postgresql', 'codigo': str(e)}), 500
+
+    except Exception as e:
+        db.session.rollback()
+        if isinstance(e, HTTPException) and e.code == '500':
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+        if isinstance(e, HTTPException) and e.code == '400':
+            # flash("Erro, 4 não salva")
+            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+        return jsonify({
+            "erro": e
+        })
