@@ -529,8 +529,11 @@ def get_fecharevento():
             tempo = tipo.tempo
 
             if e.datainicio is not None:
+                print(e.datainicio)
                 previsao_encerramento = e.datainicio + timedelta(days=tempo)
+                print(previsao_encerramento)
                 data_atual = date.today()
+                print(data_atual)
 
                 if previsao_encerramento.date() >= data_atual:
                     return jsonify({
