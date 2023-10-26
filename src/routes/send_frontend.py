@@ -530,7 +530,7 @@ def get_fecharevento():
                 previsao_encerramento = e.datainicio + timedelta(days=tempo)
                 data_atual = date.today()
 
-                if previsao_encerramento >= data_atual:
+                if previsao_encerramento.date() >= data_atual:
                     return jsonify({
                         "Prazo_evento": [
                             {"Em dia": e}
