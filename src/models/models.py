@@ -5,16 +5,16 @@ from sqlalchemy import inspect, func
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
-from sqlalchemy_continuum import make_versioned
-from geoalchemy2.types import Geometry
-from shapely import wkb
-from geoalchemy2 import WKBElement
-from geoalchemy2.shape import to_shape
+# from sqlalchemy_continuum import make_versioned
+# from geoalchemy2.types import Geometry
+# from shapely import wkb
+# from geoalchemy2 import WKBElement
+# from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
 
-make_versioned(user_cls=None)
+#make_versioned(user_cls=None)
 
 # migrate = Migrate(db)
 

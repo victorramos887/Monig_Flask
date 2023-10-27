@@ -4,6 +4,7 @@ from ..constants.http_status_codes import (
 from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais
 from datetime import timedelta, date
+from dateutil.relativedelta import relativedelta
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -510,66 +511,64 @@ def get_local(tipo):
     ],
         "status":True
     }), 200
-    
+
+
     
 #RETORNO TOLERÂNCIA
 @send_frontend.get('/evento-aberto')
-def get_fecharevento():
-    
-    #se o tipo de evento for ocasional pegar a data de inicio e somar a tolerância SE NÃO TIVER DATAFIM
+def get_evento_sem_encerramento():
     
     #filtrando eventos ocasionais
     eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(AuxTipoDeEventos.recorrente == False).all()
     
     #eventos sem data de encerramento
     eventos_sem_encerramento = [evento for evento in eventos_ocasional if evento.data_encerramento is None]
-    for e in eventos_sem_encerramento:
-        tipo = AuxTipoDeEventos.query.filter_by(id=e.fk_tipo).first()
-        if tipo and tipo.tempo is not None:
-            tempo = tipo.tempo
+    
+    #para cada evento
+    for evento in eventos_sem_encerramento:
 
-            if e.datainicio is not None:
-                print(e.datainicio)
-                previsao_encerramento = e.datainicio + timedelta(days=tempo)
-                print(previsao_encerramento)
-                data_atual = date.today()
-                print(data_atual)
-
-                if previsao_encerramento.date() >= data_atual:
-                    return jsonify({
-                        "Prazo_evento": [
-                            {"Em dia": e}
-                        ],
-                        "status": True
-                    }), 200
+            tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+            
+            if tipo and tipo.tempo is not None:
+                if tipo.unidade == "dias":
+                    evento.datafim = evento.datainicio + relativedelta(days=tipo.tempo)
+                
+                elif tipo.unidade == "semanas":
+                    evento.datafim = evento.datainicio + relativedelta(weeks=tipo.tempo)
+                    
                 else:
-                    return jsonify({
-                        "Prazo_evento": [
-                            {"Fora do prazo": e}
-                        ],
-                        "status": False
-                    }), 400
+                    evento.datafim = evento.datainicio + relativedelta(months=tipo.tempo)
 
+                #igualar as datas    
+                evento.datafim = evento.datafim.date()
+                data_atual = date.today()
+                     
+                if evento.datafim > data_atual:
+                     evento.observacao = "Evento dentro do prazo"
+                    
+                #data exata    
+                elif evento.datafim == data_atual:
+                     evento.observacao = "Atenção"
+                    
+                else:
+                    evento.observacao = "Evento fora do prazo de tolerância"
+               
+                for evento in eventos_sem_encerramento:
+                    print(str(evento.datafim).format("%d/%m/%Y"), evento.observacao)
+                              
+            return jsonify({ 
+                    "evento": [
+                        {"id": evento.id,
+                        "title": evento.nome,
+                        "start": str(evento.datainicio).format("%d/%m/%Y"),
+                        "color": evento.tipodeevento.color,
+                        "recorrente":evento.tipodeevento.recorrente,
+                        "escola":evento.escola.nome,
+                        "requer ação": evento.tipodeevento.requer_acao , 
+                        "tolerância": str(evento.datafim).format("%d/%m/%Y"), 
+                        "mensagem": evento.observacao} for evento in eventos_sem_encerramento],
+                        "status": True }), 200
+                                  
     return jsonify({
         "status": False, 
-    }), 401
-
-        
-                    
-    #associar somara a tolerancia
-    #tolerancia de dias 
-    # semanas 
-    # e meses
-
-#     return jsonify({
-#     "eventos_semEncerramento":[
-#         evento.retornoFullCalendar() for evento in  eventos_sem_encerramento
-#     ], 
-#     "status":True
-# }), 200
-        
-             
-             
-                
-# se der mais que o tempo de tolerância 
-# mostrar uma lista dos eventos que precisam de fechamento
+        }), 400
