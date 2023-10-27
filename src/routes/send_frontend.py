@@ -6,6 +6,7 @@ from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDe
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 
+
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
@@ -517,58 +518,62 @@ def get_local(tipo):
 #RETORNO TOLERÂNCIA
 @send_frontend.get('/evento-aberto')
 def get_evento_sem_encerramento():
-    
+
     #filtrando eventos ocasionais
     eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(AuxTipoDeEventos.recorrente == False).all()
-    
+
     #eventos sem data de encerramento
     eventos_sem_encerramento = [evento for evento in eventos_ocasional if evento.data_encerramento is None]
-    
-    #para cada evento
+
+    result = {
+        "evento": []
+    }
+
     for evento in eventos_sem_encerramento:
 
-            tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
-            
-            if tipo and tipo.tempo is not None:
-                if tipo.unidade == "dias":
-                    evento.datafim = evento.datainicio + relativedelta(days=tipo.tempo)
-                
-                elif tipo.unidade == "semanas":
-                    evento.datafim = evento.datainicio + relativedelta(weeks=tipo.tempo)
-                    
-                else:
-                    evento.datafim = evento.datainicio + relativedelta(months=tipo.tempo)
+        #buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+        tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
 
-                #igualar as datas    
-                evento.datafim = evento.datafim.date()
-                data_atual = date.today()
-                     
-                if evento.datafim > data_atual:
-                     evento.observacao = "Evento dentro do prazo"
-                    
-                #data exata    
-                elif evento.datafim == data_atual:
-                     evento.observacao = "Atenção"
-                    
-                else:
-                    evento.observacao = "Evento fora do prazo de tolerância"
-               
-                for evento in eventos_sem_encerramento:
-                    print(str(evento.datafim).format("%d/%m/%Y"), evento.observacao)
-                              
-            return jsonify({ 
-                    "evento": [
-                        {"id": evento.id,
-                        "title": evento.nome,
-                        "start": str(evento.datainicio).format("%d/%m/%Y"),
-                        "color": evento.tipodeevento.color,
-                        "recorrente":evento.tipodeevento.recorrente,
-                        "escola":evento.escola.nome,
-                        "requer ação": evento.tipodeevento.requer_acao , 
-                        "tolerância": str(evento.datafim).format("%d/%m/%Y"), 
-                        "mensagem": evento.observacao} for evento in eventos_sem_encerramento],
-                        "status": True }), 200
-                                  
-    return jsonify({
-        "status": False, 
-        }), 400
+        if tipo and tipo.tempo is not None:
+            unidade = tipo.unidade
+            tempo = tipo.tempo
+
+            #comparar a unidade e realizar o calculo
+            if unidade == "meses":
+                tolerancia = evento.datainicio + relativedelta(months=tempo)
+
+            elif unidade == "semanas":
+                tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+
+            elif unidade == "dias":
+                tolerancia = evento.datainicio + relativedelta(days=tempo)
+
+            #igualar as datas
+            tolerancia = tolerancia.date()
+            data_atual = date.today()
+
+            #comparar para retornar a mensagem
+            if tolerancia > data_atual:
+                mensagem = "Evento dentro do prazo"
+
+            elif tolerancia == data_atual:
+                mensagem = "Atenção"
+
+            else:
+                mensagem = "Evento fora do prazo de tolerância"
+
+            #adicionar o evento ao resultado
+            evento_json = {
+                "id": evento.id,
+                "title": evento.nome,
+                "start": str(evento.datainicio).format("%d/%m/%Y"),
+                "color": evento.tipodeevento.color,
+                "recorrente": evento.tipodeevento.recorrente,
+                "escola": evento.escola.nome,
+                "requer ação": evento.tipodeevento.requer_acao,
+                "tolerância": str(tolerancia).format("%d/%m/%Y"),
+                "mensagem": mensagem
+            }
+            result["evento"].append(evento_json)
+
+    return jsonify(result), 200
