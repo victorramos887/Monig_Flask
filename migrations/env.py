@@ -17,6 +17,7 @@ logger = logging.getLogger('alembic.env')
 
 from src.models import add_opniveis
 
+
 def get_engine():
     try:
         # this works with Flask-SQLAlchemy<3 and Alchemical
