@@ -10,3 +10,4 @@ from .cadastro_opcoes import *
 from .inserir_valores import *
 from .eventos import *
 from .version import *
+from .monitoramento import *

@@ -17,6 +17,7 @@ def register():
     nome = request.json['nome']
     email = request.json['email']
     senha = request.json['senha']
+    escola = request.json['escola']
     cod_cliente = request.json['cod_cliente']
 
     #COLOCANDO LIMITE NA SENHA
@@ -27,11 +28,20 @@ def register():
     if Usuarios.query.filter_by(email=email).first() is not None:
         return jsonify({'errors':'Usuario ja existe'}), HTTP_409_CONFLICT
     #GERANDO HASH DA SENHA
+    
+    
+    
+    if Escola.query.filter_by(id=escola).first() is None:
+        return jsonify({"errors":"Escola Não existe"})
+        
+    
+    
     pws_hash = generate_password_hash(senha)
 
     #CRIANDO O USUÁRIO
     user = Usuarios(
         email=email,
+        escola=escola,
         senha=generate_password_hash(senha),
         nome=nome,
         cod_cliente=cod_cliente
@@ -76,7 +86,8 @@ def login():
                     'user': {
                         'reflesh':reflesh,
                         'access':access,
-                        'email':email
+                        'email':email,
+                        'escola':user.escola
                     }, 
                     "status":True
                 }), HTTP_200_OK
