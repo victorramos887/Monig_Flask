@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify
 from sqlalchemy import or_, and_
-from ..models import Escolas, Edificios, Hidrometros, AuxTipoHidrometro, AreaUmida, Equipamentos, db
+from werkzeug.security import generate_password_hash
+from ..models import Escolas, Edificios, Hidrometros, AuxTipoHidrometro, AreaUmida, Equipamentos, Usuarios, db
 import pandas as pd
 import math
 from geoalchemy2 import WKTElement
+from unidecode import unidecode
+
 
 valores = Blueprint('valores', __name__, url_prefix='/api/v1/valores')
 
@@ -91,7 +94,8 @@ def inserirGuarulhos():
 
             db.session.add(escolainsert)
             db.session.commit()
-
+            
+           
             edificioinsert = Edificios(
                 fk_escola=escolainsert.id,
                 principal=True,
@@ -250,3 +254,34 @@ def inserirGuarulhos():
             "mensagem": "Erro não tratado!",
             "cod": str({e})
         }), 400
+
+
+@valores.post("/usuarios")
+def usuariosguarulhos():
+    
+    try:
+        escolas = Escolas.query.all()
+        for escola in escolas:
+            print(escola)
+            usuario = Usuarios(
+                    nome = escola.nome,
+                    email = unidecode("".join(escola.nome.split(" ")[1:]).lower()),
+                    escola = escola.id,
+                    senha = generate_password_hash('guarulhosagua2023'),
+                    cod_cliente=1
+                )
+
+            db.session.add(usuario)
+            db.session.commit()
+        
+        usuarios = Usuarios.query.all()
+        
+        return jsonify({
+            "Usuarios":[usuario.to_json() for usuario in usuarios]
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "erro":"Erro não tratado",
+            "codigo":str(e)
+        })

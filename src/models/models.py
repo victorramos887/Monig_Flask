@@ -49,6 +49,7 @@ class Cliente(db.Model):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
 
+
 class Escolas(db.Model):
 
     __versioned__ = {}
@@ -75,14 +76,13 @@ class Escolas(db.Model):
         self.email = email
         self.telefone = telefone
 
-
     def to_json(self):
         retorno = {
             "id": self.id,
             "nome": self.nome,
             "cnpj": self.cnpj,
             "telefone": self.telefone,
-            "email":self.email
+            "email": self.email
         }
 
         if self.geom is not None:
@@ -113,8 +113,6 @@ class Reservatorios(db.Model):
         back_populates="reservatorio",
         secondary="main.reservatorio_edificio"
     )
-    
-    
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -167,7 +165,6 @@ class Edificios(db.Model):
         back_populates="edificio",
         secondary="main.reservatorio_edificio"
     )
-    
 
     def update(self, **kwargs):
 
@@ -284,6 +281,7 @@ class Hidrometros(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_hidrometros = db.relationship(
         'AuxTipoHidrometro', backref='tipo_hidrometros')
+    
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -296,6 +294,31 @@ class Hidrometros(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+class Monitoramento(db.Model):
+    __versioned__ = {}
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'monitoramento'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    datahora = db.Column(db.DateTime)
+    fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
+    hidrometro = db.Column(db.Integer, db.ForeignKey('main.hidrometros.id'))
+    leitura = db.Column(db.Integer)
+    escola_monitorada = db.relationship(
+        'Escolas', backref='escola_monitorada')
+    hidrometro_ = db.relationship('Hidrometros', backref="hidrometro_")
+    
+
+    def __init__(self, datahora, fk_escola, hidrometro, leitura):
+        self.datahora = datahora
+        self.fk_escola = fk_escola
+        self.hidrometro = hidrometro
+        self.leitura = leitura
+
+    def to_json(self):
+        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+
 
 
 class AreaUmida(db.Model):
@@ -430,6 +453,7 @@ class Usuarios(db.Model):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome = db.Column(db.String, nullable=False),
+    escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     email = db.Column(db.String, nullable=False, unique=True)
     senha = db.Column(db.String(126), nullable=False)
     cod_cliente = db.Column(db.Integer,  db.ForeignKey('main.cliente.id'))
@@ -440,8 +464,9 @@ class Usuarios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, email, cod_cliente, senha, nome):
+    def __init__(self, email, cod_cliente, escola, senha, nome):
         self.email = email
+        self.escola = escola
         self.senha = senha
         self.cod_cliente = cod_cliente
         self.nome = nome
@@ -599,16 +624,18 @@ class EscolaNiveis(db.Model):
         'main.aux_opniveis.id'), primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
 
+
 class EscolaNiveisVersion(db.Model):
-    
+
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escola_niveis_version_custom'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     escola_id = db.Column(db.Integer)
     nivel_ensino_id = db.Column(db.Integer)
     created_at = db.Column(db.DateTime, default=datetime.now())
     transacao = db.Column(db.Integer)
+
 
 class ReservatorioEdificio(db.Model):
 
@@ -621,19 +648,18 @@ class ReservatorioEdificio(db.Model):
         'main.reservatorios.id'), primary_key=True)
     created_at = db.Column(db.DateTime, default=datetime.now())
 
+
 class ReservatorioEdificiosVersion(db.Model):
-    
+
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'reservatorio_edificio_version_custom'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     edificio_id = db.Column(db.Integer)
     reservatorio_id = db.Column(db.Integer)
-    
+
     created_at = db.Column(db.DateTime)
     transacao = db.Column(db.Integer)
-    
-
 
 
 class AuxTipoDeAreaUmidaTipoDeEquipamento(db.Model):
@@ -669,7 +695,7 @@ class Eventos(db.Model):
     __versioned__ = {}
     __table_args__ = {"schema": "main"}
     __tablename__ = 'eventos'
-    
+
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     fk_tipo = db.Column(db.Integer, db.ForeignKey(
         'main.aux_tipo_de_eventos.id'))
@@ -728,40 +754,46 @@ class Eventos(db.Model):
             getattr(self, attr.name)
             for attr in self.__table__.columns
         }
-        
+
         retorno['tipodoevento'] = self.tipodeevento.recorrente
         retorno['fk_tipo'] = self.tipodeevento.nome_do_tipo_de_evento
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
-        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d") if self.datafim is not None else None
+        retorno['datafim'] = self.datafim.strftime(
+            "%Y-%m-%d") if self.datafim is not None else None
         retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
-               
+
         if self.tipodelocal.nome_da_tabela == "Escola":
-            retorno['local'] = Escolas.query.filter_by(id =self.local).first().nome
+            retorno['local'] = Escolas.query.filter_by(
+                id=self.local).first().nome
         elif self.tipodelocal.nome_da_tabela == "Edificação":
-            retorno['local'] = Edificios.query.filter_by(id =self.local).first().nome_do_edificio
+            retorno['local'] = Edificios.query.filter_by(
+                id=self.local).first().nome_do_edificio
         elif self.tipodelocal.nome_da_tabela == "Área Úmida":
-            retorno['local'] = AreaUmida.query.filter_by(id =self.local).first().nome_area_umida
+            retorno['local'] = AreaUmida.query.filter_by(
+                id=self.local).first().nome_area_umida
         elif self.tipodelocal.nome_da_tabela == "Reservatório":
-            retorno['local'] = Reservatorios.query.filter_by(id =self.local).first().nome_do_reservatorio
+            retorno['local'] = Reservatorios.query.filter_by(
+                id=self.local).first().nome_do_reservatorio
         elif self.tipodelocal.nome_da_tabela == "Hidrômetro":
-            retorno['local'] = Hidrometros.query.filter_by(id =self.local).first().hidrometro
+            retorno['local'] = Hidrometros.query.filter_by(
+                id=self.local).first().hidrometro
         else:
             retorno['local'] = ""
 
         return retorno
 
     def retornoFullCalendar(self):
-    
+
         calendar = {
             "id": self.id,
             "title": self.nome,
             "start": str(self.datainicio).format("%d/%m/%Y"),
             "end": str(self.datafim).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
-            "recorrente":self.tipodeevento.recorrente,
-            "escola":self.escola.nome
+            "recorrente": self.tipodeevento.recorrente,
+            "escola": self.escola.nome
         }
-        
+
         return calendar
 
 
@@ -843,7 +875,8 @@ class AuxTipoDeEventos(db.Model):
             for attr in self.__table__.columns
         }
 
-#CONSUMO
+# CONSUMO
+
 
 class ConsumoAgua(db.Model):
 
@@ -878,9 +911,8 @@ class ConsumoAgua(db.Model):
     def update(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-            
-            
-            
+
+
 def add_opniveis():
     op_nome_da_tabela = ['Escola', 'Edificação', 'Área Úmida',
                          'Reservatório', 'Equipamento', 'Hidrômetro']
@@ -1076,8 +1108,7 @@ def add_opniveis():
                 peso=equipamento['peso']
             )
             db.session.add(oequipamento)
-            
-    
+
     db.session.commit()
 
     for key, values in tipoareaumidaequipamento.items():
@@ -1103,5 +1134,5 @@ def add_opniveis():
 
             db.session.commit()
 
-    #db.run_after_create_db(add_opniveis)
+    # db.run_after_create_db(add_opniveis)
 sa.orm.configure_mappers()
