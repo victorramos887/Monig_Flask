@@ -21,7 +21,7 @@ def leitura():
         
         fk_escola = formulario["fk_escola"]
         hidrometro = formulario['hidrometro']
-        leitura = formulario['leitura']
+        leitura = f"{formulario['leitura']}{formulario['leitura2']}"
         datahora = f"{formulario['data']} {formulario['hora']}"
         
         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()

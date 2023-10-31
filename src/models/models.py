@@ -309,7 +309,10 @@ class Monitoramento(db.Model):
         'Escolas', backref='escola_monitorada')
     hidrometro_ = db.relationship('Hidrometros', backref="hidrometro_")
     
-
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+    
     def __init__(self, datahora, fk_escola, hidrometro, leitura):
         self.datahora = datahora
         self.fk_escola = fk_escola
@@ -318,7 +321,8 @@ class Monitoramento(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
+    
+  
 
 
 class AreaUmida(db.Model):
