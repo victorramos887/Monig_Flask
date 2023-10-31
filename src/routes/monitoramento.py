@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
 from sqlalchemy import desc
 from sqlalchemy.orm import aliased
+from datetime import datetime
 
 monitoramento = Blueprint('monitoramento', __name__, url_prefix="/api/v1/monitoramento")
 
@@ -23,7 +24,8 @@ def leitura():
         hidrometro = formulario['hidrometro']
         leitura =f"{formulario['leitura']}{formulario['leitura2']}"
         print("leitura: ", leitura)
-        datahora = f"{formulario['data']} {formulario['hora']}"
+        datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
+        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
         
         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         
@@ -80,6 +82,7 @@ def leitura_atual(id):
     jsonRetorno = {}
     jsonRetorno["nome"] = escola.nome
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
-    jsonRetorno["leitura"] = escolamonitoramento.leitura if escolamonitoramento is not None else ""
+    jsonRetorno["leitura"] = str(escolamonitoramento.leitura)[:3] if escolamonitoramento is not None else ""
+    jsonRetorno["leitura2"] = str(escolamonitoramento.leitura)[3:] if escolamonitoramento is not None else ""
 
     return jsonRetorno
