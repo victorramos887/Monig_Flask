@@ -21,7 +21,8 @@ def leitura():
         
         fk_escola = formulario["fk_escola"]
         hidrometro = formulario['hidrometro']
-        leitura = formulario['leitura']
+        leitura =f"{formulario['leitura']}{formulario['leitura2']}"
+        print("leitura: ", leitura)
         datahora = f"{formulario['data']} {formulario['hora']}"
         
         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
@@ -81,4 +82,4 @@ def leitura_atual(id):
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
     jsonRetorno["leitura"] = escolamonitoramento.leitura if escolamonitoramento is not None else ""
 
-    return jsonRetorno    
+    return jsonRetorno
