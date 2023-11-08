@@ -40,7 +40,7 @@ def leitura():
             (Monitoramento.fk_escola==fk_escola)
         ).all()
         
-        if resultado:
+        if resultado > 1:
             print('Validação!!!')
             return jsonify({"mensagem":"Já foi realizado o envio hoje!", "status":False}), 400
         
