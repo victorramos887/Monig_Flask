@@ -40,10 +40,12 @@ def leitura():
             (Monitoramento.fk_escola==fk_escola)
         ).all()
         
-        if resultado > 1:
-            print('Validação!!!')
-            return jsonify({"mensagem":"Já foi realizado o envio hoje!", "status":False}), 400
-        
+        if resultado >= 2:
+            return jsonify({"mensagem": "Já foram adicionadas duas leituras hoje", "status": False}), 400
+
+        if resultado == 1 and datahora <= resultado.datahora:
+            return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
+       
         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         
         if not fk_hidrometro:
