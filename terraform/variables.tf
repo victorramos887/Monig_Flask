@@ -128,6 +128,11 @@ variable "sqlalchemy_database_uri_asnc" {
   default     = "postgresql+asyncpg://postgres:postgres@localhost:5432/monig"
 }
 
+variable "databasename" {
+  description = "Nome do banco de dados"
+  default     = "monig"
+}
+
 variable "secret_key" {
   description = "chave"
   default     = "dev"

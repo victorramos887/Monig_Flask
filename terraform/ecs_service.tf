@@ -5,17 +5,17 @@ resource "aws_ecs_service" "flask-service" {
   desired_count = 2
   launch_type = "FARGATE"
   network_configuration {
-    security_groups = [
-      aws_security_group.ecs_sg.id]
-    subnets = aws_subnet.public_subnets.*.id
-    assign_public_ip = true
+    security_groups   = [aws_security_group.ecs_sg.id, aws_security_group.allow_tls.id]
+    subnets           = aws_subnet.public_subnets.*.id
+    assign_public_ip  = true
   }
   load_balancer {
-    container_name = "flask-app"
-    container_port = var.flask_app_port
+    container_name    = "flask-app"
+    container_port    = var.flask_app_port
     target_group_arn = aws_alb_target_group.target_group.id
   }
   depends_on = [
-    aws_alb_listener.fp-alb-listener
+    aws_alb_listener.fp-alb-listener,
+    aws_alb_listener.lb_api_https
   ]
 }

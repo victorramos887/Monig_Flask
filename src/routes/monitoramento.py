@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
-from sqlalchemy import desc
+from sqlalchemy import desc, extract
 from sqlalchemy.orm import aliased
 from datetime import datetime
 
@@ -26,6 +26,23 @@ def leitura():
         print("leitura: ", leitura)
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
+        
+        # Extrair o ano, mês e dia da data
+        ano = extract('year', datahora)
+        mes = extract('month', datahora)
+        dia = extract('day', datahora)
+
+        # Consulta para verificar se a data é igual até o dia, mês e ano
+        resultado = Monitoramento.query.filter(
+            (ano == datahora.year) &
+            (mes == datahora.month) &
+            (dia == datahora.day) &
+            (Monitoramento.fk_escola==fk_escola)
+        ).all()
+        
+        if resultado:
+            print('Validação!!!')
+            return jsonify({"mensagem":"Já foi realizado o envio hoje!", "status":False}), 400
         
         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         
@@ -86,3 +103,43 @@ def leitura_atual(id):
     jsonRetorno["leitura2"] = str(escolamonitoramento.leitura)[3:] if escolamonitoramento is not None else ""
 
     return jsonRetorno
+
+@monitoramento.patch("/edicao-monitoramento/<int:id>")
+def leitura_edicao(id):
+    
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+    if not monitoramento:
+        
+        return jsonify({"mensagem":"Não foi encontrada a leitura", "status":False}), 400
+    
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({"mensagem":"Não foi possível encontrar o formulário enviado", "status":False}), 400
+    
+    try:
+
+        datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
+        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
+
+        monitoramento.leitura = int(str(formulario['leitura']) + str(formulario['leitura2']))
+        monitoramento.datahora = datahora
+        db.session.commit()
+        
+        return jsonify({"mensagem":"Edição realizado com sucesso", "leitura":monitoramento.to_json()}), 200
+
+    except Exception as e:
+        return jsonify({"mensagem":"Erro nas chaves do formulário enviado", "status":False}), 400
+    
+@monitoramento.delete("/deletar-leitura/<int:id>")
+def leitura_deletar(id):
+    
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+    
+    if not monitoramento:
+        return jsonify({"mensagem":"Não foi encontrada a leitura", "status":False}), 400
+    
+    db.session.delete(monitoramento)
+    db.session.commit()
+    
+    return jsonify({"mensagem":"Deleção realizado com sucesso"}), 200

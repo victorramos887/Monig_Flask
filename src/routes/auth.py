@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity, jwt_required)
 from werkzeug.security import check_password_hash, generate_password_hash
 from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST,HTTP_409_CONFLICT)
-from ..models import Usuarios, db
+from ..models import Usuarios, Escolas, db
 from sqlalchemy import exc
 
 auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
@@ -31,7 +31,7 @@ def register():
     
     
     
-    if Escola.query.filter_by(id=escola).first() is None:
+    if Escolas.query.filter_by(id=escola).first() is None and escola is not None:
         return jsonify({"errors":"Escola Não existe"})
         
     

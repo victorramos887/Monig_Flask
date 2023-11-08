@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: a4441e9b55d8
+Revision ID: 1a02b3d8968b
 Revises: 
-Create Date: 2023-10-30 11:54:31.514613
+Create Date: 2023-11-06 18:34:58.732111
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import geoalchemy2
 
 # revision identifiers, used by Alembic.
-revision = 'a4441e9b55d8'
+revision = '1a02b3d8968b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -684,7 +684,7 @@ def downgrade():
 
     op.drop_table('escolas_version', schema='main')
     # with op.batch_alter_table('escolas', schema='main') as batch_op:
-    #     # batch_op.drop_index('idx_escolas_geom', postgresql_using='gist')
+    #     batch_op.drop_index('idx_escolas_geom', postgresql_using='gist')
 
     op.drop_table('escolas', schema='main')
     op.drop_table('escola_niveis_version_custom', schema='main')

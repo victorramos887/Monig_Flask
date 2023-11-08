@@ -3,6 +3,9 @@
       "essential": true,
       "name":"flask-app",
       "image":"${REPOSITORY_URL}",
+      "hardTimeout": 300,
+      "cpu":516,
+      "memory":1024,
       "portMappings":[
          {
             "containerPort":5000,

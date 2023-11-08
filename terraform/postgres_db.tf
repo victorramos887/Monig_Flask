@@ -7,11 +7,11 @@ resource "aws_db_instance" "rds_instance" {
   engine                      = var.rds_engine
   engine_version              = var.rds_engine_version
   instance_class              = var.rds_instance_type
-  name                        = var.rds_database_name
+  db_name                     = var.rds_database_name
   username                    = var.rds_username
   password                    = var.rds_password
   port                        = var.postgres_db_port
-  vpc_security_group_ids      = [aws_security_group.rds_sg.id, aws_security_group.ecs_sg.id]
+  vpc_security_group_ids      = [aws_security_group.rds_sg.id, aws_security_group.ecs_sg.id, aws_security_group.allow_tls.id] #Alteração: Acrescentando aws_security_group.allow_tls.id
   parameter_group_name        = "default.postgres12"
   db_subnet_group_name        = aws_db_subnet_group.db_subnet_group.id # id
   publicly_accessible         = true # true(if required)
