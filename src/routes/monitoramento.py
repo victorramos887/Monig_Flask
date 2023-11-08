@@ -119,10 +119,10 @@ def leitura_edicao(id):
     
     try:
 
-        datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
+        datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
 
-        monitoramento.leitura = int(str(formulario['leitura']) + str(formulario['leitura2']))
+        monitoramento.leitura = formulario['leituraEditar']
         monitoramento.datahora = datahora
         db.session.commit()
         
