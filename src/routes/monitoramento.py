@@ -123,9 +123,11 @@ def leitura_atual(id):
     jsonRetorno = {}
     jsonRetorno["nome"] = escola.nome
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
-    jsonRetorno["leitura"] = str(escolamonitoramento.leitura)[
+    strinleitura = str(escolamonitoramento.leitura).zfill(6)
+    
+    jsonRetorno["leitura"] = strinleitura[
         :3].zfill(3) if escolamonitoramento is not None else ""
-    jsonRetorno["leitura2"] = str(escolamonitoramento.leitura)[
+    jsonRetorno["leitura2"] = strinleitura[
         3:].zfill(3) if escolamonitoramento is not None else ""
 
     return jsonRetorno
