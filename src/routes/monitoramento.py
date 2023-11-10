@@ -48,6 +48,13 @@ def leitura():
 
             escolamonitoramento = Monitoramento.query.filter_by(
                 fk_escola=escola_id.fk_escola).order_by(desc(Monitoramento.datahora)).first()
+            
+            
+            if escolamonitoramento:
+                print("leitura enviada: ", int(leitura))
+                print("Ultima Leitura", escolamonitoramento.leitura)
+                if escolamonitoramento.leitura > int(leitura):
+                    return jsonify({"mensagem":"Não é possível inserir um valor menor do que o anterior!!", "status":False}), 400
             # Extrair o ano, mês e dia da data
             ano = extract('year', datahora)
             mes = extract('month', datahora)
@@ -60,11 +67,8 @@ def leitura():
                 (extract('month', Monitoramento.datahora) == datahora.month) &
                 (extract('year', Monitoramento.datahora) == datahora.year) &
                 (Monitoramento.fk_escola == escola_id.fk_escola)
-            ).all()
-
-            
-            print(resultado)
-            
+            ).all()           
+           
             if len(resultado) > 1:
                 return jsonify({"mensagem": "Já foram adicionadas duas leituras hoje", "status": False}), 400
 
