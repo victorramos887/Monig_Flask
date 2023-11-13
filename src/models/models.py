@@ -468,7 +468,7 @@ class Usuarios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, email, cod_cliente, escola, senha, nome):
+    def __init__(self, email, cod_cliente, senha, nome, escola=None):
         self.email = email
         self.escola = escola
         self.senha = senha

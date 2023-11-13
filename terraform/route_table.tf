@@ -23,4 +23,3 @@ resource "aws_default_route_table" "rt_private_default" {
     Name = "flask-docker-rt-private-default"
   }
 }
-

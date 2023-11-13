@@ -62,9 +62,7 @@ def cliente():
         if isinstance(e, HTTPException) and e.code == '400':
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({
-            "erro": e
-        })
+        return f"erro {e}"
 
 
 # cadastro de usuário

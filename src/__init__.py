@@ -39,8 +39,7 @@ def create_app(test_config=None):
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
-            JWT_EXPIRATION_DELTA=timedelta(
-                days=int(os.environ.get('JWT_EXPIRATION_DAYS', '30'))),
+            JWT_EXPIRATION_DELTA=timedelta(hours=24),
             DEBUG=False,
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG')
@@ -60,7 +59,8 @@ def create_app(test_config=None):
         migrate.init_app(app)
 
     # with app.app_context():        
-    #     continuum.init_app(app, db)
+    #     db.create_all()
+    #     db.add_opniveis()
 
     JWTManager(app)
 
