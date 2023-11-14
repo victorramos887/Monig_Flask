@@ -46,14 +46,44 @@ def leitura():
             escola_id = Edificios.query.filter_by(
                 id=escola_.fk_edificios).first()
 
-            escolamonitoramento = Monitoramento.query.filter_by(
-                fk_escola=escola_id.fk_escola).order_by(desc(Monitoramento.datahora)).first()
+            # escolamonitoramento = Monitoramento.query.filter_by(
+            #     fk_escola=escola_id.fk_escola).order_by(desc(Monitoramento.datahora)).first()
 
-            if escolamonitoramento:
-                print("leitura enviada: ", int(leitura))
-                print("Ultima Leitura", escolamonitoramento.leitura)
-                if escolamonitoramento.leitura > int(leitura):
-                    return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False}), 400
+            # escolamonitoramento = Monitoramento.query.filter(
+            #     and_(
+            #         Monitoramento.fk_escola == escola_id.fk_escola,
+            #         Monitoramento.datahora < datahora
+            #     )
+            # ).order_by(desc(Monitoramento.datahora)).first()
+
+            escolamonitoramento_anterior = Monitoramento.query.filter(
+                and_(
+                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.datahora < datahora
+                )
+            ).order_by(desc(Monitoramento.datahora)).first()
+
+            escolamonitoramento_posterior = Monitoramento.query.filter(
+                and_(
+                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.datahora > datahora
+                )
+            ).order_by(Monitoramento.datahora).first()
+
+            if escolamonitoramento_anterior:
+                # print("leitura enviada: ", int(leitura))
+                # print("Ultima Leitura", escolamonitoramento.leitura)
+                print("Escola datahora: ", escolamonitoramento_anterior.datahora)
+
+                if escolamonitoramento_anterior.leitura > int(leitura):
+                    return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura":escolamonitoramento_anterior.leitura}), 400
+                
+            if escolamonitoramento_posterior:
+               
+                print("Escola datahora: ", escolamonitoramento_posterior.datahora)
+                
+                if escolamonitoramento_posterior.leitura < int(leitura):
+                    return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura":escolamonitoramento_posterior.leitura}), 400
             # Extrair o ano, mês e dia da data
             ano = extract('year', datahora)
             mes = extract('month', datahora)
