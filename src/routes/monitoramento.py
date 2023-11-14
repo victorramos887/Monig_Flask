@@ -99,7 +99,7 @@ def leitura():
             ).all()
 
             if len(resultado) > 1:
-                return jsonify({"mensagem": "Já foram adicionadas duas leituras hoje", "status": False}), 400
+                return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
 
             if len(resultado) == 1 and resultado[0].datahora >= datahora:
                 return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
