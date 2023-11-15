@@ -1,7 +1,8 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
+from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Monitoramento, ConsumoAgua, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
 from sqlalchemy import exc, text, func
+import datetime
 
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
@@ -285,3 +286,30 @@ def evento_remover(id):
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Evento removido'}), HTTP_200_OK
+
+
+#Monitoramento
+@remover.put('/leitura/<id>')
+def leitura_remover(id):
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+
+    if not monitoramento:
+        return jsonify({'status': False, 'mensagem': 'leitura não encontrada'}), 404
+
+    db.session.delete(monitoramento)
+    db.session.commit()
+
+    return jsonify({"status": True, 'mensagem': 'monitoramento removido'}), HTTP_200_OK
+
+#Consumo
+@remover.put('/consumo/<id>')
+def consumo_remover(id):
+    consumo = ConsumoAgua.query.filter_by(id=id).first()
+
+    if not consumo:
+        return jsonify({'status': False, 'mensagem': 'consumo não encontrada'}), 404
+
+    db.session.delete(consumo)
+    db.session.commit()
+
+    return jsonify({"status": True, 'mensagem': 'consumo removido'}), HTTP_200_OK

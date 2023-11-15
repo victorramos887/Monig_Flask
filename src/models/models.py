@@ -5,16 +5,16 @@ from sqlalchemy import inspect, func
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
-from sqlalchemy_continuum import make_versioned
-from geoalchemy2.types import Geometry
-from shapely import wkb
-from geoalchemy2 import WKBElement
-from geoalchemy2.shape import to_shape
+# from sqlalchemy_continuum import make_versioned
+# from geoalchemy2.types import Geometry
+# from shapely import wkb
+# from geoalchemy2 import WKBElement
+# from geoalchemy2.shape import to_shape
 
 db = SQLAlchemy()
 
 
-make_versioned(user_cls=None)
+#make_versioned(user_cls=None)
 
 # migrate = Migrate(db)
 
@@ -57,7 +57,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
+    #geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
@@ -85,15 +85,15 @@ class Escolas(db.Model):
             "email": self.email
         }
 
-        if self.geom is not None:
-            point = to_shape(self.geom)
-            retorno["lat"] = point.y
-            retorno["lon"] = point.x
-        else:
-            retorno["lat"] = None
-            retorno["lon"] = None
+        # if self.geom is not None:
+        #     point = to_shape(self.geom)
+        #     retorno["lat"] = point.y
+        #     retorno["lon"] = point.x
+        # else:
+        #     retorno["lat"] = None
+        #     retorno["lon"] = None
 
-        return retorno
+        # return retorno
 
 
 class Reservatorios(db.Model):
@@ -309,7 +309,10 @@ class Monitoramento(db.Model):
         'Escolas', backref='escola_monitorada')
     hidrometro_ = db.relationship('Hidrometros', backref="hidrometro_")
     
-
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+    
     def __init__(self, datahora, fk_escola, hidrometro, leitura):
         self.datahora = datahora
         self.fk_escola = fk_escola
@@ -318,7 +321,8 @@ class Monitoramento(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
+    
+  
 
 
 class AreaUmida(db.Model):
@@ -788,11 +792,13 @@ class Eventos(db.Model):
             "id": self.id,
             "title": self.nome,
             "start": str(self.datainicio).format("%d/%m/%Y"),
-            "end": str(self.datafim).format("%d/%m/%Y"),
             "color": self.tipodeevento.color,
-            "recorrente": self.tipodeevento.recorrente,
-            "escola": self.escola.nome
+            "recorrente":self.tipodeevento.recorrente,
+            "escola":self.escola.nome,
+            "requer ação": self.tipodeevento.requer_acao
         }
+        if self.datafim is not None:
+            calendar["end"] = str(self.datafim).format("%d/%m/%Y")
 
         return calendar
 

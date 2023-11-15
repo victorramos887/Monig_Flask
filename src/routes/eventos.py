@@ -241,6 +241,7 @@ def eventos_cadastro_unitario():
                 "status": False
             }), 400
 
+        
         fk_tipo = formulario.get("tipo_de_evento", None)
         nome = formulario.get("nome_do_evento", None)
         local = formulario.get("local", None)

@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import (Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                      Usuarios, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, ReservatorioEdificiosVersion, AuxTipoDeEventos, Eventos)
+                      Usuarios, ConsumoAgua, Monitoramento, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, ReservatorioEdificiosVersion, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
@@ -848,6 +848,145 @@ def evento_editar(id):
             db.session.commit()
 
         return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
+    except exc.DBAPIError as e:
+        if e.orig.pgcode == '23503':
+            match = re.search(
+                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
+
+    except Exception as e:
+        if isinstance(e, HTTPException) and e.code == 500:
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+        if isinstance(e, HTTPException) and e.code == 400:
+            # flash("Erro, 4 não salva")
+            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+        print(e)
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
+
+
+
+
+
+# MONITORAMENTO
+@editar.put('/leitura/<id>')
+def leitura_editar(id):
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+    formulario = request.get_json()
+
+    if not monitoramento:
+        return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
+
+    try:
+
+        fk_escola = formulario["fk_escola"]
+        hidrometro = formulario['hidrometro']
+        leitura = f"{formulario['leitura']}{formulario['leitura2']}"
+        datahora = f"{formulario['data']} {formulario['hora']}"
+        
+        fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
+        
+        if not fk_hidrometro:
+            return jsonify({
+                "mensagem":"Não foi encontrado o hidrometro",
+                "status":False,
+                "codigo":e
+            }), 400
+        
+        monitoramento.update(
+            fk_escola=fk_escola,
+            hidrometro=fk_hidrometro.id,
+            leitura=leitura,
+            datahora=datahora
+        )
+        print(type(leitura))
+        db.session.commit()
+
+        return jsonify({"monitoramento": monitoramento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
+    except exc.DBAPIError as e:
+        if e.orig.pgcode == '23503':
+            match = re.search(
+                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+            tabela = match.group(1) if match else 'tabela desconhecida'
+            coluna = match.group(2) if match else 'coluna desconhecida'
+            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+
+        if e.orig.pgcode == '23505':
+            # UNIQUE VIOLATION
+            match = re.search(r'Key \((.*?)\)=', str(e))
+            campo = match.group(1) if match else 'campo desconhecido'
+            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+        if e.orig.pgcode == '01004':
+            # STRING DATA RIGHT TRUNCATION
+            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+        return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
+
+    except Exception as e:
+        if isinstance(e, HTTPException) and e.code == 500:
+            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+        if isinstance(e, HTTPException) and e.code == 400:
+            # flash("Erro, 4 não salva")
+            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+        print(e)
+        return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
+
+
+
+#Consumo
+
+@editar.put('/consumo/<id>')
+def consumo_editar(id):
+    consumo_ = ConsumoAgua.query.filter_by(id=id).first()
+    formulario = request.get_json()
+
+    if not consumo_:
+        return jsonify({'mensagem': 'consumo não encontrado', "status": False}), 404
+
+    try:
+        fk_escola = formulario['fk_escola']
+        fk_hidrometro = formulario['fk_hidrometro']
+        consumo = formulario['consumo']
+        data = formulario['data']
+        dataInicioPeriodo = formulario['dataInicioPeriodo']
+        dataFimPeriodo = formulario['dataFimPeriodo']
+        valor = formulario['valor']
+
+        consumo_.update(
+                fk_escola = fk_escola,
+                fk_hidrometro = fk_hidrometro,
+                consumo = consumo,
+                data = data,
+                dataInicioPeriodo = dataInicioPeriodo,
+                dataFimPeriodo = dataFimPeriodo,
+                valor = valor
+        )
+
+        db.session.commit()
+
+        return jsonify({"consumo": consumo_.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
         if e.orig.pgcode == '23503':
             match = re.search(
