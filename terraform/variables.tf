@@ -15,7 +15,7 @@ variable "versao" {
 }
 
 variable "region" {
-  default = "us-east-2"
+  default = "sa-east-1"
 }
 variable "vpc_cidr" {
   description = "The CIDR Block for the SiteSeer VPC"
@@ -48,8 +48,8 @@ variable "subnet_count" {
 variable "availability_zones" {
   description = "availability zone to create subnet"
   default = [
-    "us-east-2a",
-    "us-east-2b"]
+    "sa-east-1a",
+    "sa-east-1b"]
 }
 variable "postgres_db_port" {
   description = "Port exposed by the RDS instance"

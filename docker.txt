@@ -1,0 +1,23 @@
+docker build --file Dockerfile  --tag "monig:desenvolvimento" .
+
+docker build -t viictorramos/monig:test .
+
+
+
+docker run -d -p 1404:5000 monig:monitora
+
+
+docker run --name my-container --hostname=0.0.0.0 --publish-all=true --privileged=true -t -i -d -e -p 1404:5000 "APP_PORT=5000" -e "APP_HOME=/usr/src/app/" -e "APP_SECRET_KEY=nC5CfQ@d2jNvqrba" -e "FLASK_APP=app" -e "FLASK_ENV=dev" -e "POSTGRES_DATABASE=monig" -e "POSTGRES_ENDPOINT=192.168.15.9:5432" -e "POSTGRES_PASSWORD=postgres" -e "POSTGRES_USER=postgres" -e "JWT_SECRET_KEY=JWT_SECRET_KEY" -e "TZ =America/Sao_Paulo" -e "DB_TEST=sqlite:///test.db" -e "SESSION_TYPE=redis" -e "PORT=5000" -e "FLASK_DEBUG=1" "monig:test"
+Unable to find image '1404:5000' locally
+docker: Error response from daemon: pull access denied for 1404, repository does not exist or may require 'docker login': denied: requested access to the resource is denied.
+See 'docker run --help'.
+
+
+docker push viictorramos/monig:test
+
+
+
+-- desenvolvimento
+
+docker build -t viictorramos/desenvolvimento:moing .
+docker push viictorramos/desenvolvimento:moing .

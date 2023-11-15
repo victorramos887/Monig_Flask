@@ -46,16 +46,6 @@ def leitura():
             escola_id = Edificios.query.filter_by(
                 id=escola_.fk_edificios).first()
 
-            # escolamonitoramento = Monitoramento.query.filter_by(
-            #     fk_escola=escola_id.fk_escola).order_by(desc(Monitoramento.datahora)).first()
-
-            # escolamonitoramento = Monitoramento.query.filter(
-            #     and_(
-            #         Monitoramento.fk_escola == escola_id.fk_escola,
-            #         Monitoramento.datahora < datahora
-            #     )
-            # ).order_by(desc(Monitoramento.datahora)).first()
-
             escolamonitoramento_anterior = Monitoramento.query.filter(
                 and_(
                     Monitoramento.fk_escola == escola_id.fk_escola,
