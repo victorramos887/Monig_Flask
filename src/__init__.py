@@ -1,7 +1,9 @@
 import os  # type: ignore
 import json
 
+
 # SWAGGER DOCUMENTATION
+# from flasgger import Swagger, swag_from
 from .config.swagger import swagger_config, template
 from .models import db
 from . import routes
@@ -15,6 +17,7 @@ from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import text
 from flask_migrate import Migrate
 # from flask_continuum import Continuum
+
 
 
 # Crie uma instância do objeto de cache
@@ -42,7 +45,11 @@ def create_app(test_config=None):
             JWT_EXPIRATION_DELTA=timedelta(hours=24),
             DEBUG=False,
             SESSION_TYPE='redis',
-            FLASK_DEBUG=os.environ.get('FLASK_DEBUG')
+            FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
+            # SWAGGER ={
+            #     'titulo':'MONIG',
+            #     'version': 1
+            # },
         )
     else:
         app.config.from_mapping(
@@ -54,8 +61,10 @@ def create_app(test_config=None):
     db.app = app
     db.init_app(app)
     migrate = Migrate(app, db)
+   
     
     with app.app_context():
+        
         migrate.init_app(app)
 
     # with app.app_context():        
@@ -86,3 +95,4 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True, ssl_context=context)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+

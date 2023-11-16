@@ -10,6 +10,7 @@ import traceback
 from sqlalchemy.exc import ArgumentError
 from datetime import datetime
 
+
 cadastros = Blueprint('cadastros', __name__, url_prefix='/api/v1/cadastros')
 
 
@@ -751,7 +752,6 @@ def equipamentos():
         
     
 #CONSUMO DE ÁGUA
-
 @cadastros.post('/consumo')
 def consumos():
 

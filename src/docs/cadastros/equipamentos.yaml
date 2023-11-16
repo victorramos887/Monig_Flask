@@ -1,0 +1,44 @@
+EQUIPAMENTO
+---
+tags:
+  - Cadastros
+parameters:
+  - name: body
+    description: "Cadastro do equipamento, necessário realizar este cadastro para que o envio dos dados seja efetivo;"
+    in: body
+    required: true
+    schema:
+      type: json
+      required:
+        - "numero_de_serie"
+        - "cod_cliente"
+        - "quantidade_portas"
+        - "status"
+      properties:
+        numero_de_serie:
+          required: true
+          type: "string"
+          example: "001"
+          maxLength: 5
+        cod_cliente:
+          required: false
+          type: "integer"
+          example: 1
+          description: Caso não seja enviado o padrão será "1", (apenas para desenvolvimento).
+        quantidade_portas:
+          required: false
+          type: "integer"
+          example: 4
+          description: Caso não seja enviado o padrão será "4", (apenas para desenvolvimento).
+        status:
+          required: false
+          type: "integer"
+          example: 1
+          description: Caso não seja enviado o padrão será "1", (apenas para desenvolvimento).
+
+responses:
+  200:
+    description: Equipamento do usuário realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição

@@ -891,7 +891,7 @@ class ConsumoAgua(db.Model):
     __tablename__ = 'consumo_agua'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    consumo = db.Column(db.Integer, nullable=False)
     data = db.Column(db.DateTime)
     dataFimPeriodo = db.Column(db.DateTime)
     dataInicioPeriodo = db.Column(db.DateTime)
