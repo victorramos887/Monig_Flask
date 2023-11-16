@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity, jwt_required)
+from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity, jwt_required, decode_token, create_access_token)
 from werkzeug.security import check_password_hash, generate_password_hash
 from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST,HTTP_409_CONFLICT)
 from ..models import Usuarios, Escolas, db
 from sqlalchemy import exc
+import time
+import datetime
 
 auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
 
@@ -56,10 +58,8 @@ def register():
 #login
 @auth.post('/login')
 def login():
-    
 
     try:
-        
         email = request.json.get('email', '')
         senha = request.json.get('senha', '')
         
@@ -105,6 +105,7 @@ def login():
 @jwt_required()
 def me():
     user_id = get_jwt_identity()
+    print(user_id)
 
     user = Usuarios.query.filter_by(id=user_id).first()
     return jsonify({
@@ -112,11 +113,33 @@ def me():
     }), HTTP_200_OK
 
 
+# Rota para forçar a expiração de um token
+@auth.route('/expire_token/', methods=['GET'])
+@jwt_required()
+def expire_token():
+    try:
+      
+        # Forçar a expiração do token definindo 'exp' para um valor passado (por exemplo, 1 segundo atrás)
+        current_user_id = get_jwt_identity()
+
+        # Recriar o token com o payload modificado
+        expires_timestamp = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        payload = {'identity': current_user_id, 'exp': expires_timestamp}
+
+        # Recriar o token com o payload modificado
+        #expired_token = create_access_token(identity=current_user_id, expires_delta=False, expires=expires_timestamp)
+        # expired_token = create_access_token(identity=current_user_id, expires_delta=False)
+        expired_token = create_access_token(identity=current_user_id, payload=payload)
+
+        return jsonify(expired_token=expired_token)
+    except Exception as e:
+        return jsonify(error=str(e))
+
 #renovar o JWT de acesso do usuário
 @auth.post('/token/refresh')
 @jwt_required(refresh=True)
 def refresh_user_token():
     identify = get_jwt_identity()
     access = create_access_token(identity=identify)
-
-    return jsonify({'access':access}), HTTP_200_OK
+    reflesh = create_refresh_token(identity= identify)
+    return jsonify({'access':access, 'reflesh':reflesh}), HTTP_200_OK

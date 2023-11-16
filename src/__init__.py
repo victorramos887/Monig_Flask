@@ -42,7 +42,7 @@ def create_app(test_config=None):
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
-            JWT_EXPIRATION_DELTA=timedelta(hours=24),
+            JWT_EXPIRATION_DELTA=timedelta(seconds=10),
             DEBUG=False,
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
