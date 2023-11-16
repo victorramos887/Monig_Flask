@@ -767,7 +767,7 @@ def consumos():
          
     try:    
         fk_escola = formulario['fk_escola']
-        fk_hidrometro = formulario['fk_hidrometro']
+        fk_hidrometro = formulario['hidrometro']
         consumo = formulario['consumo']
         data = formulario['data']
         dataInicioPeriodo = formulario['dataInicioPeriodo']
