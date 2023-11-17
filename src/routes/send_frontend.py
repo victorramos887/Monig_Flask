@@ -543,9 +543,9 @@ def get_consumos(id):
     jsonconsumo = [
         {
             "consumo": consumo.consumo,
-            "data": consumo.data.strftime('%d-%m-%Y'),
-            "dataFimPeriodo": consumo.dataFimPeriodo.strftime('%d-%m-%Y'),
-            "dataInicioPeriodo": consumo.dataInicioPeriodo.strftime('%d-%m-%Y'),
+            "data": consumo.data.strftime('%d/%m/%Y'),
+            "dataFimPeriodo": consumo.dataFimPeriodo.strftime('%d/%m/%Y'),
+            "dataInicioPeriodo": consumo.dataInicioPeriodo.strftime('%d/%m/%Y'),
             "fk_escola": consumo.fk_escola,
             "hidrometro":consumo.hidrometro.hidrometro,
             "id": consumo.id,
