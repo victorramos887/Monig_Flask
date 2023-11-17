@@ -158,14 +158,14 @@ def leitura_atual(id):
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
 
     if escolamonitoramento:
-        strinleitura = str(escolamonitoramento.leitura).zfill(6)
+        strinleitura = str(escolamonitoramento.leitura).zfill(7)
     else:
         strinleitura = ""
 
     jsonRetorno["leitura"] = strinleitura[
-        :3].zfill(3)
+        :5].zfill(5)
     jsonRetorno["leitura2"] = strinleitura[
-        3:].zfill(3)
+        5:].zfill(3)
 
     return jsonRetorno
 
