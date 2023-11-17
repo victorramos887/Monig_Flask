@@ -895,6 +895,8 @@ class ConsumoAgua(db.Model):
     fk_escola = db.Column(db.Integer, db.ForeignKey("main.escolas.id"))
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
+    hidrometro = db.relationship(
+        'Hidrometros', backref='consumo_hidrometros')
 
     def __init__(self, fk_escola, fk_hidrometro, consumo, data, dataFimPeriodo, dataInicioPeriodo, valor):
         self.fk_escola = fk_escola

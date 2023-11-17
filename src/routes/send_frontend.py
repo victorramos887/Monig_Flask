@@ -484,8 +484,8 @@ def get_tipo_local():
 def get_local(tipo):
 
     # filtrar o tipo - ex. Escola
-    tipo_local = AuxDeLocais.query.filter_by(nome_da_tabela=tipo).first()
-
+    tipo_local = AuxDeLocais.query.filter_by(id=tipo).first()
+    print(tipo_local)
     if tipo_local is None:
         return jsonify({
             "message": "Tipo de local não encontrado",
@@ -502,9 +502,8 @@ def get_local(tipo):
         'Equipamento': Equipamentos,
         'Hidrômetro': Hidrometros
     }
-
     modelo = tabelas.get(tabela)
-
+    
     if modelo == Escolas:
         tabela = modelo.query.with_entities(Escolas.id, Escolas.nome).all()
     elif modelo == Edificios:
@@ -523,6 +522,7 @@ def get_local(tipo):
         tabela = modelo.query.with_entities(
             Hidrometros.id, Hidrometros.hidrometro).all()
 
+    
     else:
         return jsonify({
             "message": "Tabela não encontrada",
@@ -539,8 +539,20 @@ def get_local(tipo):
 @send_frontend.get('/consumos/<int:id>')
 def get_consumos(id):
     consumos = ConsumoAgua.query.filter_by(fk_escola=id).order_by(desc(ConsumoAgua.data)).all()
-
-    return jsonify({"consumos":[consumo.to_json() for consumo in consumos]}), 200
+  
+    jsonconsumo = [
+        {
+            "consumo": consumo.consumo,
+            "data": consumo.data.strftime('%d-%m-%Y'),
+            "dataFimPeriodo": consumo.dataFimPeriodo.strftime('%d-%m-%Y'),
+            "dataInicioPeriodo": consumo.dataInicioPeriodo.strftime('%d-%m-%Y'),
+            "fk_escola": consumo.fk_escola,
+            "hidrometro":consumo.hidrometro.hidrometro,
+            "id": consumo.id,
+            "valor": consumo.valor
+        } for consumo in consumos
+    ]
+    return jsonify({"consumos":jsonconsumo}), 200
 
 @send_frontend.get('/consumo/<int:id>')
 def get_consumo(id):
@@ -551,6 +563,8 @@ def get_consumo(id):
     else:
         return jsonify({"consumo":"", "mensagem":"Consumo não encontrado"}), 200
     
+
+
 
 # RETORNO TOLERÂNCIA
 @send_frontend.get('/evento-aberto')
