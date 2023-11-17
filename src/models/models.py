@@ -885,7 +885,7 @@ class ConsumoAgua(db.Model):
     __tablename__ = 'consumo_agua'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    consumo = db.Column(db.Integer)
     data = db.Column(db.DateTime)
     dataFimPeriodo = db.Column(db.DateTime)
     dataInicioPeriodo = db.Column(db.DateTime)
@@ -906,7 +906,21 @@ class ConsumoAgua(db.Model):
         self.valor = valor
 
     def to_json(self):
-        return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        formatted_data = self.data.strftime('%Y-%m-%d')
+        formatted_data_fim_periodo = self.dataFimPeriodo.strftime('%Y-%m-%d')
+        formatted_data_inicio_periodo = self.dataInicioPeriodo.strftime('%Y-%m-%d')
+
+        return {
+            "id": self.id,
+            "fk_escola": self.fk_escola,
+            "hidrometro": self.fk_hidrometro,
+            "consumo": self.consumo,
+            "data": formatted_data,
+            "dataFimPeriodo": formatted_data_fim_periodo,
+            "dataInicioPeriodo": formatted_data_inicio_periodo,
+            "valor": self.valor
+        }
+        #return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
     def update(self, **kwargs):
         for key, value in kwargs.items():

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e074db6d9e1a
+Revision ID: dbc2cd2d8ce5
 Revises: 
-Create Date: 2023-11-15 18:32:00.364577
+Create Date: 2023-11-16 19:09:42.756999
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import geoalchemy2
 
 # revision identifiers, used by Alembic.
-revision = 'e074db6d9e1a'
+revision = 'dbc2cd2d8ce5'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -539,7 +539,7 @@ def upgrade():
     )
     op.create_table('consumo_agua',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.Column('consumo', sa.Integer(), nullable=False),
+    sa.Column('consumo', sa.Integer(), nullable=True),
     sa.Column('data', sa.DateTime(), nullable=True),
     sa.Column('dataFimPeriodo', sa.DateTime(), nullable=True),
     sa.Column('dataInicioPeriodo', sa.DateTime(), nullable=True),
@@ -551,7 +551,6 @@ def upgrade():
     sa.ForeignKeyConstraint(['fk_escola'], ['main.escolas.id'], ),
     sa.ForeignKeyConstraint(['fk_hidrometro'], ['main.hidrometros.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('consumo'),
     schema='main'
     )
     op.create_table('equipamentos',
@@ -607,7 +606,7 @@ def upgrade():
     schema='main'
     )
     # op.drop_table('spatial_ref_sys')
-    # # ### end Alembic commands ###
+    # ### end Alembic commands ###
 
 
 def downgrade():

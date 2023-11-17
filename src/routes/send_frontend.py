@@ -2,21 +2,13 @@ from flask import Blueprint, json, jsonify, request, render_template, current_ap
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais
+from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
-
-
-@send_frontend.get('/verificando')
-def testeando():
-    return "Docker Retorn"
-
-# RETORNA TODAS AS ESCOLAS
-
 
 @send_frontend.get('/escolas')
 def escolas():
@@ -544,11 +536,25 @@ def get_local(tipo):
         "status": True
     }), 200
 
+@send_frontend.get('/consumos/<int:id>')
+def get_consumos(id):
+    consumos = ConsumoAgua.query.filter_by(fk_escola=id).order_by(desc(ConsumoAgua.data)).all()
+
+    return jsonify({"consumos":[consumo.to_json() for consumo in consumos]}), 200
+
+@send_frontend.get('/consumo/<int:id>')
+def get_consumo(id):
+    consumo = ConsumoAgua.query.filter_by(id =id).first()
+    
+    if consumo:
+        return jsonify({"consumo":consumo.to_json(), "mensagem":"Consumo retorno"}), 200
+    else:
+        return jsonify({"consumo":"", "mensagem":"Consumo não encontrado"}), 200
+    
 
 # RETORNO TOLERÂNCIA
 @send_frontend.get('/evento-aberto')
 def get_evento_sem_encerramento():
-
     # filtrando eventos ocasionais
     eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(
         AuxTipoDeEventos.recorrente == False).all()

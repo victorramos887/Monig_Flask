@@ -754,9 +754,10 @@ def equipamentos():
 
 @cadastros.post('/consumo')
 def consumos():
-
+    
     try:
         formulario = request.get_json()
+        
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -791,10 +792,9 @@ def consumos():
             dataFimPeriodo = dataFimPeriodo,
             valor = valor
         )
-
         db.session.add(consumo)
         db.session.commit()
-
+        
         return jsonify({'status':True, 'id': consumo.id, "mensagem":"Cadastrado realizado com sucesso","data":consumo.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
