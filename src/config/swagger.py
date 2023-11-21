@@ -1,8 +1,8 @@
 template = {
     "swagger": "2.0",
     "info": {
-        "title": "MOIG",
-        "description": "API MOIG",
+        "title": "MONIG",
+        "description": "API MONIG",
         "contact": {
             "responsibleOrganization": "monitora tecnologia e informação",
             "responsibleDeveloper": "Equipe Monitora",

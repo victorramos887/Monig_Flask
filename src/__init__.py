@@ -1,9 +1,7 @@
 import os  # type: ignore
 import json
 
-
 # SWAGGER DOCUMENTATION
-# from flasgger import Swagger, swag_from
 from .config.swagger import swagger_config, template
 from .models import db
 from . import routes
@@ -16,6 +14,7 @@ from sqlalchemy import text
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import text
 from flask_migrate import Migrate
+from flask_rbac import RBAC
 # from flask_continuum import Continuum
 
 
@@ -50,6 +49,7 @@ def create_app(test_config=None):
             #     'titulo':'MONIG',
             #     'version': 1
             # },
+            RBAC_USE_WHITE  = True
         )
     else:
         app.config.from_mapping(
@@ -62,6 +62,7 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
    
+    rbac = RBAC(app)
     
     with app.app_context():
         
@@ -95,4 +96,9 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True, ssl_context=context)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+
+
+
+
 
