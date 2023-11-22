@@ -1,9 +1,8 @@
 import os  # type: ignore
 import json
-
 # SWAGGER DOCUMENTATION
 from .config.swagger import swagger_config, template
-from .models import db
+from .models import db, Usuarios, guard
 from . import routes
 from datetime import timedelta
 from flask import Blueprint, Flask
@@ -14,7 +13,6 @@ from sqlalchemy import text
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import text
 from flask_migrate import Migrate
-# from flask_continuum import Continuum
 
 
 # Crie uma instância do objeto de cache
@@ -29,6 +27,8 @@ def create_app(test_config=None):
     
     cache.init_app(app)
     
+    
+    
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
@@ -42,7 +42,9 @@ def create_app(test_config=None):
             JWT_EXPIRATION_DELTA=timedelta(seconds=10),
             DEBUG=False,
             SESSION_TYPE='redis',
-            FLASK_DEBUG=os.environ.get('FLASK_DEBUG')
+            FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
+            RBAC_USE_WHITE = False,
+            JWT_ACCESS_LIFESPAN = {'minutes': 10}
         )
     else:
         app.config.from_mapping(
@@ -56,11 +58,9 @@ def create_app(test_config=None):
     migrate = Migrate(app, db)
     
     with app.app_context():
+        guard.init_app(app, Usuarios)
         migrate.init_app(app)
 
-    # with app.app_context():        
-    #     db.create_all()
-    #     db.add_opniveis()
 
     JWTManager(app)
 

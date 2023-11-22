@@ -10,13 +10,12 @@ from geoalchemy2.types import Geometry
 from shapely import wkb
 from geoalchemy2 import WKBElement
 from geoalchemy2.shape import to_shape
+import flask_praetorian
+
 
 db = SQLAlchemy()
-
-
 make_versioned(user_cls=None)
-
-# migrate = Migrate(db)
+guard = flask_praetorian.Praetorian()
 
 
 class Cliente(db.Model):
@@ -47,7 +46,6 @@ class Cliente(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
 
 
 class Escolas(db.Model):
@@ -281,7 +279,6 @@ class Hidrometros(db.Model):
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
     tipo_hidrometros = db.relationship(
         'AuxTipoHidrometro', backref='tipo_hidrometros')
-    
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -294,7 +291,8 @@ class Hidrometros(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-    
+
+
 class Monitoramento(db.Model):
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
@@ -308,7 +306,6 @@ class Monitoramento(db.Model):
     escola_monitorada = db.relationship(
         'Escolas', backref='escola_monitorada')
     hidrometro_ = db.relationship('Hidrometros', backref="hidrometro_")
-    
 
     def __init__(self, datahora, fk_escola, hidrometro, leitura):
         self.datahora = datahora
@@ -318,7 +315,6 @@ class Monitoramento(db.Model):
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
-
 
 
 class AreaUmida(db.Model):
@@ -442,6 +438,27 @@ class Customizados(db.Model):
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
+
+class Roles(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'roles'
+
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String, nullable=False)
+
+
+class RolesUser(db.Model):
+
+    __table_args__ = {'schema': 'main'}
+    __tablename__ = 'roles_users'
+
+    usuarios_id = db.Column(db.Integer, db.ForeignKey(
+        'main.usuarios.id'), primary_key=True)
+    roles_id = db.Column(db.Integer, db.ForeignKey(
+        'main.roles.id'), primary_key=True)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+
 # USUARIOS
 
 
@@ -454,9 +471,11 @@ class Usuarios(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     nome = db.Column(db.String, nullable=False),
     escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
-    email = db.Column(db.String, nullable=False, unique=True)
-    senha = db.Column(db.String(126), nullable=False)
+    username = db.Column(db.String, nullable=False, unique=True)
+    hashed_password = db.Column(db.String, nullable=False)
     cod_cliente = db.Column(db.Integer,  db.ForeignKey('main.cliente.id'))
+    roles = db.relationship(
+        'Roles', secondary='main.roles_users', backref='users', lazy='dynamic')
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
@@ -464,19 +483,39 @@ class Usuarios(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, email, cod_cliente, senha, nome, escola=None):
-        self.email = email
+    def __init__(self, username, cod_cliente, hashed_password, nome, escola=None):
+        self.username = username
         self.escola = escola
-        self.senha = senha
+        self.hashed_password = hashed_password
         self.cod_cliente = cod_cliente
         self.nome = nome
 
     def to_json(self):
         return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+    
+    @property
+    def identity(self):
+        return self.id
+    
+    @property
+    def rolenames(self):
+        # Obtenha todos os roles para o usuário
+        roles = [role.name for role in self.roles]
+        return roles
+
+    @property
+    def password(self):
+        return self.hashed_password
+    
+    @classmethod
+    def lookup(cls, username):
+        return cls.query.filter_by(username=username).one_or_none()
+
+    @classmethod
+    def identify(cls, id):
+        return cls.query.get(id)
 
 # TABELAS DE OPÇÕES
-
-
 class PopulacaoNiveis(db.Model):
 
     __versioned__ = {}
@@ -910,7 +949,8 @@ class ConsumoAgua(db.Model):
     def to_json(self):
         formatted_data = self.data.strftime('%Y-%m-%d')
         formatted_data_fim_periodo = self.dataFimPeriodo.strftime('%Y-%m-%d')
-        formatted_data_inicio_periodo = self.dataInicioPeriodo.strftime('%Y-%m-%d')
+        formatted_data_inicio_periodo = self.dataInicioPeriodo.strftime(
+            '%Y-%m-%d')
 
         return {
             "id": self.id,
@@ -922,7 +962,7 @@ class ConsumoAgua(db.Model):
             "dataInicioPeriodo": formatted_data_inicio_periodo,
             "valor": self.valor
         }
-        #return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
+        # return {attr.name: getattr(self, attr.name) for attr in self.__table__.columns}
 
     def update(self, **kwargs):
         for key, value in kwargs.items():
@@ -1149,6 +1189,7 @@ def add_opniveis():
                         db.session.add(areaumidaequipamento)
 
             db.session.commit()
+
 
     # db.run_after_create_db(add_opniveis)
 sa.orm.configure_mappers()
