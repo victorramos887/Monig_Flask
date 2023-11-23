@@ -14,7 +14,7 @@ from sqlalchemy import text
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import text
 from flask_migrate import Migrate
-from flask_rbac import RBAC
+
 # from flask_continuum import Continuum
 
 
@@ -62,7 +62,6 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate = Migrate(app, db)
    
-    rbac = RBAC(app)
     
     with app.app_context():
         

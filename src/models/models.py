@@ -5,8 +5,6 @@ from sqlalchemy import inspect, func
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy.orm.collections as col
 import sqlalchemy as sa
-from flask_rbac import RoleMixin, UserMixin
-from .__init__ import rbac
 # from sqlalchemy_continuum import make_versioned
 # from geoalchemy2.types import Geometry
 # from shapely import wkb
@@ -20,43 +18,7 @@ db = SQLAlchemy()
 
 # migrate = Migrate(db)
 
-# tabela de associação roles_parents é usada para definir a relação entre as funções.
-roles_parents = db.Table(
-    'roles_parents',
-    db.Column('role_id', db.Integer, db.ForeignKey('role.id')),
-    db.Column('parent_id', db.Integer, db.ForeignKey('role.id'))
-)
-
-#representa uma função
-@rbac.as_role_model
-class Role(db.Model, RoleMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
-    parents = db.relationship(
-        'Role',
-        secondary=roles_parents,
-        primaryjoin=(id == roles_parents.c.role_id),
-        secondaryjoin=(id == roles_parents.c.parent_id),
-        backref=db.backref('children', lazy='dynamic')  #define um relacionamento muitos-para-muitos entre a tabela role e ela mesma
-    )
-
-    def __init__(self, name):
-        RoleMixin.__init__(self)
-        self.name = name
-
-    def add_parent(self, parent):
-        self.parents.append(parent)
-
-    def add_parents(self, *parents):
-        for parent in parents:
-            self.add_parent(parent)
-            
-    @staticmethod
-    def get_by_name(name):
-        return Role.query.filter_by(name=name).first()      
-            
-    anonymous = RoleMixin('anonymous')
-
+  
 class Cliente(db.Model):
 
     __table_args__ = {'schema': 'main'}
@@ -486,7 +448,6 @@ class Customizados(db.Model):
 
 # USUARIOS
 
-@rbac.as_user_model
 class Usuarios(db.Model):
 
     __versioned__ = {}
@@ -499,8 +460,6 @@ class Usuarios(db.Model):
     email = db.Column(db.String, nullable=False, unique=True)
     senha = db.Column(db.String(126), nullable=False)
     cod_cliente = db.Column(db.Integer,  db.ForeignKey('main.cliente.id'))
-    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
-    role = db.relationship('Role', backref=db.backref('users', lazy='dynamic'))
     created_at = db.Column(db.DateTime, default=datetime.now())
     updated_at = db.Column(db.DateTime, onupdate=datetime.now())
 
