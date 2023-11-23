@@ -1,0 +1,13 @@
+REFRESH
+---
+tags:
+   - Autenticação
+parameters:
+  - in: header
+    name: Authorization
+    required: true
+responses:
+  200:
+    description: Refresh no token atual
+  400:
+    description: Falha ao realizar a requisição

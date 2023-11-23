@@ -1,7 +1,10 @@
 import os  # type: ignore
 import json
 # SWAGGER DOCUMENTATION
+from flasgger import Swagger, swag_from
 from .config.swagger import swagger_config, template
+
+#MODELS
 from .models import db, Usuarios, guard
 from . import routes
 from datetime import timedelta
@@ -37,6 +40,7 @@ def create_app(test_config=None):
                                                                                     url=os.getenv("POSTGRES_ENDPOINT"),
                                                                                     db=os.getenv("POSTGRES_DATABASE")),
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
+            SQLALCHEMY_TIMEZONE='America/Sao_Paulo',
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
             JWT_EXPIRATION_DELTA=timedelta(seconds=10),
@@ -44,7 +48,11 @@ def create_app(test_config=None):
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
             RBAC_USE_WHITE = False,
-            JWT_ACCESS_LIFESPAN = {'minutes': 10}
+            JWT_ACCESS_LIFESPAN = {'minutes': 10},
+            SWAGGER ={
+                'titulo':'API MONIG',
+                'version': 1
+            },
         )
     else:
         app.config.from_mapping(
@@ -68,10 +76,11 @@ def create_app(test_config=None):
     for rota in rotas:
         app.register_blueprint(rota)
 
-    # Swagger(app, config=swagger_config, template=template)
+    Swagger(app, config=swagger_config, template=template)
     
     
     @app.route('/')
+    @swag_from('./docs/apimonig.yaml')
     def index():
         return 'API MONIG'
 

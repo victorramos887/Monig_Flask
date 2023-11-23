@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flasgger import swag_from
 from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity,
                                 jwt_required, decode_token, create_access_token, get_current_user)
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -14,6 +15,7 @@ import time
 auth = Blueprint("auth", __name__, url_prefix='/api/v1/auth')
 
 @auth.post('/register')
+@swag_from('../docs/auth/register.yaml')
 def register():
 
     # PEGANDO VALORES POST JSON
