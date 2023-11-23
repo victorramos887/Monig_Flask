@@ -1,21 +1,24 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity, jwt_required, decode_token, create_access_token)
+from flasgger import swag_from
+from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity,
+                                jwt_required, decode_token, create_access_token, get_current_user)
 from werkzeug.security import check_password_hash, generate_password_hash
-from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST,HTTP_409_CONFLICT)
-from ..models import Usuarios, Escolas, db
+from ..constants.http_status_codes import (
+    HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_409_CONFLICT)
+from ..models import Usuarios, Escolas, Roles, RolesUser, Usuarios, db, guard
 from sqlalchemy import exc
 import time
 import datetime
+import flask_praetorian
+import time
 
-auth = Blueprint("auth", __name__, url_prefix = '/api/v1/auth')
+auth = Blueprint("auth", __name__, url_prefix='/api/v1/auth')
 
-
-
-#cadastro de usuário
 @auth.post('/register')
+@swag_from('../docs/auth/register.yaml')
 def register():
 
-    #PEGANDO VALORES POST JSON
+    # PEGANDO VALORES POST JSON
     nome = request.json['nome']
     email = request.json['email']
     senha = request.json['senha']
@@ -23,97 +26,144 @@ def register():
     cod_cliente = request.json['cod_cliente']
     role_id = request.json['role']
 
-    #COLOCANDO LIMITE NA SENHA
+    # COLOCANDO LIMITE NA SENHA
     if len(senha) < 6:
-        return jsonify({'error':'Senha muito curta'}), HTTP_400_BAD_REQUEST
+        return jsonify({'error': 'Senha muito curta'}), HTTP_400_BAD_REQUEST
 
-    #VERIFICANDO SE O USUÁRIO JÁ EXISTE
-    if Usuarios.query.filter_by(email=email).first() is not None:
-        return jsonify({'errors':'Usuario ja existe'}), HTTP_409_CONFLICT
-    
-    #GERANDO HASH DA SENHA
-    
-    
+    # VERIFICANDO SE O USUÁRIO JÁ EXISTE
+    if Usuarios.query.filter_by(username=email).first() is not None:
+        return jsonify({'errors': 'Usuario ja existe'}), HTTP_409_CONFLICT
+    # GERANDO HASH DA SENHA
+
     if Escolas.query.filter_by(id=escola).first() is None and escola is not None:
-        return jsonify({"errors":"Escola Não existe"})
-        
-    
-    
+        return jsonify({"errors": "Escola Não existe"})
+
     pws_hash = generate_password_hash(senha)
 
-    #CRIANDO O USUÁRIO
+    # CRIANDO O USUÁRIO
     user = Usuarios(
-        email=email,
+        username=email,
         escola=escola,
-        senha=generate_password_hash(senha),
+        hashed_password=guard.hash_password(senha),
         nome=nome,
-        cod_cliente=cod_cliente,
-        role_id = role_id
-        
-    )  
+        cod_cliente=cod_cliente
+    )
+
+    # ADICIONANDO AS ROLES
+
+    role_obj = Roles.query.filter_by(name=request.json['roles']).first()
+    user.roles.append(role_obj)
 
     db.session.add(user)
     db.session.commit()
 
-    return jsonify({ 'mensagem':'Usuario criado com sucesso!', 'user':user.nome }), 200
+    return jsonify({'mensagem': 'Usuario criado com sucesso!', 'user': user.nome}), 200
 
 
-#login
+#CRIAR UM NOVA ROLE
+@auth.post('/roles')
+def roles():
+    
+    try:
+        name = request.json.get('name', '')
+        role = Roles.query.filter_by(name=name).first()
+        print(role)
+        if role:
+            return jsonify({'mensagem':"Role já existe!!!"}), 409
+        
+        role_add = Roles(
+            name=name
+        )
+        
+        db.session.add(role_add)
+        db.session.commit()
+        
+        return jsonify({"mensagem":"Role criada!!!", "role":role_add.name})
+    
+    except Exception as e:
+        return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
+
+
+@auth.post('/roleuser')
+def roleuser():
+    
+    try:
+        user = request.json.get("usuario", "")
+        role = request.json.get("role", "")
+        
+        usuario = Usuarios.query.filter_by(username = user).first()
+        
+        if not usuario:
+            
+            return jsonify({"mensagem":"usuário não encontrado", "status":False}), 400
+        
+        
+        role_add = Roles.query.filter_by(name = role_add).first()
+        
+        if not role_add:
+            return jsonify({"mensagem":"Role não encontrada", "status":False}), 400
+        
+        
+        role_user_verifique = RolesUser.query.filter_by(usuarios_id=usuario.id,
+            roles_id=role_add.id).first()
+        
+        if role_user_verifique:
+            return jsonify({"mensagem":"Usuário já pertence a esta role", "status":False}), 400
+        
+        role_user = RolesUser(
+            usuarios_id=usuario.id,
+            roles_id=role_add.id
+        )
+        
+        db.session.add(role_user)
+        db.session.commit()
+        
+        return jsonify({
+            "mensagem":"adicionado nova role"
+        })
+
+    except Exception as e:
+        return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
+        
 @auth.post('/login')
 def login():
-
     try:
         email = request.json.get('email', '')
         senha = request.json.get('senha', '')
-        
-        # print(senha, email)
-        user = Usuarios.query.filter_by(email = email).first()
-        print(user)
 
+        user = Usuarios.query.filter_by(username=email).first()
     except exc.DBAPIError as e:
+        # Handle database errors
+        return handle_db_error(e)
 
-        if e.orig.pgcode == '42703':
-            return {'error':'Verifique os nomes das colunas no banco de dados', "status":False, "codigo":str(e)}
-        else:
-            return {'error':'ERRO NÃO TRATADO', "status":False, "codigo":str(e)}
-
+    if user is None:
+        return jsonify({'error': 'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST
     try:
-        if user is None:
-            return jsonify({'ERRO':'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST
 
-        if user:
-            if check := check_password_hash(user.senha, senha):
-                reflesh = create_refresh_token(identity= user.id)
-                access = create_access_token(identity= user.id)
-                return jsonify({
-                    'user': {
-                        'reflesh':reflesh,
-                        'access':access,
-                        'email':email,
-                        'escola':user.escola
-                    }, 
-                    "status":True
-                }), HTTP_200_OK
-            else:
-                return jsonify({'error':'senha incorreta'}), HTTP_409_CONFLICT
-    except Exception as e:
+        user = guard.authenticate(username=email, password=senha)
         
+        access = guard.encode_jwt_token(user)
         return jsonify({
-                'error':'Error',"status":False, "erro":"Mensagem", "codigo":str(e)
-            }), HTTP_400_BAD_REQUEST
+            'user': {
+                'access': access,
+                'email': user.username,
+                'escola': user.escola
+            },
+            'status': True
+        }), HTTP_200_OK
+    except Exception as e:
+        return str(e)
 
 
-#busca as informações do usuário identificado pelo token
-@auth.get('/me')
-@jwt_required()
-def me():
-    user_id = get_jwt_identity()
-    print(user_id)
-
-    user = Usuarios.query.filter_by(id=user_id).first()
-    return jsonify({
-        'email':user.email,
-    }), HTTP_200_OK
+# busca as informações do usuário identificado pelo token
+@auth.get("/me")
+@flask_praetorian.auth_required
+def protected():
+    
+    print(flask_praetorian.current_user().username)
+    return jsonify(
+        {"message":f"usuário {flask_praetorian.current_user().username}"}
+    )
 
 
 # Rota para forçar a expiração de um token
@@ -121,28 +171,32 @@ def me():
 @jwt_required()
 def expire_token():
     try:
-      
-        # Forçar a expiração do token definindo 'exp' para um valor passado (por exemplo, 1 segundo atrás)
+
         current_user_id = get_jwt_identity()
 
-        # Recriar o token com o payload modificado
         expires_timestamp = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
         payload = {'identity': current_user_id, 'exp': expires_timestamp}
 
-        # Recriar o token com o payload modificado
-        #expired_token = create_access_token(identity=current_user_id, expires_delta=False, expires=expires_timestamp)
-        # expired_token = create_access_token(identity=current_user_id, expires_delta=False)
-        expired_token = create_access_token(identity=current_user_id, payload=payload)
+        
+        expired_token = create_access_token(
+            identity=current_user_id, payload=payload)
 
         return jsonify(expired_token=expired_token)
     except Exception as e:
         return jsonify(error=str(e))
 
-#renovar o JWT de acesso do usuário
-@auth.post('/token/refresh')
-@jwt_required(refresh=True)
-def refresh_user_token():
-    identify = get_jwt_identity()
-    access = create_access_token(identity=identify)
-    reflesh = create_refresh_token(identity= identify)
-    return jsonify({'access':access, 'reflesh':reflesh}), HTTP_200_OK
+
+@auth.route('/refresh', methods=['POST'])
+def refresh_token():
+    # Get the old token from the request body
+    token = request.get_json()['token']
+    print(token)
+    # Verify the old token
+    try:
+        new_token = guard.refresh_jwt_token(token)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 401
+
+    # Issue a new token with the same claims as the old token
+
+    return jsonify({'access_token': new_token}), 200

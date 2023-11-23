@@ -1,9 +1,11 @@
 import os  # type: ignore
 import json
-
 # SWAGGER DOCUMENTATION
+from flasgger import Swagger, swag_from
 from .config.swagger import swagger_config, template
-from .models import db
+
+#MODELS
+from .models import db, Usuarios, guard
 from . import routes
 from datetime import timedelta
 from flask import Blueprint, Flask
@@ -31,6 +33,8 @@ def create_app(test_config=None):
     
     cache.init_app(app)
     
+    
+    
     if test_config is None:
         app.config.from_mapping(
             SECRET_KEY=os.environ.get('SECRET_KEY'),
@@ -39,17 +43,19 @@ def create_app(test_config=None):
                                                                                     url=os.getenv("POSTGRES_ENDPOINT"),
                                                                                     db=os.getenv("POSTGRES_DATABASE")),
             SQLALCHEMY_TRACK_MODIFICATIONS=True,
+            SQLALCHEMY_TIMEZONE='America/Sao_Paulo',
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
             JWT_EXPIRATION_DELTA=timedelta(seconds=10),
             DEBUG=False,
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
-            # SWAGGER ={
-            #     'titulo':'MONIG',
-            #     'version': 1
-            # },
-            RBAC_USE_WHITE  = True
+            RBAC_USE_WHITE = False,
+            JWT_ACCESS_LIFESPAN = {'minutes': 10},
+            SWAGGER ={
+                'titulo':'API MONIG',
+                'version': 1
+            },
         )
     else:
         app.config.from_mapping(
@@ -64,12 +70,9 @@ def create_app(test_config=None):
    
     
     with app.app_context():
-        
+        guard.init_app(app, Usuarios)
         migrate.init_app(app)
 
-    # with app.app_context():        
-    #     db.create_all()
-    #     db.add_opniveis()
 
     JWTManager(app)
 
@@ -77,10 +80,11 @@ def create_app(test_config=None):
     for rota in rotas:
         app.register_blueprint(rota)
 
-    # Swagger(app, config=swagger_config, template=template)
+    Swagger(app, config=swagger_config, template=template)
     
     
     @app.route('/')
+    @swag_from('./docs/apimonig.yaml')
     def index():
         return 'API MONIG'
 

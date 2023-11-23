@@ -1,0 +1,41 @@
+REGISTRO DO USUÁRIOS
+---
+tags:
+  - Autenticação
+parameters:
+  - name: body
+    description: "Rota para registro de novo usuário, a requisição recebe dados em formato JSON"
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+        - "password"
+        - "nome"
+        - "nivel_acesso"
+      properties:
+        email:
+          type: "email"
+          example: "VictorRamos"
+        password:
+          type: "string"
+          format: "password"
+          example: "**********"
+          min_length: '6'
+        nome:
+          type: "string"
+          example: "Victor Ramos"
+        nivel_acesso:
+          type: "integer"
+          example: 1
+  - in: header
+    name: Authorization
+    required: true
+responses:
+  200:
+    description: "Registro do usuário realizad com sucesso!!!"
+  400:
+    description: "...."
+  500:
+    description: "Erro de sintax dentro da API"

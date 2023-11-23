@@ -961,13 +961,15 @@ def leitura_editar(id):
 def consumo_editar(id):
     consumo_ = ConsumoAgua.query.filter_by(id=id).first()
     formulario = request.get_json()
+    
+    print(formulario)
 
     if not consumo_:
         return jsonify({'mensagem': 'consumo não encontrado', "status": False}), 404
 
     try:
         fk_escola = formulario['fk_escola']
-        fk_hidrometro = formulario['fk_hidrometro']
+        fk_hidrometro = formulario['hidrometro']
         consumo = formulario['consumo']
         data = formulario['data']
         dataInicioPeriodo = formulario['dataInicioPeriodo']

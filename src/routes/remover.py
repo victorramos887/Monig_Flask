@@ -302,7 +302,7 @@ def leitura_remover(id):
     return jsonify({"status": True, 'mensagem': 'monitoramento removido'}), HTTP_200_OK
 
 #Consumo
-@remover.put('/consumo/<id>')
+@remover.delete('/consumo/<id>')
 def consumo_remover(id):
     consumo = ConsumoAgua.query.filter_by(id=id).first()
 

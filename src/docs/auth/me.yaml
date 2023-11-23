@@ -1,0 +1,16 @@
+GET usuário atual
+---
+tags:
+  - Autenticação
+
+parameters:
+  - in: header
+    name: Authorization 
+    required: true
+
+responses:
+  200:
+    description: Usuário atual
+
+  400:
+    description: Falha ao realizar a requisição
