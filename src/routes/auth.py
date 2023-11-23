@@ -13,16 +13,6 @@ import time
 
 auth = Blueprint("auth", __name__, url_prefix='/api/v1/auth')
 
-
-
-@auth.get('/verificando_funcao')
-@flask_praetorian.roles_accepted(["secundario", "admin"])
-def verificando_usuario():
-    return jsonify({"role": 'variavel'}), 200
-
-# cadastro de usuário
-
-
 @auth.post('/register')
 def register():
 
@@ -163,16 +153,14 @@ def login():
 
 
 # busca as informações do usuário identificado pelo token
-@auth.get('/me')
-@jwt_required()
-def me():
-    user_id = get_jwt_identity()
-    print(user_id)
-
-    user = Usuarios.query.filter_by(id=user_id).first()
-    return jsonify({
-        'email': user.email,
-    }), HTTP_200_OK
+@auth.get("/me")
+@flask_praetorian.auth_required
+def protected():
+    
+    print(flask_praetorian.current_user().username)
+    return jsonify(
+        {"message":f"usuário {flask_praetorian.current_user().username}"}
+    )
 
 
 # Rota para forçar a expiração de um token

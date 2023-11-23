@@ -148,7 +148,7 @@ def usuario():
 
 # Cadastros das escolas
 @cadastros.post('/escolas')
-@flask_praetorian.roles_accepted(["secundario", "admin"])
+@flask_praetorian.roles_accepted("admin", "diretoria")
 def escolas():
     try:
         formulario = request.get_json()
