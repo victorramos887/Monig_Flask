@@ -11,6 +11,7 @@ import traceback
 from sqlalchemy.exc import ArgumentError
 from datetime import datetime
 import flask_praetorian
+from flasgger import swag_from
 
 
 
@@ -148,8 +149,9 @@ def usuario():
 
 
 # Cadastros das escolas
-@cadastros.post('/escolas')
 @flask_praetorian.roles_accepted("admin", "diretoria")
+@swag_from('../docs/cadastros/escolas.yaml')
+@cadastros.post('/escolas')
 def escolas():
     try:
         formulario = request.get_json()
@@ -247,6 +249,7 @@ def escolas():
 
 
 # cadastro de reservatorios
+@swag_from('../docs/cadastros/reservatorios.yaml')
 @cadastros.post('/reservatorios')
 def reservatorios():
 
@@ -312,6 +315,7 @@ def reservatorios():
 
 
 # Cadastros dos edifícios.
+@swag_from('../docs/cadastros/edificios.yaml')
 @cadastros.post('/edificios')
 def edificios():
 

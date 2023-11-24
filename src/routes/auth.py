@@ -14,8 +14,9 @@ import time
 
 auth = Blueprint("auth", __name__, url_prefix='/api/v1/auth')
 
-@auth.post('/register')
+
 @swag_from('../docs/auth/register.yaml')
+@auth.post('/register')
 def register():
 
     # PEGANDO VALORES POST JSON

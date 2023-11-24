@@ -1,0 +1,72 @@
+Cadastro da escola
+---
+tags:
+  - Escolas
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de escola, ao realizar o cadastro de uma escola uma edificação será adicionada por padrão
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "nome"
+        - "cnpj"
+        - "email"
+        - "telefone"
+        - "logradouro"
+        - "cep"
+        - "complemento"
+        - "numero"
+        - "nivel"
+        - "cidade"
+        - "estado"
+        - "bairro"
+      properties:
+        nome:
+          type: "string"
+          example: "Escola Monitora"
+        cnpj:
+          type: "string"
+          example: "09.015.381/0001-57"
+        email:
+          type: "string"
+          example:  "monitora@monitora.info"
+        telefone:
+          type: "string"
+          example: "(11) 90000-0000"
+        logradouro:
+          type: "string"
+          example: "Rua Nestor de Camargo"
+        cep:
+          type: "string"
+          example: "06411-360"
+        complemento:
+          type: "string"
+          example: "Andar 1"
+        numero:
+          type: "string"
+          example: "24A"
+        nivel:
+          type: array
+          items:
+            type: string
+          example: ["Médio", "Superior"]
+        cidade:
+          type: "string"
+          example:  "Barueri"
+        estado:
+          type: "string"
+          example: "SP"
+        bairro:
+          type: "string"
+          example: "Jardim Barueri"          
+responses:
+  200:
+    description: Cadastro da escolarealizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

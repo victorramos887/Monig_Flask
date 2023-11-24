@@ -6,6 +6,7 @@ from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
 from datetime import datetime
+from flasgger import swag_from
 
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
@@ -113,6 +114,7 @@ def usuario_editar(id):
 
 
 # EDITAR ESCOLA
+# @swag_from('../docs/escola/escola.yaml')
 @editar.put('/escolas/<id>')
 def escolas_editar(id):
     escola = Escolas.query.filter_by(id=id).first()
