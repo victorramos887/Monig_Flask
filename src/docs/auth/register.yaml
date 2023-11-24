@@ -1,41 +1,49 @@
-REGISTRO DO USUÁRIOS
+Cadastro de usuários do usuário
 ---
 tags:
   - Autenticação
 parameters:
   - name: body
-    description: "Rota para registro de novo usuário, a requisição recebe dados em formato JSON"
+    description: O corpo (body) deve conter as informações pertinentes ao cadastro de usuários
     in: body
     required: true
     schema:
       type: object
       required:
-        - "email"
-        - "password"
         - "nome"
-        - "nivel_acesso"
+        - "email"
+        - "senha"
+        - "escola"
+        - "cod_cliente"
+        - "roles"
       properties:
-        email:
-          type: "email"
-          example: "VictorRamos"
-        password:
-          type: "string"
-          format: "password"
-          example: "**********"
-          min_length: '6'
         nome:
           type: "string"
-          example: "Victor Ramos"
-        nivel_acesso:
+          example: "Monitora Tecnologia e Informação"
+        email:
+          type: "email"
+          example: "monitora@monitora.info"
+        senha:
+          type: "string"
+          format: password
+          example: "*********"
+        escola:
+          type: "integer"
+          example: null
+        cod_cliente:
           type: "integer"
           example: 1
-  - in: header
-    name: Authorization
-    required: true
+        roles:
+          type: "string"
+          example: "admin"
+
+        
 responses:
   200:
-    description: "Registro do usuário realizad com sucesso!!!"
+    description: Cadastro do usuário realizado com sucesso
+
   400:
-    description: "...."
-  500:
-    description: "Erro de sintax dentro da API"
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

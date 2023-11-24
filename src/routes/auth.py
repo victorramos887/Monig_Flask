@@ -24,6 +24,10 @@ def register():
     senha = request.json['senha']
     escola = request.json['escola']
     cod_cliente = request.json['cod_cliente']
+    role = request.json['roles']
+
+    if not Roles.query.filter_by(name=role).first():
+        return jsonify({'error':f'Role {role} não encontrada'}), 409
 
     # COLOCANDO LIMITE NA SENHA
     if len(senha) < 6:
@@ -125,6 +129,7 @@ def roleuser():
         return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
         
 @auth.post('/login')
+@swag_from('../docs/auth/login.yaml')
 def login():
     try:
         email = request.json.get('email', '')

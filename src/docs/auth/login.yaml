@@ -16,7 +16,7 @@ parameters:
         email:
           type: "email"
           example: "monitora@monitora.info"
-        password:
+        senha:
           type: "string"
           format: password
           example: "*********"

@@ -5,17 +5,18 @@ from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
-
+from ..utils.decoradores import error_handler_decorator
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
 @send_frontend.get('/escolas')
+@error_handler_decorator
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
     # [escola.to_json() for escola in escolas] if escolas else []
     escolas = Escolas.query.all()
-    print(escolas[0].to_json())
+    print(escolas.to_json())
     return jsonify({
         'return': [escola.to_json() for escola in escolas] if escolas else [],
         'status': True,
