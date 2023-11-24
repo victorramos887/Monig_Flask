@@ -142,7 +142,12 @@ def leituras_tabela(id):
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
 
+
+    print(id)
+
     escola = Escolas.query.filter_by(id=id).first()
+    if not escola:
+        return jsonify({"mensagem":"Escola não encontrada!", "status":False}), 409
 
     edificios_alias = aliased(Edificios)
 
@@ -162,10 +167,10 @@ def leitura_atual(id):
     else:
         strinleitura = ""
 
-    jsonRetorno["leitura"] = strinleitura[
-        :5].zfill(5)
-    jsonRetorno["leitura2"] = strinleitura[
-        5:].zfill(3)
+
+    print(strinleitura)
+    jsonRetorno["leitura"] = strinleitura[0:4].zfill(5)
+    jsonRetorno["leitura2"] = strinleitura[4:7].zfill(3)
 
     return jsonRetorno
 
