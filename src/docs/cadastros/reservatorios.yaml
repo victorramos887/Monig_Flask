@@ -4,7 +4,7 @@ tags:
   - Reservatorios
 parameters:
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de escola, ao realizar o cadastro de uma escola uma edificação será adicionada por padrão
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de reservatórios
     in: body
     required: true
     schema:
@@ -29,3 +29,6 @@ responses:
 
   401:
     description: Credenciais inválidas
+
+
+    

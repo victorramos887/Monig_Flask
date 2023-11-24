@@ -19,6 +19,7 @@ cadastros = Blueprint('cadastros', __name__, url_prefix='/api/v1/cadastros')
 
 
 # cadastro de cliente
+@swag_from('../docs/cadastros/cliente.yaml')
 @cadastros.post('/cliente')
 def cliente():
 
@@ -71,8 +72,8 @@ def cliente():
 
 
 # cadastro de usuário
+@swag_from('../docs/cadastros/usuario.yaml')
 @cadastros.post('/usuario')
-
 def usuario():
 
     try:
@@ -429,7 +430,7 @@ def edificios():
         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
     return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-
+@swag_from('../docs/cadastros/hidrometros.yaml')
 @cadastros.post('/hidrometros')
 def hidrometros():
 
@@ -490,7 +491,7 @@ def hidrometros():
             'codigo': str(e)
         })
 
-
+@swag_from('../docs/cadastros/populacao.yaml')
 @cadastros.post('/populacao')
 def populacao():
 
@@ -572,6 +573,7 @@ def populacao():
 
 
 # Cadastros das areas umidas
+@swag_from('../docs/cadastros/area_umida.yaml')
 @cadastros.post('/area-umida')
 def area_umida():
 
@@ -659,7 +661,7 @@ def area_umida():
 
         return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-
+@swag_from('../docs/cadastros/equipamentos.yaml')
 @cadastros.post('/equipamentos')
 def equipamentos():
 
@@ -745,6 +747,7 @@ def equipamentos():
         
     
 #CONSUMO DE ÁGUA
+@swag_from('../docs/cadastros/consumo.yaml')
 @cadastros.post('/consumo')
 def consumos():
     

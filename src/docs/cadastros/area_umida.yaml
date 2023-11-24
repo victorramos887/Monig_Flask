@@ -1,0 +1,48 @@
+Cadastro da Area Umida
+---
+tags:
+  - Area Umida
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro da área úmida
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "nome_area_umida"
+        - "tipo_area_umida"
+        - "localizacao_area_umida"
+        - "status_area_umida"
+        - "operacao_area_umida"
+        - "fk_edificios"
+
+      properties:
+        nome_area_umida:
+          type: "string"
+          example: "Area Comum Monitora"
+        tipo_area_umida:
+          type: "string"
+          example: "Banheiro"
+        localizacao_area_umida:
+          type: "string"
+          example:  "Térreo"
+        status_area_umida:
+          type: boolean
+          example: false
+        operacao_area_umida:
+          type: "string"
+          example: "Aberto"
+        fk_edificios:
+          type: integer
+          example: 1
+              
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

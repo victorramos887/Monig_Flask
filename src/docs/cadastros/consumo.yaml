@@ -1,0 +1,53 @@
+Cadastro de Consumo
+---
+tags:
+  - Consumo
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de consumo
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "fk_escola"
+        - "fk_hidrometro"
+        - "consumo"
+        - "valor"
+        - "data"
+        - "dataInicioPeriodo"
+        - "dataFimPeriodo"
+      
+      properties:
+        fk_escola:
+          type: integer
+          example: 1
+        fk_hidrometro:
+          type: integer
+          example: 1
+        consumo:
+          type: integer
+          example: 136
+        valor:
+          type: float
+          example: 1.200
+        data:
+          type: date
+          example: "17/06/2023"
+        dataInicioPeriodo:
+          type: date
+          example: "16/05/2023"
+        dataFimPeriodo:
+          type: date
+          example: "16/06/2023"
+      
+              
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

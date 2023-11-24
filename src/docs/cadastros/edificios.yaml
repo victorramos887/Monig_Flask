@@ -4,7 +4,7 @@ tags:
   - Edificios
 parameters:
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de escola, ao realizar o cadastro de uma escola uma edificação será adicionada por padrão
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de edificios
     in: body
     required: true
     schema:
@@ -30,7 +30,7 @@ parameters:
           example: 1
         agua_de_reuso:
           type: boolean
-          example:  False
+          example: false
         area_total_edificio:
           type: float
           example: 500.00

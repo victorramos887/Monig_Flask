@@ -1,0 +1,45 @@
+Cadastro de Equipamentos
+---
+tags:
+  - Equipamentos
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de equipamentos
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "fk_area_umida"
+        - "quantInutil"
+        - "quantProblema"
+        - "quantTotal"
+        - "tipo_equipamento"
+      
+      properties:
+        fk_area_umida:
+          type: integer
+          example: 1
+        quantInutil:
+          type: integer
+          example: 1
+        quantProblema:
+          type: integer
+          example: 1
+        quantTotal:
+          type: integer
+          example: 7
+        tipo_equipamento:
+          type: "string"
+          example: "Mictório Caixa de descarga, registro de pressão ou válvula de descarga para mictório"
+      
+              
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas
