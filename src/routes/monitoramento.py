@@ -29,17 +29,19 @@ def leitura():
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
 
+        print(hidrometro)
+
         # fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         edificios_alias = aliased(Edificios)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
-            fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
+            fk_escola == edificios_alias.fk_escola, Hidrometros.id == hidrometro)).first()
 
         if not hidrometro_verificar:
             return jsonify({"mensagem": "este hidrometro não pertence a esta escola!!!"}), 400
 
         escolas_com_mesmo_hidrometro = Hidrometros.query.join(
-            edificios_alias).filter(Hidrometros.hidrometro == hidrometro).all()
+            edificios_alias).filter(Hidrometros.id == hidrometro).all()
 
         for escola_ in escolas_com_mesmo_hidrometro:
 
