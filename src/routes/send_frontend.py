@@ -370,9 +370,10 @@ def reservatorios(id):
 @send_frontend.get('/tipo-de-eventos/<int:id>')
 def tipo_de_eventos(id):
 
-    tipo_de_eventos = AuxTipoDeEventos.query.filter_by(
-        recorrente=True if id == 1 else False
-    ).all()
+    if id == 1:
+        tipo_de_eventos = AuxTipoDeEventos.query.filter_by(recorrente=True).all()
+    else:
+        tipo_de_eventos = AuxTipoDeEventos.query.filter((AuxTipoDeEventos.recorrente == False) | (AuxTipoDeEventos.recorrente == None)).all()
 
     return jsonify({
         "tipo_de_eventos": [
@@ -445,10 +446,9 @@ def get_tipos_recorrente_ocasional(recorrente):
 
     # ocasional
     if recorrente == 0:
-        tipo_ocasional = AuxTipoDeEventos.query.filter_by(
-            recorrente=False
-        ).all()
+        tipo_ocasional = AuxTipoDeEventos.query.filter((AuxTipoDeEventos.recorrente == False) | (AuxTipoDeEventos.recorrente == None)).all()
 
+        print(tipo_ocasional)
         return jsonify({
             "tipo_ocasional": [
                 {"nome": tipo.nome_do_tipo_de_evento, "id": tipo.id, "recorrente": "False"} for tipo in tipo_ocasional
