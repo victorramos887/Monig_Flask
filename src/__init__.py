@@ -7,7 +7,7 @@ from flasgger import Swagger, swag_from, APISpec
 from .config.swagger import swagger_config, swagger_config_cadastro, template
 
 # MODELS
-from .models import db, Usuarios, guard
+from .models import db, guard, Usuarios
 
 from . import routes
 
@@ -62,9 +62,10 @@ def create_app(test_config=None):
         app.config.from_mapping(
             test_config,
             SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
-            DEBUG=False
+            DEBUG=False,
+            SECRET_KEY='testabancodedados'
         )
-
+    print("CONTEXT: ", app.config['SQLALCHEMY_DATABASE_URI'])
     db.app = app
     db.init_app(app)
     migrate = Migrate(app, db)

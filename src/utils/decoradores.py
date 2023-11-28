@@ -1,5 +1,20 @@
 from functools import wraps
-from .models import db
+from ..models import db
+import json
+
+#FLASK
+from flask import jsonify
+
+# SQLACHEMY
+from sqlalchemy.exc import ArgumentError
+from sqlalchemy import exc
+
+from werkzeug.exceptions import HTTPException
+import re
+
+#UTILS
+from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
+
 
 def error_handler_decorator(func):
     @wraps(func)
@@ -14,13 +29,13 @@ def error_handler_decorator(func):
     return wrapper
 
 
-def error_cadstro_decorador(func):
+def error_cadastro_decorador(func):
 
     @wraps(func)
     def wrapper(*args, **kwargs):
 
         try:
-            result = funct(*args, **kwargs)
+            result = func(*args, **kwargs)
             return result
         except ArgumentError as e:
             db.session.rollback()

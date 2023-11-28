@@ -138,7 +138,7 @@ def login():
         user = Usuarios.query.filter_by(username=email).first()
     except exc.DBAPIError as e:
         # Handle database errors
-        return handle_db_error(e)
+        return jsonify({'error': str(e), "mensagem":"Erro não tratado!"}), HTTP_400_BAD_REQUEST
 
     if user is None:
         return jsonify({'error': 'Usuário não cadastrado!'}), HTTP_400_BAD_REQUEST

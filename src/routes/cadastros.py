@@ -1,11 +1,10 @@
 # FLASK CONFIG
 from flasgger import swag_from
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_current_user
 import flask_praetorian
 
 # API
-from ..models import (Escolas, Edificios, EscolaNiveis, EscolaNiveisVersion, db, AreaUmida, ConsumoAgua, Usuarios, Cliente, Equipamentos, Populacao,
+from ..models import (Escolas, Edificios, EscolaNiveis, db, AreaUmida, ConsumoAgua, Usuarios, Cliente, Equipamentos, Populacao,
                       Hidrometros, AuxOpNiveis, AuxTipoAreaUmida, AuxTiposEquipamentos, Reservatorios, AuxPopulacaoPeriodo, AuxOperacaoAreaUmida, ReservatorioEdificio)
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -13,7 +12,6 @@ from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTT
 import re
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
-
 
 # SQLACHEMY
 from sqlalchemy.exc import ArgumentError
@@ -23,12 +21,14 @@ from sqlalchemy import exc
 import traceback
 from datetime import datetime
 import json
+from ..utils.decoradores import error_cadastro_decorador
 
 cadastros = Blueprint('cadastros', __name__, url_prefix='/api/v1/cadastros')
 
 
 # cadastro de cliente
 @cadastros.post('/cliente')
+@swag_from('../docs/auth/cliente.yaml')
 def cliente():
 
     try:
@@ -160,7 +160,9 @@ def usuario():
 @cadastros.post('/escolas')
 @flask_praetorian.roles_accepted("admin", "diretoria")
 @swag_from('../docs/Cadastros/Escola/cadastrarescola.yaml')
+@error_cadastro_decorador
 def escolas():
+    #print(flask_praetorian.current_user().username)
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -200,9 +202,15 @@ def escolas():
     db.session.add(escola)
 
     # VERIFICAR NÍVEIS
-
+    
     niveis_query = AuxOpNiveis.query.filter(
-        AuxOpNiveis.nivel.in_(nivel)).all()
+            AuxOpNiveis.nivel.in_(nivel)).all()
+        # realizar controle, de que não foi cadastrado nível
+
+    escola_niveis = [EscolaNiveis(
+        nivel_ensino_id=nivel.id, escola_id=escola.id
+    ) for nivel in niveis_query]
+    db.session.add_all(escola_niveis)
 
     edificio = Edificios(
         fk_escola=int(escola.id),
@@ -323,6 +331,7 @@ def reservatorios():
 # Cadastros dos edifícios.
 @cadastros.post('/edificios')
 @swag_from('../docs/Cadastros/Edificacoes/cadastroedificacos.yaml')
+@error_cadastro_decorador
 def edificios():
 
     try:
@@ -355,88 +364,47 @@ def edificios():
             "status": False
         }), 400
 
-    try:
-        edificio = Edificios(
-            fk_escola=fk_escola,
-            numero_edificio=numero_edificio,
-            nome_do_edificio=nome_do_edificio,
-            cep_edificio=cep_edificio,
-            bairro_edificio=bairro_edificio,
-            cidade_edificio=cidade_edificio,
-            estado_edificio=estado_edificio,
-            cnpj_edificio=cnpj_edificio,
-            logradouro_edificio=logradouro_edificio,
-            complemento_edificio=complemento_edificio,
-            pavimentos_edificio=pavimentos_edificio,
-            area_total_edificio=area_total_edificio,
-            agua_de_reuso=agua_de_reuso,
-        )
+    edificio = Edificios(
+        fk_escola=fk_escola,
+        numero_edificio=numero_edificio,
+        nome_do_edificio=nome_do_edificio,
+        cep_edificio=cep_edificio,
+        bairro_edificio=bairro_edificio,
+        cidade_edificio=cidade_edificio,
+        estado_edificio=estado_edificio,
+        cnpj_edificio=cnpj_edificio,
+        logradouro_edificio=logradouro_edificio,
+        complemento_edificio=complemento_edificio,
+        pavimentos_edificio=pavimentos_edificio,
+        area_total_edificio=area_total_edificio,
+        agua_de_reuso=agua_de_reuso,
+    )
 
-        db.session.add(edificio)
+    db.session.add(edificio)
 
-        for reservatorio_enviado in reservatorios:
-            reserv = Reservatorios.query.filter_by(
-                nome_do_reservatorio=reservatorio_enviado).first()
+    for reservatorio_enviado in reservatorios:
+        reserv = Reservatorios.query.filter_by(
+            nome_do_reservatorio=reservatorio_enviado).first()
 
-            if reserv:
+        if reserv:
 
-                reservatorio = ReservatorioEdificio(
-                    edificio_id=edificio.id,
-                    reservatorio_id=reserv.id
-                )
+            reservatorio = ReservatorioEdificio(
+                edificio_id=edificio.id,
+                reservatorio_id=reserv.id
+            )
 
-                db.session.add(reservatorio)
+            db.session.add(reservatorio)
 
-                # reservatorio_vesion = ReservatorioEdificioVersion(
-                #     edificio_id=edificio.id,
-                #     reservatorio_id=reserv.id,
-                #     transacao=0,
-                #     created_at=datetime.now()
-                # )
-                # db.session.add(reservatorio_vesion)
-
-            else:
-                db.session.rollback()
-                return jsonify({'status': False, 'mensagem': f'Reservatório não existente {reservatorio_enviado}', 'codigo': 'Falha'}), 409
-
-        db.session.commit()
-
-        return jsonify({'status': True, 'id': edificio.id, "mensagem": "Cadastro Realizado!", "data": edificio.to_json()}), HTTP_200_OK
-
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            # FOREIGN KEY VIOLATION
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-
-        if e.orig.pgcode == '23505':
+        else:
             db.session.rollback()
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+            return jsonify({'status': False, 'mensagem': f'Reservatório não existente {reservatorio_enviado}', 'codigo': 'Falha'}), 409
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho', 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        if e.orig.pgcode == '22P02':
-            return jsonify({'status': False, 'mensagem': 'Erro no tipo de informação envida', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+    db.session.commit()
 
-    except Exception as e:
-        db.session.rollback()
-        traceback.print_exc()  # Imprime o traceback completo no console
-        print("não entrou aqui")
-        return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-    return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
-
+    return jsonify({'status': True, 'id': edificio.id, "mensagem": "Cadastro Realizado!", "data": edificio.to_json()}), HTTP_200_OK
 
 @cadastros.post('/hidrometros')
+@error_cadastro_decorador
 def hidrometros():
 
     try:
@@ -449,55 +417,56 @@ def hidrometros():
             "codigo": e
         }), 400
 
-    try:
-        hidrometros = Hidrometros(**formulario)
-        db.session.add(hidrometros)
-        db.session.commit()
+    
+    hidrometros = Hidrometros(**formulario)
+    db.session.add(hidrometros)
+    db.session.commit()
 
-        return jsonify({'status': True, 'id': hidrometros.id, "mensagem": "Cadastro Realizado com sucesso", "data": hidrometros.to_json()}), HTTP_200_OK
+    return jsonify({'status': True, 'id': hidrometros.id, "mensagem": "Cadastro Realizado com sucesso", "data": hidrometros.to_json()}), HTTP_200_OK
 
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+    # except exc.DBAPIError as e:
+    #     db.session.rollback()
+    #     if e.orig.pgcode == '23503':
+    #         match = re.search(
+    #             r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+    #         tabela = match.group(1) if match else 'tabela desconhecida'
+    #         coluna = match.group(2) if match else 'coluna desconhecida'
+    #         mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+    #         return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    #     if e.orig.pgcode == '23505':
+    #         # UNIQUE VIOLATION
+    #         match = re.search(r'Key \((.*?)\)=', str(e))
+    #         campo = match.group(1) if match else 'campo desconhecido'
+    #         mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+    #         return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-        return jsonify({
-            'status': False,
-            'mensagem': 'Erro no banco não tratao!',
-            'codigo': f'{e}'
-        }), 500
+    #     if e.orig.pgcode == '01004':
+    #         # STRING DATA RIGHT TRUNCATION
+    #         return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho', 'codigo': str(e)}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+    #     return jsonify({
+    #         'status': False,
+    #         'mensagem': 'Erro no banco não tratao!',
+    #         'codigo': f'{e}'
+    #     }), 500
 
-    except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    # except Exception as e:
+    #     db.session.rollback()
+    #     if isinstance(e, HTTPException) and e.code == 500:
+    #         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-        if isinstance(e, HTTPException) and e.code == 400:
-            # flash("Erro, 4 não salva")
-            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({
-            'status': False,
-            'mensagem': 'Erro não tratado.',
-            'codigo': str(e)
-        })
+    #     if isinstance(e, HTTPException) and e.code == 400:
+    #         # flash("Erro, 4 não salva")
+    #         return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     return jsonify({
+    #         'status': False,
+    #         'mensagem': 'Erro não tratado.',
+    #         'codigo': str(e)
+    #     })
 
 
 @cadastros.post('/populacao')
+@error_cadastro_decorador
 def populacao():
 
     try:
@@ -523,62 +492,63 @@ def populacao():
             "status": False
         }), 400
 
-    try:
-        nivel = db.session.query(AuxOpNiveis.id).filter_by(
-            nivel=formulario['nivel']).scalar()
-        periodo = db.session.query(AuxPopulacaoPeriodo.id).filter_by(
-            periodo=formulario['periodo']).scalar()
+    # try:
+    nivel = db.session.query(AuxOpNiveis.id).filter_by(
+        nivel=formulario['nivel']).scalar()
+    periodo = db.session.query(AuxPopulacaoPeriodo.id).filter_by(
+        periodo=formulario['periodo']).scalar()
 
-        populacao = Populacao(
-            alunos=alunos,
-            funcionarios=funcionarios,
-            fk_periodo=periodo,
-            fk_edificios=fk_edificios,
-            fk_niveis=nivel
-        )
-        db.session.add(populacao)
-        db.session.commit()
+    populacao = Populacao(
+        alunos=alunos,
+        funcionarios=funcionarios,
+        fk_periodo=periodo,
+        fk_edificios=fk_edificios,
+        fk_niveis=nivel
+    )
+    db.session.add(populacao)
+    db.session.commit()
 
-        return jsonify({'status': True, 'id': populacao.id, "mensagem": "Cadastrado realizado com sucesso", "data": populacao.to_json()}), HTTP_200_OK
+    return jsonify({'status': True, 'id': populacao.id, "mensagem": "Cadastrado realizado com sucesso", "data": populacao.to_json()}), HTTP_200_OK
 
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+    # except exc.DBAPIError as e:
+    #     db.session.rollback()
+    #     if e.orig.pgcode == '23503':
+    #         match = re.search(
+    #             r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+    #         tabela = match.group(1) if match else 'tabela desconhecida'
+    #         coluna = match.group(2) if match else 'coluna desconhecida'
+    #         mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+    #         return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    #     if e.orig.pgcode == '23505':
+    #         # UNIQUE VIOLATION
+    #         match = re.search(r'Key \((.*?)\)=', str(e))
+    #         campo = match.group(1) if match else 'campo desconhecido'
+    #         mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+    #         return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho', 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+    #     if e.orig.pgcode == '01004':
+    #         # STRING DATA RIGHT TRUNCATION
+    #         return jsonify({'status': False, 'mensagem': 'Erro no cabeçalho', 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+    #     return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-    except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    # except Exception as e:
+    #     db.session.rollback()
+    #     if isinstance(e, HTTPException) and e.code == 500:
+    #         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-        if isinstance(e, HTTPException) and e.code == 400:
-            # flash("Erro, 4 não salva")
-            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        return jsonify({
-            'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)
-        }), HTTP_400_BAD_REQUEST
+    #     if isinstance(e, HTTPException) and e.code == 400:
+    #         # flash("Erro, 4 não salva")
+    #         return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     return jsonify({
+    #         'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)
+    #     }), HTTP_400_BAD_REQUEST
 
 
 # Cadastros das areas umidas
 @cadastros.post('/area-umida')
+@error_cadastro_decorador
 def area_umida():
 
     try:
@@ -603,70 +573,71 @@ def area_umida():
             "status": False
         }), 400
 
-    try:
-        tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+    
+    tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
 
-        if status_area_umida == "Aberto":
-            status_area_umida = True
-        else:
-            status_area_umida = False
+    if status_area_umida == "Aberto":
+        status_area_umida = True
+    else:
+        status_area_umida = False
 
-        tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
-        operacao = AuxOperacaoAreaUmida.query.filter_by(
-            operacao=operacao_area_umida).first()
+    tipos = AuxTipoAreaUmida.query.filter_by(tipo=tipo_area_umida).first()
+    operacao = AuxOperacaoAreaUmida.query.filter_by(
+        operacao=operacao_area_umida).first()
 
-        print(tipos, ' -- tipos')
+    print(tipos, ' -- tipos')
 
-        umida = AreaUmida(
-            fk_edificios=fk_edificios,
-            tipo_area_umida=tipos.id,
-            nome_area_umida=nome_area_umida,
-            localizacao_area_umida=localizacao_area_umida,
-            status_area_umida=status_area_umida,
-            operacao_area_umida=operacao.id
-        )
+    umida = AreaUmida(
+        fk_edificios=fk_edificios,
+        tipo_area_umida=tipos.id,
+        nome_area_umida=nome_area_umida,
+        localizacao_area_umida=localizacao_area_umida,
+        status_area_umida=status_area_umida,
+        operacao_area_umida=operacao.id
+    )
 
-        db.session.add(umida)
-        db.session.commit()
+    db.session.add(umida)
+    db.session.commit()
 
-        return jsonify({'status': True, 'id': umida.id, "mensagem": "Cadastrado realizado com sucesso", "data": umida.to_json()}), HTTP_200_OK
+    return jsonify({'status': True, 'id': umida.id, "mensagem": "Cadastrado realizado com sucesso", "data": umida.to_json()}), HTTP_200_OK
 
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+    # except exc.DBAPIError as e:
+    #     db.session.rollback()
+    #     if e.orig.pgcode == '23503':
+    #         match = re.search(
+    #             r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+    #         tabela = match.group(1) if match else 'tabela desconhecida'
+    #         coluna = match.group(2) if match else 'coluna desconhecida'
+    #         mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+    #         return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    #     if e.orig.pgcode == '23505':
+    #         # UNIQUE VIOLATION
+    #         match = re.search(r'Key \((.*?)\)=', str(e))
+    #         campo = match.group(1) if match else 'campo desconhecido'
+    #         mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+    #         return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+    #     if e.orig.pgcode == '01004':
+    #         # STRING DATA RIGHT TRUNCATION
+    #         return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        return jsonify({'status': False, 'mensagem': "Erro não Tratado", 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+    #     return jsonify({'status': False, 'mensagem': "Erro não Tratado", 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-    except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    # except Exception as e:
+    #     db.session.rollback()
+    #     if isinstance(e, HTTPException) and e.code == 500:
+    #         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-        if isinstance(e, HTTPException) and e.code == 400:
-            # flash("Erro, 4 não salva")
-            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     if isinstance(e, HTTPException) and e.code == 400:
+    #         # flash("Erro, 4 não salva")
+    #         return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
 @cadastros.post('/equipamentos')
+@error_cadastro_decorador
 def equipamentos():
 
     try:
@@ -691,68 +662,69 @@ def equipamentos():
             "status": False
         }), 400
 
-    try:
-        tipo_equipamento = AuxTiposEquipamentos.query.filter_by(
-            aparelho_sanitario=tipo_equipamento).first().id
+    # try:
+    tipo_equipamento = AuxTiposEquipamentos.query.filter_by(
+        aparelho_sanitario=tipo_equipamento).first().id
 
-        # descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
+    # descricao_equipamento = DescricaoEquipamentos.query.filter_by(descricao=descricao_equipamento).first().id
 
-        equipamento = Equipamentos(
-            fk_area_umida=fk_area_umida,
-            tipo_equipamento=tipo_equipamento,
-            # descricao_equipamento=descricao_equipamento,
-            quantTotal=quantTotal,
-            quantProblema=quantProblema,
-            quantInutil=quantInutil
-        )
+    equipamento = Equipamentos(
+        fk_area_umida=fk_area_umida,
+        tipo_equipamento=tipo_equipamento,
+        # descricao_equipamento=descricao_equipamento,
+        quantTotal=quantTotal,
+        quantProblema=quantProblema,
+        quantInutil=quantInutil
+    )
 
-        db.session.add(equipamento)
-        db.session.commit()
+    db.session.add(equipamento)
+    db.session.commit()
 
-        return jsonify({'status': True, 'id': equipamento.id, "mensagem": "Cadastrado realizado com sucesso", "data": equipamento.to_json()}), HTTP_200_OK
+    return jsonify({'status': True, 'id': equipamento.id, "mensagem": "Cadastrado realizado com sucesso", "data": equipamento.to_json()}), HTTP_200_OK
 
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+    # except exc.DBAPIError as e:
+    #     db.session.rollback()
+    #     if e.orig.pgcode == '23503':
+    #         match = re.search(
+    #             r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+    #         tabela = match.group(1) if match else 'tabela desconhecida'
+    #         coluna = match.group(2) if match else 'coluna desconhecida'
+    #         mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+    #         return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    #     if e.orig.pgcode == '23505':
+    #         # UNIQUE VIOLATION
+    #         match = re.search(r'Key \((.*?)\)=', str(e))
+    #         campo = match.group(1) if match else 'campo desconhecido'
+    #         mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+    #         return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+    #     if e.orig.pgcode == '01004':
+    #         # STRING DATA RIGHT TRUNCATION
+    #         return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        if e.origin.pgcode == '22P02':
-            return jsonify({'status': False, 'mensagem': 'Erro no tipo de informação envida', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+    #     if e.origin.pgcode == '22P02':
+    #         return jsonify({'status': False, 'mensagem': 'Erro no tipo de informação envida', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-    except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    # except Exception as e:
+    #     db.session.rollback()
+    #     if isinstance(e, HTTPException) and e.code == 500:
+    #         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-        if isinstance(e, HTTPException) and e.code == 400:
-            # flash("Erro, 4 não salva")
-            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        print(e)
-        return jsonify({
-            'status': False,
-            'mensagem': 'Erro não tratado.', 'codigo': str(e)
-        }), HTTP_400_BAD_REQUEST
+    #     if isinstance(e, HTTPException) and e.code == 400:
+    #         # flash("Erro, 4 não salva")
+    #         return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     print(e)
+    #     return jsonify({
+    #         'status': False,
+    #         'mensagem': 'Erro não tratado.', 'codigo': str(e)
+    #     }), HTTP_400_BAD_REQUEST
 
 
 # CONSUMO DE ÁGUA
 
 @cadastros.post('/consumo')
+@error_cadastro_decorador
 def consumos():
 
     try:
@@ -780,56 +752,56 @@ def consumos():
             "status": False
         }), 400
 
-    try:
+    # try:
 
-        consumo = ConsumoAgua(
-            fk_escola=fk_escola,
-            fk_hidrometro=fk_hidrometro,
-            consumo=consumo,
-            data=data,
-            dataInicioPeriodo=dataInicioPeriodo,
-            dataFimPeriodo=dataFimPeriodo,
-            valor=valor
-        )
-        db.session.add(consumo)
-        db.session.commit()
+    consumo = ConsumoAgua(
+        fk_escola=fk_escola,
+        fk_hidrometro=fk_hidrometro,
+        consumo=consumo,
+        data=data,
+        dataInicioPeriodo=dataInicioPeriodo,
+        dataFimPeriodo=dataFimPeriodo,
+        valor=valor
+    )
+    db.session.add(consumo)
+    db.session.commit()
 
-        return jsonify({'status': True, 'id': consumo.id, "mensagem": "Cadastrado realizado com sucesso", "data": consumo.to_json()}), HTTP_200_OK
+    return jsonify({'status': True, 'id': consumo.id, "mensagem": "Cadastrado realizado com sucesso", "data": consumo.to_json()}), HTTP_200_OK
 
-    except exc.DBAPIError as e:
-        db.session.rollback()
-        if e.orig.pgcode == '23503':
-            match = re.search(
-                r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-            tabela = match.group(1) if match else 'tabela desconhecida'
-            coluna = match.group(2) if match else 'coluna desconhecida'
-            mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-            return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+    # except exc.DBAPIError as e:
+    #     db.session.rollback()
+    #     if e.orig.pgcode == '23503':
+    #         match = re.search(
+    #             r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+    #         tabela = match.group(1) if match else 'tabela desconhecida'
+    #         coluna = match.group(2) if match else 'coluna desconhecida'
+    #         mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+    #         return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
 
-        if e.orig.pgcode == '23505':
-            # UNIQUE VIOLATION
-            match = re.search(r'Key \((.*?)\)=', str(e))
-            campo = match.group(1) if match else 'campo desconhecido'
-            mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-            return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+    #     if e.orig.pgcode == '23505':
+    #         # UNIQUE VIOLATION
+    #         match = re.search(r'Key \((.*?)\)=', str(e))
+    #         campo = match.group(1) if match else 'campo desconhecido'
+    #         mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+    #         return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
 
-        if e.orig.pgcode == '01004':
-            # STRING DATA RIGHT TRUNCATION
-            return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+    #     if e.orig.pgcode == '01004':
+    #         # STRING DATA RIGHT TRUNCATION
+    #         return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        if e.origin.pgcode == '22P02':
-            return jsonify({'status': False, 'mensagem': 'Erro no tipo de informação envida', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
+    #     if e.origin.pgcode == '22P02':
+    #         return jsonify({'status': False, 'mensagem': 'Erro no tipo de informação envida', 'codigo': f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-    except Exception as e:
-        db.session.rollback()
-        if isinstance(e, HTTPException) and e.code == 500:
-            return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+    # except Exception as e:
+    #     db.session.rollback()
+    #     if isinstance(e, HTTPException) and e.code == 500:
+    #         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
-        if isinstance(e, HTTPException) and e.code == 400:
-            # flash("Erro, 4 não salva")
-            return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        print(e)
-        return jsonify({
-            'status': False,
-            'mensagem': 'Erro não tratado.', 'codigo': str(e)
-        }), HTTP_400_BAD_REQUEST
+    #     if isinstance(e, HTTPException) and e.code == 400:
+    #         # flash("Erro, 4 não salva")
+    #         return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+    #     print(e)
+    #     return jsonify({
+    #         'status': False,
+    #         'mensagem': 'Erro não tratado.', 'codigo': str(e)
+    #     }), HTTP_400_BAD_REQUEST
