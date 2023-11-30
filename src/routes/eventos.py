@@ -62,7 +62,7 @@ def tipoeventoocasional():
         fk_cliente = formulario.get('fk_cliente')
         nome_do_evento = formulario.get('nome_do_evento')
         requerResposta = formulario.get('requerResposta')
-        tempo = formulario.get('tolerancia')
+        tempo = formulario.get('tolerancia') if formulario.get('tolerancia') else None
         unidade = formulario.get('unidade')
 
     except Exception as e:
