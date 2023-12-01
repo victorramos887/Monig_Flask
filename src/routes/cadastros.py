@@ -753,7 +753,7 @@ def consumos():
     
     try:
         formulario = request.get_json()
-        
+        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -788,6 +788,7 @@ def consumos():
             dataFimPeriodo = dataFimPeriodo,
             valor = valor
         )
+        print(consumo)
         db.session.add(consumo)
         db.session.commit()
         
@@ -813,7 +814,7 @@ def consumos():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        if e.origin.pgcode == '22P02':
+        if e.orig.pgcode == '22P02':
             return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
@@ -830,3 +831,7 @@ def consumos():
             'mensagem':'Erro não tratado.', 'codigo': str(e)
         }), HTTP_400_BAD_REQUEST
         
+    return jsonify({
+            'status': False,
+            'mensagem': 'Erro não tratado.'
+        }), HTTP_400_BAD_REQUEST
