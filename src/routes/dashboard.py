@@ -1,16 +1,16 @@
 from sqlalchemy import func, extract
-from ..models import ConsumoAgua,EscolaNiveis,db
+from ..models import ConsumoAgua, EscolaNiveis, db, AuxOpNiveis
 from flask import Blueprint, json, jsonify
 from datetime import datetime
 
 dashboard = Blueprint('dashboard', __name__,
                           url_prefix='/api/v1/dashboard')
 
+#Media de consumo das escolas independente de nivel
 @dashboard.get('/media-consumo')
 def consumo_media():
     
-    
-    # Selecione as colunas desejadas
+   #Verificar com data e valores diferentes - erro com cadastro de consumo - testar com o banco na nuvem
     consulta = db.session.query(
         func.avg(ConsumoAgua.consumo).label('media_escola'),
         extract('month', ConsumoAgua.data).label('mes'),
@@ -18,7 +18,7 @@ def consumo_media():
     )
 
     # Agrupe os resultados por ano e mês
-    consulta = consulta.group_by('mes', 'ano')
+    consulta = consulta.group_by('mes','ano')
 
     # Execute a consulta e retorne os resultados em formato JSON
     resultados = consulta.all()
@@ -31,6 +31,37 @@ def consumo_media():
         "status": True
     }), 200
         
+        
+        
+
+#Media de consumo das escolas por nivel
+@dashboard.get('/media-consumo-niveis')
+def consumo_media_niveis():
+
+  
+    # Selecione as colunas desejadas
+    consulta = db.session.query(
+        AuxOpNiveis.nivel,
+        func.avg(ConsumoAgua.consumo).label('media_escola'),
+        extract('month', ConsumoAgua.data).label('mes'),
+        extract('year', ConsumoAgua.data).label('ano')
+    ).join(EscolaNiveis, EscolaNiveis.nivel_ensino_id == AuxOpNiveis.id).join(ConsumoAgua, ConsumoAgua.fk_escola == EscolaNiveis.escola_id)
+
+    # Agrupe os resultados por nível, ano e mês
+    consulta = consulta.group_by(AuxOpNiveis.nivel, 'mes', 'ano')
+    
+    # Execute a consulta e retorne os resultados em formato JSON
+    resultado = consulta.all()
+    print(resultado)
+
+    return jsonify({
+        "data": [
+            {"gastosNivel": l[0], "gastosEscola": round(l[1], 2), "mes_ano": (str(l[2]) + '-' + str(l[3]))} for l in resultado
+        ],
+    })
+
+    
+    
     
 @dashboard.get('/media_consumo')
 def consumo_escolas():
