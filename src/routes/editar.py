@@ -682,10 +682,10 @@ def tipo_evento_editar(id):
         "Dezembro": 12
     }
 
-    periodicidade = {
-        "Ocasional": False,
-        "Recorrente": True
-    }
+    # periodicidade = {
+    #     "Ocasional": False,
+    #     "Recorrente": True
+    # }
 
     if not tipo_evento:
         return jsonify({'mensagem': 'tipo não encontrado', "status": False}), 404
@@ -696,6 +696,8 @@ def tipo_evento_editar(id):
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
         recorrente = formulario.get("recorrente")
+
+        print(recorrente)
         # periodicidade = periodicidade.get(formulario.get(
         #     'periodicidade')) if formulario.get('periodicidade') is not None else False
         dia = formulario.get("dataRecorrente") if formulario.get(
@@ -719,7 +721,6 @@ def tipo_evento_editar(id):
             requer_acao=requer_acao,
             tempo=tempo,
             unidade=unidade
-           
         )
 
         db.session.commit()
