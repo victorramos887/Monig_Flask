@@ -10,17 +10,15 @@ dashboard = Blueprint('dashboard', __name__,
 @dashboard.get('/media-consumo')
 def consumo_media():
     
-   #Verificar com data e valores diferentes - erro com cadastro de consumo - testar com o banco na nuvem
     consulta = db.session.query(
         func.avg(ConsumoAgua.consumo).label('media_escola'),
         extract('month', ConsumoAgua.data).label('mes'),
         extract('year', ConsumoAgua.data).label('ano')
     )
 
-    # Agrupe os resultados por ano e mês
+    # Agrupar os resultados por ano e mês
     consulta = consulta.group_by('mes','ano')
 
-    # Execute a consulta e retorne os resultados em formato JSON
     resultados = consulta.all()
     print(resultados)
 
@@ -39,7 +37,7 @@ def consumo_media():
 def consumo_media_niveis():
 
   
-    # Selecione as colunas desejadas
+    # Selecionar colunas
     consulta = db.session.query(
         AuxOpNiveis.nivel,
         func.avg(ConsumoAgua.consumo).label('media_escola'),
@@ -47,10 +45,10 @@ def consumo_media_niveis():
         extract('year', ConsumoAgua.data).label('ano')
     ).join(EscolaNiveis, EscolaNiveis.nivel_ensino_id == AuxOpNiveis.id).join(ConsumoAgua, ConsumoAgua.fk_escola == EscolaNiveis.escola_id)
 
-    # Agrupe os resultados por nível, ano e mês
+    # Agrupar colunas
     consulta = consulta.group_by(AuxOpNiveis.nivel, 'mes', 'ano')
     
-    # Execute a consulta e retorne os resultados em formato JSON
+    # Executar a consulta e retornar os resultados em formato JSON
     resultado = consulta.all()
     print(resultado)
 
