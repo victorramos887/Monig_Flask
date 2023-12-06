@@ -4,7 +4,7 @@ tags:
   - Autenticação
 parameters:
   - name: body
-    description: O corpo (body) deve conter as informações pertinentes ao cadastro de usuários
+    description: O corpo (body) deve conter as informações pertinentes ao cadastro de Cliente
     in: body
     required: true
     schema:
@@ -12,10 +12,8 @@ parameters:
       required:
         - "nome"
         - "email"
-        - "senha"
-        - "escola"
-        - "cod_cliente"
-        - "roles"
+        - "cnpj"
+        - "telefone"
       properties:
         nome:
           type: "string"
@@ -23,17 +21,10 @@ parameters:
         email:
           type: "email"
           example: "monitora@monitora.info"
-        senha:
-          type: "string"
-          format: password
-          example: "*********"
-        escola:
-          type: "integer"
-          example: null
-        cod_cliente:
-          type: "integer"
-          example: 1
-        roles:
+        cnpj:
+          type: "email"
+          example: "monitora@monitora.info"
+        telefone:
           type: "string"
           example: "admin"
 

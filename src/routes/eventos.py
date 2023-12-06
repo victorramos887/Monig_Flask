@@ -32,13 +32,14 @@ periodicidade = {
 }
 
 
-def obter_local(tipo_de_local, nome):
+def obter_local(tipo_de_local, id):
+    id = int(id)
     consultas = {
-        "Escola": Escolas.query.filter_by(nome=nome).first(),
-        "Edificação": Edificios.query.filter_by(nome_do_edificio=nome).first(),
-        "Área Úmida": AreaUmida.query.filter_by(nome_area_umida=nome).first(),
-        "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
-        "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
+        "Escola": Escolas.query.filter_by(id=id).first(),
+        "Edificação": Edificios.query.filter_by(id=id).first(),
+        "Área Úmida": AreaUmida.query.filter_by(id=id).first(),
+        "Reservatório": Reservatorios.query.filter_by(id=id).first(),
+        "Hidrômetro": Hidrometros.query.filter_by(id=id).first()
     }
 
     return consultas.get(tipo_de_local)
@@ -266,9 +267,9 @@ def eventos_cadastro_unitario():
     
         #Tratamento de tipo_de_local
         
-        tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
+        tipo_de_local_fk = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
         
-        print(tipo_de_local_fk)
+        print(tipo_de_local_fk.nome_da_tabela)
 
         if not tipo_de_local_fk:
             return jsonify({
@@ -276,7 +277,7 @@ def eventos_cadastro_unitario():
                 "status": False
             }), 400
 
-        local_fk = obter_local(tipo_de_local, local)
+        local_fk = obter_local(tipo_de_local_fk.nome_da_tabela, local)
 
         if not local_fk:
             return jsonify({
@@ -295,22 +296,22 @@ def eventos_cadastro_unitario():
             }), 400
 
         #Escola
-        print(f"Tipo de local --- {tipo_de_local}")
-        if tipo_de_local == "Escola":
+        print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
+        if tipo_de_local_fk.nome_da_tabela == "Escola":
             fk_escola = local_fk.id
             print(local_fk)
         
-        elif tipo_de_local == "Edificação":
+        elif tipo_de_local_fk.nome_da_tabela == "Edificação":
             edificio_ = Edificios.query.filter_by(id=local_fk.id).first()
             fk_escola = edificio_.fk_escola
         
-        elif tipo_de_local == "Área Úmida":
+        elif tipo_de_local_fk.nome_da_tabela == "Área Úmida":
             areaumida_ = AreaUmida.query.filter_by(id=local_fk.id).first()
             fk_edificio = areaumida_.fk_edificio
             edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
             fk_escola = edificio_.fk_escola
 
-        elif tipo_de_local == "Reservatório":
+        elif tipo_de_local_fk.nome_da_tabela == "Reservatório":
             reservatorio_ = Reservatorios.query.filter_by(id=local_fk.id).first()
             fk_escola = reservatorio_.fk_escola
         

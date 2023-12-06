@@ -1,11 +1,10 @@
-from flask import Blueprint, json, jsonify, request, render_template, current_app
+from flask import Blueprint, jsonify, request, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
-
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
@@ -15,7 +14,7 @@ def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
     # [escola.to_json() for escola in escolas] if escolas else []
     escolas = Escolas.query.all()
-    print(escolas[0].to_json())
+    print(escolas)
     return jsonify({
         'return': [escola.to_json() for escola in escolas] if escolas else [],
         'status': True,
@@ -76,12 +75,12 @@ def get_escolas(id):
     }), 404
 
 
-@send_frontend.get('/escola-lista')
+@send_frontend.post('/escola-lista')
 def escola_lista():
     data = request.json
+    print('data')
 
     query = Escolas.query.filter(Escolas.id.in_(data["escolas"])).all()
-
     return jsonify({
         'return': [escola.to_json() for escola in query],
         'status': True,
@@ -371,9 +370,10 @@ def reservatorios(id):
 @send_frontend.get('/tipo-de-eventos/<int:id>')
 def tipo_de_eventos(id):
 
-    tipo_de_eventos = AuxTipoDeEventos.query.filter_by(
-        recorrente=True if id == 1 else False
-    ).all()
+    if id == 1:
+        tipo_de_eventos = AuxTipoDeEventos.query.filter_by(recorrente=True).all()
+    else:
+        tipo_de_eventos = AuxTipoDeEventos.query.filter((AuxTipoDeEventos.recorrente == False) | (AuxTipoDeEventos.recorrente == None)).all()
 
     return jsonify({
         "tipo_de_eventos": [
@@ -404,16 +404,25 @@ def get_tipo_de_eventos(id):
 
 @send_frontend.post('/eventos')
 def get_eventos():
-    data = request.json
-    print(data)
-    query = Eventos.query.filter(Eventos.fk_escola.in_(data["escolas"])).all()
-    return jsonify({
-        "eventos": [
-            evento.retornoFullCalendar() for evento in query
-        ],
-        "status": True
-    }), 200
+    
+    print(request.get_json())
+    
+    try:
+        data = request.get_json()
 
+
+        query = Eventos.query.filter(Eventos.fk_escola.in_(data["escolas"])).all()
+        return jsonify({
+            "eventos": [
+                evento.retornoFullCalendar() for evento in query
+            ],
+            "status": True
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "mensagem":"Erro não tratado",
+            "erro":str(e)
+        }), 400
 
 @send_frontend.get('/evento/<int:id>')
 def get_evento(id):
@@ -437,10 +446,9 @@ def get_tipos_recorrente_ocasional(recorrente):
 
     # ocasional
     if recorrente == 0:
-        tipo_ocasional = AuxTipoDeEventos.query.filter_by(
-            recorrente=False
-        ).all()
+        tipo_ocasional = AuxTipoDeEventos.query.filter((AuxTipoDeEventos.recorrente == False) | (AuxTipoDeEventos.recorrente == None)).all()
 
+        print(tipo_ocasional)
         return jsonify({
             "tipo_ocasional": [
                 {"nome": tipo.nome_do_tipo_de_evento, "id": tipo.id, "recorrente": "False"} for tipo in tipo_ocasional

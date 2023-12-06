@@ -49,7 +49,7 @@ class Cliente(db.Model):
 
 
 class Escolas(db.Model):
-
+    
     __versioned__ = {}
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'escolas'
@@ -75,12 +75,25 @@ class Escolas(db.Model):
         self.telefone = telefone
 
     def to_json(self):
+
+
+        niveis_de_ensino = (
+        db.session.query(EscolaNiveis, AuxOpNiveis.nivel)
+            .join(AuxOpNiveis, EscolaNiveis.nivel_ensino_id == AuxOpNiveis.id)
+            .filter(EscolaNiveis.escola_id == self.id)
+            .all()
+            )
+
+        # Agora, niveis_de_ensino será uma lista de tuplas onde o segundo elemento é o campo 'nivel'
+        niveis = [item.nivel for item in niveis_de_ensino]
+
         retorno = {
             "id": self.id,
             "nome": self.nome,
             "cnpj": self.cnpj,
             "telefone": self.telefone,
-            "email": self.email
+            "email": self.email,
+            "niveis": niveis
         }
 
         if self.geom is not None:
@@ -913,9 +926,8 @@ class AuxTipoDeEventos(db.Model):
             for attr in self.__table__.columns
         }
 
+
 # CONSUMO
-
-
 class ConsumoAgua(db.Model):
 
     __versioned__ = {}
