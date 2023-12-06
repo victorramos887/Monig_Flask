@@ -368,11 +368,11 @@ def edificios():
         )
 
         db.session.add(edificio)
-
+       
         for reservatorio_enviado in reservatorios:
             reserv = Reservatorios.query.filter_by(
                 nome_do_reservatorio=reservatorio_enviado).first()
-
+                    
             if reserv:
 
                 reservatorio = ReservatorioEdificio(

@@ -15,7 +15,7 @@ parameters:
       properties:
         fk_escola:
           type: integer
-          example: 1
+          example: 9
         nome:
           type: "string"
           example:  "Barueri"

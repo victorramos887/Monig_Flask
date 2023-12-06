@@ -27,7 +27,7 @@ parameters:
       properties:
         fk_escola:
           type: integer
-          example: 1
+          example: 9
         agua_de_reuso:
           type: boolean
           example: false
@@ -65,8 +65,10 @@ parameters:
           type: integer
           example: 10
         reservatorio:
-          type: "string"
-          example:  "Barueri"
+          type: array
+          items:
+            type: string
+          example: []
       
 responses:
   200:

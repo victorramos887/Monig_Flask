@@ -27,7 +27,7 @@ class Cliente(db.Model):
     nome = db.Column(db.String(255), nullable=False, unique=True)
     email = db.Column(db.String(55), unique=True, nullable=False)
     cnpj = db.Column(db.String(18), unique=True, nullable=False)
-    telefone = db.Column(db.String(12))
+    telefone = db.Column(db.String(16))
 
     usuarios = db.relationship('Usuarios', backref='usuarios')
 

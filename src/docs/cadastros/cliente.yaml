@@ -20,13 +20,13 @@ parameters:
           example: "Monitora"
         email:
           type: "string"
-          example: "monitora@monitora.info"
+          example: "monitora@monitora10.info"
         cnpj:
           type: "string"
           example: "09.015.381/0001-57"
         telefone:
           type: "string"
-          example: "(11) 90000-0000"
+          example: "11900000000"
       
 responses:
   200:

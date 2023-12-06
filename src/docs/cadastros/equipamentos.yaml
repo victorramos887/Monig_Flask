@@ -19,7 +19,7 @@ parameters:
       properties:
         fk_area_umida:
           type: integer
-          example: 1
+          example: 8
         quantInutil:
           type: integer
           example: 1

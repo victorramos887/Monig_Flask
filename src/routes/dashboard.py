@@ -6,7 +6,8 @@ from datetime import datetime
 dashboard = Blueprint('dashboard', __name__,
                           url_prefix='/api/v1/dashboard')
 
-#Media de consumo das escolas independente de nivel
+
+#Media de consumo das escolas independente de nivel -OK
 @dashboard.get('/media-consumo')
 def consumo_media():
     
@@ -31,8 +32,7 @@ def consumo_media():
         
         
         
-
-#Media de consumo das escolas por nivel
+#verificar saida --- retorno de 13.0 repetido pra cada ensino - não faz sentido - dividir pela população para o nivel?
 @dashboard.get('/media-consumo-niveis')
 def consumo_media_niveis():
 

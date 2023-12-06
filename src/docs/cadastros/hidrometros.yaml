@@ -17,7 +17,7 @@ parameters:
       properties:
         fk_edificios:
           type: integer
-          example: 1
+          example: 9
         fk_hidrometro:
           type: integer
           example: 1

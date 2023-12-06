@@ -35,7 +35,7 @@ parameters:
           example: "Aberto"
         fk_edificios:
           type: integer
-          example: 1
+          example: 9
               
 responses:
   200:

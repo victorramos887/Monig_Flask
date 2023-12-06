@@ -19,7 +19,7 @@ parameters:
       properties:
         fk_edificios:
           type: integer
-          example: 1
+          example: 9
         alunos:
           type: integer
           example: 1800
@@ -27,15 +27,11 @@ parameters:
           type: integer
           example: 200
         nivel:
-          type: array
-          items:
-            type: string
-          example: ["Médio", "Superior"]
+          type: string
+          example: "Médio"
         periodo:
-          type: array
-          items:
-            type: string
-          example: ["Manhã", "Tarde"]
+          type: string
+          example: "Manhã"
            
 responses:
   200:
