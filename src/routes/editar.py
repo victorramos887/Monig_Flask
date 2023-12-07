@@ -114,7 +114,7 @@ def usuario_editar(id):
 
 
 # EDITAR ESCOLA
-# @swag_from('../docs/escola/escola.yaml')
+@swag_from('../docs/editar/escolas.yaml')
 @editar.put('/escolas/<id>')
 def escolas_editar(id):
     escola = Escolas.query.filter_by(id=id).first()
@@ -222,6 +222,7 @@ def escolas_editar(id):
 
 
 # EDITAR RESERVATORIOS
+@swag_from('../docs/editar/reservatorios.yaml')
 @editar.put('/reservatorios/<id>')
 def reservatorio_editar(id):
     reservatorio = Reservatorios.query.filter_by(id=id).first()
@@ -410,7 +411,7 @@ def edificio_principal(id):
             'status': False
         }), 404
 
-
+@swag_from('../docs/editar/hidrometros.yaml')
 @editar.put('/hidrometros/<id>')
 def hidrometro_editar(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()

@@ -7,6 +7,7 @@ from werkzeug.exceptions import HTTPException
 from ..models import Eventos, Escolas, Edificios, AreaUmida, Reservatorios, Hidrometros, AuxTipoDeEventos, AuxDeLocais, db
 from sqlalchemy.exc import ArgumentError
 from random import randint
+from flasgger import swag_from
 
 
 eventos = Blueprint('eventos', __name__, url_prefix='/api/v1/cadastro-evento')
@@ -44,7 +45,7 @@ def obter_local(tipo_de_local, id):
 
     return consultas.get(tipo_de_local)
 
-
+@swag_from('../docs/cadastros/eventos/tipo_evento_ocasional.yaml')
 @eventos.post('/tipo-de-evento-ocasional')
 def tipoeventoocasional():
 
@@ -120,7 +121,7 @@ def tipoeventoocasional():
         }), 400
 
 
-
+@swag_from('../docs/cadastros/eventos/tipo_evento_recorrente.yaml')
 @eventos.post('/tipo-evento-recorrente')
 def tipoeventorecorrente():
 
@@ -201,7 +202,9 @@ def tipoeventorecorrente():
         })
 
 
-# cadastro de evento
+
+
+# @swag_from('../docs/cadastros/eventos/eventos.yaml')
 @eventos.post('/eventos')
 def eventos_cadastro_unitario():
 

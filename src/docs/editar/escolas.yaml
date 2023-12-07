@@ -1,13 +1,16 @@
-Cadastro da escola
+Editar cadastro da escola
 ---
 tags:
   - Escolas
 parameters:
-  - in: header
-    name: Authorization
+  - in: path
+    name: id
+    description: O id da escola que deve ser alterada
     required: true
+    type: integer
+    example: 9
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de escola, ao realizar o cadastro de uma escola uma edificação será adicionada por padrão
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de escola
     in: body
     required: true
     schema:
@@ -28,16 +31,16 @@ parameters:
       properties:
         nome:
           type: "string"
-          example: "Escola Monitora"
+          example: "Escola Monitora XX"
         cnpj:
           type: "string"
-          example: "09.015.381/0001-57"
+          example: "09.015.381/0001-98"
         email:
           type: "string"
-          example:  "monitora@monitora.info"
+          example:  "monitora@monitor.info"
         telefone:
           type: "string"
-          example: "(11) 90000-0000"
+          example: "(11) 90000-0122"
         logradouro:
           type: "string"
           example: "Rua Nestor de Camargo"
@@ -63,10 +66,10 @@ parameters:
           example: "SP"
         bairro:
           type: "string"
-          example: "Jardim Barueri"
+          example: "Jardim Barueri"          
 responses:
   200:
-    description: Cadastro da escolarealizado com sucesso
+    description: Edição realizada com sucesso
 
   400:
     description: Falha ao realizar a requisição

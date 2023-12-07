@@ -1,10 +1,10 @@
-Cadastro de Evento Coletivo
----
-tags:
-  - Eventos
+# Cadastro de Evento Recorrente
+# ---
+# tags:
+#   - Eventos
 parameters:
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de evento coletivo
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de evento recorrente
     in: body
     required: true
     schema:
@@ -12,9 +12,12 @@ parameters:
       required:
         - "tipo_de_evento"
         - "nome_do_evento"
+        - "data_inicio"
+        - "local"
+        - "tipo_de_local"
         - "observacoes"
-        - "escolas"
-    
+        - data_fim
+
       properties:
         tipo_de_evento:
           type: "string"

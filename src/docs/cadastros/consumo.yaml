@@ -21,10 +21,10 @@ parameters:
       properties:
         fk_escola:
           type: integer
-          example: 1
-        fk_hidrometro:
+          example: 9
+        hidrometro:
           type: integer
-          example: 1
+          example: 4
         consumo:
           type: integer
           example: 136
