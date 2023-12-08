@@ -1,10 +1,16 @@
-Cadastro de Consumo
+Editar cadastro de Consumo
 ---
 tags:
   - Consumo
 parameters:
+  - name: id
+    description: O id do consumo que deve ser alterado
+    in: path
+    required: true
+    type: integer
+    example: 2
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de consumo
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de consumo
     in: body
     required: true
     schema:
@@ -27,24 +33,24 @@ parameters:
           example: 4
         consumo:
           type: integer
-          example: 136
+          example: 186
         valor:
           type: float
           example: 1.200
         data:
           type: date
-          example: "08/12/2023"
+          example: "07/12/2023"
         dataInicioPeriodo:
           type: date
-          example: "01/11/2023"
+          example: "06/11/2023"
         dataFimPeriodo:
           type: date
-          example: "01/12/2023"
+          example: "06/12/2023"
       
               
 responses:
   200:
-    description: Cadastro realizado com sucesso
+    description: Edição realizada com sucesso
 
   400:
     description: Falha ao realizar a requisição

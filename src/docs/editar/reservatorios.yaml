@@ -10,7 +10,7 @@ parameters:
     type: integer
     example: 40
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de reservatórios
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de reservatórios
     in: body
     required: true
     schema:

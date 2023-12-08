@@ -168,7 +168,7 @@ def leitura_atual(id):
 
     return jsonRetorno
 
-
+@swag_from('../docs/editar/monitoramento/leitura.yaml')
 @monitoramento.patch("/edicao-monitoramento/<int:id>")
 def leitura_edicao(id):
 
@@ -197,6 +197,7 @@ def leitura_edicao(id):
         return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
 
 
+@swag_from('../docs/remover/monitoramento/leitura.yaml')
 @monitoramento.delete("/deletar-leitura/<int:id>")
 def leitura_deletar(id):
 
