@@ -224,9 +224,9 @@ def equipamentos(id):
         f'equipamentos': [equipamento.to_json() for equipamento in equipamentos], "status": True
     })
 
+
 # RETORNA APENAS UM
-
-
+@swag_from('../docs/get/equipamento.yaml')
 @send_frontend.get('/equipamento/<int:id>')
 def get_equipamento(id):
     equipamento = Equipamentos.query.filter_by(id=id).first()
@@ -250,6 +250,7 @@ def get_equipamento(id):
 
 
 # TODAS AS POPULAÇÕES
+@swag_from('../docs/get/populacoes.yaml')
 @send_frontend.get('/populacao-table/<int:id>')
 def populacao(id):
     populacoes = Populacao.query.filter_by(
@@ -260,9 +261,9 @@ def populacao(id):
         "status": True
     })
 
+
 # RETORNA APENAS UMA
-
-
+@swag_from('../docs/get/populacao.yaml')
 @send_frontend.get('/populacao/<int:id>')
 def get_populacao(id):
 
@@ -283,6 +284,7 @@ def get_populacao(id):
 
 
 # TODOS OS HIDROMETROS
+@swag_from('../docs/get/hidrometros.yaml')
 @send_frontend.get('/hidrometros-table/<int:id>')
 def hidrometro(id):
     hidrometros = Hidrometros.query.filter_by(
@@ -299,6 +301,7 @@ def hidrometro(id):
     })
 
 
+@swag_from('../docs/get/hidrometros_escola.yaml')
 @send_frontend.get("/hidrometros-escolas/<int:id>")
 def hidrometros_escolas(id):
     escola = Escolas.query.filter_by(id=id)
@@ -325,9 +328,9 @@ def hidrometros_escolas(id):
         "status": True
     })
 
+
 # RETORNA APENAS UM
-
-
+@swag_from('../docs/get/hidrometro.yaml')
 @send_frontend.get('/hidrometro/<int:id>')
 def get_hidrometro(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
@@ -348,6 +351,8 @@ def get_hidrometro(id):
     return jsonify({'hidrometro': hidrometro.to_json() if hidrometro is not None else hidrometro, "status": True})
 
 
+
+@swag_from('../docs/get/reservatorio.yaml')
 @send_frontend.get('/reservatorio/<int:id>')
 def get_reservatorio(id):
 
@@ -359,9 +364,9 @@ def get_reservatorio(id):
         'reservatorio': reservatorio.to_json() if reservatorio is not None else reservatorio, "status": True
     })
 
+
 # TODOS OS RESERVATÓRIOS
-
-
+@swag_from('../docs/get/reservatorios.yaml')
 @send_frontend.get('/reservatorios-table/<int:id>')
 def reservatorios(id):
     reservatorios = Reservatorios.query.filter_by(
@@ -371,6 +376,7 @@ def reservatorios(id):
     })
 
 
+@swag_from('../docs/get/tipo_eventos_booleano.yaml')
 @send_frontend.get('/tipo-de-eventos/<int:id>')
 def tipo_de_eventos(id):
 
@@ -387,6 +393,7 @@ def tipo_de_eventos(id):
     }), 200
 
 
+@swag_from('../docs/get/tipo_evento.yaml')
 @send_frontend.get('/tipo-de-evento/<int:id>')
 def get_tipo_de_eventos(id):
 
@@ -406,6 +413,7 @@ def get_tipo_de_eventos(id):
         }), 404
 
 
+# @swag_from('../docs/get/eventos.yaml')
 @send_frontend.post('/eventos')
 def get_eventos():
     
@@ -428,6 +436,8 @@ def get_eventos():
             "erro":str(e)
         }), 400
 
+
+@swag_from('../docs/get/evento.yaml')
 @send_frontend.get('/evento/<int:id>')
 def get_evento(id):
 
@@ -445,6 +455,7 @@ def get_evento(id):
 
 
 # retorna evento ocasional ou recorrente
+@swag_from('../docs/get/eventos_booleano.yaml')
 @send_frontend.get('/eventos-tipo/<int:recorrente>')
 def get_tipos_recorrente_ocasional(recorrente):
 

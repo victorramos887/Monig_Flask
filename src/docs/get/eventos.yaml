@@ -1,0 +1,17 @@
+Recuperar Eventos
+---
+tags:
+  - Eventos
+parameters:
+  - name: id
+    description: Id da escola que deseja recuperar os eventos
+    in: path
+    required: true
+    type: integer
+    example: 1
+responses:
+  200:
+    description: Retorno realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
