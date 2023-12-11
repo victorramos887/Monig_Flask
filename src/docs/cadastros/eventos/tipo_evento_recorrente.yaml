@@ -1,7 +1,7 @@
 Cadastro de Tipo de Evento Recorrente
 ---
 tags:
-  - Eventos
+  - Tipo de Eventos
 parameters:
   - name: body
     description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro do tipo de evento recorrente

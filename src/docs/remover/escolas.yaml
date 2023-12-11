@@ -1,14 +1,14 @@
-Deletar Leitura
+Deletar uma escola
 ---
 tags:
-  - Monitoramento
+  - Escolas
 parameters:
-  - name: id
-    description: O id da leitura que deve ser deletada
-    in: path
+  - in: path
+    name: id
+    description: O id da escola que deve ser deletada
     required: true
     type: integer
-    example: 1
+    example: 1  
 responses:
   200:
     description: Deleção realizada com sucesso
@@ -16,4 +16,3 @@ responses:
   400:
     description: Falha ao realizar a requisição
 
-  

@@ -5,10 +5,12 @@ from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
+from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
+@swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas')
 def escolas():
     # token = validacao_token(request.headers.get('Authorization'))
@@ -21,8 +23,8 @@ def escolas():
         'mensagem': 'Escolas retornadas com sucesso'
     }), 200
 
-
 # RETORNA APENAS UMA ESCOLA
+@swag_from('../docs/get/escola.yaml')
 @send_frontend.get('/escolas/<int:id>')
 def get_escolas(id):
     escola = Escolas.query.filter_by(id=id).first()
@@ -75,6 +77,7 @@ def get_escolas(id):
     }), 404
 
 
+# @swag_from('../docs/get/escola_lista.yaml')
 @send_frontend.post('/escola-lista')
 def escola_lista():
     data = request.json
@@ -87,9 +90,9 @@ def escola_lista():
         'mensagem': 'Escolas retornadas com sucesso'
     }), 200
 
+
 # RETORNA TODOS OS EDIFICIOS DA ESCOLA PARA MONTAR A TABELA
-
-
+@swag_from('../docs/get/edificios.yaml')
 @send_frontend.get('/edificios-table/<int:id>')
 def edificios(id):
 
@@ -137,6 +140,7 @@ def edificios(id):
 
 
 # RETORNA APENAS O EDIFICIO QUE DESEJA ATUALIZAR
+@swag_from('../docs/get/edificio.yaml')
 @send_frontend.get('/edificio/<int:id>')
 def edificio(id):
 
@@ -163,6 +167,7 @@ def edificio(id):
 
 
 # TODAS AREA UMIDAS
+@swag_from('../docs/get/areas_umidas.yaml')
 @send_frontend.get('/area_umidas_table/<int:id>')
 def area_umidas(id):
     # fk_edificios = request.args.get('')
@@ -190,8 +195,7 @@ def area_umidas(id):
     return jsonify({'area_umidas': result, "status": True})
 
 # RETORNA APENAS UMA
-
-
+@swag_from('../docs/get/area_umida.yaml')
 @send_frontend.get('/area_umida/<int:id>')
 def get_area_umida(id):
     area_umida = AreaUmida.query.filter_by(id=id).first()
@@ -207,9 +211,9 @@ def get_area_umida(id):
 
     return jsonify({'area_umida': area_umida.to_json() if area_umida is not None else area_umida, "status": True})
 
+
 # TODOS OS EQUIPAMENTOS
-
-
+@swag_from('../docs/get/equipamentos.yaml')
 @send_frontend.get('/equipamentos-table/<int:id>')
 def equipamentos(id):
 

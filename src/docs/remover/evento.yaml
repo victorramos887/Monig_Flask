@@ -1,14 +1,16 @@
-Deletar Leitura
+Deletar um Evento
 ---
+
 tags:
-  - Monitoramento
+  - Eventos
+
 parameters:
   - name: id
-    description: O id da leitura que deve ser deletada
+    description: O id do evento que deve ser deletado
     in: path
     required: true
     type: integer
-    example: 1
+    example: 1    
 responses:
   200:
     description: Deleção realizada com sucesso
@@ -16,4 +18,4 @@ responses:
   400:
     description: Falha ao realizar a requisição
 
-  
+ 

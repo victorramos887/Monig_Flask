@@ -382,7 +382,8 @@ def edificios_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
-# EDITAR HIDROMETRO
+# EDITAR 
+@swag_from('../docs/editar/edificio_principal.yaml')
 @editar.put('/edificio-principal/<int:id>')
 def edificio_principal(id):
 
@@ -411,6 +412,7 @@ def edificio_principal(id):
             'codigo': str(e),
             'status': False
         }), 404
+
 
 @swag_from('../docs/editar/hidrometros.yaml')
 @editar.put('/hidrometros/<id>')
@@ -896,39 +898,39 @@ def evento_editar(id):
 
 
 
-# MONITORAMENTO
-@editar.put('/leitura/<id>')
-def leitura_editar(id):
-    monitoramento = Monitoramento.query.filter_by(id=id).first()
-    formulario = request.get_json()
+# # MONITORAMENTO
+# @editar.put('/leitura/<id>')
+# def leitura_editar(id):
+#     monitoramento = Monitoramento.query.filter_by(id=id).first()
+#     formulario = request.get_json()
 
-    if not monitoramento:
-        return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
+#     if not monitoramento:
+#         return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
 
-    try:
+#     try:
 
-        fk_escola = formulario["fk_escola"]
-        hidrometro = formulario['hidrometro']
-        leitura = f"{formulario['leitura']}{formulario['leitura2']}"
-        datahora = f"{formulario['data']} {formulario['hora']}"
+#         fk_escola = formulario["fk_escola"]
+#         hidrometro = formulario['hidrometro']
+#         leitura = f"{formulario['leitura']}{formulario['leitura2']}"
+#         datahora = f"{formulario['data']} {formulario['hora']}"
         
-        fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
+#         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         
-        if not fk_hidrometro:
-            return jsonify({
-                "mensagem":"Não foi encontrado o hidrometro",
-                "status":False,
-                "codigo":e
-            }), 400
+#         if not fk_hidrometro:
+#             return jsonify({
+#                 "mensagem":"Não foi encontrado o hidrometro",
+#                 "status":False,
+#                 "codigo":e
+#             }), 400
         
-        monitoramento.update(
-            fk_escola=fk_escola,
-            hidrometro=fk_hidrometro.id,
-            leitura=leitura,
-            datahora=datahora
-        )
-        print(type(leitura))
-        db.session.commit()
+#         monitoramento.update(
+#             fk_escola=fk_escola,
+#             hidrometro=fk_hidrometro.id,
+#             leitura=leitura,
+#             datahora=datahora
+#         )
+#         print(type(leitura))
+#         db.session.commit()
 
         return jsonify({"monitoramento": monitoramento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:

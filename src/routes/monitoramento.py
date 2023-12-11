@@ -117,7 +117,7 @@ def leitura():
             "status": False
         }), 400
 
-
+@swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
 
@@ -132,10 +132,9 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
-
+@swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
-
 
     print(id)
 
@@ -167,6 +166,7 @@ def leitura_atual(id):
     jsonRetorno["leitura2"] = strinleitura[4:7].zfill(3)
 
     return jsonRetorno
+
 
 @swag_from('../docs/editar/monitoramento/leitura.yaml')
 @monitoramento.patch("/edicao-monitoramento/<int:id>")

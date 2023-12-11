@@ -8,7 +8,7 @@ parameters:
     in: path
     required: true
     type: integer
-    example: 40
+    example: 1
   - name: body
     description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de reservatórios
     in: body
@@ -21,7 +21,7 @@ parameters:
       properties:
         fk_escola:
           type: integer
-          example: 9
+          example: 1
         nome:
           type: "string"
           example:  "Barueri2"

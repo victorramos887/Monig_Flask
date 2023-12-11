@@ -1,11 +1,11 @@
-Deletar Leitura
+Deletar uma Area Umida
 ---
 tags:
-  - Monitoramento
+  - Area Umida
 parameters:
-  - name: id
-    description: O id da leitura que deve ser deletada
-    in: path
+  - in: path
+    name: id
+    description: O id da área úmida que deve ser deletada
     required: true
     type: integer
     example: 1
@@ -16,4 +16,3 @@ responses:
   400:
     description: Falha ao realizar a requisição
 
-  
