@@ -440,7 +440,7 @@ class Customizados(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nivel_escola, tipo_area_umida, status_area_umida, tipo_equipamento, descricao_equipamento, periodo_populacao):
+    def __init__(self, nivel_escola=None, tipo_area_umida=None, status_area_umida=None, tipo_equipamento=None, descricao_equipamento=None, periodo_populacao=None):
         self.nivel_escola = nivel_escola
         self.tipo_area_umida = tipo_area_umida
         self.status_area_umida = status_area_umida

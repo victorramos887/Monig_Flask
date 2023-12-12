@@ -3,10 +3,12 @@ from ..models import ( db, Customizados, Escolas, EscolaNiveis, AuxOpNiveis, Aux
 AuxTiposEquipamentos, AuxPopulacaoPeriodo, AreaUmida, AuxTipoDeAreaUmidaTipoDeEquipamento, AuxOperacaoAreaUmida )
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
+from flasgger import swag_from
 
 options = Blueprint('options', __name__, url_prefix='/api/v1/options')
 
 # Escola
+@swag_from('../docs/get/niveis.yaml')
 @options.get('/niveis')
 def niveis():
 
@@ -19,6 +21,7 @@ def niveis():
     return jsonify(options)
 
 # AreaUmida
+@swag_from('../docs/get/tipo_area_umida.yaml')
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
     opcoes_pers = AuxTipoAreaUmida.query.all()
@@ -29,7 +32,7 @@ def tipo_area_umida():
     return jsonify(options)
 
 
-
+@swag_from('../docs/get/operacao_area_umida.yaml')
 @options.get('operacao_area_umida')
 def operacao_area_umida():
 
@@ -39,6 +42,7 @@ def operacao_area_umida():
 
 
 # Equipamentos
+@swag_from('../docs/get/tipo_equipamento.yaml')
 @options.get('/tipo_equipamento/<int:area_umida>')
 def tipo_equipamento(area_umida):
     tipoareaumida = AreaUmida.query.filter_by(id=area_umida).first()
@@ -56,11 +60,13 @@ def tipo_equipamento(area_umida):
     })
 
 # Populacao
+@swag_from('../docs/get/periodo.yaml')
 @options.get('/periodo')
 def periodo():
 
     opcoes_pers = AuxPopulacaoPeriodo.query.all()
-    opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
+    # opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
+    opcoes_pre_definidos = [op.periodo for op in opcoes_pers]
     opcoes_personalizadas = Customizados.query.all()
     options = opcoes_pre_definidos + \
         [o.periodo_populacao for o in opcoes_personalizadas]
@@ -68,6 +74,7 @@ def periodo():
 
 
 
+@swag_from('../docs/get/nivel_populacao.yaml')
 @options.get('/nivel_populacao/<int:id>')
 def nivel_populacao(id):
     escola = Escolas.query.filter_by(id=id).first()

@@ -1,10 +1,10 @@
-Recuperar uma lista com os locais
+Recuperar nivel da População
 ---
 tags:
-  - Geral
+  - População
 parameters:
-  - name: tipo
-    description: Id do tipo de local que deseja recuperar
+  - name: id
+    description: O id da escola que deve ser recuperado o nivel da população
     in: path
     required: true
     type: integer

@@ -1,13 +1,13 @@
-Recuperar o tipo de local
+Recuperar Niveis
 ---
 tags:
-  - Geral
+  - Escolas
 parameters:
   - in: header
     name: Authorization
     required: false
 responses:
   200:
-    description: Retorno do tipo de local realizado com sucesso
+    description: Retorno dos niveis realizado com sucesso
   400:  
     description: Falha ao realizar a requisição

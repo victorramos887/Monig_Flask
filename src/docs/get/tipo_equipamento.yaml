@@ -1,10 +1,10 @@
-Recuperar uma lista com os locais
+Recuperar Tipo de Equipamento
 ---
 tags:
-  - Geral
+  - Equipamentos
 parameters:
-  - name: tipo
-    description: Id do tipo de local que deseja recuperar
+  - name: area_umida
+    description: O id área úmida que deseja recuperar o tipo de equipamento
     in: path
     required: true
     type: integer

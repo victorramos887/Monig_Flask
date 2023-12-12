@@ -1,10 +1,12 @@
 
 from flask import Blueprint, jsonify, request
 from ..models import db, Customizados
+from flasgger import swag_from
 
 
 customizados= Blueprint('customizados', __name__, url_prefix = '/api/v1/cadastrar/option')
 
+@swag_from('../docs/cadastros/nivel_customizado.yaml')
 @customizados.post('/nivel')
 def nivel():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -16,6 +18,7 @@ def nivel():
     return jsonify({'status':True}), 200
 
 #AREA UMIDA
+@swag_from('../docs/cadastros/tipo_area_umida_customizado.yaml')
 @customizados.post('/tipo_area_umida')
 def tipo_area_umida():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -25,6 +28,7 @@ def tipo_area_umida():
     db.session.add(tipo)
     db.session.commit()
     return jsonify({'status':True}), 200
+
 
 @customizados.post('/status_area_umida')
 def status_area_umida():
