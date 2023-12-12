@@ -123,9 +123,29 @@ def leituras_tabela(id):
 
     escolamonitoramento = Monitoramento.query.filter_by(
         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
+    
+    tabela = []
+    print(f"Todas as leituras {escolamonitoramento}")
+    print("-----------------------------------------")
 
-    tabela = [{"id": leitura.id, "data": leitura.datahora.strftime(
-        '%d/%m/%Y'), "hora": leitura.datahora.strftime('%H:%M'), "leitura": leitura.leitura} for leitura in escolamonitoramento]
+    if len(escolamonitoramento) > 1:
+        for i in range(0, len(escolamonitoramento)):
+            indexanterior = i + 1
+            range_list = len(escolamonitoramento) -1
+            
+            if indexanterior <= range_list:
+                diferenca = escolamonitoramento[i].leitura - escolamonitoramento[indexanterior].leitura
+                print(diferenca)
+
+            tabela.append(
+                {
+                    "id":escolamonitoramento[i].id, "data":escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura":escolamonitoramento[i].leitura, "diferenca":diferenca
+                }
+            )
+        
+
+        # tabela = [{"id": leitura.id, "data": leitura.datahora.strftime(
+        #     '%d/%m/%Y'), "hora": leitura.datahora.strftime('%H:%M'), "leitura": leitura.leitura} for leitura in escolamonitoramento]
 
     return jsonify({
         "tabela": tabela,
