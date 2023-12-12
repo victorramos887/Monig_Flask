@@ -1,14 +1,14 @@
-Recuperar eventos pelo tipo 
+Recuperar um Consumo
 ---
 tags:
-  - Eventos
+  - Consumo
 parameters:
-  - name: recorrente
-    description: Id do tipo de evento '1' para recorrente ou '0' para ocasional
+  - name: id
+    description: O id do consumo que deve ser recuperado 
     in: path
     required: true
     type: integer
-    example: 1 
+    example: 1
 responses:
   200:
     description: Retorno realizado com sucesso

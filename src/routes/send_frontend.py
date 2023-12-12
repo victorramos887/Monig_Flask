@@ -490,6 +490,7 @@ def get_tipos_recorrente_ocasional(recorrente):
 
 
 # retorno tipo_de_local
+@swag_from('../docs/get/tipo_de_local.yaml')
 @send_frontend.get('/tipo-de-local')
 def get_tipo_local():
 
@@ -503,6 +504,7 @@ def get_tipo_local():
     }), 200
 
 
+@swag_from('../docs/get/local.yaml')
 @send_frontend.get('/local/<string:tipo>')
 def get_local(tipo):
 
@@ -559,6 +561,8 @@ def get_local(tipo):
         "status": True
     }), 200
 
+
+@swag_from('../docs/get/consumos.yaml')
 @send_frontend.get('/consumos/<int:id>')
 def get_consumos(id):
     consumos = ConsumoAgua.query.filter_by(fk_escola=id).order_by(desc(ConsumoAgua.data)).all()
@@ -577,6 +581,8 @@ def get_consumos(id):
     ]
     return jsonify({"consumos":jsonconsumo}), 200
 
+
+@swag_from('../docs/get/consumo.yaml')
 @send_frontend.get('/consumo/<int:id>')
 def get_consumo(id):
     consumo = ConsumoAgua.query.filter_by(id =id).first()
