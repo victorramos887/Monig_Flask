@@ -2,12 +2,14 @@ from sqlalchemy import func, extract
 from ..models import ConsumoAgua, EscolaNiveis, db, AuxOpNiveis
 from flask import Blueprint, json, jsonify
 from datetime import datetime
+from flasgger import swag_from
 
 dashboard = Blueprint('dashboard', __name__,
                           url_prefix='/api/v1/dashboard')
 
 
 #Media de consumo das escolas independente de nivel -OK
+@swag_from('../docs/get/media_consumo_escolas.yaml')
 @dashboard.get('/media-consumo')
 def consumo_media():
     

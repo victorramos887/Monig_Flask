@@ -1,20 +1,20 @@
-Cadastro de Nivel
+Cadastro de Status da Area Umida
 ---
 tags:
-  - Escolas
+  - Area Umida
 parameters:
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de um novo nivel 
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de status da área úmida
     in: body
     required: true
     schema:
       type: object
       required:
-        - "nivel_escola"
+        - " status_area_umida"
       properties:
-        nivel_escola:
-          type: "string"
-          example: "APAE"
+         status_area_umida:
+          type: boolean
+          example: False
       
 responses:
   200:

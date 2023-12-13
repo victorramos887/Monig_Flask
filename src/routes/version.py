@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from sqlalchemy_continuum import version_class
 from ..models import Escolas, Edificios, AreaUmida, Equipamentos, Hidrometros, Populacao, Eventos,db
+from flasgger import swag_from
 
 version = Blueprint('version', __name__, url_prefix='/api/v1/version')
 
@@ -14,7 +15,7 @@ version = Blueprint('version', __name__, url_prefix='/api/v1/version')
 # session.commit()
 # version.revert()
 
-
+# @swag_from('../docs/get/version/reverter_eventos_deletados.yaml')
 @version.get('/eventos-retornar-delete-tudo')
 def eventos_retornar_delete_tudo():
     
@@ -38,7 +39,7 @@ def eventos_retornar_delete_tudo():
     
     
     
-    
+@swag_from('../docs/get/version/version_escola.yaml') 
 @version.get('/escolas/<int:id>')
 def escolas(id):
 
@@ -63,6 +64,8 @@ def escolas(id):
     return jsonify(json)
 
 
+
+@swag_from('../docs/get/version/escolas_removidas.yaml') 
 @version.get('/escolas-removidas')
 def escolas_removidas():
     
@@ -87,6 +90,8 @@ def escolas_removidas():
     
     return jsonify(json)
 
+
+@swag_from('../docs/get/version/escolas_editadas.yaml') 
 @version.get('/escolas-editadas')
 def escola_editadas():
     
@@ -110,7 +115,8 @@ def escola_editadas():
         })
         
     return jsonify(json)
-    
+
+@swag_from('../docs/get/version/escola_removida.yaml') 
 @version.get('/escola-deletada/<int:id>')
 def escola_removida(id):
     
@@ -137,6 +143,8 @@ def escola_removida(id):
         "mensagem":"Escola não encontrada!"
     }), 400
 
+
+@swag_from('../docs/get/version/edificio_removido.yaml') 
 @version.get('/edificio-deletado/<int:id>')
 def edificio_version_removido(id):
     
@@ -168,6 +176,8 @@ def edificio_version_removido(id):
         "mensagem":"Edificio não encontrado!"
     }), 400
 
+
+@swag_from('../docs/get/version/edificios_editados.yaml') 
 @version.get('/edificio-editados')
 def edificio_version_editado():
     
@@ -203,7 +213,8 @@ def edificio_version_editado():
         "mensagem":"Edificio não encontrado!"
     }), 400
 
-    
+
+@swag_from('../docs/get/version/area_umida_removida.yaml')    
 @version.get('/area-umida-deletada/<int:id>')
 def area_umida_version_removida(id):
     
@@ -229,7 +240,7 @@ def area_umida_version_removida(id):
     }), 400
         
 
-
+@swag_from('../docs/get/version/equipamento_removido.yaml') 
 @version.get('/equipamento-deletado/<int:id>')
 def equipamento_deletado(id):
     
@@ -252,7 +263,8 @@ def equipamento_deletado(id):
         "mensagem":"Equipamento não encontrado!"
     }), 400
     
-
+    
+@swag_from('../docs/get/version/populacao_removida.yaml') 
 @version.get('/populacao-deletada/<int:id>')
 def populacao_deletado(id):
     
@@ -275,6 +287,8 @@ def populacao_deletado(id):
         "mensagem":"População não encontrada!"
     }), 400
 
+
+@swag_from('../docs/get/version/hidrometro_removido.yaml') 
 @version.get('/hidrometro-deletada/<int:id>')
 def hidrometro_deletado(id):
     

@@ -14,22 +14,28 @@ def niveis():
 
     opcoes_pers = AuxOpNiveis.query.all()
     opcoes_pre_definidos = [op.nivel for op in opcoes_pers]
-    opcoes_personalizadas = Customizados.query.all()
+    opcoes_personalizadas = Customizados.query.filter(Customizados.nivel_escola != None).all()
+    # opcoes_personalizadas = Customizados.query.all()
+    # opcoes_pers_str = [
+    #     o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola]
     opcoes_pers_str = [
-        o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola]
+        o.nivel_escola for o in opcoes_personalizadas]
     options = opcoes_pre_definidos + opcoes_pers_str
     return jsonify(options)
 
+
+   
 # AreaUmida
 @swag_from('../docs/get/tipo_area_umida.yaml')
 @options.get('/tipo_area_umida')
 def tipo_area_umida():
     opcoes_pers = AuxTipoAreaUmida.query.all()
     opcoes_pre_definidos = [op.tipo for op in opcoes_pers]
-    opcoes_personalizadas = Customizados.query.all()
+    opcoes_personalizadas = Customizados.query.filter(Customizados.tipo_area_umida != None).all()
     options = opcoes_pre_definidos + \
         [o.tipo_area_umida for o in opcoes_personalizadas]
     return jsonify(options)
+
 
 
 @swag_from('../docs/get/operacao_area_umida.yaml')
@@ -39,6 +45,7 @@ def operacao_area_umida():
     opcoes_pers = AuxOperacaoAreaUmida.query.all()
     opcoes_pre_definidos = [op.operacao for op in opcoes_pers]
     return jsonify(opcoes_pre_definidos)
+
 
 
 # Equipamentos
@@ -59,21 +66,21 @@ def tipo_equipamento(area_umida):
         "tipoequipamentos": opcoes_pre_definidos
     })
 
+
 # Populacao
 @swag_from('../docs/get/periodo.yaml')
 @options.get('/periodo')
 def periodo():
 
     opcoes_pers = AuxPopulacaoPeriodo.query.all()
-    # opcoes_pre_definidos = [op.opcao for op in opcoes_pers]
     opcoes_pre_definidos = [op.periodo for op in opcoes_pers]
-    opcoes_personalizadas = Customizados.query.all()
-    options = opcoes_pre_definidos + \
-        [o.periodo_populacao for o in opcoes_personalizadas]
+    # opcoes_personalizadas = Customizados.query.all()
+    opcoes_personalizadas = Customizados.query.filter(Customizados.periodo_populacao != None).all()
+    opcoes_pers_str = [o.periodo_populacao for o in opcoes_personalizadas]
+    options = opcoes_pre_definidos + opcoes_pers_str
     return jsonify(options)
 
-
-
+ 
 @swag_from('../docs/get/nivel_populacao.yaml')
 @options.get('/nivel_populacao/<int:id>')
 def nivel_populacao(id):

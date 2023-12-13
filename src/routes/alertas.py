@@ -5,12 +5,14 @@ from sqlalchemy import func, select, desc
 from ..models import  AuxTipoDeEventos,Eventos
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
+from flasgger import swag_from
 
 
 alertas = Blueprint('alertas', __name__,
                           url_prefix='/api/v1/alertas')
 
 # RETORNO TOLERÂNCIA
+@swag_from('../docs/get/alertas_evento_aberto.yaml')
 @alertas.get('/evento-aberto')
 def get_evento_sem_encerramento():
     # filtrando eventos ocasionais

@@ -1,7 +1,7 @@
 Cadastro de Tipo de Area Umida
 ---
 tags:
-  - Configurações
+  - Area Umida
 parameters:
   - name: body
     description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de tipo de área úmida

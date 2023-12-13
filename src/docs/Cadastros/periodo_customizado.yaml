@@ -1,21 +1,21 @@
-Cadastro de Nivel
+Cadastro de Periodo
 ---
 tags:
-  - Escolas
+  - População
 parameters:
   - name: body
-    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de um novo nivel 
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de um novo perido
     in: body
     required: true
     schema:
       type: object
       required:
-        - "nivel_escola"
+        - "periodo_populacao"
       properties:
-        nivel_escola:
+         periodo_populacao:
           type: "string"
-          example: "APAE"
-      
+          example: "Noturno"
+
 responses:
   200:
     description: Cadastro realizado com sucesso

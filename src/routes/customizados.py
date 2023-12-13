@@ -6,7 +6,7 @@ from flasgger import swag_from
 
 customizados= Blueprint('customizados', __name__, url_prefix = '/api/v1/cadastrar/option')
 
-@swag_from('../docs/cadastros/nivel_customizado.yaml')
+# @swag_from('../docs/cadastros/nivel_customizado.yaml')
 @customizados.post('/nivel')
 def nivel():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -18,7 +18,7 @@ def nivel():
     return jsonify({'status':True}), 200
 
 #AREA UMIDA
-@swag_from('../docs/cadastros/tipo_area_umida_customizado.yaml')
+# @swag_from('../docs/cadastros/tipo_area_umida_customizado.yaml')
 @customizados.post('/tipo_area_umida')
 def tipo_area_umida():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -30,6 +30,7 @@ def tipo_area_umida():
     return jsonify({'status':True}), 200
 
 
+# @swag_from('../docs/cadastros/status_area_umida_customizado.yaml')
 @customizados.post('/status_area_umida')
 def status_area_umida():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -40,7 +41,8 @@ def status_area_umida():
     db.session.commit()
     return jsonify({'status':True}), 200
 
-#Equipamento
+#Equipamento    
+# @swag_from('../docs/cadastros/tipo_equipamento_customizado.yaml')
 @customizados.post('/tipo_equipamento')
 def tipo_equipamento():
     # Obtém os dados enviados pelo usuário através do formulário
@@ -52,6 +54,7 @@ def tipo_equipamento():
     return jsonify({'status':True}), 200
 
 #Populacao
+# @swag_from('../docs/cadastros/periodo_customizado.yaml')
 @customizados.post('/periodo')
 def periodo():
     # Obtém os dados enviados pelo usuário através do formulário
