@@ -28,8 +28,6 @@ def leitura():
         leitura = f"{formulario['leitura']}{formulario['leitura2']}"
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
-
-        # fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         edificios_alias = aliased(Edificios)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
@@ -42,26 +40,19 @@ def leitura():
             edificios_alias).filter(Hidrometros.hidrometro == hidrometro).all()
 
         for escola_ in escolas_com_mesmo_hidrometro:
-
+            #Correção
             escola_id = Edificios.query.filter_by(
                 id=escola_.fk_edificios).first()
-
-            # escolamonitoramento = Monitoramento.query.filter_by(
-            #     fk_escola=escola_id.fk_escola).order_by(desc(Monitoramento.datahora)).first()
-
-            # escolamonitoramento = Monitoramento.query.filter(
-            #     and_(
-            #         Monitoramento.fk_escola == escola_id.fk_escola,
-            #         Monitoramento.datahora < datahora
-            #     )
-            # ).order_by(desc(Monitoramento.datahora)).first()
 
             escolamonitoramento_anterior = Monitoramento.query.filter(
                 and_(
                     Monitoramento.fk_escola == escola_id.fk_escola,
                     Monitoramento.datahora < datahora
                 )
-            ).order_by(desc(Monitoramento.datahora)).first()
+            ).order_by(Monitoramento.datahora).first()
+
+            print("Data hora enviada: ", datahora)
+
 
             escolamonitoramento_posterior = Monitoramento.query.filter(
                 and_(
@@ -71,16 +62,14 @@ def leitura():
             ).order_by(Monitoramento.datahora).first()
 
             if escolamonitoramento_anterior:
-                # print("leitura enviada: ", int(leitura))
-                # print("Ultima Leitura", escolamonitoramento.leitura)
-                print("Escola datahora: ", escolamonitoramento_anterior.datahora)
+                print("Leitura anterior datahora: ", escolamonitoramento_anterior.datahora)
 
-                if escolamonitoramento_anterior.leitura > int(leitura):
+                if escolamonitoramento_anterior.leitura < int(leitura):
                     return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura":escolamonitoramento_anterior.leitura}), 400
                 
             if escolamonitoramento_posterior:
                
-                print("Escola datahora: ", escolamonitoramento_posterior.datahora)
+                print("Leitura posterio datahora: ", escolamonitoramento_posterior.datahora)
                 
                 if escolamonitoramento_posterior.leitura < int(leitura):
                     return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura":escolamonitoramento_posterior.leitura}), 400
@@ -148,11 +137,6 @@ def leituras_tabela(id):
                     "id":escolamonitoramento[i].id, "data":escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura":escolamonitoramento[i].leitura, "diferenca":diferenca
                 }
             )
-        
-
-        # tabela = [{"id": leitura.id, "data": leitura.datahora.strftime(
-        #     '%d/%m/%Y'), "hora": leitura.datahora.strftime('%H:%M'), "leitura": leitura.leitura} for leitura in escolamonitoramento]
-
     return jsonify({
         "tabela": tabela,
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
