@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
-from sqlalchemy import desc, extract, and_
+from sqlalchemy import desc, extract, and_, func, case
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 from flasgger import swag_from
@@ -70,14 +70,14 @@ def leitura():
                 print("Escola datahora: ", escolamonitoramento_anterior.datahora)
 
                 if escolamonitoramento_anterior.leitura > int(leitura):
-                    return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura":escolamonitoramento_anterior.leitura}), 400
-                
+                    return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura": escolamonitoramento_anterior.leitura}), 400
+
             if escolamonitoramento_posterior:
-               
+
                 print("Escola datahora: ", escolamonitoramento_posterior.datahora)
-                
+
                 if escolamonitoramento_posterior.leitura < int(leitura):
-                    return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura":escolamonitoramento_posterior.leitura}), 400
+                    return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura": escolamonitoramento_posterior.leitura}), 400
             # Extrair o ano, mês e dia da data
             ano = extract('year', datahora)
             mes = extract('month', datahora)
@@ -117,13 +117,14 @@ def leitura():
             "status": False
         }), 400
 
+
 @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
 
     escolamonitoramento = Monitoramento.query.filter_by(
         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
-    
+
     tabela = []
     print(f"Todas as leituras {escolamonitoramento}")
     print("-----------------------------------------")
@@ -131,18 +132,18 @@ def leituras_tabela(id):
     if len(escolamonitoramento) > 1:
         for i in range(0, len(escolamonitoramento)):
             indexanterior = i + 1
-            range_list = len(escolamonitoramento) -1
-            
+            range_list = len(escolamonitoramento) - 1
+
             if indexanterior <= range_list:
-                diferenca = escolamonitoramento[i].leitura - escolamonitoramento[indexanterior].leitura
+                diferenca = escolamonitoramento[i].leitura - \
+                    escolamonitoramento[indexanterior].leitura
                 print(diferenca)
 
             tabela.append(
                 {
-                    "id":escolamonitoramento[i].id, "data":escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura":escolamonitoramento[i].leitura, "diferenca":diferenca
+                    "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
                 }
             )
-        
 
         # tabela = [{"id": leitura.id, "data": leitura.datahora.strftime(
         #     '%d/%m/%Y'), "hora": leitura.datahora.strftime('%H:%M'), "leitura": leitura.leitura} for leitura in escolamonitoramento]
@@ -152,6 +153,7 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
+
 @swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
@@ -160,7 +162,7 @@ def leitura_atual(id):
 
     escola = Escolas.query.filter_by(id=id).first()
     if not escola:
-        return jsonify({"mensagem":"Escola não encontrada!", "status":False}), 409
+        return jsonify({"mensagem": "Escola não encontrada!", "status": False}), 409
 
     edificios_alias = aliased(Edificios)
 
@@ -179,7 +181,6 @@ def leitura_atual(id):
         strinleitura = str(escolamonitoramento.leitura).zfill(8)
     else:
         strinleitura = ""
-
 
     print(strinleitura)
     jsonRetorno["leitura"] = strinleitura[0:4].zfill(5)
@@ -230,3 +231,53 @@ def leitura_deletar(id):
     db.session.commit()
 
     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
+
+
+# @swag_from('')
+@monitoramento.get("/monitoramento-volumes/<int:id>")
+def leituras_volumes(id):
+
+    # query = Monitoramento.query.filter_by(fk_escola=id).all()
+
+    query = db.session.query(
+        Monitoramento.id,
+        Monitoramento.datahora,
+        Monitoramento.leitura,
+        func.lag(Monitoramento.datahora).over(
+            order_by=Monitoramento.datahora).label('datalog'),
+        func.lag(Monitoramento.leitura).over(
+            order_by=Monitoramento.datahora).label('leituralag')
+    ).filter(Monitoramento.fk_escola == id).all()
+
+
+    # ,
+    #     case([
+    #         (
+    #             func.extract('epoch', Monitoramento.datahora - func.lag(
+    #                 Monitoramento.datahora).over(order_by=Monitoramento.datahora)) / 3600 < 12,
+    #             Monitoramento.leitura -
+    #             func.lag(Monitoramento.leitura).over(
+    #                 order_by=Monitoramento.datahora)
+    #         ),
+    #     ], else_=None).label('leitura_anterior')
+
+
+    for row in query:
+
+        datalinha = row[1]
+        dataanterior = row[3]
+        
+        #CASO 1
+        
+
+    retorno = [{
+        "id": row[0],
+        "DataHora": str(row[1]),
+        "Leitura": row[2],
+        "DataAnterior": str(row[3]),
+        "LeituraAnterior": row[4]
+    }
+
+        for row in query]
+
+    return retorno

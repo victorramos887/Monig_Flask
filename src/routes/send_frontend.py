@@ -3,8 +3,6 @@ from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
-from datetime import timedelta, date
-from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 
 send_frontend = Blueprint('send_frontend', __name__,
