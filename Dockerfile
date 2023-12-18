@@ -52,7 +52,7 @@ RUN chmod u+x /entrypoint.sh
 COPY . /src
 
 # Exiba o conteúdo do diretório para depuração
-RUN ls -l /src
+RUN chmod +x /src
 
 # Execute o entrypoint.sh
 CMD ["/bin/bash", "/entrypoint.sh"]
