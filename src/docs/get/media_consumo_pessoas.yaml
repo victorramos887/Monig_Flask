@@ -1,7 +1,7 @@
-Retornar a média de consumo das escolas
+Retornar a média de consumo por pessoa das escolas
 ---
 tags:
-  - Consumos
+  - Consumo
   - Dashboards
 parameters:
   - in: header
