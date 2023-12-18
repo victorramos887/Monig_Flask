@@ -238,6 +238,7 @@ def leitura_deletar(id):
 def leituras_volumes(id):
 
     # query = Monitoramento.query.filter_by(fk_escola=id).all()
+    escola = Escolas.query.filter_by(id = id).first()
 
     query = db.session.query(
         Monitoramento.id,
@@ -249,35 +250,65 @@ def leituras_volumes(id):
             order_by=Monitoramento.datahora).label('leituralag')
     ).filter(Monitoramento.fk_escola == id).all()
 
-
-    # ,
-    #     case([
-    #         (
-    #             func.extract('epoch', Monitoramento.datahora - func.lag(
-    #                 Monitoramento.datahora).over(order_by=Monitoramento.datahora)) / 3600 < 12,
-    #             Monitoramento.leitura -
-    #             func.lag(Monitoramento.leitura).over(
-    #                 order_by=Monitoramento.datahora)
-    #         ),
-    #     ], else_=None).label('leitura_anterior')
-
-
+    dicionario = {}
+    retorno = []
     for row in query:
 
-        datalinha = row[1]
+        id = row[0]
+        data = row[1]
+        letura = row[2]
         dataanterior = row[3]
-        
-        #CASO 1
-        
+        leituraanterior = row[4]
 
-    retorno = [{
-        "id": row[0],
-        "DataHora": str(row[1]),
-        "Leitura": row[2],
-        "DataAnterior": str(row[3]),
-        "LeituraAnterior": row[4]
+        # print(f"Data: {data}  --  Data anterior: {dataanterior}")
+        # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
+        
+        if data is not None and dataanterior is not None:
+
+            diferenca = data-dataanterior
+
+            diferenca_horas = abs(diferenca).total_seconds() / 3600
+
+            print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
+
+            if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
+
+                leituradia = letura - leituraanterior
+                leituranoite = None
+            elif diferenca_horas < 16:
+                leituradia = None
+                leituranoite = letura - leituraanterior
+
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora":data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
+                "HoraAnterior":dataanterior.strftime("%H:%M"),
+                "LeituraAnterior": leituraanterior,
+                "LeituraDiurna":leituradia,
+                "LeituraNoturna":leituranoite
+            }
+
+            # print(dicionario)
+        else:
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora":data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": None,
+                "HoraAnterior":None,
+                "LeituraAnterior": None,
+                "LeituraDiurna":None,
+                "LeituraNoturna":None
+            }
+
+        retorno.append(dicionario)
+
+        
+    return {
+        "tabela": retorno,
+        "nome": escola.nome if escola is not None else ""
     }
-
-        for row in query]
-
-    return retorno
