@@ -8,7 +8,7 @@ dashboard = Blueprint('dashboard', __name__,
                           url_prefix='/api/v1/dashboard')
 
 
-#Media de consumo das escolas independente de nivel -OK
+#Media de consumo de todas as escolas 
 @swag_from('../docs/get/media_consumo_escolas.yaml')
 @dashboard.get('/media-consumo')
 def consumo_media():
@@ -21,7 +21,9 @@ def consumo_media():
 
     # Agrupar os resultados por ano e mês
     consulta = consulta.group_by('mes','ano')
-
+    
+     # Ordenar os resultados
+    consulta = consulta.order_by('mes', 'ano')
     resultados = consulta.all()
     print(resultados)
 
@@ -33,8 +35,16 @@ def consumo_media():
     }), 200
         
         
-        
-#verificar saida --- retorno de 13.0 repetido pra cada ensino - não faz sentido - dividir pela população para o nivel?
+# select 
+# 	avg(c.consumo) as media_consumo,
+# 	o.nivel as nivel
+# from main.consumo_agua c 
+# 		inner join main.escolas e on(e.id=c.fk_escola)
+# 		inner join main.escola_niveis n on (n.escola_id=c.fk_escola)
+# 		inner join main.aux_opniveis o on (n.nivel_ensino_id=o.id)
+# group by o.nivel; - ok
+
+#media de consumo por niveis de todas as escolas			
 @dashboard.get('/media-consumo-niveis')
 def consumo_media_niveis():
 
@@ -61,7 +71,7 @@ def consumo_media_niveis():
     })
 
     
-    
+#Media de consumo por pessoa das escolas 
     
 @dashboard.get('/media_consumo')
 def consumo_escolas():
@@ -127,3 +137,31 @@ def consumo_escolas():
             "gastosNivel": 6000,
         }]
     return jsonify(data)
+
+# --- media de consumo por pessoa nas escolas -- problema -- calcula toda a populacao da escola - independente de ter ou não registro de consumo
+# SELECT
+# 	e.fk_escola,
+# 	c.consumo_total,
+# 	e.total_pessoas_escola,
+# 	ROUND(c.consumo_total / CAST(e.total_pessoas_escola AS DECIMAL(18, 2)), 3) as media_consumo_por_pessoa
+# FROM
+# 	(
+# 		SELECT
+# 			e.fk_escola,
+# 			sum(p.alunos) as total_de_alunos,
+# 			sum(p.funcionarios) as total_de_funcionarios,
+# 			sum(p.funcionarios + p.alunos) as total_pessoas_escola
+# 		FROM main.edificios e
+# 		INNER JOIN main.populacao p
+# 		ON (e.id = p.fk_edificios)
+# 		GROUP BY e.fk_escola
+# 	) e
+# INNER JOIN
+# 	(
+# 		SELECT
+# 			fk_escola as escola,
+# 			sum(consumo) as consumo_total
+# 		FROM main.consumo_agua
+# 		GROUP BY fk_escola
+# 	) c
+# ON (e.fk_escola = c.escola);
