@@ -97,7 +97,6 @@ def media_consumo_pessoas():
 
 
 
-
 #Media de consumo por nivel das escolas -- problema ao dividir p nivel
 @swag_from('../docs/get/media_consumo_niveis.yaml')
 @dashboard.get('/media-consumo-niveis')   
