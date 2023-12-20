@@ -37,38 +37,63 @@ def consumo_media():
     }), 200
  
  
-        
-#Media por pessoa das escolas -- checar a saida
+
+#Media de consumo por pessoa
 @swag_from('../docs/get/media_consumo_pessoas.yaml')
 @dashboard.get('/media_consumo_pessoas')
 def media_consumo_pessoas():
 
-        query = (
-            db.session.query(
-                Edificios.fk_escola.label('escola'),
-                extract('month', ConsumoAgua.data).label('mes'),
-                extract('year', ConsumoAgua.data).label('ano'),
-                func.sum(ConsumoAgua.consumo).label('consumo_total'),
-                func.sum(Populacao.alunos).label('total_alunos'),
-                func.sum(Populacao.funcionarios).label('total_funcionarios')
-            )
-            .join(Populacao, Edificios.id == Populacao.fk_edificios)
-            .join(ConsumoAgua, Edificios.fk_escola == ConsumoAgua.fk_escola)
-            .group_by(Edificios.fk_escola, 'mes', 'ano' )
-        )
+    populacao_escola = db.session.query(
+        Edificios.fk_escola,
+        func.sum(Populacao.alunos).label('total_alunos'),
+        func.sum(Populacao.funcionarios).label('total_funcionarios'),
+        func.sum(Populacao.alunos + Populacao.funcionarios).label('total_populacao')
+    ).filter(Edificios.id == Populacao.fk_edificios).group_by(Edificios.fk_escola).subquery()
 
-        # Retornar JSON
-        return jsonify({
-            'data': [{
-                'escola': escola,
-                'mes_ano': str(mes) + '-' + str(ano),
-                'consumo_total': consumo_total,
-                'total_alunos': total_alunos,
-                'total_funcionarios': total_funcionarios,
-                'total_pessoas': total_alunos + total_funcionarios,
-                'consumo_pessoa': round(consumo_total / (total_alunos + total_funcionarios), 2)
-            } for escola, mes, ano, consumo_total, total_alunos, total_funcionarios, in query]
-        })
+    consumo_escola = db.session.query(
+        ConsumoAgua.fk_escola,
+        func.sum(ConsumoAgua.consumo).label('consumo'),
+        extract("year", ConsumoAgua.data).label('ano'),
+        extract("month", ConsumoAgua.data).label('mes')
+    ).group_by(ConsumoAgua.fk_escola, extract("year", ConsumoAgua.data), extract("month", ConsumoAgua.data)).subquery()
+
+    juncao = db.session.query(
+        populacao_escola.c.fk_escola,
+        populacao_escola.c.total_alunos,
+        populacao_escola.c.total_funcionarios,
+        (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios).label('total_pessoas'),
+        consumo_escola.c.consumo,
+        func.concat(consumo_escola.c.mes, "-" , consumo_escola.c.ano).label('mes_ano'),
+        (consumo_escola.c.consumo / (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios)).label('media_consumo')
+    ).join(consumo_escola, populacao_escola.c.fk_escola == consumo_escola.c.fk_escola).subquery()
+
+    resultados = db.session.query(
+        juncao.c.fk_escola,
+        juncao.c.total_alunos,
+        juncao.c.total_funcionarios,
+        juncao.c.total_pessoas,
+        juncao.c.consumo,
+        juncao.c.mes_ano,
+        juncao.c.media_consumo
+    ).order_by(juncao.c.fk_escola).all()
+     
+    resultados_json = [
+        {
+            "escola": l[0],
+            "alunos": l[1],
+            "funcionarios": l[2],
+            "populacao_total": l[3],
+            "consumo": l[4],
+            "mes_ano": l[5],
+            "media_consumo": round(l[6], 2)
+        } for l in resultados
+    ]
+
+    return jsonify({
+        "data": resultados_json,
+        "status": True
+}), 200
+
 
 
 
