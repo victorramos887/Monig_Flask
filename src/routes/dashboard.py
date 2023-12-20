@@ -38,7 +38,7 @@ def consumo_media():
  
  
 
-#Media de consumo por pessoa
+#Media de consumo por pessoa das escolas
 @swag_from('../docs/get/media_consumo_pessoas.yaml')
 @dashboard.get('/media_consumo_pessoas')
 def media_consumo_pessoas():
@@ -75,7 +75,7 @@ def media_consumo_pessoas():
         juncao.c.consumo,
         juncao.c.mes_ano,
         juncao.c.media_consumo
-    ).order_by(juncao.c.fk_escola).all()
+    ).order_by(juncao.c.fk_escola, juncao.c.mes_ano).all()
      
     resultados_json = [
         {
@@ -93,7 +93,7 @@ def media_consumo_pessoas():
         "data": resultados_json,
         "status": True
 }), 200
-
+    
 
 
 
