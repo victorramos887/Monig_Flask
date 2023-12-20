@@ -75,10 +75,8 @@ def consumo_media_escola(id):
     }), 200
 
 
-
  
  
-
 #Media de consumo por pessoa de cada escola - mês a mês
 @swag_from('../docs/get/dashboard/media_consumo_pessoas.yaml')
 @dashboard.get('/media-consumo-pessoas')
