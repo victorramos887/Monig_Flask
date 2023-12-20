@@ -1,7 +1,6 @@
-Retornar a média de consumo das escolas
+Retornar a média de consumo dos niveis
 ---
 tags:
-  - Consumos
   - Dashboards
 parameters:
   - in: header

@@ -1,7 +1,6 @@
-Retornar a média de consumo dos niveis
+Retornar a média de consumo por pessoa das escolas
 ---
 tags:
-  - Consumo
   - Dashboards
 parameters:
   - in: header

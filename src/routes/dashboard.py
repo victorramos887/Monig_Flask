@@ -10,8 +10,8 @@ dashboard = Blueprint('dashboard', __name__,
                           url_prefix='/api/v1/dashboard')
 
 
-#Media de consumo das escolas 
-@swag_from('../docs/get/media_consumo_escolas.yaml')
+#Media de consumo das escolas - mes a mes
+@swag_from('../docs/get/dashboard/media_consumo_escolas.yaml')
 @dashboard.get('/media-consumo')
 def consumo_media():
     
@@ -37,10 +37,51 @@ def consumo_media():
     }), 200
  
  
+ 
+ #Media de consumo de uma escola mês a mês -- Verificar resultado
+@swag_from('../docs/get/dashboard/media_consumo_escola.yaml')
+@dashboard.get('/media-consumo-escola/<int:id>')
+def consumo_media_escola(id):
+    
+    consumo_escola = ConsumoAgua.query.filter_by(fk_escola=id).first()
+    
+    if not consumo_escola:
+        return jsonify({
+            "status": False,
+            "mensagem": "Não há registro de consumo para a escola indicada."
+        }), 404
+        
+    consulta = db.session.query(
+        func.avg(ConsumoAgua.consumo).label('media_ConsumoAgua'),
+        extract('month', ConsumoAgua.data).label('mes'),
+        extract('year', ConsumoAgua.data).label('ano')
+    ).filter(ConsumoAgua.fk_escola==id)
 
-#Media de consumo por pessoa das escolas
-@swag_from('../docs/get/media_consumo_pessoas.yaml')
-@dashboard.get('/media_consumo_pessoas')
+    # Agrupar os resultados por ano e mês
+    consulta = consulta.group_by('mes','ano')
+
+    # Ordenar os resultados
+    consulta = consulta.order_by('mes', 'ano')
+    resultados = consulta.all()
+
+    return jsonify({
+        "data": [
+            {
+                "gastosEscola": round(l[0], 2),
+                "mes_ano": (str(l[1]) + '-' + str(l[2]))
+            } for l in resultados
+        ],
+        "status": True
+    }), 200
+
+
+
+ 
+ 
+
+#Media de consumo por pessoa de cada escola - mês a mês
+@swag_from('../docs/get/dashboard/media_consumo_pessoas.yaml')
+@dashboard.get('/media-consumo-pessoas')
 def media_consumo_pessoas():
 
     populacao_escola = db.session.query(
@@ -98,7 +139,7 @@ def media_consumo_pessoas():
 
 
 #Media de consumo por nivel das escolas -- problema ao dividir p nivel
-@swag_from('../docs/get/media_consumo_niveis.yaml')
+@swag_from('../docs/get/dashboard/media_consumo_niveis.yaml')
 @dashboard.get('/media-consumo-niveis')   
 def consumo_media_niveis():
     consulta = (
