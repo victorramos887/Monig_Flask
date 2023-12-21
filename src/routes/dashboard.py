@@ -31,14 +31,14 @@ def consumo_media():
 
     return jsonify({
         "data": [
-            {"gastosEscola": round(l[0], 2), "mes_ano": (str(l[1]) + '-' + str(l[2]))} for l in resultados
+            {"gastosEscola": round(l[0], 3), "mes_ano": (str(l[1]) + '-' + str(l[2]))} for l in resultados
         ],
         "status": True
     }), 200
  
  
  
- #Media de consumo de uma escola mês a mês -- Verificar resultado
+ #Media de consumo de uma escola mês a mês 
 @swag_from('../docs/get/dashboard/media_consumo_escola.yaml')
 @dashboard.get('/media-consumo-escola/<int:id>')
 def consumo_media_escola(id):
@@ -67,7 +67,7 @@ def consumo_media_escola(id):
     return jsonify({
         "data": [
             {
-                "gastosEscola": round(l[0], 2),
+                "gastosEscola": round(l[0], 3),
                 "mes_ano": (str(l[1]) + '-' + str(l[2]))
             } for l in resultados
         ],
@@ -75,7 +75,6 @@ def consumo_media_escola(id):
     }), 200
 
 
- 
  
 #Media de consumo por pessoa de cada escola - mês a mês
 @swag_from('../docs/get/dashboard/media_consumo_pessoas.yaml')
@@ -124,7 +123,7 @@ def media_consumo_pessoas():
             "populacao_total": l[3],
             "consumo": l[4],
             "mes_ano": l[5],
-            "media_consumo": round(l[6], 2)
+            "media_consumo": round(l[6], 3)
         } for l in resultados
     ]
 
@@ -134,33 +133,90 @@ def media_consumo_pessoas():
 }), 200
     
 
+#Media de consumo por pessoa de uma escola - mês a mês
+@swag_from('../docs/get/dashboard/media_consumo_pessoas_escola.yaml')
+@dashboard.get('/media-consumo-pessoas-escola/<int:id>')
+def media_consumo_pessoas_esc(id):
+
+    populacao_escola = db.session.query(
+        Edificios.fk_escola,
+        func.sum(Populacao.alunos).label('total_alunos'),
+        func.sum(Populacao.funcionarios).label('total_funcionarios'),
+        func.sum(Populacao.alunos + Populacao.funcionarios).label('total_populacao')
+    ).filter(Edificios.id == Populacao.fk_edificios).filter(Edificios.fk_escola == id).group_by(Edificios.fk_escola).subquery()
+
+    consumo_escola = db.session.query(
+        ConsumoAgua.fk_escola,
+        func.sum(ConsumoAgua.consumo).label('consumo'),
+        extract("year", ConsumoAgua.data).label('ano'),
+        extract("month", ConsumoAgua.data).label('mes')
+    ).filter(ConsumoAgua.fk_escola == id).group_by(ConsumoAgua.fk_escola, extract("year", ConsumoAgua.data), extract("month", ConsumoAgua.data)).subquery()
+
+    juncao = db.session.query(
+        populacao_escola.c.fk_escola,
+        populacao_escola.c.total_alunos,
+        populacao_escola.c.total_funcionarios,
+        (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios).label('total_pessoas'),
+        consumo_escola.c.consumo,
+        func.concat(consumo_escola.c.mes, "-", consumo_escola.c.ano).label('mes_ano'),
+        (consumo_escola.c.consumo / (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios)).label('media_consumo')
+    ).join(consumo_escola, populacao_escola.c.fk_escola == consumo_escola.c.fk_escola).subquery()
+
+    resultados = db.session.query(
+        juncao.c.fk_escola,
+        juncao.c.total_alunos,
+        juncao.c.total_funcionarios,
+        juncao.c.total_pessoas,
+        juncao.c.consumo,
+        juncao.c.mes_ano,
+        juncao.c.media_consumo
+    ).order_by(juncao.c.fk_escola, juncao.c.mes_ano).all()
+
+    resultados_json = [
+        {
+            "escola": l[0],
+            "alunos": l[1],
+            "funcionarios": l[2],
+            "populacao_total": l[3],
+            "consumo": l[4],
+            "mes_ano": l[5],
+            "media_consumo": round(l[6], 3)
+        } for l in resultados
+    ]
+
+    return jsonify({
+        "data": resultados_json,
+        "status": True
+    }), 200
+
+#Media de consumo por pessoa de todas as escola - mês a mês
 
 
 #Media de consumo por nivel das escolas -- problema ao dividir p nivel
-@swag_from('../docs/get/dashboard/media_consumo_niveis.yaml')
-@dashboard.get('/media-consumo-niveis')   
-def consumo_media_niveis():
-    consulta = (
-        db.session.query(
-            AuxOpNiveis.nivel,
-            func.avg(ConsumoAgua.consumo).label('Media De Consumo')
-         ) 
-        .join(Escolas, Escolas.id == ConsumoAgua.fk_escola) 
-        .join(EscolaNiveis, EscolaNiveis.escola_id == ConsumoAgua.fk_escola) 
-        .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) 
-        .group_by(AuxOpNiveis.nivel)
-        .all()
-    )
+# @swag_from('../docs/get/dashboard/media_consumo_niveis.yaml')
+# @dashboard.get('/media-consumo-niveis')   
+# def consumo_media_niveis():
+#     consulta = (
+#         db.session.query(
+#             AuxOpNiveis.nivel,
+#             func.avg(ConsumoAgua.consumo).label('Media De Consumo')
+#          ) 
+#         .join(Escolas, Escolas.id == ConsumoAgua.fk_escola) 
+#         .join(EscolaNiveis, EscolaNiveis.escola_id == ConsumoAgua.fk_escola) 
+#         .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) 
+#         .group_by(AuxOpNiveis.nivel)
+#         .all()
+#     )
     
-    return jsonify({
-        "data": [
-            {
-                "Nivel": l[0],
-                "Media de Consumo": round(l[1], 2)
+#     return jsonify({
+#         "data": [
+#             {
+#                 "Nivel": l[0],
+#                 "Media de Consumo": round(l[1], 2)
                 
-            } for l in consulta
-        ],
-    })
+#             } for l in consulta
+#         ],
+#     })
 
     
 #Media de consumo das escola    
