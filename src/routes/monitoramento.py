@@ -299,13 +299,12 @@ def leituras_volumes(id):
             diferenca_horas = abs(diferenca).total_seconds() / 3600
 
             print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
-            leituradia = None
-            leituranoite = None
+            diferenca = None
 
             if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
-                leituradia = letura - leituraanterior
+                diferenca = letura - leituraanterior
             elif diferenca_horas < 16:
-                leituranoite = letura - leituraanterior
+                diferenca = letura - leituraanterior
 
             dicionario = {
                 "id": id,
@@ -315,9 +314,7 @@ def leituras_volumes(id):
                 "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
                 "HoraAnterior": dataanterior.strftime("%H:%M"),
                 "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
-                "LeituraDiurna": f"{leituradia:,.2f}" if leituradia is not None and isinstance(leituradia, (int, float)) else None,
-                "LeituraNoturna": f"{leituranoite:,.2f}" if leituranoite is not None and isinstance(leituranoite, (int, float)) else None,
-
+                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
             }
 
             # print(dicionario)
@@ -330,8 +327,7 @@ def leituras_volumes(id):
                 "DataAnterior": None,
                 "HoraAnterior": None,
                 "LeituraAnterior": None,
-                "LeituraDiurna": None,
-                "LeituraNoturna": None
+                "Diferenca": None
             }
 
         retorno.append(dicionario)
