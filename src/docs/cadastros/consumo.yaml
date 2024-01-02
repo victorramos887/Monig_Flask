@@ -33,13 +33,13 @@ parameters:
           example: 1.200
         data:
           type: date
-          example: "08/12/2023"
+          example: "2023/12/05"
         dataInicioPeriodo:
           type: date
-          example: "01/11/2023"
+          example: "2023/11/05"
         dataFimPeriodo:
           type: date
-          example: "01/12/2023"
+          example: "2023/12/05"
       
               
 responses:
