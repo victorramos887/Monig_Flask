@@ -25,10 +25,12 @@ def leitura():
 
         fk_escola = formulario["fk_escola"]
         hidrometro = formulario['hidrometro']
-        leitura = f"{formulario['leitura']}{formulario['leitura2']}"
+        leitura = f"{formulario['leitura']}.{formulario['leitura2']}"
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
         edificios_alias = aliased(Edificios)
+
+        print("Leitura: ", leitura)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
             fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
@@ -54,21 +56,24 @@ def leitura():
             escolamonitoramento_anterior = (
 
                 db.session.query(
-                Monitoramento.id,
-                Monitoramento.datahora,
-                Monitoramento.leitura
-            )
-            .filter(
-                and_(
-                    func.extract('year', Monitoramento.datahora) == func.extract('year', datahora),
-                    func.extract('month', Monitoramento.datahora) == func.extract('month', datahora),
-                    func.extract('day', Monitoramento.datahora) == func.extract('day', datahora),
-                    Monitoramento.datahora < datahora,
-                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.id,
+                    Monitoramento.datahora,
+                    Monitoramento.leitura
                 )
+                .filter(
+                    and_(
+                        func.extract('year', Monitoramento.datahora) == func.extract(
+                            'year', datahora),
+                        func.extract('month', Monitoramento.datahora) == func.extract(
+                            'month', datahora),
+                        func.extract('day', Monitoramento.datahora) == func.extract(
+                            'day', datahora),
+                        Monitoramento.datahora < datahora,
+                        Monitoramento.fk_escola == escola_id.fk_escola,
+                    )
 
-            )
-            .first()
+                )
+                .first()
             )
 
             escolamonitoramento_posterior = Monitoramento.query.filter(
@@ -78,32 +83,29 @@ def leitura():
                 )
             ).order_by(Monitoramento.datahora).first()
 
-
             escolamonitoramento_posterior = (
 
                 db.session.query(
-                Monitoramento.id,
-                Monitoramento.datahora,
-                Monitoramento.leitura
-            )
-            .filter(
-                and_(
-                    Monitoramento.datahora > datahora,
-                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.id,
+                    Monitoramento.datahora,
+                    Monitoramento.leitura
                 )
+                .filter(
+                    and_(
+                        Monitoramento.datahora > datahora,
+                        Monitoramento.fk_escola == escola_id.fk_escola,
+                    )
 
+                )
+                .order_by(Monitoramento.datahora.asc())
+                .first()
             )
-            .order_by(Monitoramento.datahora.asc())
-            .first()
-            )
-
-
 
             if escolamonitoramento_anterior:
                 # print("Leitura anterior datahora: ",
                 #       escolamonitoramento_anterior.datahora)
 
-                if escolamonitoramento_anterior[2] > int(leitura):
+                if escolamonitoramento_anterior[2] > float(leitura):
                     return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura": escolamonitoramento_anterior.leitura}), 400
 
             if escolamonitoramento_posterior:
@@ -111,7 +113,7 @@ def leitura():
                 print("Leitura posterio datahora: ",
                       escolamonitoramento_posterior.datahora)
 
-                if escolamonitoramento_posterior[2] < int(leitura):
+                if escolamonitoramento_posterior[2] < float(leitura):
                     return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura": escolamonitoramento_posterior.leitura}), 400
             # Extrair o ano, mês e dia da data
             ano = extract('year', datahora)
@@ -135,7 +137,7 @@ def leitura():
             monitoramento = Monitoramento(
                 fk_escola=escola_id.fk_escola,
                 hidrometro=hidrometro_verificar.id,
-                leitura=leitura,
+                leitura=float(leitura),
                 datahora=datahora
             )
 
@@ -206,13 +208,14 @@ def leitura_atual(id):
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
 
     if escolamonitoramento:
-        strinleitura = str(escolamonitoramento.leitura).zfill(7)
+        inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
+        racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
     else:
-        strinleitura = ""
+        inteiro = ""
+        racional = ""
 
-    print(strinleitura)
-    jsonRetorno["leitura"] = strinleitura[0:4].zfill(5)
-    jsonRetorno["leitura2"] = strinleitura[4:7].zfill(3)
+    jsonRetorno["leitura"] = inteiro.zfill(8)
+    jsonRetorno["leitura2"] = racional.zfill(3)
 
     return jsonRetorno
 
@@ -259,3 +262,100 @@ def leitura_deletar(id):
     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
 
+# @swag_from('')
+@monitoramento.get("/monitoramento-volumes/<int:id>")
+def leituras_volumes(id):
+
+    # query = Monitoramento.query.filter_by(fk_escola=id).all()
+    escola = Escolas.query.filter_by(id=id).first()
+
+    query = db.session.query(
+        Monitoramento.id,
+        Monitoramento.datahora,
+        Monitoramento.leitura,
+        func.lag(Monitoramento.datahora).over(
+            order_by=Monitoramento.datahora).label('datalog'),
+        func.lag(Monitoramento.leitura).over(
+            order_by=Monitoramento.datahora).label('leituralag')
+    ).filter(Monitoramento.fk_escola == id).all()
+
+    dicionario = {}
+    retorno = []
+    for row in query:
+
+        id = row[0]
+        data = row[1]
+        letura = row[2]
+        dataanterior = row[3]
+        leituraanterior = row[4]
+
+        # print(f"Data: {data}  --  Data anterior: {dataanterior}")
+        # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
+
+        if data is not None and dataanterior is not None:
+
+            diferenca = data-dataanterior
+
+            diferenca_horas = abs(diferenca).total_seconds() / 3600
+
+            print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
+            diferenca = None
+
+            if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
+                diferenca = letura - leituraanterior
+            elif diferenca_horas < 16:
+                diferenca = letura - leituraanterior
+
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora": data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
+                "HoraAnterior": dataanterior.strftime("%H:%M"),
+                "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
+                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
+            }
+
+            # print(dicionario)
+        else:
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora": data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": None,
+                "HoraAnterior": None,
+                "LeituraAnterior": None,
+                "Diferenca": None
+            }
+
+        retorno.append(dicionario)
+
+
+    #Ordenar por data e hora
+    retorno = sorted(retorno, key=lambda x: datetime.strptime(f"{x['Data']} {x['Hora']}", '%d/%m/%Y %H:%M'), reverse=True)
+
+
+    return {
+        "tabela": retorno,
+        "nome": escola.nome if escola is not None else ""
+    }
+
+
+#Retornar escolas com leituras diurnas e noturnas no início
+
+# RETORNA TODAS AS ESCOLAS
+@monitoramento.get('/escolas')
+def escolas():
+    
+
+    #Returno da ultima leitura diurna e noturna
+    
+
+    escolas = Escolas.query.all()
+    return jsonify({
+        'return': [escola.to_json() for escola in escolas],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
+    }), 200
