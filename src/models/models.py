@@ -315,7 +315,7 @@ class Monitoramento(db.Model):
     datahora = db.Column(db.DateTime)
     fk_escola = db.Column(db.Integer, db.ForeignKey('main.escolas.id'))
     hidrometro = db.Column(db.Integer, db.ForeignKey('main.hidrometros.id'))
-    leitura = db.Column(db.Integer)
+    leitura = db.Column(db.Float)
     escola_monitorada = db.relationship(
         'Escolas', backref='escola_monitorada')
     hidrometro_ = db.relationship('Hidrometros', backref="hidrometro_")
