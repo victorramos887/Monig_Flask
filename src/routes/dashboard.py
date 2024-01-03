@@ -138,6 +138,14 @@ def media_consumo_pessoas():
 @dashboard.get('/media-consumo-pessoas-escola/<int:id>')
 def media_consumo_pessoas_esc(id):
 
+    consumo_escola = ConsumoAgua.query.filter_by(fk_escola=id).first()
+    
+    if not consumo_escola:
+        return jsonify({
+            "status": False,
+            "mensagem": "Não há registro de consumo para a escola indicada."
+        }), 404
+            
     populacao_escola = db.session.query(
         Edificios.fk_escola,
         func.sum(Populacao.alunos).label('total_alunos'),
