@@ -210,7 +210,7 @@ def eventos_cadastro_unitario():
 
     try:
         formulario = request.get_json()
-        print(formulario)
+        # print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -254,7 +254,7 @@ def eventos_cadastro_unitario():
         encerramento = formulario.get("encerramento", False)
         data_encerramento = formulario.get("dataEncerramento", None)
         
-        print(tipodeevento.recorrente)
+        # print(tipodeevento.recorrente)
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
@@ -262,17 +262,10 @@ def eventos_cadastro_unitario():
         else:
             datainicio = formulario.get("data", None)
             datafim = None
-            # if not formulario["dataEncerramento"]:
-            #     datafim = None
-            # else:
-            #     datafim = formulario["dataEncerramento"]
-            
-    
-        #Tratamento de tipo_de_local
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
         
-        print(tipo_de_local_fk.nome_da_tabela)
+        # print(tipo_de_local_fk.nome_da_tabela)
 
         if not tipo_de_local_fk:
             return jsonify({
@@ -299,10 +292,10 @@ def eventos_cadastro_unitario():
             }), 400
 
         #Escola
-        print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
+        # print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
         if tipo_de_local_fk.nome_da_tabela == "Escola":
             fk_escola = local_fk.id
-            print(local_fk)
+            # print(local_fk)
         
         elif tipo_de_local_fk.nome_da_tabela == "Edificação":
             edificio_ = Edificios.query.filter_by(id=local_fk.id).first()
@@ -323,7 +316,8 @@ def eventos_cadastro_unitario():
             fk_edificio = hidrometro_.fk_edificio
             edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
             fk_escola = edificio_.fk_escola       
-            
+        
+        
         evento = Eventos(
             fk_tipo=tipo_de_evento_fk.id,
             fk_escola = fk_escola,
@@ -339,6 +333,9 @@ def eventos_cadastro_unitario():
 
         db.session.add(evento)
         db.session.commit()
+        
+
+        # print("--------------------------------------------------------------------------", evento.to_json())
 
         return jsonify({'status': True, "mensagem": "Cadastro Realizado!", "data":evento.to_json()}), HTTP_200_OK
 
