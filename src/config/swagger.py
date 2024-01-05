@@ -1,13 +1,13 @@
 template = {
     "swagger": "2.0",
     "info": {
-        "title": "MOIG",
-        "description": "API MOIG",
+        "title": "MONIG",
+        "description": "API MONIG",
         "contact": {
             "responsibleOrganization": "monitora tecnologia e informação",
             "responsibleDeveloper": "Equipe Monitora",
-            "email": "monitora@monitora.info",
-            "url": "www.monitora.info",
+            "email": "vsoares@monitora.info",
+            "url": "http://www.monitora.info",
         },
         "termsOfService": "",
         "version": "1.0"
@@ -33,6 +33,7 @@ swagger_config = {
 
     "specs": [
         {
+            "title": "Monig",
             "endpoint": 'apispec',
             "route": '/apispec.json',
             "rule_filter": lambda rule: True,  # all in
@@ -42,5 +43,22 @@ swagger_config = {
 
     "static_url_path": "/flasgger_static",
     "swagger_ui": True,
-    "specs_route": "/documentacao"
+    "specs_route": "/"
+}
+
+swagger_config_cadastro = {
+
+    "headers": [],
+    "specs": [
+        {
+            "title": "Cadastro",
+            "endpoint": 'apispec_cadastro',
+            "route": '/apispec_cadastro.json',
+            "rule_filter": lambda rule: 'cadastro' in rule.endpoint,
+            "model_filter": lambda tag: 'cadastro' in tag,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/cadastro_docs"
 }

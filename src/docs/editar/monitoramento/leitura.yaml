@@ -1,0 +1,42 @@
+Editar cadastro de Leituras
+---
+tags:
+  - Monitoramento
+parameters:
+  - name: id
+    description: O id da leitura que deve ser alterada
+    in: path
+    required: true
+    type: integer
+    example: 1
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de leituras
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "dataEditar"
+        - "horaEditar"
+        - "leituraEditar"
+        
+      properties:
+        dataEditar:
+          type: date
+          example: "09/12/2023"
+        horaEditar:
+          type: date
+          example: "10:40"
+        leituraEditar:
+          type: integer
+          example: 69562
+       
+responses:
+  200:
+    description: Edição realizada com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+     description: Credenciais inválidas 

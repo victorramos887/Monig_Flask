@@ -1,7 +1,9 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
+from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Monitoramento, ConsumoAgua, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
 from sqlalchemy import exc, text, func
+import datetime
+from flasgger import swag_from
 
 
 remover = Blueprint('remover', __name__, url_prefix='/api/v1/remover')
@@ -17,7 +19,7 @@ def reverter_escola(id):
         return jsonify({"status": True, 'mensagem': 'Escola restaurada'}), HTTP_200_OK
 
 
-
+@swag_from('../docs/remover/escolas.yaml')
 @remover.put('/escolas/<id>')
 def escolas_remover(id):
 
@@ -77,6 +79,7 @@ def escolas_remover(id):
 
 
 # edificios
+@swag_from('../docs/remover/edificios.yaml')
 @remover.put('/edificios/<id>')
 def edificios_remover(id):
 
@@ -133,6 +136,7 @@ def edificios_remover(id):
 
     
 #hidrometro
+@swag_from('../docs/remover/hidrometros.yaml')
 @remover.put('/hidrometros/<id>')
 def hidrometro_remover(id):
 
@@ -158,6 +162,7 @@ def hidrometro_remover(id):
 
 
 # populacao
+@swag_from('../docs/remover/populacao.yaml')
 @remover.put('/populacao/<id>')
 def populacao_remover(id):
     try:
@@ -182,6 +187,7 @@ def populacao_remover(id):
 
 
 # area-umida
+@swag_from('../docs/remover/area_umida.yaml')
 @remover.put('/area-umida/<id>')
 def area_umida_remover(id):
     try:
@@ -212,6 +218,7 @@ def area_umida_remover(id):
 
 
 # equipamentos
+@swag_from('../docs/remover/equipamentos.yaml')
 @remover.put('/equipamentos/<id>')
 def equipamentos_remover(id):
     try:
@@ -234,8 +241,7 @@ def equipamentos_remover(id):
         }), 400
 
 # reservatorios
-
-
+@swag_from('../docs/remover/reservatorios.yaml')
 @remover.put('/reservatorios/<id>')
 def reservatorio_remover(id):
     try:
@@ -259,7 +265,7 @@ def reservatorio_remover(id):
 
 # tipo-evento
 
-
+@swag_from('../docs/remover/tipo_evento.yaml')
 @remover.put('/tipo-evento/<id>')
 def tipo_evento_remover(id):
     tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
@@ -274,6 +280,7 @@ def tipo_evento_remover(id):
 
 
 # eventos
+@swag_from('../docs/remover/evento.yaml')
 @remover.put('/evento/<id>')
 def evento_remover(id):
     evento = Eventos.query.filter_by(id=id).first()
@@ -285,3 +292,18 @@ def evento_remover(id):
     db.session.commit()
 
     return jsonify({"status": True, 'mensagem': 'Evento removido'}), HTTP_200_OK
+
+
+#Consumo
+@swag_from('../docs/remover/consumo.yaml')
+@remover.delete('/consumo/<id>')
+def consumo_remover(id):
+    consumo = ConsumoAgua.query.filter_by(id=id).first()
+
+    if not consumo:
+        return jsonify({'status': False, 'mensagem': 'consumo não encontrada'}), 404
+
+    db.session.delete(consumo)
+    db.session.commit()
+
+    return jsonify({"status": True, 'mensagem': 'consumo removido'}), HTTP_200_OK

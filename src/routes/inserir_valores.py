@@ -7,7 +7,7 @@ import math
 from geoalchemy2 import WKTElement
 from unidecode import unidecode
 import random
-
+# from flasgger import swag_from
 
 valores = Blueprint('valores', __name__, url_prefix='/api/v1/valores')
 

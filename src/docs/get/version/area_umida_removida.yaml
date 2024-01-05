@@ -1,0 +1,17 @@
+Recuperar histórico de uma área úmida removida
+---
+tags:
+  - Version
+parameters:
+  - name: id
+    description: O id da área úmida que deve ser recuperada
+    in: path
+    required: true
+    type: integer
+    example: 1
+responses:
+  200:
+    description: Retorno realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição

@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 from ..models import (Escolas, Edificios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, Reservatorios, Cliente,
-                      Usuarios, ConsumoAgua, Monitoramento, AuxTipoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, ReservatorioEdificiosVersion, AuxTipoDeEventos, Eventos)
+                      Usuarios, ConsumoAgua, Monitoramento, AuxTipoAreaUmida, AuxOperacaoAreaUmida, AuxTiposEquipamentos, AuxOpNiveis, AuxPopulacaoPeriodo, AuxDeLocais, EscolaNiveis, ReservatorioEdificio, ReservatorioEdificiosVersion, AuxTipoDeEventos, Eventos)
 from sqlalchemy import exc
 from werkzeug.exceptions import HTTPException
 import re
 from datetime import datetime
+from flasgger import swag_from
 
 
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
@@ -113,6 +114,7 @@ def usuario_editar(id):
 
 
 # EDITAR ESCOLA
+@swag_from('../docs/editar/escolas.yaml')
 @editar.put('/escolas/<id>')
 def escolas_editar(id):
     escola = Escolas.query.filter_by(id=id).first()
@@ -220,6 +222,7 @@ def escolas_editar(id):
 
 
 # EDITAR RESERVATORIOS
+@swag_from('../docs/editar/reservatorios.yaml')
 @editar.put('/reservatorios/<id>')
 def reservatorio_editar(id):
     reservatorio = Reservatorios.query.filter_by(id=id).first()
@@ -271,6 +274,7 @@ def reservatorio_editar(id):
 
 
 # EDITAR EDIFICIOS
+@swag_from('../docs/editar/edificios.yaml')
 @editar.put('/edificios/<id>')
 def edificios_editar(id):
 
@@ -378,7 +382,8 @@ def edificios_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
-# EDITAR HIDROMETRO
+# EDITAR 
+@swag_from('../docs/editar/edificio_principal.yaml')
 @editar.put('/edificio-principal/<int:id>')
 def edificio_principal(id):
 
@@ -409,6 +414,7 @@ def edificio_principal(id):
         }), 404
 
 
+@swag_from('../docs/editar/hidrometros.yaml')
 @editar.put('/hidrometros/<id>')
 def hidrometro_editar(id):
     hidrometro = Hidrometros.query.filter_by(id=id).first()
@@ -454,6 +460,7 @@ def hidrometro_editar(id):
 
 
 # EDITAR POPULACAO
+@swag_from('../docs/editar/populacao.yaml')
 @editar.put('/populacao/<id>')
 def populacao_editar(id):
     populacao = Populacao.query.filter_by(id=id).first()
@@ -519,8 +526,7 @@ def populacao_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 # EDITAR AREA UMIDA
-
-
+@swag_from('../docs/editar/area_umida.yaml')
 @editar.put('/area-umida/<id>')
 def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
@@ -536,6 +542,7 @@ def area_umida_editar(id):
         localizacao_area_umida = body['localizacao_area_umida']
         nome_area_umida = body['nome_area_umida']
         status = body['status_area_umida']
+        operacao_area_umida = body['operacao_area_umida']
 
         if status == 'Aberto':
             status = True
@@ -544,15 +551,19 @@ def area_umida_editar(id):
 
         tipo_area_umida = AuxTipoAreaUmida.query.filter_by(
             tipo=body['tipo_area_umida']).first()
+        
+        operacao = AuxOperacaoAreaUmida.query.filter_by(
+            operacao=operacao_area_umida).first()
 
         umida.update(
             tipo_area_umida=tipo_area_umida.id,
             status_area_umida=status,
             nome_area_umida=nome_area_umida,
             localizacao_area_umida=localizacao_area_umida,
-            fk_edificios=fk_edificios
+            fk_edificios=fk_edificios,
+            operacao_area_umida=operacao.id
         )
-
+        
         db.session.commit()
 
         return jsonify({"areaumida": umida.to_json(), "status": True, 'mensagem': "Atualizado com sucesso"}), HTTP_200_OK
@@ -596,6 +607,7 @@ def area_umida_editar(id):
 
 
 # EDITAR EQUIPAMENTO
+@swag_from('../docs/editar/equipamentos.yaml')
 @editar.put('/equipamentos/<id>')
 def equipamento_editar(id):
     equipamento = Equipamentos.query.filter_by(id=id).first()
@@ -886,39 +898,39 @@ def evento_editar(id):
 
 
 
-# MONITORAMENTO
-@editar.put('/leitura/<id>')
-def leitura_editar(id):
-    monitoramento = Monitoramento.query.filter_by(id=id).first()
-    formulario = request.get_json()
+# # MONITORAMENTO
+# @editar.put('/leitura/<id>')
+# def leitura_editar(id):
+#     monitoramento = Monitoramento.query.filter_by(id=id).first()
+#     formulario = request.get_json()
 
-    if not monitoramento:
-        return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
+#     if not monitoramento:
+#         return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
 
-    try:
+#     try:
 
-        fk_escola = formulario["fk_escola"]
-        hidrometro = formulario['hidrometro']
-        leitura = f"{formulario['leitura']}{formulario['leitura2']}"
-        datahora = f"{formulario['data']} {formulario['hora']}"
+#         fk_escola = formulario["fk_escola"]
+#         hidrometro = formulario['hidrometro']
+#         leitura = f"{formulario['leitura']}{formulario['leitura2']}"
+#         datahora = f"{formulario['data']} {formulario['hora']}"
         
-        fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
+#         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
         
-        if not fk_hidrometro:
-            return jsonify({
-                "mensagem":"Não foi encontrado o hidrometro",
-                "status":False,
-                "codigo":e
-            }), 400
+#         if not fk_hidrometro:
+#             return jsonify({
+#                 "mensagem":"Não foi encontrado o hidrometro",
+#                 "status":False,
+#                 "codigo":e
+#             }), 400
         
-        monitoramento.update(
-            fk_escola=fk_escola,
-            hidrometro=fk_hidrometro.id,
-            leitura=leitura,
-            datahora=datahora
-        )
-        print(type(leitura))
-        db.session.commit()
+#         monitoramento.update(
+#             fk_escola=fk_escola,
+#             hidrometro=fk_hidrometro.id,
+#             leitura=leitura,
+#             datahora=datahora
+#         )
+#         print(type(leitura))
+#         db.session.commit()
 
         return jsonify({"monitoramento": monitoramento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
@@ -957,7 +969,7 @@ def leitura_editar(id):
 
 
 #Consumo
-
+@swag_from('../docs/editar/consumo.yaml')
 @editar.put('/consumo/<id>')
 def consumo_editar(id):
     consumo_ = ConsumoAgua.query.filter_by(id=id).first()

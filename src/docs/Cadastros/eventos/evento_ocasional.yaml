@@ -1,0 +1,53 @@
+# Cadastro de Evento Ocasional
+# ---
+# tags:
+#   - Eventos
+parameters:
+  - name: body 
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de evento ocasional
+    required: true
+    schema:
+      type: object
+      required:
+        - "tipo_de_evento"
+        - "nome_do_evento"
+        - "data"
+        - "local"
+        - "tipo_de_local"
+        - "observacoes"
+
+      properties:
+        tipo_de_evento:
+            type: "string"
+            example: "Concerto das Torneiras"
+            description: "O tipo de evento que será realizado"
+        nome_do_evento:
+            type: "string"
+            example: "Ala Sul"
+            description: "O nome do evento que será realizado"
+        data:
+            type: date
+            example: "16-03-2023"
+            description: "A data do evento"
+        local:
+            type: "string"
+            example: "Escola Monitora"
+            description: "O local onde o evento será realizado"
+        tipo_de_local:
+            type: "string"
+            example: "Escola"
+            description: "O tipo de local onde o evento será realizado"
+        observacoes:
+            type: "string"
+            example: "Pátio fechado para festa"
+            description: "Observações adicionais sobre o evento"
+      
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas 

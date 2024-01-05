@@ -6,6 +6,7 @@ from flask import current_app
 from alembic import context
 from src.models import add_opniveis
 
+
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -14,8 +15,6 @@ config = context.config
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
-
-from src.models import add_opniveis
 
 
 def get_engine():
@@ -103,7 +102,6 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),
-            include_schemas=True,
             **conf_args
         )
 

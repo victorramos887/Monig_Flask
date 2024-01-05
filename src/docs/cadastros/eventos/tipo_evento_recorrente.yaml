@@ -1,0 +1,40 @@
+Cadastro de Tipo de Evento Recorrente
+---
+tags:
+  - Tipo de Eventos
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro do tipo de evento recorrente
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "fk_cliente"
+        - "nome_do_evento"
+        - "dataRecorrente"
+        - "mesRecorrente"
+       
+      properties:
+        fk_cliente:
+          type: integer
+          example: 1
+        nome_do_evento:
+          type: "string"
+          example:  "Festa"
+        dataRecorrente:
+          type: "string"
+          example: 16
+        mesRecorrente:
+          type: "string"
+          example: "Março"
+
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

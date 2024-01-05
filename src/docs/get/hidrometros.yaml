@@ -1,0 +1,17 @@
+Recuperar Hidrometros
+---
+tags:
+  - Hidrometros
+parameters:
+  - name: id
+    description: O id do edificio que deseja recuperar os hidrometros cadastrados
+    in: path
+    required: true
+    type: integer
+    example: 1
+responses:
+  200:
+    description: Retorno realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição

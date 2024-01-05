@@ -1,0 +1,78 @@
+Editar cadastro da escola
+---
+tags:
+  - Escolas
+parameters:
+  - in: path
+    name: id
+    description: O id da escola que deve ser alterada
+    required: true
+    type: integer
+    example: 9
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de escola
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "nome"
+        - "cnpj"
+        - "email"
+        - "telefone"
+        - "logradouro"
+        - "cep"
+        - "complemento"
+        - "numero"
+        - "nivel"
+        - "cidade"
+        - "estado"
+        - "bairro"
+      properties:
+        nome:
+          type: "string"
+          example: "Escola Monitora XX"
+        cnpj:
+          type: "string"
+          example: "09.015.381/0001-98"
+        email:
+          type: "string"
+          example:  "monitora@monitor.info"
+        telefone:
+          type: "string"
+          example: "(11) 90000-0122"
+        logradouro:
+          type: "string"
+          example: "Rua Nestor de Camargo"
+        cep:
+          type: "string"
+          example: "06411-360"
+        complemento:
+          type: "string"
+          example: "Andar 1"
+        numero:
+          type: "string"
+          example: "24A"
+        nivel:
+          type: array
+          items:
+            type: string
+          example: ["Médio", "Superior"]
+        cidade:
+          type: "string"
+          example:  "Barueri"
+        estado:
+          type: "string"
+          example: "SP"
+        bairro:
+          type: "string"
+          example: "Jardim Barueri"          
+responses:
+  200:
+    description: Edição realizada com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

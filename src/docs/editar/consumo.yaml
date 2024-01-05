@@ -1,0 +1,59 @@
+Editar cadastro de Consumo
+---
+tags:
+  - Consumo
+parameters:
+  - name: id
+    description: O id do consumo que deve ser alterado
+    in: path
+    required: true
+    type: integer
+    example: 2
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes a edição do cadastro de consumo
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "fk_escola"
+        - "fk_hidrometro"
+        - "consumo"
+        - "valor"
+        - "data"
+        - "dataInicioPeriodo"
+        - "dataFimPeriodo"
+      
+      properties:
+        fk_escola:
+          type: integer
+          example: 9
+        hidrometro:
+          type: integer
+          example: 4
+        consumo:
+          type: integer
+          example: 186
+        valor:
+          type: float
+          example: 1.200
+        data:
+          type: date
+          example: "2023/12/05"
+        dataInicioPeriodo:
+          type: date
+          example: "2023/11/06"
+        dataFimPeriodo:
+          type: date
+          example: "2023/12/05"
+      
+              
+responses:
+  200:
+    description: Edição realizada com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

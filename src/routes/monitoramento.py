@@ -3,12 +3,14 @@ from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
 from sqlalchemy import desc, extract, and_, func
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
+from flasgger import swag_from
 
 
 monitoramento = Blueprint('monitoramento', __name__,
                           url_prefix="/api/v1/monitoramento")
 
 
+@swag_from('../docs/cadastros/monitoramento/leitura.yaml')
 @monitoramento.post('/cadastrarleitura')
 def leitura():
     try:
@@ -34,13 +36,13 @@ def leitura():
         print("Leitura: ", leitura_float)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
-            fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
+            fk_escola == edificios_alias.fk_escola, Hidrometros.id == hidrometro)).first()
 
         if not hidrometro_verificar:
             return jsonify({"mensagem": "este hidrometro não pertence a esta escola!!!"}), 400
 
         escolas_com_mesmo_hidrometro = Hidrometros.query.join(
-            edificios_alias).filter(Hidrometros.hidrometro == hidrometro).all()
+            edificios_alias).filter(Hidrometros.id == hidrometro).all()
 
         for escola_ in escolas_com_mesmo_hidrometro:
             # Correção
@@ -154,7 +156,7 @@ def leitura():
             "status": False
         }), 400
 
-
+@swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
 
@@ -185,7 +187,7 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
-
+@swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
 
@@ -221,6 +223,7 @@ def leitura_atual(id):
     return jsonRetorno
 
 
+@swag_from('../docs/editar/monitoramento/leitura.yaml')
 @monitoramento.patch("/edicao-monitoramento/<int:id>")
 def leitura_edicao(id):
 
@@ -249,6 +252,7 @@ def leitura_edicao(id):
         return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
 
 
+@swag_from('../docs/remover/monitoramento/leitura.yaml')
 @monitoramento.delete("/deletar-leitura/<int:id>")
 def leitura_deletar(id):
 

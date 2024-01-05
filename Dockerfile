@@ -28,9 +28,16 @@ ENV PORT 5000
 ENV APP_PORT 5000
 ENV POSTGRES_PASSWORD adminmonig
 ENV POSTGRES_USER postgres
-ENV POSTGRES_DATABASE monig
-ENV POSTGRES_ENDPOINT monig.cvrntyeol4tz.us-east-2.rds.amazonaws.com
+ENV POSTGRES_DATABASE postgres
+ENV POSTGRES_ENDPOINT monig.chq1qedxshqi.sa-east-1.rds.amazonaws.com
 ENV FLASK_DEBUG 1
+
+
+# ENV POSTGRES_PASSWORD adminmonig
+# ENV POSTGRES_USER postgres
+# ENV POSTGRES_DATABASE monig
+# ENV POSTGRES_ENDPOINT monig.cvrntyeol4tz.us-east-2.rds.amazonaws.com
+# ENV FLASK_DEBUG 1
 
 # Instale as dependências do Python
 #RUN pip install --upgrade pip

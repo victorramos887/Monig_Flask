@@ -1,0 +1,44 @@
+Cadastro da população
+---
+tags:
+  - População
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro da população
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "fk_edificios"
+        - "alunos"
+        - "funcionarios"
+        - "nivel"
+        - "periodo"
+        
+      properties:
+        fk_edificios:
+          type: integer
+          example: 9
+        alunos:
+          type: integer
+          example: 1800
+        funcionarios:
+          type: integer
+          example: 200
+        nivel:
+          type: string
+          example: "Médio"
+        periodo:
+          type: string
+          example: "Manhã"
+           
+responses:
+  200:
+    description: Cadastro da realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

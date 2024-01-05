@@ -12,6 +12,9 @@ from datetime import datetime, date
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(BASE_DIR)
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
+
+
 print(sys.path)
 # Caminho para o arquivo .env
 ENV_PATH = os.path.join(sys.path[0], '.env')
@@ -26,14 +29,20 @@ def date_encoder(obj):
     raise TypeError("Object of type %s is not JSON serializable" % type(obj))
 
 
-def test_cadastro_escola(app, new_escolas):
+def test_cadastro_escola(app, authenticated_app,new_escolas):
+    
+
+    print(authenticated_app.config['access'])
+    headers = {'Authorization': 'Bearer ' + authenticated_app.config['access']}
     # Converte o objeto para JSON
     json_data = json.dumps(new_escolas)
     
+
     response = app.test_client().post(
         'api/v1/cadastros/escolas',
         data=json_data,
-        content_type='application/json'
+        content_type='application/json',
+        headers=headers
     )
     
     data = response.get_json()

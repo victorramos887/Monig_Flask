@@ -1,0 +1,19 @@
+Deletar Tipo de Evento
+---
+
+tags:
+  - Tipo de Eventos
+
+parameters:
+  - name: id
+    description: O id do tipo de evento que deve ser deletado
+    in: path
+    required: true
+    type: integer
+    example: 1    
+responses:
+  200:
+    description: Deleção realizada com sucesso
+
+  400:
+    description: Falha ao realizar a requisição

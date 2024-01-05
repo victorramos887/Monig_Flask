@@ -1,0 +1,17 @@
+Retornar a média de consumo por pessoa de uma escola
+---
+tags:
+  - Dashboards
+parameters:
+  - name: id
+    description: O id da escola que deseja obter retorno
+    in: path
+    required: true
+    type: integer
+    example: 1
+responses:
+  200:
+    description: Retorno realizado com sucesso
+    
+  400:  
+    description: Falha ao realizar a requisição
