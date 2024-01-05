@@ -792,26 +792,15 @@ class Eventos(db.Model):
 
     def to_json(self):
 
-        colors = {
-            "verde": "#9cb56e",
-            "rosa": "#d57272",
-            "azul": "#99C8E9",
-            "roxo": "#BCA2E1",
-            "amarelo": "#FEE57F",
-            "laranja": "#F27B37"
-        }
-        retorno = {
-            attr.name: colors[getattr(self, attr.name)] if attr.name == "color" and getattr(self, attr.name) in colors else
-            getattr(self, attr.name)
-            for attr in self.__table__.columns
-        }
+        retorno = {}
 
         retorno['tipodoevento'] = self.tipodeevento.recorrente
         retorno['fk_tipo'] = self.tipodeevento.nome_do_tipo_de_evento
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
-        retorno['datafim'] = self.datafim.strftime(
-            "%Y-%m-%d") if self.datafim is not None else None
-        retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+        retorno['datafim'] = self.datafim.strftime("%Y-%m-%d") if self.datafim else None
+        retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d") if self.datainicio else None
+
+        print("Retorno - ", retorno)
 
         if self.tipodelocal.nome_da_tabela == "Escola":
             retorno['local'] = Escolas.query.filter_by(
