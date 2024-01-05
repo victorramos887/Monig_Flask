@@ -13,17 +13,17 @@ alertas = Blueprint('alertas', __name__,
                     url_prefix='/api/v1/alertas')
 
 # RETORNO TOLERÂNCIA
-
-
 @swag_from('../docs/get/alertas_evento_aberto.yaml')
 @alertas.get('/evento-aberto')
 def get_evento_sem_encerramento():
-    print("entrando na rota")
-    # filtrando eventos ocasionais
+
     # eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(
     #     AuxTipoDeEventos.recorrente.in_([False, None])).all()
-    tipo_alias = aliased(AuxTipoDeEventos)
 
+    tipo_alias = aliased(AuxTipoDeEventos)
+    
+    # filtrando eventos ocasionais
+    # Alterando junção
     eventos_ocasional = (
         db.session.query(Eventos)
         .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
@@ -49,16 +49,16 @@ def get_evento_sem_encerramento():
         tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
 
         if tipo and tipo.tempo is not None:
-            unidade = tipo.unidade
+            unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
             tempo = tipo.tempo
             # comparar a unidade e realizar o calculo
-            if unidade.lower() == "meses":
+            if unidade == "meses":
                 tolerancia = evento.datainicio + relativedelta(months=tempo)
 
-            elif unidade.lower() == "semanas":
+            elif unidade == "semanas":
                 tolerancia = evento.datainicio + relativedelta(weeks=tempo)
 
-            elif unidade.lower() =="dias":
+            elif unidade =="dias": 
                 tolerancia = evento.datainicio + relativedelta(days=tempo)
             else:
                 tolerancia = None
