@@ -8,8 +8,11 @@ from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 
 
+
+
 alertas = Blueprint('alertas', __name__,
                           url_prefix='/api/v1/alertas')
+
 
 # RETORNO TOLERÂNCIA
 @swag_from('../docs/get/alertas_evento_aberto.yaml')
@@ -75,3 +78,18 @@ def get_evento_sem_encerramento():
             result["evento"].append(evento_json)
 
     return jsonify(result), 200
+
+#alerta monitoramento - x dias sem registrar o hidrometro - enviar email
+
+#@swag_from('../docs/get/email.yaml')
+# @alertas.get('/email')
+# def get_email():
+
+#     mail_message = Message(
+#         'Olá! Não se esqueça de me seguir para mais artigos!', 
+#         sender = 'anaprferrari@gmail.com', 
+#         recipients = ['paulocdferrari@gmail.com'])
+#     mail_message.body = "Teste"
+#     mail.send(mail_message)
+    
+#     return 200
