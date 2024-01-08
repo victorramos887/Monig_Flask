@@ -27,12 +27,13 @@ def leitura():
 
         fk_escola = formulario["fk_escola"]
         hidrometro = formulario['hidrometro']
-        leitura = f"{formulario['leitura']}.{formulario['leitura2']}"
+        leitura = f"{formulario['leitura']}"
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
         edificios_alias = aliased(Edificios)
+        leitura_float = float(leitura.replace('.', '').replace(',', '.'))
 
-        print("Leitura: ", leitura)
+        print("Leitura: ", leitura_float)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
             fk_escola == edificios_alias.fk_escola, Hidrometros.id == hidrometro)).first()
@@ -107,7 +108,7 @@ def leitura():
                 # print("Leitura anterior datahora: ",
                 #       escolamonitoramento_anterior.datahora)
 
-                if escolamonitoramento_anterior[2] > float(leitura):
+                if escolamonitoramento_anterior[2] > leitura_float:
                     return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura": escolamonitoramento_anterior.leitura}), 400
 
             if escolamonitoramento_posterior:
@@ -115,7 +116,7 @@ def leitura():
                 print("Leitura posterio datahora: ",
                       escolamonitoramento_posterior.datahora)
 
-                if escolamonitoramento_posterior[2] < float(leitura):
+                if escolamonitoramento_posterior[2] < leitura_float:
                     return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura": escolamonitoramento_posterior.leitura}), 400
             # Extrair o ano, mês e dia da data
             ano = extract('year', datahora)
@@ -139,7 +140,7 @@ def leitura():
             monitoramento = Monitoramento(
                 fk_escola=escola_id.fk_escola,
                 hidrometro=hidrometro_verificar.id,
-                leitura=float(leitura),
+                leitura=leitura_float,
                 datahora=datahora
             )
 
@@ -209,15 +210,15 @@ def leitura_atual(id):
     jsonRetorno["nome"] = escola.nome
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
 
-    if escolamonitoramento:
-        inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
-        racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
-    else:
-        inteiro = ""
-        racional = ""
+    # if escolamonitoramento:
+    #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
+    #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
+    # else:
+    #     inteiro = ""
+    #     racional = ""
 
-    jsonRetorno["leitura"] = inteiro.zfill(8)
-    jsonRetorno["leitura2"] = racional.zfill(3)
+    jsonRetorno["leitura"] = escolamonitoramento.leitura
+    #jsonRetorno["leitura2"] = racional.zfill(3)
 
     return jsonRetorno
 
