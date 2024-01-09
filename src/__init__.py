@@ -10,11 +10,9 @@ from .config.swagger import swagger_config, swagger_config_cadastro, template
 from .models import db, guard, Usuarios
 
 from . import routes
-from .routes.email import index
 
-#Envio automático email
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask_mail import Mail
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
@@ -29,14 +27,16 @@ from sqlalchemy import text
 # from flask_continuum import Continuum
 
 
+
+app = Flask(__name__)
+
 # Crie uma instância do objeto de cache
 cache = Cache(config={'CACHE_TYPE': "SimpleCache"})
 rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
 
 mail = Mail()
-scheduler = BackgroundScheduler()
-scheduler.start()
+scheduler = BackgroundScheduler() 
 
 def create_app(test_config=None):
 
@@ -44,6 +44,7 @@ def create_app(test_config=None):
                 instance_relative_config=True)
 
     cache.init_app(app)
+ 
 
     if test_config is None:
         app.config.from_mapping(
@@ -74,6 +75,7 @@ def create_app(test_config=None):
             MAIL_PASSWORD = os.getenv('MAIL_PASSWORD'),
             MAIL_USE_TLS = True,
             MAIL_USE_SSL = False
+           
             
         )
     
@@ -88,23 +90,19 @@ def create_app(test_config=None):
     db.app = app
     db.init_app(app)
     migrate = Migrate(app, db)
-    mail = Mail(app)
-    
+   
     with app.app_context():
         guard.init_app(app, Usuarios)
         migrate.init_app(app)
        
        
     JWTManager(app)
-    mail.init_app(app)
     
+      
     # Blue prints
     for rota in rotas:
         app.register_blueprint(rota)
 
-    #Envio de email
-    #scheduler.add_job(index(), 'cron', hour=11, minute=53)
-    
     swagger_main = Swagger(app, config=swagger_config, template=template)
 
     @app.route('/')
@@ -114,9 +112,11 @@ def create_app(test_config=None):
 
     return app
 
-
 app = create_app()
+        
+mail.init_app(app)
 
+scheduler.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True, ssl_context=context)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
- 
+
 
 
 
