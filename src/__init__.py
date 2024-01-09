@@ -12,7 +12,6 @@ from .models import db, guard, Usuarios
 from . import routes
 
 from flask_mail import Mail
-from apscheduler.schedulers.background import BackgroundScheduler
 
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
@@ -25,7 +24,6 @@ from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy import text
 
 # from flask_continuum import Continuum
-
 
 
 app = Flask(__name__)
