@@ -36,7 +36,7 @@ def monitoramento():
                                 if intervalo > 10:
                                         
                                         #email para escola
-                                        msg = Message('Teste email monitoramento', sender = 'monitoramento_escola@gmail.com', recipients = [escola.email])
+                                        msg = Message('Teste email monitoramento', recipients = [escola.email])
                                         msg.body = "Alerta de monitoramento para a escola {}.\n Não registramos nenhum monitoramento nos últimos {} dias.".format(escola.nome, intervalo)
                                         mail.send(msg)
 
