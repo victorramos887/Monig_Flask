@@ -36,7 +36,7 @@ def monitoramento():
                                 if intervalo > 10:
                                         
                                         #email para escola
-                                        msg = Message('Teste email monitoramento', recipients = [escola.email])
+                                        msg = Message('Teste email monitoramento', sender = 'monitoramento_escola@gmail.com', recipients = [escola.email])
                                         msg.body = "Alerta de monitoramento para a escola {}.\n Não registramos nenhum monitoramento nos últimos {} dias.".format(escola.nome, intervalo)
                                         mail.send(msg)
 
@@ -49,29 +49,10 @@ scheduler = BackgroundScheduler()
 def schedule_jobs(scheduler, *functions):
              
         for func in functions:
-                scheduler.add_job(func, 'cron', hour=17, minute=27, day_of_week='mon-fri')
+                scheduler.add_job(func, 'cron', hour=17, minute=33, day_of_week='mon-fri')
         
 schedule_jobs(scheduler, monitoramento)
 scheduler.start()
 
 
 
-# @email.post("/email")
-# def index():
-#         with app.app_context():
-#                 msg = Message('TESTE DATA E HORA', sender = 'xxxx@gmail.com', recipients = ['xxxx@gmail.com'])
-#                 msg.body = "Olá, esse email será enviado automáticamente todos os dias"
-#                 mail.send(msg)
-                
-#                 print('EMAIL ENVIADO')
-                
-         
-# scheduler = BackgroundScheduler()
-
-# #Enviar emails 
-# def schedule_jobs(scheduler, *functions):
-#     for func in functions:
-#         scheduler.add_job(func, 'cron', hour=12, minute=24, day_of_week='mon-fri')
-        
-# schedule_jobs(scheduler, index)
-# scheduler.start()
