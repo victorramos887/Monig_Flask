@@ -36,7 +36,7 @@ rotas = [getattr(routes, nome) for nome in dir(routes)
          if isinstance(getattr(routes, nome), Blueprint)]
 
 mail = Mail()
-scheduler = BackgroundScheduler() 
+
 
 def create_app(test_config=None):
 
@@ -116,7 +116,6 @@ app = create_app()
         
 mail.init_app(app)
 
-scheduler.start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
