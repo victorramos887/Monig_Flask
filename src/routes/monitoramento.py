@@ -3,12 +3,14 @@ from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
 from sqlalchemy import desc, extract, and_, func
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
+from flasgger import swag_from
 
 
 monitoramento = Blueprint('monitoramento', __name__,
                           url_prefix="/api/v1/monitoramento")
 
 
+@swag_from('../docs/cadastros/monitoramento/leitura.yaml')
 @monitoramento.post('/cadastrarleitura')
 def leitura():
     try:
@@ -47,12 +49,12 @@ def leitura():
             escola_id = Edificios.query.filter_by(
                 id=escola_.fk_edificios).first()
 
-            # escolamonitoramento_anterior = Monitoramento.query.filter(
-            #     and_(
-            #         Monitoramento.fk_escola == escola_id.fk_escola,
-            #         Monitoramento.datahora < datahora
-            #     )
-            # ).order_by(Monitoramento.datahora).first()
+            escolamonitoramento_anterior = Monitoramento.query.filter(
+                and_(
+                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.datahora < datahora
+                )
+            ).order_by(Monitoramento.datahora).first()
 
             escolamonitoramento_anterior = (
 
@@ -129,11 +131,11 @@ def leitura():
                 (Monitoramento.fk_escola == escola_id.fk_escola)
             ).all()
 
-            # if len(resultado) > 1:
-            #     return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
+            if len(resultado) > 1:
+                return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
 
-            # if len(resultado) == 1 and resultado[0].datahora >= datahora:
-            #     return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
+            if len(resultado) == 1 and resultado[0].datahora >= datahora:
+                return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
 
             monitoramento = Monitoramento(
                 fk_escola=escola_id.fk_escola,
@@ -154,7 +156,7 @@ def leitura():
             "status": False
         }), 400
 
-
+@swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
 
@@ -162,8 +164,8 @@ def leituras_tabela(id):
         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
 
     tabela = []
-    print(f"Todas as leituras {escolamonitoramento}")
-    print("-----------------------------------------")
+    # print(f"Todas as leituras {escolamonitoramento}")
+    # print("-----------------------------------------")
 
     if len(escolamonitoramento) > 1:
         for i in range(0, len(escolamonitoramento)):
@@ -174,10 +176,15 @@ def leituras_tabela(id):
                 diferenca = escolamonitoramento[i].leitura - \
                     escolamonitoramento[indexanterior].leitura
                 print(diferenca)
+            #escolamonitoramento[i]['leitura'] = "{:.3f}".format(float(escolamonitoramento[i]['leitura']))
 
             tabela.append(
                 {
-                    "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
+                    "id": escolamonitoramento[i].id, 
+                    "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), 
+                    "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), 
+                    "leitura": f"{escolamonitoramento[i].leitura:,.3f}" if escolamonitoramento[i].leitura is not None else "N/A", #float(escolamonitoramento[i]['leitura']).format('.3f'), 
+                    "diferenca": f"{diferenca:,.3f}" if diferenca is not None else "N/A" 
                 }
             )
     return jsonify({
@@ -185,7 +192,7 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
-
+@swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
 
@@ -221,6 +228,7 @@ def leitura_atual(id):
     return jsonRetorno
 
 
+@swag_from('../docs/editar/monitoramento/leitura.yaml')
 @monitoramento.patch("/edicao-monitoramento/<int:id>")
 def leitura_edicao(id):
 
@@ -249,6 +257,7 @@ def leitura_edicao(id):
         return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
 
 
+@swag_from('../docs/remover/monitoramento/leitura.yaml')
 @monitoramento.delete("/deletar-leitura/<int:id>")
 def leitura_deletar(id):
 
@@ -311,11 +320,11 @@ def leituras_volumes(id):
                 "id": id,
                 "Data": data.strftime('%d/%m/%Y'),
                 "Hora": data.strftime("%H:%M"),
-                "Leitura": letura,
+                "Leitura": f"{letura:,.3f}",
                 "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
                 "HoraAnterior": dataanterior.strftime("%H:%M"),
-                "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
-                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
+                "LeituraAnterior": f"{leituraanterior:,.3f}",
+                "Diferenca": f"{diferenca:,.3f}" if diferenca is not None and type(diferenca) in (int, float) else "N/A"
             }
 
             # print(dicionario)

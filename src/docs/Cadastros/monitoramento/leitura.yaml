@@ -1,0 +1,47 @@
+Cadastro de Leituras
+---
+tags:
+  - Monitoramento
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de leituras
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "data"
+        - "fk_escola"
+        - "hidrometro"
+        - "hora"
+        - "leitura"
+        - "leitura2"
+        
+      properties:
+        fk_escola:
+          type: integer
+          example: 9
+        hidrometro:
+          type: integer
+          example: 7
+        data:
+          type: date
+          example: "27/12/2023"
+        hora:
+          type: date
+          example: "10:10"
+        leitura:
+          type: integer
+          example: 964
+        leitura2:
+          type: integer
+          example: 69560
+responses:
+  200:
+    description: Cadastro da realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+     description: Credenciais inválidas 

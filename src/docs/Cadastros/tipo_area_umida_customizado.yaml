@@ -1,0 +1,27 @@
+Cadastro de Tipo de Area Umida
+---
+tags:
+  - Area Umida
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de tipo de área úmida
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "tipo_area_umida"
+      properties:
+        tipo_area_umida:
+          type: "string"
+          example: "Piscina"
+      
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

@@ -1,5 +1,6 @@
 import json
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_current_user
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
 from sqlalchemy import exc
@@ -9,11 +10,16 @@ from ..models import (Escolas, Edificios, EscolaNiveis, EscolaNiveisVersion, db,
 import traceback
 from sqlalchemy.exc import ArgumentError
 from datetime import datetime
+import flask_praetorian
+from flasgger import swag_from
+
+
 
 cadastros = Blueprint('cadastros', __name__, url_prefix='/api/v1/cadastros')
 
 
 # cadastro de cliente
+@swag_from('../docs/cadastros/cliente.yaml')
 @cadastros.post('/cliente')
 def cliente():
 
@@ -66,6 +72,7 @@ def cliente():
 
 
 # cadastro de usuário
+@swag_from('../docs/cadastros/usuario.yaml')
 @cadastros.post('/usuario')
 def usuario():
 
@@ -143,6 +150,8 @@ def usuario():
 
 
 # Cadastros das escolas
+@flask_praetorian.roles_accepted("admin", "diretoria")
+@swag_from('../docs/cadastros/escolas.yaml')
 @cadastros.post('/escolas')
 def escolas():
     try:
@@ -188,22 +197,6 @@ def escolas():
 
         niveis_query = AuxOpNiveis.query.filter(
             AuxOpNiveis.nivel.in_(nivel)).all()
-        # realizar controle, de que não foi cadastrado nível
-
-        escola_niveis = [EscolaNiveis(
-            nivel_ensino_id=nivel.id, escola_id=escola.id
-        ) for nivel in niveis_query]
-        db.session.add_all(escola_niveis)
-
-        # Versionamento
-        escola_niveis_version = [EscolaNiveisVersion(
-            nivel_ensino_id=nivel.id,
-            escola_id=escola.id,
-            transacao=0,
-            created_at=datetime.now()
-        ) for nivel in niveis_query]
-
-        db.session.add_all(escola_niveis_version)
 
         edificio = Edificios(
             fk_escola=int(escola.id),
@@ -257,6 +250,7 @@ def escolas():
 
 
 # cadastro de reservatorios
+@swag_from('../docs/cadastros/reservatorios.yaml')
 @cadastros.post('/reservatorios')
 def reservatorios():
 
@@ -322,6 +316,7 @@ def reservatorios():
 
 
 # Cadastros dos edifícios.
+@swag_from('../docs/cadastros/edificios.yaml')
 @cadastros.post('/edificios')
 def edificios():
 
@@ -387,13 +382,13 @@ def edificios():
 
                 db.session.add(reservatorio)
 
-                reservatorio_vesion = ReservatorioEdificioVersion(
-                    edificio_id=edificio.id,
-                    reservatorio_id=reserv.id,
-                    transacao=0,
-                    created_at=datetime.now()
-                )
-                db.session.add(reservatorio_vesion)
+                # reservatorio_vesion = ReservatorioEdificioVersion(
+                #     edificio_id=edificio.id,
+                #     reservatorio_id=reserv.id,
+                #     transacao=0,
+                #     created_at=datetime.now()
+                # )
+                # db.session.add(reservatorio_vesion)
 
             else:
                 db.session.rollback()
@@ -435,7 +430,7 @@ def edificios():
         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
     return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-
+@swag_from('../docs/cadastros/hidrometros.yaml')
 @cadastros.post('/hidrometros')
 def hidrometros():
 
@@ -496,7 +491,7 @@ def hidrometros():
             'codigo': str(e)
         })
 
-
+@swag_from('../docs/cadastros/populacao.yaml')
 @cadastros.post('/populacao')
 def populacao():
 
@@ -578,6 +573,7 @@ def populacao():
 
 
 # Cadastros das areas umidas
+@swag_from('../docs/cadastros/area_umida.yaml')
 @cadastros.post('/area-umida')
 def area_umida():
 
@@ -665,7 +661,7 @@ def area_umida():
 
         return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-
+@swag_from('../docs/cadastros/equipamentos.yaml')
 @cadastros.post('/equipamentos')
 def equipamentos():
 
@@ -751,12 +747,13 @@ def equipamentos():
         
     
 #CONSUMO DE ÁGUA
-
+@swag_from('../docs/cadastros/consumo.yaml')
 @cadastros.post('/consumo')
 def consumos():
-
+    
     try:
         formulario = request.get_json()
+        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -767,7 +764,7 @@ def consumos():
          
     try:    
         fk_escola = formulario['fk_escola']
-        fk_hidrometro = formulario['fk_hidrometro']
+        fk_hidrometro = formulario['hidrometro']
         consumo = formulario['consumo']
         data = formulario['data']
         dataInicioPeriodo = formulario['dataInicioPeriodo']
@@ -791,10 +788,10 @@ def consumos():
             dataFimPeriodo = dataFimPeriodo,
             valor = valor
         )
-
+        print(consumo)
         db.session.add(consumo)
         db.session.commit()
-
+        
         return jsonify({'status':True, 'id': consumo.id, "mensagem":"Cadastrado realizado com sucesso","data":consumo.to_json()}), HTTP_200_OK
 
     except exc.DBAPIError as e:
@@ -817,7 +814,7 @@ def consumos():
             #STRING DATA RIGHT TRUNCATION
             return jsonify({'status':False, 'mensagem': "Erro no cabeçalho", 'codigo':f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
 
-        if e.origin.pgcode == '22P02':
+        if e.orig.pgcode == '22P02':
             return jsonify({'status':False, 'mensagem':'Erro no tipo de informação envida', 'codigo':f'{e}'}), HTTP_500_INTERNAL_SERVER_ERROR
 
     except Exception as e:
@@ -832,5 +829,10 @@ def consumos():
         return jsonify({
             'status': False,
             'mensagem':'Erro não tratado.', 'codigo': str(e)
+        }), HTTP_400_BAD_REQUEST
+        
+    return jsonify({
+            'status': False,
+            'mensagem': 'Erro não tratado.'
         }), HTTP_400_BAD_REQUEST
         

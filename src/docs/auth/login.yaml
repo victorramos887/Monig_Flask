@@ -1,0 +1,31 @@
+Loggin do usuário
+---
+tags:
+  - Autenticação
+parameters:
+  - name: body
+    description: O corpo (body) da requisição deve conter as credenciais do usuário
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+        - "senha"
+      properties:
+        email:
+          type: "email"
+          example: "monitora@monitora.info"
+        senha:
+          type: "string"
+          format: password
+          example: "*********"
+responses:
+  200:
+    description: Login do usuário realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas

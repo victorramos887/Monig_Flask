@@ -1,0 +1,27 @@
+Cadastro de Status da Area Umida
+---
+tags:
+  - Area Umida
+parameters:
+  - name: body
+    description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de status da área úmida
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - " status_area_umida"
+      properties:
+         status_area_umida:
+          type: boolean
+          example: False
+      
+responses:
+  200:
+    description: Cadastro realizado com sucesso
+
+  400:
+    description: Falha ao realizar a requisição
+
+  401:
+    description: Credenciais inválidas
