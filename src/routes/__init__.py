@@ -13,3 +13,4 @@ from .version import *
 from .monitoramento import *
 from .alertas import *
 from .dashboard import *
+# from .email import *
