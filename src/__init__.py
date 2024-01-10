@@ -7,6 +7,7 @@ from .models import db
 from . import routes
 
 from flask_mail import Mail
+from datetime import timedelta
 
 from flask import Blueprint, Flask
 from flask_jwt_extended import JWTManager
