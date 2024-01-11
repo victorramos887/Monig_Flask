@@ -71,7 +71,6 @@ def roles():
     try:
         name = request.json.get('name', '')
         role = Roles.query.filter_by(name=name).first()
-        print(role)
         if role:
             return jsonify({'mensagem':"Role já existe!!!"}), 409
         
@@ -157,7 +156,7 @@ def login():
             'status': True
         }), HTTP_200_OK
     except Exception as e:
-        return str(e)
+        return jsonify({"error":str(e), "mensagem":"Erro não tratado", "status":False}), HTTP_400_BAD_REQUEST
 
 
 # busca as informações do usuário identificado pelo token

@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from random import randint
 from faker import Faker
 from flask import Response
@@ -6,6 +7,11 @@ import sys
 import os
 import json
 from datetime import date
+from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy import create_engine, text
+from sqlalchemy.schema import CreateSchema
+import psycopg2 as psg
+from flask_sqlalchemy import SQLAlchemy
 
 
 sys.path.insert(0, os.path.abspath(
@@ -13,36 +19,50 @@ sys.path.insert(0, os.path.abspath(
 
 fake = Faker()
 
+
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, date):
             return o.isoformat()
         return super().default(o)
 
+def pytest_configure(config):
+    config.addinivalue_line("filterwarnings", "ignore::DeprecationWarning")
+    config.addinivalue_line("filterwarnings", "ignore::sqlalchemy.exc.SAWarning")
+    
 @fixture
 def app():
     # Configura a aplicação para usar o banco de dados de teste
 
     from src import create_app
-    from src.models import add_opniveis
+    from src.models import add_opniveis, db
     app = create_app({
         'TESTING': True,
-        'SQLALCHEMY_DATA_BASE_URI': 'sqlite:///test.db'
+        'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:postgres@localhost:5432/testedb'
     })
 
-
     app.json_encoder = CustomJSONEncoder
-    
-    with app.app_context():
-        # Cria o banco de dados de testes e tabelas
-        from src.models import db
-        db.create_all()
-        add_opniveis()
-        yield app
 
-        # Limpando banco de dados de teste após cada execução do teste
-        db.session.remove()
-        db.drop_all()
+    try:
+        with app.app_context():
+            # Cria o banco de dados de testes e tabelas
+            if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
+                create_database(app.config['SQLALCHEMY_DATABASE_URI'])
+                engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+
+                db.session.execute(text('CREATE SCHEMA IF NOT EXISTS main;'))
+                db.session.execute(text('CREATE EXTENSION postgis;'))
+                db.session.execute(text('CREATE EXTENSION postgis_topology;'))
+                db.session.commit()
+
+                db.create_all()
+                add_opniveis()
+            yield app
+
+            drop_database(app.config['SQLALCHEMY_DATABASE_URI'])
+    except Exception as e:
+        raise ValueError(f"{e}")
+
 
 @fixture
 def assert_response():
@@ -79,6 +99,7 @@ def new_escolas():
         'nivel': [niveis, niveis],
         'numero': fake.random_int(min=1, max=1000)
     }
+
 
 @fixture
 def update_escola():
@@ -181,59 +202,62 @@ def new_populacao():
 def new_hidrometro():
 
     return {
-        "fk_edificios":1,
-        "hidrometro":fake.name()
+        "fk_edificios": 1,
+        "fk_hidrometro": 1,
+        "hidrometro":"xxxxxxx"
     }
+
 
 @fixture
 def new_reservatorio():
 
     return {
-        "fk_escola":1,
-        "nome":fake.name()
+        "fk_escola": 1,
+        "nome": fake.name()
     }
+
 
 @fixture
 def new_cliente():
-    
-   return {
+
+    return {
         "nome": fake.name(),
         "email": fake.email(),
         "cnpj":  cnpj(),
-        "telefone": fake.phone_number()
+        "telefone": "964670934"
     }
+
 
 @fixture
 def new_usuario():
-    
-   return {
+
+    return {
         "cod_cliente": 1,
         "nome": fake.name(),
         "email": fake.email(),
         "senha":  fake.password(),
-      
+        "escola": None,
+        "roles": "admin"
     }
-
-from datetime import date, datetime
 
 
 @fixture
 def new_tipo_evento():
 
-   return {
-        "fk_cliente":1,
-        "nome_do_evento":fake.name(),
-        "dataRecorrente":fake.random_int(min=1, max=31),
-        "mesRecorrente":'Janeiro',
-        "periodicidade":fake.random_element(
+    return {
+        "fk_cliente": 1,
+        "nome_do_evento": fake.name(),
+        "dataRecorrente": fake.random_int(min=1, max=31),
+        "mesRecorrente": 'Janeiro',
+        "periodicidade": fake.random_element(
             elements=(
                 "Recorrente",
                 "Ocasional"
             )
         ),
-        "requerResposta":fake.boolean(),
-        "tolerancia":fake.random_int(min=1, max=12),
-        "unidade":fake.random_element(
+        "requerResposta": fake.boolean(),
+        "tolerancia": fake.random_int(min=1, max=12),
+        "unidade": fake.random_element(
             elements=(
                 "Semana",
                 "Mês",
@@ -241,8 +265,9 @@ def new_tipo_evento():
                 "Ano"
             )
         ),
-        "ehResposta":fake.boolean()
+        "ehResposta": fake.boolean()
     }
+
 
 @fixture
 def new_tipo_de_vento_vazio():
@@ -261,34 +286,59 @@ def new_tipo_de_vento_vazio():
 
 @fixture
 def new_evento():
-    
+
     return {
-        "fk_tipo":fake.random_int(min=1, max=10),
-        "nome":fake.name(),
-        "datainicio":None,#fake.date_object(),
-        "datafim":None, #fake.date_object(),
-        "local":fake.random_int(min=1, max=1000),
-        "tipo_de_local":fake.random_element(elements=['Escola', 'Edificação','Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']),
-        "observacao":fake.text(),
+        "fk_tipo": fake.random_int(min=1, max=10),
+        "nome": fake.name(),
+        "datainicio": None,  # fake.date_object(),
+        "datafim": None,  # fake.date_object(),
+        "local": fake.random_int(min=1, max=1000),
+        "tipo_de_local": fake.random_element(elements=['Escola', 'Edificação', 'Área Umida', 'Reservatório', 'Equipamento', 'Hidrômetro']),
+        "observacao": fake.text(),
     }
 
 
+# @fixture
+# def new_tipo_ocasional():
+#     return {
+#         "fk_cliente": 1,
+#         "nome_do_evento": "Festa",
+#         "requerResposta": fake.boolean(),
+#         "tolerancia": fake.random_int(min=1, max=12),
+#         "unidade": fake.random_element(
+#             elements=(
+#                 "Semana",
+#                 "Mês",
+#                 "Dia",
+#                 "Ano"
+#             )
+#         ),
+#         "ehResposta": fake.boolean()
+#     }
+
+
 @fixture
-def new_tipo_ocasional():
+def new_tipo_evento_ocasional():
     return {
-        "fk_cliente":1,
-        "nome_do_evento": "Festa",
-        "requerResposta":fake.boolean(),
-        "tolerancia":fake.random_int(min=1, max=12),
-        "unidade":fake.random_element(
-            elements=(
-                "Semana",
-                "Mês",
-                "Dia",
-                "Ano"
-            )
-        ),
-        "ehResposta":fake.boolean()
+        "fk_cliente": 1,
+        "nome_do_evento": fake.word(),
+        "dataRecorrente": fake.date(),
+        "mesRecorrente": fake.random_element(["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]),
+        "requerResposta": fake.boolean(),
+        "tolerancia": fake.random_number(digits=2),
+        "unidade": fake.random_element(['Dias', 'Semanas', 'Meses'])
+    }
+
+@fixture
+def new_tipo_evento_recorrente():
+    return {
+        "fk_cliente": 1,
+        "nome_do_evento": fake.word(),
+        "dataRecorrente": fake.date(),
+        "mesRecorrente": fake.random_element(["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]),
+        "requerResposta": fake.boolean(),
+        "tolerancia": fake.random_number(digits=2),
+        "unidade":  fake.random_element(['Dias', 'Semanas', 'Meses'])
     }
 
 @fixture
@@ -309,8 +359,9 @@ def new_escola_evento():
         'numero': fake.random_int(min=1, max=1000)
     }
 
+
 @fixture
-def new_evento_ocasional(): 
+def new_evento_ocasional():
     return {
         "tipo_de_evento": "Festa",
         "nome_do_evento": fake.name(),
@@ -320,3 +371,60 @@ def new_evento_ocasional():
         "tipo_de_local": "Escola",
         "observacoes": fake.text()
     }
+
+
+# AUTENTICAÇÃO
+@fixture
+def authenticated_app(app, new_cliente, new_usuario):
+    with app.app_context():
+        # Inicia a transação
+        # connection = db.engine.connect()
+        # transaction = connection.begin()
+
+        json_data_cliente = json.dumps(new_cliente)
+
+        response_cliente = app.test_client().post(
+            '/api/v1/cadastros/cliente',
+            data=json_data_cliente,
+            content_type='application/json'
+        )
+        assert response_cliente.status_code == 200
+
+        response_role = app.test_client().post(
+            '/api/v1/auth/roles',
+            data='{"name":"admin"}',
+            content_type="application/json"
+        )
+        assert response_role.status_code == 200
+
+        json_data_usuario = json.dumps(new_usuario)
+
+        response_usuario = app.test_client().post(
+            'api/v1/auth/register',
+            data=json_data_usuario,
+            content_type='application/json'
+        )
+        assert response_usuario.status_code == 200
+
+        username = json.loads(json_data_usuario)['email']
+        senha = json.loads(json_data_usuario)['senha']
+        login_data = {
+            "email": str(username),
+            "senha": str(senha)
+        }
+
+        response_login = app.test_client().post(
+            '/api/v1/auth/login',
+            data=json.dumps(login_data),
+            content_type='application/json'
+        )
+        assert response_login.status_code == 200
+        token = json.loads(response_login.data)['user']['access']
+
+        yield {
+            "token": token
+        }
+
+        # Finaliza a transação revertendo as alterações
+        # transaction.rollback()
+        # connection.close()

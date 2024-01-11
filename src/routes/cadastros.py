@@ -1,5 +1,5 @@
 import json
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_current_user
 import re
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED, HTTP_500_INTERNAL_SERVER_ERROR
@@ -150,10 +150,12 @@ def usuario():
 
 
 # Cadastros das escolas
+@cadastros.post('/escolas')
 @flask_praetorian.roles_accepted("admin", "diretoria")
 @swag_from('../docs/cadastros/escolas.yaml')
-@cadastros.post('/escolas')
 def escolas():
+
+    print("Usuário: ", flask_praetorian.current_user().username)
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -250,8 +252,9 @@ def escolas():
 
 
 # cadastro de reservatorios
-@swag_from('../docs/cadastros/reservatorios.yaml')
 @cadastros.post('/reservatorios')
+@flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
+@swag_from('../docs/cadastros/reservatorios.yaml')
 def reservatorios():
 
     try:
@@ -316,8 +319,9 @@ def reservatorios():
 
 
 # Cadastros dos edifícios.
-@swag_from('../docs/cadastros/edificios.yaml')
 @cadastros.post('/edificios')
+@flask_praetorian.roles_accepted("admin", "diretoria")
+@swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
     try:
@@ -430,8 +434,9 @@ def edificios():
         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
     return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
 
-@swag_from('../docs/cadastros/hidrometros.yaml')
 @cadastros.post('/hidrometros')
+@flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
+@swag_from('../docs/cadastros/hidrometros.yaml')
 def hidrometros():
 
     try:
@@ -491,8 +496,9 @@ def hidrometros():
             'codigo': str(e)
         })
 
-@swag_from('../docs/cadastros/populacao.yaml')
 @cadastros.post('/populacao')
+@flask_praetorian.roles_accepted("admin", "diretoria")
+@swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
     try:
@@ -573,10 +579,11 @@ def populacao():
 
 
 # Cadastros das areas umidas
-@swag_from('../docs/cadastros/area_umida.yaml')
 @cadastros.post('/area-umida')
+@flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
+@swag_from('../docs/cadastros/area_umida.yaml')
 def area_umida():
-
+    print("Usuário: ", flask_praetorian.current_user())
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -661,8 +668,9 @@ def area_umida():
 
         return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-@swag_from('../docs/cadastros/equipamentos.yaml')
 @cadastros.post('/equipamentos')
+@flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
+@swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
     try:
@@ -835,4 +843,3 @@ def consumos():
             'status': False,
             'mensagem': 'Erro não tratado.'
         }), HTTP_400_BAD_REQUEST
-        

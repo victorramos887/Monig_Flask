@@ -48,7 +48,7 @@ def obter_local(tipo_de_local, id):
 @swag_from('../docs/cadastros/eventos/tipo_evento_ocasional.yaml')
 @eventos.post('/tipo-de-evento-ocasional')
 def tipoeventoocasional():
-
+    
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -132,10 +132,10 @@ def tipoeventorecorrente():
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = formulario.get('periodicidade') if formulario.get(
-            'periodicidade') is not None else False
+        # periodicidade = formulario.get('periodicidade') if formulario.get(
+        #     'periodicidade') is not None else False
 
-        print(periodicidade)
+        # print(periodicidade)
 
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
@@ -148,10 +148,6 @@ def tipoeventorecorrente():
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
        
-        
-        #COR ALEATÓRIA
-        #color = "%06x" % randint(0, 0xFFFFFF)
-        #color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = "0474CB"
 
         tipo_evento = AuxTipoDeEventos(

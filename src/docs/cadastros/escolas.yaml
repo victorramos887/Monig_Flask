@@ -1,8 +1,15 @@
+
+
 Cadastro da escola
 ---
 tags:
   - Escolas
+
 parameters:
+
+  - in: header
+    name: Authorization 
+    required: true
   - name: body
     description: O Corpo (body) da requisição deve conter as informações pertinentes ao cadastro de escola, ao realizar o cadastro de uma escola uma edificação será adicionada por padrão
     in: body
