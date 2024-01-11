@@ -1,3 +1,4 @@
+from datetime import datetime, date
 import json
 from flask import Blueprint, jsonify, request
 import re
@@ -48,7 +49,7 @@ def obter_local(tipo_de_local, id):
 @swag_from('../docs/cadastros/eventos/tipo_evento_ocasional.yaml')
 @eventos.post('/tipo-de-evento-ocasional')
 def tipoeventoocasional():
-
+    
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -132,11 +133,6 @@ def tipoeventorecorrente():
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        periodicidade = formulario.get('periodicidade') if formulario.get(
-            'periodicidade') is not None else False
-
-        print(periodicidade)
-
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -148,17 +144,13 @@ def tipoeventorecorrente():
         unidade = formulario.get(
             'unidade') if formulario.get('unidade') else None
        
-        
-        #COR ALEATÓRIA
-        #color = "%06x" % randint(0, 0xFFFFFF)
-        #color = f"{randint(0, 255)}, {randint(0, 255)}, {randint(0, 255)}"
         color = "0474CB"
 
         tipo_evento = AuxTipoDeEventos(
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
             recorrente=True,
-            dia=dia,
+            dia=date.fromisoformat(dia).day,
             mes=mes,
             requer_acao=requer_acao,
             tempo=tempo,
@@ -261,11 +253,12 @@ def eventos_cadastro_unitario():
 
         else:
             datainicio = formulario.get("data", None)
+            print("Ocasional", datainicio)
             datafim = None
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
         
-        # print(tipo_de_local_fk.nome_da_tabela)
+        print(tipo_de_local_fk.nome_da_tabela)
 
         if not tipo_de_local_fk:
             return jsonify({
@@ -292,10 +285,10 @@ def eventos_cadastro_unitario():
             }), 400
 
         #Escola
-        # print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
+        print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
         if tipo_de_local_fk.nome_da_tabela == "Escola":
             fk_escola = local_fk.id
-            # print(local_fk)
+            print(local_fk)
         
         elif tipo_de_local_fk.nome_da_tabela == "Edificação":
             edificio_ = Edificios.query.filter_by(id=local_fk.id).first()

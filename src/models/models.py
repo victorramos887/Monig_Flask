@@ -760,7 +760,7 @@ class Eventos(db.Model):
         retorno['tipo_de_local'] = self.tipodelocal.nome_da_tabela
         retorno['datafim'] = self.datafim.strftime(
             "%Y-%m-%d") if self.datafim is not None else None
-        retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d")
+        retorno['datainicio'] = self.datainicio.strftime("%Y-%m-%d") if self.datainicio is not None else None
 
         if self.tipodelocal.nome_da_tabela == "Escola":
             retorno['local'] = Escolas.query.filter_by(

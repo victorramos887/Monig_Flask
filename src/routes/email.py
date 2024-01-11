@@ -91,5 +91,3 @@ def schedule_jobs(scheduler, *functions):
 schedule_jobs(scheduler, monitoramento)
 scheduler.start()
 
-
-

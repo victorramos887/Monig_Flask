@@ -155,6 +155,7 @@ def leitura():
             "status": False
         }), 400
 
+
 @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
@@ -357,11 +358,7 @@ def leituras_volumes(id):
 # RETORNA TODAS AS ESCOLAS
 @monitoramento.get('/escolas')
 def escolas():
-    
-
-    #Returno da ultima leitura diurna e noturna
-    
-
+    #Returno da ultima leitura diurna e noturna    
     escolas = Escolas.query.all()
     return jsonify({
         'return': [escola.to_json() for escola in escolas],

@@ -89,6 +89,7 @@ def create_app(test_config=None):
       
     # Blue prints
     for rota in rotas:
+
         app.register_blueprint(rota)
 
     swagger_main = Swagger(app, config=swagger_config, template=template)
