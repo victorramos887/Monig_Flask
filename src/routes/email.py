@@ -4,10 +4,14 @@ from flasgger import swag_from
 from apscheduler.schedulers.background import BackgroundScheduler
 from src.__init__ import mail, app
 from datetime import datetime, date
-from ..models import Escolas, Monitoramento, db
+from ..models import Escolas, Monitoramento, db, Eventos, AuxTipoDeEventos
+from dateutil.relativedelta import relativedelta
+from sqlalchemy import or_
+from sqlalchemy.orm import aliased
 
 
 email = Blueprint("email", __name__, url_prefix = '/api/v1/email')
+
 
 #Enviar email Monitoramento -OK
 # @swag_from('../docs/email.yaml')
@@ -48,6 +52,71 @@ def monitoramento():
 
 
 
+# RETORNO TOLERÂNCIA
+@email.post('/evento-aberto')
+def evento_sem_encerramento():
+        with app.app_context():
+                
+                # eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(
+                #     AuxTipoDeEventos.recorrente.in_([False, None])).all()
+
+                tipo_alias = aliased(AuxTipoDeEventos)
+                
+                # filtrando eventos ocasionais
+                # Alterando junção
+                eventos_ocasional = (
+                        db.session.query(Eventos)
+                        .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+                        .filter(
+                        or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+                        )
+                        .all()
+                )
+
+                # eventos sem data de encerramento
+                eventos_sem_encerramento = [
+                        evento for evento in eventos_ocasional if evento.data_encerramento is None]
+
+                for evento in eventos_sem_encerramento:
+
+                        # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+                        tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+
+                        if tipo and tipo.tempo is not None:
+                                unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
+                                tempo = tipo.tempo
+                                # comparar a unidade e realizar o calculo
+                                if unidade == "meses":
+                                        tolerancia = evento.datainicio + relativedelta(months=tempo)
+
+                                elif unidade == "semanas":
+                                        tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+
+                                elif unidade =="dias": 
+                                        tolerancia = evento.datainicio + relativedelta(days=tempo)
+                                else:
+                                        tolerancia = None
+
+                                # igualar as datas
+                                tolerancia = tolerancia.date() if tolerancia is not None else None
+                                data_atual = date.today()
+
+                                if tolerancia < data_atual:
+                                       
+                                        #email para escola
+                                        tolerancia = str(tolerancia).format("%d/%m/%Y") 
+                                        inicio_evento = str().format("%d/%m/%Y") 
+                                        print(evento.escola.nome)
+                                        
+                                        msg = Message('Teste evento fora de prazo', sender = 'monitoramento_escola@gmail.com', recipients = [evento.escola.email])
+                                        corpo_msg = 'Você possui um ou mais evento fora do prazo de tolerância'
+                                        msg.body = "Evento em aberto\n titulo do evento:{}.\n inicio do evento:{}. \n tolerância: {}. \n alerta: {}".format(evento.nome, evento.datainicio, tolerancia, corpo_msg )
+                                        mail.send(msg)
+
+                                        print('EMAIL ENVIADO') 
+                                        
+                                     
+
 #Enviar email Monitoramento -OK
 # @email.post("/monitoramento")
 # def monitoramento():
@@ -86,8 +155,8 @@ scheduler = BackgroundScheduler()
 def schedule_jobs(scheduler, *functions):
              
         for func in functions:
-                scheduler.add_job(func, 'cron', hour=15, minute=46, day_of_week='mon-fri')
+                scheduler.add_job(func, 'cron', hour=17, minute=59, day_of_week='mon-fri')
         
-schedule_jobs(scheduler, monitoramento)
+schedule_jobs(scheduler, evento_sem_encerramento)
 scheduler.start()
 

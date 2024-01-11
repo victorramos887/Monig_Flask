@@ -85,6 +85,7 @@ def get_evento_sem_encerramento():
 
             # adicionar o evento ao resultado
             evento_json = {
+                "id_escola": evento.escola.id,
                 "id": evento.id,
                 "title": evento.nome,
                 "start": str(evento.datainicio).format("%d/%m/%Y"),

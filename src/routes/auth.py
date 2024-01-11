@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import (create_access_token, create_refresh_token, get_jwt_identity, jwt_required, decode_token, create_access_token)
 from werkzeug.security import check_password_hash, generate_password_hash
 from ..constants.http_status_codes import (HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST,HTTP_409_CONFLICT)
-from ..models import Usuarios, Escolas, db
+from ..models import Usuarios, Escolas, db #, Roles, RolesUser
 from sqlalchemy import exc
 import time
 import datetime
@@ -56,68 +56,69 @@ def register():
 
 
 #CRIAR UM NOVA ROLE
-@auth.post('/roles')
-def roles():
+# @auth.post('/roles')
+# def roles():
     
-    try:
-        name = request.json.get('name', '')
-        role = Roles.query.filter_by(name=name).first()
-        if role:
-            return jsonify({'mensagem':"Role já existe!!!"}), 409
+#     try:
+#         name = request.json.get('name', '')
+#         role = Roles.query.filter_by(name=name).first()
+#         if role:
+#             return jsonify({'mensagem':"Role já existe!!!"}), 409
         
-        role_add = Roles(
-            name=name
-        )
+#         role_add = Roles(
+#             name=name
+#         )
         
-        db.session.add(role_add)
-        db.session.commit()
+#         db.session.add(role_add)
+#         db.session.commit()
         
-        return jsonify({"mensagem":"Role criada!!!", "role":role_add.name})
+#         return jsonify({"mensagem":"Role criada!!!", "role":role_add.name})
     
-    except Exception as e:
-        return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
+#     except Exception as e:
+#         return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
 
 
-@auth.post('/roleuser')
-def roleuser():
+# @auth.post('/roleuser')
+# def roleuser():
     
-    try:
-        user = request.json.get("usuario", "")
-        role = request.json.get("role", "")
+#     try:
+#         user = request.json.get("usuario", "")
+#         role = request.json.get("role", "")
         
-        usuario = Usuarios.query.filter_by(username = user).first()
+#         usuario = Usuarios.query.filter_by(username = user).first()
         
-        if not usuario:
+#         if not usuario:
             
-            return jsonify({"mensagem":"usuário não encontrado", "status":False}), 400
+#             return jsonify({"mensagem":"usuário não encontrado", "status":False}), 400
         
         
-        role_add = Roles.query.filter_by(name = role_add).first()
+#         role_add = Roles.query.filter_by(name = role_add).first()
         
-        if not role_add:
-            return jsonify({"mensagem":"Role não encontrada", "status":False}), 400
+#         if not role_add:
+#             return jsonify({"mensagem":"Role não encontrada", "status":False}), 400
         
         
-        role_user_verifique = RolesUser.query.filter_by(usuarios_id=usuario.id,
-            roles_id=role_add.id).first()
+#         role_user_verifique = RolesUser.query.filter_by(usuarios_id=usuario.id,
+#             roles_id=role_add.id).first()
         
-        if role_user_verifique:
-            return jsonify({"mensagem":"Usuário já pertence a esta role", "status":False}), 400
+#         if role_user_verifique:
+#             return jsonify({"mensagem":"Usuário já pertence a esta role", "status":False}), 400
         
-        role_user = RolesUser(
-            usuarios_id=usuario.id,
-            roles_id=role_add.id
-        )
+#         role_user = RolesUser(
+#             usuarios_id=usuario.id,
+#             roles_id=role_add.id
+#         )
         
-        db.session.add(role_user)
-        db.session.commit()
+#         db.session.add(role_user)
+#         db.session.commit()
         
-        return jsonify({
-            "mensagem":"adicionado nova role"
-        })
+#         return jsonify({
+#             "mensagem":"adicionado nova role"
+#         })
 
-    except Exception as e:
-        return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
+#     except Exception as e:
+#         return jsonify({"mensagem":"Erro não tratado", "Erro":str(e), "status":False}), 500
+        
         
 @auth.post('/login')
 def login():
