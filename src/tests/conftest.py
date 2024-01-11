@@ -26,10 +26,13 @@ class CustomJSONEncoder(json.JSONEncoder):
             return o.isoformat()
         return super().default(o)
 
+
 def pytest_configure(config):
     config.addinivalue_line("filterwarnings", "ignore::DeprecationWarning")
-    config.addinivalue_line("filterwarnings", "ignore::sqlalchemy.exc.SAWarning")
-    
+    config.addinivalue_line(
+        "filterwarnings", "ignore::sqlalchemy.exc.SAWarning")
+
+
 @fixture
 def app():
     # Configura a aplicação para usar o banco de dados de teste
@@ -204,7 +207,7 @@ def new_hidrometro():
     return {
         "fk_edificios": 1,
         "fk_hidrometro": 1,
-        "hidrometro":"xxxxxxx"
+        "hidrometro": "xxxxxxx"
     }
 
 
@@ -242,7 +245,7 @@ def new_usuario():
 
 
 @fixture
-def new_tipo_evento():
+def new_tipo_evento_ocasional():
 
     return {
         "fk_cliente": 1,
@@ -297,26 +300,6 @@ def new_evento():
         "observacao": fake.text(),
     }
 
-
-# @fixture
-# def new_tipo_ocasional():
-#     return {
-#         "fk_cliente": 1,
-#         "nome_do_evento": "Festa",
-#         "requerResposta": fake.boolean(),
-#         "tolerancia": fake.random_int(min=1, max=12),
-#         "unidade": fake.random_element(
-#             elements=(
-#                 "Semana",
-#                 "Mês",
-#                 "Dia",
-#                 "Ano"
-#             )
-#         ),
-#         "ehResposta": fake.boolean()
-#     }
-
-
 @fixture
 def new_tipo_evento_ocasional():
     return {
@@ -328,6 +311,7 @@ def new_tipo_evento_ocasional():
         "tolerancia": fake.random_number(digits=2),
         "unidade": fake.random_element(['Dias', 'Semanas', 'Meses'])
     }
+
 
 @fixture
 def new_tipo_evento_recorrente():
@@ -341,36 +325,47 @@ def new_tipo_evento_recorrente():
         "unidade":  fake.random_element(['Dias', 'Semanas', 'Meses'])
     }
 
-@fixture
-def new_escola_evento():
-    # criar novas escolas aleatórias
-    return {
-        'nome': "Local 1",
-        'cnpj': cnpj(),
-        'email': fake.email(),
-        'telefone': fake.phone_number(),
-        'bairro': fake.city_suffix(),
-        'cep': fake.postcode(),
-        'cidade': fake.city(),
-        'estado': fake.state_abbr(),
-        'complemento': fake.secondary_address(),
-        'logradouro': fake.street_name(),
-        'nivel': [niveis, niveis],
-        'numero': fake.random_int(min=1, max=1000)
-    }
-
 
 @fixture
 def new_evento_ocasional():
     return {
-        "tipo_de_evento": "Festa",
+        "tipo_de_evento": 1,
         "nome_do_evento": fake.name(),
-        "data_inicio": None,
+        "data": "2024-01-01",
         "data_fim": None,
-        "local": "Local 1",
-        "tipo_de_local": "Escola",
+        "local": 1,
+        "tipo_de_local": 1,
         "observacoes": fake.text()
     }
+
+
+@fixture
+def new_evento_recorrente():
+    dados = {
+        "data_inicio": str(fake.date_between_dates(date_start=datetime(2024,1,1), date_end=datetime(2024,2,1))),
+        "data_fim": str(fake.date_between_dates(date_start=datetime(2024,2,1), date_end=datetime(2024,2,28))),
+        "local": 1,
+        "nome_do_evento": fake.name(),
+        "observacoes": fake.paragraph(),
+        "tipo_de_evento": 1,
+        "tipo_de_local": 1
+    }
+    return dados
+
+
+#Monitoramento
+@fixture
+def new_monitoramento(app):
+    return {
+        "fk_escola":1,
+        "hidrometro":"xxxxxxx",
+        "leitura":"222,022",
+        "hora": "12:56",
+        "data": "11/01/2024",
+        "escola": "",
+    }
+
+
 
 
 # AUTENTICAÇÃO
@@ -424,7 +419,3 @@ def authenticated_app(app, new_cliente, new_usuario):
         yield {
             "token": token
         }
-
-        # Finaliza a transação revertendo as alterações
-        # transaction.rollback()
-        # connection.close()

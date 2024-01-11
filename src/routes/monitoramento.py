@@ -36,25 +36,25 @@ def leitura():
         print("Leitura: ", leitura_float)
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
-            fk_escola == edificios_alias.fk_escola, Hidrometros.id == hidrometro)).first()
+            fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
 
         if not hidrometro_verificar:
             return jsonify({"mensagem": "este hidrometro não pertence a esta escola!!!"}), 400
 
         escolas_com_mesmo_hidrometro = Hidrometros.query.join(
-            edificios_alias).filter(Hidrometros.id == hidrometro).all()
+            edificios_alias).filter(Hidrometros.hidrometro == hidrometro).all()
 
         for escola_ in escolas_com_mesmo_hidrometro:
             # Correção
             escola_id = Edificios.query.filter_by(
                 id=escola_.fk_edificios).first()
 
-            # escolamonitoramento_anterior = Monitoramento.query.filter(
-            #     and_(
-            #         Monitoramento.fk_escola == escola_id.fk_escola,
-            #         Monitoramento.datahora < datahora
-            #     )
-            # ).order_by(Monitoramento.datahora).first()
+            escolamonitoramento_anterior = Monitoramento.query.filter(
+                and_(
+                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.datahora < datahora
+                )
+            ).order_by(Monitoramento.datahora).first()
 
             escolamonitoramento_anterior = (
 
@@ -131,11 +131,11 @@ def leitura():
                 (Monitoramento.fk_escola == escola_id.fk_escola)
             ).all()
 
-            # if len(resultado) > 1:
-            #     return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
+            if len(resultado) > 1:
+                return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
 
-            # if len(resultado) == 1 and resultado[0].datahora >= datahora:
-            #     return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
+            if len(resultado) == 1 and resultado[0].datahora >= datahora:
+                return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
 
             monitoramento = Monitoramento(
                 fk_escola=escola_id.fk_escola,
@@ -156,211 +156,212 @@ def leitura():
             "status": False
         }), 400
 
-@swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
-@monitoramento.get("/leituras-tabela/<int:id>")
-def leituras_tabela(id):
 
-    escolamonitoramento = Monitoramento.query.filter_by(
-        fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
+# @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
+# @monitoramento.get("/leituras-tabela/<int:id>")
+# def leituras_tabela(id):
 
-    tabela = []
-    print(f"Todas as leituras {escolamonitoramento}")
-    print("-----------------------------------------")
+#     escolamonitoramento = Monitoramento.query.filter_by(
+#         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
 
-    if len(escolamonitoramento) > 1:
-        for i in range(0, len(escolamonitoramento)):
-            indexanterior = i + 1
-            range_list = len(escolamonitoramento) - 1
+#     tabela = []
+#     print(f"Todas as leituras {escolamonitoramento}")
+#     print("-----------------------------------------")
 
-            if indexanterior <= range_list:
-                diferenca = escolamonitoramento[i].leitura - \
-                    escolamonitoramento[indexanterior].leitura
-                print(diferenca)
+#     if len(escolamonitoramento) > 1:
+#         for i in range(0, len(escolamonitoramento)):
+#             indexanterior = i + 1
+#             range_list = len(escolamonitoramento) - 1
 
-            tabela.append(
-                {
-                    "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
-                }
-            )
-    return jsonify({
-        "tabela": tabela,
-        "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
-    })
+#             if indexanterior <= range_list:
+#                 diferenca = escolamonitoramento[i].leitura - \
+#                     escolamonitoramento[indexanterior].leitura
+#                 print(diferenca)
 
-@swag_from('../docs/get/monitoramento/leitura_atual.yaml')
-@monitoramento.get("/leitura-atual/<int:id>")
-def leitura_atual(id):
+#             tabela.append(
+#                 {
+#                     "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
+#                 }
+#             )
+#     return jsonify({
+#         "tabela": tabela,
+#         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
+#     })
 
-    print(id)
+# @swag_from('../docs/get/monitoramento/leitura_atual.yaml')
+# @monitoramento.get("/leitura-atual/<int:id>")
+# def leitura_atual(id):
 
-    escola = Escolas.query.filter_by(id=id).first()
-    if not escola:
-        return jsonify({"mensagem": "Escola não encontrada!", "status": False}), 409
+#     print(id)
 
-    edificios_alias = aliased(Edificios)
+#     escola = Escolas.query.filter_by(id=id).first()
+#     if not escola:
+#         return jsonify({"mensagem": "Escola não encontrada!", "status": False}), 409
 
-    # Realize a consulta usando filter e o alias
-    hidrometro = Hidrometros.query.join(edificios_alias).filter(
-        edificios_alias.fk_escola == id).first()
+#     edificios_alias = aliased(Edificios)
 
-    escolamonitoramento = Monitoramento.query.filter_by(
-        fk_escola=id).order_by(desc(Monitoramento.datahora)).first()
+#     # Realize a consulta usando filter e o alias
+#     hidrometro = Hidrometros.query.join(edificios_alias).filter(
+#         edificios_alias.fk_escola == id).first()
 
-    jsonRetorno = {}
-    jsonRetorno["nome"] = escola.nome
-    jsonRetorno["hidrometro"] = hidrometro.hidrometro
+#     escolamonitoramento = Monitoramento.query.filter_by(
+#         fk_escola=id).order_by(desc(Monitoramento.datahora)).first()
 
-    # if escolamonitoramento:
-    #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
-    #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
-    # else:
-    #     inteiro = ""
-    #     racional = ""
+#     jsonRetorno = {}
+#     jsonRetorno["nome"] = escola.nome
+#     jsonRetorno["hidrometro"] = hidrometro.hidrometro
 
-    jsonRetorno["leitura"] = escolamonitoramento.leitura
-    #jsonRetorno["leitura2"] = racional.zfill(3)
+#     # if escolamonitoramento:
+#     #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
+#     #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
+#     # else:
+#     #     inteiro = ""
+#     #     racional = ""
 
-    return jsonRetorno
+#     jsonRetorno["leitura"] = escolamonitoramento.leitura
+#     #jsonRetorno["leitura2"] = racional.zfill(3)
 
-
-@swag_from('../docs/editar/monitoramento/leitura.yaml')
-@monitoramento.patch("/edicao-monitoramento/<int:id>")
-def leitura_edicao(id):
-
-    monitoramento = Monitoramento.query.filter_by(id=id).first()
-    if not monitoramento:
-
-        return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
-
-    try:
-        formulario = request.get_json()
-    except Exception as e:
-        return jsonify({"mensagem": "Não foi possível encontrar o formulário enviado", "status": False}), 400
-
-    try:
-
-        datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
-        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
-
-        monitoramento.leitura = formulario['leituraEditar']
-        monitoramento.datahora = datahora
-        db.session.commit()
-
-        return jsonify({"mensagem": "Edição realizado com sucesso", "leitura": monitoramento.to_json()}), 200
-
-    except Exception as e:
-        return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
+#     return jsonRetorno
 
 
-@swag_from('../docs/remover/monitoramento/leitura.yaml')
-@monitoramento.delete("/deletar-leitura/<int:id>")
-def leitura_deletar(id):
+# @swag_from('../docs/editar/monitoramento/leitura.yaml')
+# @monitoramento.patch("/edicao-monitoramento/<int:id>")
+# def leitura_edicao(id):
 
-    monitoramento = Monitoramento.query.filter_by(id=id).first()
+#     monitoramento = Monitoramento.query.filter_by(id=id).first()
+#     if not monitoramento:
 
-    if not monitoramento:
-        return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
+#         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
 
-    db.session.delete(monitoramento)
-    db.session.commit()
+#     try:
+#         formulario = request.get_json()
+#     except Exception as e:
+#         return jsonify({"mensagem": "Não foi possível encontrar o formulário enviado", "status": False}), 400
 
-    return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
+#     try:
 
+#         datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
+#         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
 
-# @swag_from('')
-@monitoramento.get("/monitoramento-volumes/<int:id>")
-def leituras_volumes(id):
+#         monitoramento.leitura = formulario['leituraEditar']
+#         monitoramento.datahora = datahora
+#         db.session.commit()
 
-    # query = Monitoramento.query.filter_by(fk_escola=id).all()
-    escola = Escolas.query.filter_by(id=id).first()
+#         return jsonify({"mensagem": "Edição realizado com sucesso", "leitura": monitoramento.to_json()}), 200
 
-    query = db.session.query(
-        Monitoramento.id,
-        Monitoramento.datahora,
-        Monitoramento.leitura,
-        func.lag(Monitoramento.datahora).over(
-            order_by=Monitoramento.datahora).label('datalog'),
-        func.lag(Monitoramento.leitura).over(
-            order_by=Monitoramento.datahora).label('leituralag')
-    ).filter(Monitoramento.fk_escola == id).all()
-
-    dicionario = {}
-    retorno = []
-    for row in query:
-
-        id = row[0]
-        data = row[1]
-        letura = row[2]
-        dataanterior = row[3]
-        leituraanterior = row[4]
-
-        # print(f"Data: {data}  --  Data anterior: {dataanterior}")
-        # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
-
-        if data is not None and dataanterior is not None:
-
-            diferenca = data-dataanterior
-
-            diferenca_horas = abs(diferenca).total_seconds() / 3600
-
-            print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
-            diferenca = None
-
-            if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
-                diferenca = letura - leituraanterior
-            elif diferenca_horas < 16:
-                diferenca = letura - leituraanterior
-
-            dicionario = {
-                "id": id,
-                "Data": data.strftime('%d/%m/%Y'),
-                "Hora": data.strftime("%H:%M"),
-                "Leitura": letura,
-                "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
-                "HoraAnterior": dataanterior.strftime("%H:%M"),
-                "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
-                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
-            }
-
-            # print(dicionario)
-        else:
-            dicionario = {
-                "id": id,
-                "Data": data.strftime('%d/%m/%Y'),
-                "Hora": data.strftime("%H:%M"),
-                "Leitura": letura,
-                "DataAnterior": None,
-                "HoraAnterior": None,
-                "LeituraAnterior": None,
-                "Diferenca": None
-            }
-
-        retorno.append(dicionario)
+#     except Exception as e:
+#         return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
 
 
-    #Ordenar por data e hora
-    retorno = sorted(retorno, key=lambda x: datetime.strptime(f"{x['Data']} {x['Hora']}", '%d/%m/%Y %H:%M'), reverse=True)
+# @swag_from('../docs/remover/monitoramento/leitura.yaml')
+# @monitoramento.delete("/deletar-leitura/<int:id>")
+# def leitura_deletar(id):
+
+#     monitoramento = Monitoramento.query.filter_by(id=id).first()
+
+#     if not monitoramento:
+#         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
+
+#     db.session.delete(monitoramento)
+#     db.session.commit()
+
+#     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
 
-    return {
-        "tabela": retorno,
-        "nome": escola.nome if escola is not None else ""
-    }
+# # @swag_from('')
+# @monitoramento.get("/monitoramento-volumes/<int:id>")
+# def leituras_volumes(id):
+
+#     # query = Monitoramento.query.filter_by(fk_escola=id).all()
+#     escola = Escolas.query.filter_by(id=id).first()
+
+#     query = db.session.query(
+#         Monitoramento.id,
+#         Monitoramento.datahora,
+#         Monitoramento.leitura,
+#         func.lag(Monitoramento.datahora).over(
+#             order_by=Monitoramento.datahora).label('datalog'),
+#         func.lag(Monitoramento.leitura).over(
+#             order_by=Monitoramento.datahora).label('leituralag')
+#     ).filter(Monitoramento.fk_escola == id).all()
+
+#     dicionario = {}
+#     retorno = []
+#     for row in query:
+
+#         id = row[0]
+#         data = row[1]
+#         letura = row[2]
+#         dataanterior = row[3]
+#         leituraanterior = row[4]
+
+#         # print(f"Data: {data}  --  Data anterior: {dataanterior}")
+#         # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
+
+#         if data is not None and dataanterior is not None:
+
+#             diferenca = data-dataanterior
+
+#             diferenca_horas = abs(diferenca).total_seconds() / 3600
+
+#             print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
+#             diferenca = None
+
+#             if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
+#                 diferenca = letura - leituraanterior
+#             elif diferenca_horas < 16:
+#                 diferenca = letura - leituraanterior
+
+#             dicionario = {
+#                 "id": id,
+#                 "Data": data.strftime('%d/%m/%Y'),
+#                 "Hora": data.strftime("%H:%M"),
+#                 "Leitura": letura,
+#                 "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
+#                 "HoraAnterior": dataanterior.strftime("%H:%M"),
+#                 "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
+#                 "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
+#             }
+
+#             # print(dicionario)
+#         else:
+#             dicionario = {
+#                 "id": id,
+#                 "Data": data.strftime('%d/%m/%Y'),
+#                 "Hora": data.strftime("%H:%M"),
+#                 "Leitura": letura,
+#                 "DataAnterior": None,
+#                 "HoraAnterior": None,
+#                 "LeituraAnterior": None,
+#                 "Diferenca": None
+#             }
+
+#         retorno.append(dicionario)
 
 
-#Retornar escolas com leituras diurnas e noturnas no início
+#     #Ordenar por data e hora
+#     retorno = sorted(retorno, key=lambda x: datetime.strptime(f"{x['Data']} {x['Hora']}", '%d/%m/%Y %H:%M'), reverse=True)
 
-# RETORNA TODAS AS ESCOLAS
-@monitoramento.get('/escolas')
-def escolas():
+
+#     return {
+#         "tabela": retorno,
+#         "nome": escola.nome if escola is not None else ""
+#     }
+
+
+# #Retornar escolas com leituras diurnas e noturnas no início
+
+# # RETORNA TODAS AS ESCOLAS
+# @monitoramento.get('/escolas')
+# def escolas():
     
 
-    #Returno da ultima leitura diurna e noturna
+#     #Returno da ultima leitura diurna e noturna
     
 
-    escolas = Escolas.query.all()
-    return jsonify({
-        'return': [escola.to_json() for escola in escolas],
-        'status': True,
-        'mensagem': 'Escolas retornadas com sucesso'
-    }), 200
+#     escolas = Escolas.query.all()
+#     return jsonify({
+#         'return': [escola.to_json() for escola in escolas],
+#         'status': True,
+#         'mensagem': 'Escolas retornadas com sucesso'
+#     }), 200

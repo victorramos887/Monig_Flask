@@ -1,3 +1,4 @@
+from datetime import datetime, date
 import json
 from flask import Blueprint, jsonify, request
 import re
@@ -132,11 +133,6 @@ def tipoeventorecorrente():
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
-        # periodicidade = formulario.get('periodicidade') if formulario.get(
-        #     'periodicidade') is not None else False
-
-        # print(periodicidade)
-
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -154,7 +150,7 @@ def tipoeventorecorrente():
             fk_cliente=fk_cliente,
             nome_do_tipo_de_evento=nome_do_tipo_de_evento,
             recorrente=True,
-            dia=dia,
+            dia=date.fromisoformat(dia).day,
             mes=mes,
             requer_acao=requer_acao,
             tempo=tempo,
@@ -250,25 +246,17 @@ def eventos_cadastro_unitario():
         encerramento = formulario.get("encerramento", False)
         data_encerramento = formulario.get("dataEncerramento", None)
         
-        print(tipodeevento.recorrente)
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
 
         else:
             datainicio = formulario.get("data", None)
+            print("Ocasional", datainicio)
             datafim = None
-            # if not formulario["dataEncerramento"]:
-            #     datafim = None
-            # else:
-            #     datafim = formulario["dataEncerramento"]
-            
-    
-        #Tratamento de tipo_de_local
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
         
-        print(tipo_de_local_fk.nome_da_tabela)
 
         if not tipo_de_local_fk:
             return jsonify({
@@ -295,10 +283,8 @@ def eventos_cadastro_unitario():
             }), 400
 
         #Escola
-        print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
         if tipo_de_local_fk.nome_da_tabela == "Escola":
             fk_escola = local_fk.id
-            print(local_fk)
         
         elif tipo_de_local_fk.nome_da_tabela == "Edificação":
             edificio_ = Edificios.query.filter_by(id=local_fk.id).first()

@@ -155,7 +155,6 @@ def usuario():
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
 
-    print("Usuário: ", flask_praetorian.current_user().username)
     try:
         formulario = request.get_json()
     except Exception as e:
@@ -583,7 +582,6 @@ def populacao():
 @flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
 @swag_from('../docs/cadastros/area_umida.yaml')
 def area_umida():
-    print("Usuário: ", flask_praetorian.current_user())
     try:
         formulario = request.get_json()
     except Exception as e:

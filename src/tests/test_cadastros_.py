@@ -10,12 +10,12 @@ from datetime import datetime, date
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 
 
-print(sys.path)
+
 # Caminho para o arquivo .env
 ENV_PATH = os.path.join(sys.path[0], '.env')
 
@@ -170,7 +170,7 @@ def test_cadastro_area_umida(app, authenticated_app, new_escolas, new_edificios,
         )
 
         response_dict = json.loads(response.get_data())
-        print(response_dict)
+        
 
         assert response.status_code == 200
 
@@ -340,7 +340,7 @@ def test_cadastro_hidrometro(app, authenticated_app, new_escolas, new_edificios,
             content_type='application/json',
             headers=headers
         )
-        print(response.get_data())
+        
         assert response.status_code == 200
 
 
@@ -432,90 +432,4 @@ def test_cadastro_usuario(app, new_cliente, new_usuario):
             data=json_data,
             content_type='application/json'
         )
-        print("Response: ", response.get_data())
-        assert response.status_code == 200
-
-
-
-def test_cadastro_tipo_eventos_ocasional(app, authenticated_app, new_escolas, new_tipo_evento_ocasional):
-    with app.app_context():
-        
-        test_cadastro_escola(app, authenticated_app, new_escolas)
-
-        json_data = json.dumps(new_tipo_evento_ocasional)       
-        
-        response = app.test_client().post(
-            '/api/v1/cadastro-evento/tipo-de-evento-ocasional',
-            data=json_data,
-            content_type='application/json'
-        )
-        print(response.get_data())
-        assert response.status_code == 200
-
-def test_cadastro_tipo_eventos_recorrente(app, authenticated_app, new_escolas, new_tipo_evento_recorrente):
-    """Teste de cadastro de tipo de evento."""
-
-
-    with app.app_context():
-        test_cadastro_escola(app, authenticated_app, new_escolas)
-
-        json_dump = json.dumps(new_tipo_evento_recorrente)
-        # Mocka a requisição
-        response = app.test_client().post(
-            "/api/v1/cadastro-evento/tipo-evento-recorrente",
-            data=json_dump,
-            content_type='application/json'
-            )
-
-        # Valida a resposta
-
-        print("Response: ",response.get_data()) 
-        assert response.status_code == 200
-
-
-def dtest_cadastro_de_tipo_de_evento_vazio(app, new_tipo_de_vento_vazio):
-
-    with app.app_context():
-
-        json_data = json.dumps(new_tipo_de_vento_vazio)
-
-        response = app.test_client().post(
-        "/api/v1/cadastro-evento/tipo-evento",
-        data=json_data,
-        content_type='application/json'
-        )
-    
-    assert response.status_code == 200
-
-
-def test_cadastro_eventos(app, new_evento):
-
-
-    with app.app_context():
-
-
-        # new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%d-%m")
-        # new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%d-%m")
-        
-        # new_evento['datainicio'] = datetime.datetime.strptime(new_evento['datainicio'], '%Y-%m-%d %H:%M:%S')
-        # new_evento['datafim'] = datetime.datetime.strptime(new_evento['datafim'], '%Y-%m-%d %H:%M:%S')
-        # new_evento['datainicio'] = '2023-02-23'
-        # new_evento['datafim'] = '2023-02-28'
-
-        
-        # new_evento['datainicio'] = new_evento['datainicio'].strftime("%Y-%m-%d %H:%M:%S")
-        # new_evento['datafim'] = new_evento['datafim'].strftime("%Y-%m-%d %H:%M:%S")
-
-
-        #json_data = json.dumps(new_evento, indent=4, ensure_ascii=True, default=None)
-        
-        #print(json.dumps(new_evento))
-        
-        
-        response = app.test_client().post(
-            'api/v1/cadastro-evento/eventos',
-            data=json.dumps(new_evento),
-            content_type='application/json'
-        )
-        print(response.get_data())
         assert response.status_code == 200
