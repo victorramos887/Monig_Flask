@@ -31,11 +31,9 @@ parameters:
           type: date
           example: "10:10"
         leitura:
-          type: integer
-          example: 964
-        leitura2:
-          type: integer
-          example: 69560
+          type: float
+          example: 96469560,000
+      
 responses:
   200:
     description: Cadastro da realizado com sucesso

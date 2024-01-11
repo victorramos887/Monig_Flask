@@ -1,13 +1,12 @@
 from flask import Blueprint, request, jsonify
+from flasgger import swag_from
 from ..models import Monitoramento, Hidrometros, Edificios, Escolas, db
 from sqlalchemy import desc, extract, and_, func
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
-from flasgger import swag_from
 
 
-monitoramento = Blueprint('monitoramento', __name__,
-                          url_prefix="/api/v1/monitoramento")
+monitoramento = Blueprint('monitoramento', __name__, url_prefix='/api/v1/monitoramento')
 
 
 @swag_from('../docs/cadastros/monitoramento/leitura.yaml')

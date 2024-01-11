@@ -2,7 +2,8 @@ import os  # type: ignore
 import json
 
 # SWAGGER DOCUMENTATION
-from .config.swagger import swagger_config, template
+from flasgger import Swagger, swag_from, APISpec
+from .config.swagger import swagger_config, swagger_config_cadastro, template
 from .models import db
 from . import routes
 
@@ -90,7 +91,7 @@ def create_app(test_config=None):
     for rota in rotas:
         app.register_blueprint(rota)
 
-    # Swagger(app, config=swagger_config, template=template)
+    swagger_main = Swagger(app, config=swagger_config, template=template)
     
     
     @app.route('/')
