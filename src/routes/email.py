@@ -22,7 +22,6 @@ def monitoramento():
                         #verificar se escola tem registro na tabela Monitoramento
                         registros = Monitoramento.query.filter_by(fk_escola=escola.id).all()
                         
-        
                         if registros:
                                 # Pegar a última data registrada
                                 ultima_data_registrada = max(r.datahora for r in registros).date()
@@ -36,13 +35,12 @@ def monitoramento():
                                 if intervalo > 10:
                                         
                                         #email para escola
-                                        msg = Message('Teste email monitoramento', recipients = [escola.email])
+                                        msg = Message('Teste email monitoramento', recipients = [escola.email]) #Tratar email não existem, 
                                         msg.body = "Alerta de monitoramento para a escola {}.\n Não registramos nenhum monitoramento nos últimos {} dias.".format(escola.nome, intervalo)
                                         mail.send(msg)
 
                                         print('EMAIL ENVIADO')  
                         
-
 
 scheduler = BackgroundScheduler()
 #Enviar emails 
@@ -53,8 +51,6 @@ def schedule_jobs(scheduler, *functions):
         
 schedule_jobs(scheduler, monitoramento)
 scheduler.start()
-
-
 
 # @email.post("/email")
 # def index():

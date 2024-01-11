@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from datetime import datetime, date
 from pprint import pprint
 # Import teste
-from test_cadastros_ import test_cadastro_hidrometro
+from src.tests.test_cadastros import test_cadastro_hidrometro
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

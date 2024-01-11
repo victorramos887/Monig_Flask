@@ -9,7 +9,7 @@ from datetime import datetime, date
 
 
 #Importar Testes
-from test_cadastros_ import test_cadastro_escola
+from src.tests.test_cadastros import test_cadastro_escola
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

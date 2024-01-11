@@ -157,211 +157,207 @@ def leitura():
         }), 400
 
 
-# @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
-# @monitoramento.get("/leituras-tabela/<int:id>")
-# def leituras_tabela(id):
+@swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
+@monitoramento.get("/leituras-tabela/<int:id>")
+def leituras_tabela(id):
 
-#     escolamonitoramento = Monitoramento.query.filter_by(
-#         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
+    escolamonitoramento = Monitoramento.query.filter_by(
+        fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
 
-#     tabela = []
-#     print(f"Todas as leituras {escolamonitoramento}")
-#     print("-----------------------------------------")
+    tabela = []
+    print(f"Todas as leituras {escolamonitoramento}")
+    print("-----------------------------------------")
 
-#     if len(escolamonitoramento) > 1:
-#         for i in range(0, len(escolamonitoramento)):
-#             indexanterior = i + 1
-#             range_list = len(escolamonitoramento) - 1
+    if len(escolamonitoramento) > 1:
+        for i in range(0, len(escolamonitoramento)):
+            indexanterior = i + 1
+            range_list = len(escolamonitoramento) - 1
 
-#             if indexanterior <= range_list:
-#                 diferenca = escolamonitoramento[i].leitura - \
-#                     escolamonitoramento[indexanterior].leitura
-#                 print(diferenca)
+            if indexanterior <= range_list:
+                diferenca = escolamonitoramento[i].leitura - \
+                    escolamonitoramento[indexanterior].leitura
+                print(diferenca)
 
-#             tabela.append(
-#                 {
-#                     "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
-#                 }
-#             )
-#     return jsonify({
-#         "tabela": tabela,
-#         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
-#     })
+            tabela.append(
+                {
+                    "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
+                }
+            )
+    return jsonify({
+        "tabela": tabela,
+        "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
+    })
 
-# @swag_from('../docs/get/monitoramento/leitura_atual.yaml')
-# @monitoramento.get("/leitura-atual/<int:id>")
-# def leitura_atual(id):
+@swag_from('../docs/get/monitoramento/leitura_atual.yaml')
+@monitoramento.get("/leitura-atual/<int:id>")
+def leitura_atual(id):
 
-#     print(id)
+    print(id)
 
-#     escola = Escolas.query.filter_by(id=id).first()
-#     if not escola:
-#         return jsonify({"mensagem": "Escola não encontrada!", "status": False}), 409
+    escola = Escolas.query.filter_by(id=id).first()
+    if not escola:
+        return jsonify({"mensagem": "Escola não encontrada!", "status": False}), 409
 
-#     edificios_alias = aliased(Edificios)
+    edificios_alias = aliased(Edificios)
 
-#     # Realize a consulta usando filter e o alias
-#     hidrometro = Hidrometros.query.join(edificios_alias).filter(
-#         edificios_alias.fk_escola == id).first()
+    # Realize a consulta usando filter e o alias
+    hidrometro = Hidrometros.query.join(edificios_alias).filter(
+        edificios_alias.fk_escola == id).first()
 
-#     escolamonitoramento = Monitoramento.query.filter_by(
-#         fk_escola=id).order_by(desc(Monitoramento.datahora)).first()
+    escolamonitoramento = Monitoramento.query.filter_by(
+        fk_escola=id).order_by(desc(Monitoramento.datahora)).first()
 
-#     jsonRetorno = {}
-#     jsonRetorno["nome"] = escola.nome
-#     jsonRetorno["hidrometro"] = hidrometro.hidrometro
+    jsonRetorno = {}
+    jsonRetorno["nome"] = escola.nome
+    jsonRetorno["hidrometro"] = hidrometro.hidrometro
 
-#     # if escolamonitoramento:
-#     #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
-#     #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
-#     # else:
-#     #     inteiro = ""
-#     #     racional = ""
+    # if escolamonitoramento:
+    #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
+    #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
+    # else:
+    #     inteiro = ""
+    #     racional = ""
 
-#     jsonRetorno["leitura"] = escolamonitoramento.leitura
-#     #jsonRetorno["leitura2"] = racional.zfill(3)
+    jsonRetorno["leitura"] = escolamonitoramento.leitura
+    #jsonRetorno["leitura2"] = racional.zfill(3)
 
-#     return jsonRetorno
-
-
-# @swag_from('../docs/editar/monitoramento/leitura.yaml')
-# @monitoramento.patch("/edicao-monitoramento/<int:id>")
-# def leitura_edicao(id):
-
-#     monitoramento = Monitoramento.query.filter_by(id=id).first()
-#     if not monitoramento:
-
-#         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
-
-#     try:
-#         formulario = request.get_json()
-#     except Exception as e:
-#         return jsonify({"mensagem": "Não foi possível encontrar o formulário enviado", "status": False}), 400
-
-#     try:
-
-#         datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
-#         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
-
-#         monitoramento.leitura = formulario['leituraEditar']
-#         monitoramento.datahora = datahora
-#         db.session.commit()
-
-#         return jsonify({"mensagem": "Edição realizado com sucesso", "leitura": monitoramento.to_json()}), 200
-
-#     except Exception as e:
-#         return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
+    return jsonRetorno
 
 
-# @swag_from('../docs/remover/monitoramento/leitura.yaml')
-# @monitoramento.delete("/deletar-leitura/<int:id>")
-# def leitura_deletar(id):
+@swag_from('../docs/editar/monitoramento/leitura.yaml')
+@monitoramento.patch("/edicao-monitoramento/<int:id>")
+def leitura_edicao(id):
 
-#     monitoramento = Monitoramento.query.filter_by(id=id).first()
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+    if not monitoramento:
 
-#     if not monitoramento:
-#         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
+        return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
 
-#     db.session.delete(monitoramento)
-#     db.session.commit()
+    try:
+        formulario = request.get_json()
+    except Exception as e:
+        return jsonify({"mensagem": "Não foi possível encontrar o formulário enviado", "status": False}), 400
 
-#     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
+    try:
 
+        datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
+        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
 
-# # @swag_from('')
-# @monitoramento.get("/monitoramento-volumes/<int:id>")
-# def leituras_volumes(id):
+        monitoramento.leitura = formulario['leituraEditar']
+        monitoramento.datahora = datahora
+        db.session.commit()
 
-#     # query = Monitoramento.query.filter_by(fk_escola=id).all()
-#     escola = Escolas.query.filter_by(id=id).first()
+        return jsonify({"mensagem": "Edição realizado com sucesso", "leitura": monitoramento.to_json()}), 200
 
-#     query = db.session.query(
-#         Monitoramento.id,
-#         Monitoramento.datahora,
-#         Monitoramento.leitura,
-#         func.lag(Monitoramento.datahora).over(
-#             order_by=Monitoramento.datahora).label('datalog'),
-#         func.lag(Monitoramento.leitura).over(
-#             order_by=Monitoramento.datahora).label('leituralag')
-#     ).filter(Monitoramento.fk_escola == id).all()
-
-#     dicionario = {}
-#     retorno = []
-#     for row in query:
-
-#         id = row[0]
-#         data = row[1]
-#         letura = row[2]
-#         dataanterior = row[3]
-#         leituraanterior = row[4]
-
-#         # print(f"Data: {data}  --  Data anterior: {dataanterior}")
-#         # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
-
-#         if data is not None and dataanterior is not None:
-
-#             diferenca = data-dataanterior
-
-#             diferenca_horas = abs(diferenca).total_seconds() / 3600
-
-#             print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
-#             diferenca = None
-
-#             if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
-#                 diferenca = letura - leituraanterior
-#             elif diferenca_horas < 16:
-#                 diferenca = letura - leituraanterior
-
-#             dicionario = {
-#                 "id": id,
-#                 "Data": data.strftime('%d/%m/%Y'),
-#                 "Hora": data.strftime("%H:%M"),
-#                 "Leitura": letura,
-#                 "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
-#                 "HoraAnterior": dataanterior.strftime("%H:%M"),
-#                 "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
-#                 "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
-#             }
-
-#             # print(dicionario)
-#         else:
-#             dicionario = {
-#                 "id": id,
-#                 "Data": data.strftime('%d/%m/%Y'),
-#                 "Hora": data.strftime("%H:%M"),
-#                 "Leitura": letura,
-#                 "DataAnterior": None,
-#                 "HoraAnterior": None,
-#                 "LeituraAnterior": None,
-#                 "Diferenca": None
-#             }
-
-#         retorno.append(dicionario)
+    except Exception as e:
+        return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
 
 
-#     #Ordenar por data e hora
-#     retorno = sorted(retorno, key=lambda x: datetime.strptime(f"{x['Data']} {x['Hora']}", '%d/%m/%Y %H:%M'), reverse=True)
+@swag_from('../docs/remover/monitoramento/leitura.yaml')
+@monitoramento.delete("/deletar-leitura/<int:id>")
+def leitura_deletar(id):
+
+    monitoramento = Monitoramento.query.filter_by(id=id).first()
+
+    if not monitoramento:
+        return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
+
+    db.session.delete(monitoramento)
+    db.session.commit()
+
+    return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
 
-#     return {
-#         "tabela": retorno,
-#         "nome": escola.nome if escola is not None else ""
-#     }
+# @swag_from('')
+@monitoramento.get("/monitoramento-volumes/<int:id>")
+def leituras_volumes(id):
+
+    # query = Monitoramento.query.filter_by(fk_escola=id).all()
+    escola = Escolas.query.filter_by(id=id).first()
+
+    query = db.session.query(
+        Monitoramento.id,
+        Monitoramento.datahora,
+        Monitoramento.leitura,
+        func.lag(Monitoramento.datahora).over(
+            order_by=Monitoramento.datahora).label('datalog'),
+        func.lag(Monitoramento.leitura).over(
+            order_by=Monitoramento.datahora).label('leituralag')
+    ).filter(Monitoramento.fk_escola == id).all()
+
+    dicionario = {}
+    retorno = []
+    for row in query:
+
+        id = row[0]
+        data = row[1]
+        letura = row[2]
+        dataanterior = row[3]
+        leituraanterior = row[4]
+
+        # print(f"Data: {data}  --  Data anterior: {dataanterior}")
+        # print(f"Leitura: {letura}  --   Leitura anterior: {leituraanterior}")
+
+        if data is not None and dataanterior is not None:
+
+            diferenca = data-dataanterior
+
+            diferenca_horas = abs(diferenca).total_seconds() / 3600
+
+            print(f"Dias: {data.day} -- Segundos: {diferenca_horas}")
+            diferenca = None
+
+            if data.day == dataanterior.day and data.month == dataanterior.month and data.year == dataanterior.year:
+                diferenca = letura - leituraanterior
+            elif diferenca_horas < 16:
+                diferenca = letura - leituraanterior
+
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora": data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
+                "HoraAnterior": dataanterior.strftime("%H:%M"),
+                "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
+                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
+            }
+
+            # print(dicionario)
+        else:
+            dicionario = {
+                "id": id,
+                "Data": data.strftime('%d/%m/%Y'),
+                "Hora": data.strftime("%H:%M"),
+                "Leitura": letura,
+                "DataAnterior": None,
+                "HoraAnterior": None,
+                "LeituraAnterior": None,
+                "Diferenca": None
+            }
+
+        retorno.append(dicionario)
 
 
-# #Retornar escolas com leituras diurnas e noturnas no início
+    #Ordenar por data e hora
+    retorno = sorted(retorno, key=lambda x: datetime.strptime(f"{x['Data']} {x['Hora']}", '%d/%m/%Y %H:%M'), reverse=True)
 
-# # RETORNA TODAS AS ESCOLAS
-# @monitoramento.get('/escolas')
-# def escolas():
-    
 
-#     #Returno da ultima leitura diurna e noturna
-    
+    return {
+        "tabela": retorno,
+        "nome": escola.nome if escola is not None else ""
+    }
 
-#     escolas = Escolas.query.all()
-#     return jsonify({
-#         'return': [escola.to_json() for escola in escolas],
-#         'status': True,
-#         'mensagem': 'Escolas retornadas com sucesso'
-#     }), 200
+
+#Retornar escolas com leituras diurnas e noturnas no início
+
+# RETORNA TODAS AS ESCOLAS
+@monitoramento.get('/escolas')
+def escolas():
+    #Returno da ultima leitura diurna e noturna    
+    escolas = Escolas.query.all()
+    return jsonify({
+        'return': [escola.to_json() for escola in escolas],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
+    }), 200
