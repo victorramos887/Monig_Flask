@@ -862,6 +862,7 @@ def evento_editar(id):
 
         return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
+        print("Erro no banco de dados", e)
         if e.orig.pgcode == '23503':
             match = re.search(
                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
@@ -884,6 +885,7 @@ def evento_editar(id):
         return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
 
     except Exception as e:
+        print("Erro genérico - ", e)
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 

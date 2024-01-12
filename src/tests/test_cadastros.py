@@ -14,8 +14,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
 
-
-
 # Caminho para o arquivo .env
 ENV_PATH = os.path.join(sys.path[0], '.env')
 
@@ -29,8 +27,7 @@ def date_encoder(obj):
     raise TypeError("Object of type %s is not JSON serializable" % type(obj))
 
 
-def test_cadastro_escola(app, authenticated_app,new_escolas):
-    
+def test_cadastro_escola(app, authenticated_app, new_escolas):
     """
         Testa o cadastro de escola.
 
@@ -53,26 +50,21 @@ def test_cadastro_escola(app, authenticated_app,new_escolas):
         - Este teste assume que a API permite o cadastro de escola associados ao cliente.
         - Os dados de `new_escolas` e `authenticated_app` devem ser fornecidos como parâmetros.
     """
-
-
     headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
     # Converte o objeto para JSON
     json_data = json.dumps(new_escolas)
-    
-
     response = app.test_client().post(
         'api/v1/cadastros/escolas',
         data=json_data,
         content_type='application/json',
         headers=headers
     )
-    
     data = response.get_json()
+    print("Response Escola: ", json_data)
     assert response.status_code == 200
-    
 
 
-def test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios):
+def test_cadastro_edificios(app, authenticated_app, new_edificios, new_escolas):
     """
         Testa o cadastro de edifícios.
 
@@ -100,14 +92,11 @@ def test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios):
     """
     # Execute a lógica do teste
     with app.app_context():
-
         headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
-        
         #Cadastro escola
         test_cadastro_escola(app, authenticated_app, new_escolas)
 
         #Cadastrar Edificio
-
         json_data = json.dumps(new_edificios)
         response = app.test_client().post(
             'api/v1/cadastros/edificios',
@@ -115,12 +104,14 @@ def test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios):
             content_type='application/json',
             headers=headers
         )
-        
+
         # Verifique o código de status da resposta
         assert response.status_code == 200
-        
 
-def test_cadastro_area_umida(app, authenticated_app, new_escolas, new_edificios, new_area_umida):
+
+
+
+def test_cadastro_area_umida(app, authenticated_app, new_escolas, new_area_umida):
 
     """
         Testa o cadastro de area úmida.
@@ -157,7 +148,7 @@ def test_cadastro_area_umida(app, authenticated_app, new_escolas, new_edificios,
     with app.app_context():
 
         #Cadsatros necessários
-        test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios)
+        test_cadastro_escola(app, authenticated_app, new_escolas)
         headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
         
         json_data = json.dumps(new_area_umida)
@@ -217,7 +208,7 @@ def test_cadastro_equipamento(app, authenticated_app, new_escolas, new_edificios
     with app.app_context():
 
         #Pré requsito, teste de cadastro de área umida
-        test_cadastro_area_umida(app, authenticated_app, new_escolas, new_edificios, new_area_umida)
+        test_cadastro_area_umida(app, authenticated_app, new_escolas, new_area_umida)
 
 
         #Cadstro de equipamento
@@ -239,7 +230,7 @@ def test_cadastro_equipamento(app, authenticated_app, new_escolas, new_edificios
 
 
 
-def test_cadastro_populacao(app, authenticated_app, new_escolas, new_edificios, new_populacao):
+def test_cadastro_populacao(app, authenticated_app, new_escolas, new_populacao):
 
 
     """
@@ -277,7 +268,7 @@ def test_cadastro_populacao(app, authenticated_app, new_escolas, new_edificios, 
     with app.app_context():
 
         #Cadsatros necessários
-        test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios)
+        test_cadastro_escola(app, authenticated_app, new_escolas)
         headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
 
         json_data = json.dumps(new_populacao)
@@ -292,7 +283,7 @@ def test_cadastro_populacao(app, authenticated_app, new_escolas, new_edificios, 
         assert response.status_code == 200
 
 
-def test_cadastro_hidrometro(app, authenticated_app, new_escolas, new_edificios, new_hidrometro):
+def test_cadastro_hidrometro(app, authenticated_app, new_escolas, new_hidrometro):
 
     """
         Testa o cadastro de equipamentos.
@@ -329,7 +320,7 @@ def test_cadastro_hidrometro(app, authenticated_app, new_escolas, new_edificios,
     with app.app_context():
         
         #Cadsatros necessários
-        test_cadastro_edificios(app, authenticated_app, new_escolas, new_edificios)
+        test_cadastro_escola(app, authenticated_app, new_escolas)
         headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
 
         json_data = json.dumps(new_hidrometro)

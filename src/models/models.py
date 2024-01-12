@@ -186,7 +186,7 @@ class Edificios(db.Model):
         print(self.id)
         escola_principal = Edificios.query.filter(
             Edificios.fk_escola == self.fk_escola, Edificios.principal == True).first()
-        print(escola_principal.fk_escola)
+        print("Edificio principal: ", escola_principal.fk_escola)
         if escola_principal:
             escola_principal.principal = False
             self.principal = True  # Correção aqui
@@ -217,6 +217,8 @@ class Edificios(db.Model):
 
         # PRINCIPAL
         verificar = self.query.filter_by(fk_escola=self.fk_escola).count()
+        print("Verificar: ", verificar)
+        print("Edificio: ", self.nome_do_edificio)
         if verificar == 0:
             self.principal = True
         else:

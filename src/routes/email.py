@@ -39,8 +39,7 @@ def monitoramento():
                                         msg.body = "Alerta de monitoramento para a escola {}.\n Não registramos nenhum monitoramento nos últimos {} dias.".format(escola.nome, intervalo)
                                         mail.send(msg)
 
-                                        print('EMAIL ENVIADO')  
-                        
+                                        print('EMAIL ENVIADO')
 
 scheduler = BackgroundScheduler()
 #Enviar emails 

@@ -372,10 +372,6 @@ def new_monitoramento(app):
 @fixture
 def authenticated_app(app, new_cliente, new_usuario):
     with app.app_context():
-        # Inicia a transação
-        # connection = db.engine.connect()
-        # transaction = connection.begin()
-
         json_data_cliente = json.dumps(new_cliente)
 
         response_cliente = app.test_client().post(

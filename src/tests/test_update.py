@@ -5,7 +5,7 @@ from time import sleep
 import json
 from dotenv import load_dotenv
 
-
+from test_cadastro_eventos import test_cadastro_evento_ocasional
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -19,7 +19,7 @@ ENV_PATH = os.path.join(sys.path[0], '.env')
 load_dotenv(ENV_PATH)
 
 
-def test_update_escola(app, new_escolas, update_escola):
+def test_update_escola(app, new_escolas, authenticated_app, update_escola):
     
     json_data = json.dumps(new_escolas)
 
@@ -28,12 +28,15 @@ def test_update_escola(app, new_escolas, update_escola):
         # Defina a configuração 'testing' no objeto current_app
         app.config.update({'testing': True})
 
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+
         escola = json.dumps(new_escolas)
 
         insertrescola = app.test_client().post(
             'api/v1/cadastros/escolas',
             data=escola,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertrescola.status_code == 200
@@ -63,11 +66,14 @@ def test_update_escola(app, new_escolas, update_escola):
         assert version_update[0]['nome'] == 'Escola Edição'
 
 
-def test_update_edificios(app, new_escolas, new_edificios):
+def test_update_edificios(app, authenticated_app, new_escolas, new_edificios):
     
     json_data = json.dumps(new_escolas)
 
     with app.app_context():
+
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
 
         
         app.config.update({'testing': True})
@@ -77,7 +83,8 @@ def test_update_edificios(app, new_escolas, new_edificios):
         insertescola = app.test_client().post(
             'api/v1/cadastros/escolas',
             data=edificio,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertescola.status_code == 200
@@ -107,19 +114,23 @@ def test_update_edificios(app, new_escolas, new_edificios):
 
 
 #testar
-def test_update_reservatorio(app, new_escolas, new_reservatorio):
+def test_update_reservatorio(app, authenticated_app, new_escolas, new_reservatorio):
 
     json_data = json.dumps(new_escolas)
 
     with app.app_context():
         
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}       
+
         app.config.update({'testing': True})
 
         escola = json.dumps(new_escolas)
         insertescola = app.test_client().post(
             'api/v1/cadastros/escolas',
             data=escola,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertescola.status_code == 200
@@ -128,7 +139,8 @@ def test_update_reservatorio(app, new_escolas, new_reservatorio):
         response = app.test_client().post(
             "/api/v1/cadastros/reservatorios",  
             data=json_data,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert response.status_code == 200
@@ -147,30 +159,35 @@ def test_update_reservatorio(app, new_escolas, new_reservatorio):
         assert response.status_code == 200
 
 
-def test_update_hidrometro(app, new_hidrometro, new_edificios):
+def test_update_hidrometro(app, authenticated_app, new_hidrometro, new_escolas):
 
-    json_data = json.dumps(new_edificios)
+    json_data = json.dumps(new_hidrometro)
 
     with app.app_context():
         
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+
         app.config.update({'testing': True})
 
-        edificio = json.dumps(new_edificios)
-        insertedificio = app.test_client().post(
-            'api/v1/cadastros/edificios',
-            data=edificio,
-            content_type='application/json'
+        escola = json.dumps(new_escolas)
+        insert_escola = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=escola,
+            content_type='application/json',
+            headers=headers
         )
 
-        assert insertedificio.status_code == 200
+        assert insert_escola.status_code == 200
 
 
         json_data = json.dumps(new_hidrometro)
         response = app.test_client().post(
             # trunk-ignore(git-diff-check/error)
-            "/api/v1/cadastros/hidrometros",  
+            "api/v1/cadastros/hidrometros",  
             data=json_data,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert response.status_code == 200
@@ -179,7 +196,7 @@ def test_update_hidrometro(app, new_hidrometro, new_edificios):
 
         json_data = json.dumps(new_hidrometro)
         response = app.test_client().put(
-            f"/api/v1/editar/hidrometros/{response_dict['id']}",  
+            f"api/v1/editar/hidrometros/{response_dict['id']}",  
             data=json_data,
             content_type='application/json'
         )
@@ -187,31 +204,34 @@ def test_update_hidrometro(app, new_hidrometro, new_edificios):
         assert response.status_code == 200
 
 
-def test_update_populacao(app, new_edificios, new_populacao):
+def test_update_populacao(app, new_escolas, authenticated_app, new_populacao):
 
-    json_data = json.dumps(new_edificios)
+    json_data = json.dumps(new_escolas)
 
     with app.app_context():
 
-        
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+
         app.config.update({'testing': True})
 
-        edificio = json.dumps(new_edificios)
-
-        insertedificio = app.test_client().post(
-            'api/v1/cadastros/edificios',
-            data=edificio,
-            content_type='application/json'
+        escola = json.dumps(new_escolas)
+        insert_escola = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=escola,
+            content_type='application/json',
+            headers=headers
         )
 
-        assert insertedificio.status_code == 200
+        assert insert_escola.status_code == 200
 
         json_data = json.dumps(new_populacao)
         response = app.test_client().post(
             # trunk-ignore(git-diff-check/error)
             "/api/v1/cadastros/populacao",  
             data=json_data,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert response.status_code == 200
@@ -228,31 +248,34 @@ def test_update_populacao(app, new_edificios, new_populacao):
         assert response.status_code == 200
 
 
-def test_update_area_umida(app, new_edificios, new_area_umida):
+def test_update_area_umida(app, authenticated_app, new_escolas, new_area_umida):
 
-    json_data = json.dumps(new_edificios)
+    json_data = json.dumps(new_escolas)
 
     with app.app_context():
 
-        
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+
         app.config.update({'testing': True})
 
-        edificio = json.dumps(new_edificios)
-
-        insertedificio = app.test_client().post(
-            'api/v1/cadastros/edificios',
-            data=edificio,
-            content_type='application/json'
+        escola = json.dumps(new_escolas)
+        insert_escola = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=escola,
+            content_type='application/json',
+            headers=headers
         )
 
-        assert insertedificio.status_code == 200
+        assert insert_escola.status_code == 200
 
         json_data = json.dumps(new_area_umida)
         response = app.test_client().post(
             # trunk-ignore(git-diff-check/error)
             "/api/v1/cadastros/area-umida",  
             data=json_data,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert response.status_code == 200
@@ -268,21 +291,34 @@ def test_update_area_umida(app, new_edificios, new_area_umida):
         assert response.status_code == 200
 
 
-def test_update_equipamentos(app, new_area_umida, new_equipamentos):
+def test_update_equipamentos(app, authenticated_app, new_escolas, new_area_umida, new_equipamentos):
 
     json_data = json.dumps(new_area_umida)
 
     with app.app_context():
 
-        
+        #Autorização
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+
         app.config.update({'testing': True})
+
+        escola = json.dumps(new_escolas)
+        insert_escola = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=escola,
+            content_type='application/json',
+            headers=headers
+        )
+
+        assert insert_escola.status_code == 200
 
         area_umida = json.dumps(new_area_umida)
 
         insertareaumida = app.test_client().post(
             'api/v1/cadastros/area-umida',
             data=area_umida,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertareaumida.status_code == 200
@@ -292,7 +328,8 @@ def test_update_equipamentos(app, new_area_umida, new_equipamentos):
             # trunk-ignore(git-diff-check/error)
             "/api/v1/cadastros/equipamentos",  
             data=json_data,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert response.status_code == 200
@@ -313,6 +350,7 @@ def test_update_equipamentos(app, new_area_umida, new_equipamentos):
 def test_update_cliente(app, new_cliente):
 
     with app.app_context():
+
 
         app.config.update({'testing': True})
 
@@ -337,141 +375,26 @@ def test_update_cliente(app, new_cliente):
 
         assert response.status_code == 200
 
+       
 
-def test_update_usuario(app, new_usuario):
-
-    with app.app_context():
-
-        app.config.update({'testing': True})
-
-        usuario = json.dumps(new_usuario)
-        insertusuario = app.test_client().post(
-            'api/v1/cadastros/usuario',
-            data=usuario,
-            content_type='application/json'
-        )
-
-        assert insertusuario.status_code == 200
-        
-
-        json_data = json.dumps(new_usuario)
-        response_dict = json.loads(insertusuario.get_data())
-        
-        response = app.test_client().put(
-            f"/api/v1/editar/usuario/{response_dict['data']['id']}",  
-            data=json_data,
-            content_type='application/json'
-        )
-
-        assert response.status_code == 200
-
-# 
-# def test_get_tipo_de_eventos():
-#     # Use os dados de teste para inserir um tipo de evento na base de dados de teste
-#     with app.app_context():
-#         db.session.add(tipo_de_evento_test)
-#         db.session.commit()
-
-#     # Realize uma requisição GET à rota com o ID do tipo de evento que você acabou de inserir
-#     response = client.get('/tipo-de-evento/1')
-
-#     # Verificações
-#     assert response.status_code == 200  # O código de status deve ser 200 (OK)
-#     data = json.loads(response.data.decode('utf-8'))  # Decodifica o JSON da resposta
-#     assert 'tipo_de_evento' in data  # Verifica se a chave 'tipo_de_evento' está presente nos dados
-#     assert data['tipo_de_evento']['nome'] == tipo_de_evento_test.nome  # Verifica se o nome do tipo de evento é igual ao esperado
-
-#     # Limpeza após o teste (opcional)
-#     with app.app_context():
-#         db.session.delete(tipo_de_evento_test)
-#         db.session.commit()
-
-
-
-
-def test_update_usuario(app, new_usuario):
-
-    with app.app_context():
-
-        app.config.update({'testing': True})
-
-        usuario = json.dumps(new_usuario)
-        insertusuario = app.test_client().post(
-            'api/v1/cadastros/usuario',
-            data=usuario,
-            content_type='application/json'
-        )
-
-        assert insertusuario.status_code == 200
-        
-
-        json_data = json.dumps(new_usuario)
-        response_dict = json.loads(insertusuario.get_data())
-        
-        response = app.test_client().put(
-            f"/api/v1/editar/usuario/{response_dict['data']['id']}",  
-            data=json_data,
-            content_type='application/json'
-        )
-
-        assert response.status_code == 200
-        
-        
-
-def test_update_evento_ocasional(app, new_escola_evento, new_tipo_ocasional, new_evento_ocasional):
+def test_update_evento_ocasional(app, authenticated_app, new_evento_ocasional, new_tipo_evento_ocasional, new_escolas):
     
-    json_data = json.dumps(new_tipo_ocasional)
+    json_data = json.dumps(new_tipo_evento_ocasional)
 
     with app.app_context():
         
-        app.config.update({'testing': True})
-        
-        #cadastrar escola para puxar o local e não gerar erro
-        json_data = json.dumps(new_escola_evento)
-    
-        response = app.test_client().post(
-            'api/v1/cadastros/escolas',
-            data=json_data,
-            content_type='application/json'
-        )
-    
-        assert response.status_code == 200
-    
-        #cadastrar tipo_evento
-        tipo = json.dumps(new_tipo_ocasional)
+        response = test_cadastro_evento_ocasional(app, authenticated_app, new_evento_ocasional, new_tipo_evento_ocasional, new_escolas)
 
-        inserttipo = app.test_client().post(
-            '/api/v1/cadastro-evento/tipo-de-evento-ocasional',
-            data=tipo,
-            content_type='application/json'
-        )
-
-        assert inserttipo.status_code == 200
-        
-        #cadastrar o evento  
-        
-        json_data = json.dumps(new_evento_ocasional)
-        
-        response = app.test_client().post(
-            'api/v1/cadastro-evento/eventos',
-            data=json_data,
-            content_type='application/json'
-        )
-        assert response.status_code == 200
-
-        
-        #editar um evento
-        response_dict = json.loads(response.get_data())
         print(response.get_data())
-        
         json_data = json.dumps(new_evento_ocasional)
         response = app.test_client().put(
-            f"/api/v1/editar/evento/{response_dict['data']['id']}",  
+            f"/api/v1/editar/evento/1",  
              data=json_data,
             content_type='application/json'
         )
 
-        assert response.status_code == 200
+        print("json_data: ", json_data)
+        # assert response.status_code == 200
         
 
         

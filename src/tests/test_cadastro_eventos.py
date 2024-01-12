@@ -9,7 +9,7 @@ from datetime import datetime, date
 
 
 #Importar Testes
-from src.tests.test_cadastros import test_cadastro_escola
+from test_cadastros import test_cadastro_escola
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,12 +88,14 @@ def test_cadastro_evento_ocasional(app, authenticated_app, new_evento_ocasional,
         # Valida a resposta 
         assert response.status_code == 200
 
+        return response
+
 #Cadastro de evento tipo ocasional
 
 def test_cadastro_evento_recorrente(app, authenticated_app, new_evento_recorrente, new_escolas, new_tipo_evento_recorrente):
 
     with app.app_context():
-        # test_cadastro_escola(app, authenticated_app, new_escolas)
+        #test_cadastro_escola(app, authenticated_app, new_escolas)
         test_cadastro_tipo_eventos_recorrente(app, authenticated_app, new_escolas, new_tipo_evento_recorrente)
 
 
