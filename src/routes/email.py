@@ -52,7 +52,7 @@ def monitoramento():
 
 
 
-# RETORNO TOLERÂNCIA
+# Email TOLERÂNCIA
 @email.post('/evento-aberto')
 def evento_sem_encerramento():
         with app.app_context():
@@ -109,8 +109,8 @@ def evento_sem_encerramento():
                                         print(evento.escola.nome)
                                         
                                         msg = Message('Teste evento fora de prazo', sender = 'monitoramento_escola@gmail.com', recipients = [evento.escola.email])
-                                        corpo_msg = 'Você possui um ou mais evento fora do prazo de tolerância'
-                                        msg.body = "Evento em aberto\n titulo do evento:{}.\n inicio do evento:{}. \n tolerância: {}. \n alerta: {}".format(evento.nome, evento.datainicio, tolerancia, corpo_msg )
+                                        corpo_msg = 'você possui um ou mais evento fora do prazo de tolerância'
+                                        msg.body = "Evento em aberto\n titulo do evento: {}.\n inicio do evento: {}. \n tolerância: {}. \n alerta: {}".format(evento.nome, evento.datainicio, tolerancia, corpo_msg )
                                         mail.send(msg)
 
                                         print('EMAIL ENVIADO') 
@@ -150,13 +150,13 @@ def evento_sem_encerramento():
                         
 #ativar só se necessário
 
-scheduler = BackgroundScheduler()
-#Enviar emails 
-def schedule_jobs(scheduler, *functions):
+# scheduler = BackgroundScheduler()
+# #Enviar emails 
+# def schedule_jobs(scheduler, *functions):
              
-        for func in functions:
-                scheduler.add_job(func, 'cron', hour=17, minute=59, day_of_week='mon-fri')
+#         for func in functions:
+#                 scheduler.add_job(func, 'cron', hour=17, minute=59, day_of_week='mon-fri')
         
-schedule_jobs(scheduler, evento_sem_encerramento)
-scheduler.start()
+# schedule_jobs(scheduler, evento_sem_encerramento)
+# scheduler.start()
 

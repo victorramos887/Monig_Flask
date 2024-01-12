@@ -157,7 +157,7 @@ def media_consumo_pessoas_esc(id):
         ConsumoAgua.fk_escola,
         func.sum(ConsumoAgua.consumo).label('consumo'),
         extract("year", ConsumoAgua.data).label('ano'),
-        extract("month", ConsumoAgua.data).label('mes')
+        extract("month", ConsumoAgua.data).label('mes')  
     ).filter(ConsumoAgua.fk_escola == id).group_by(ConsumoAgua.fk_escola, extract("year", ConsumoAgua.data), extract("month", ConsumoAgua.data)).subquery()
 
     juncao = db.session.query(
@@ -230,7 +230,7 @@ def consumo_pessoas_esc():
         juncao.c.populacao_total,
         juncao.c.media_consumo,
         juncao.c.mes_ano
-    ).all()
+    ).order_by(juncao.c.mes_ano).all()
      
     resultados_json = [
         {
