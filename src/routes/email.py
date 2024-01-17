@@ -105,7 +105,7 @@ def evento_sem_encerramento():
                                        
                                         #email para escola
                                         tolerancia = str(tolerancia).format("%d/%m/%Y") 
-                                        inicio_evento = str().format("%d/%m/%Y") 
+                                        #inicio_evento = str().format("%d/%m/%Y") 
                                         print(evento.escola.nome)
                                         
                                         msg = Message('Teste evento fora de prazo', sender = 'monitoramento_escola@gmail.com', recipients = [evento.escola.email])
@@ -155,7 +155,7 @@ def evento_sem_encerramento():
 # def schedule_jobs(scheduler, *functions):
              
 #         for func in functions:
-#                 scheduler.add_job(func, 'cron', hour=17, minute=59, day_of_week='mon-fri')
+#                 scheduler.add_job(func, 'cron', hour=12, minute=00, day_of_week='mon-fri')
         
 # schedule_jobs(scheduler, evento_sem_encerramento)
 # scheduler.start()
