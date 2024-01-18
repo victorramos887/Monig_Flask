@@ -96,8 +96,8 @@ def new_escolas():
         'complemento': fake.secondary_address(),
         'logradouro': fake.street_name(),
         'nivel': [fake.random_element(
-    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU')), fake.random_element(
-    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))],
+            elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU')), fake.random_element(
+            elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))],
         'numero': fake.random_int(min=1, max=1000)
     }
 
@@ -298,6 +298,7 @@ def new_evento():
         "observacao": fake.text(),
     }
 
+
 @fixture
 def new_tipo_evento_ocasional():
     return {
@@ -340,8 +341,8 @@ def new_evento_ocasional():
 @fixture
 def new_evento_recorrente():
     dados = {
-        "data_inicio": str(fake.date_between_dates(date_start=datetime(2024,1,1), date_end=datetime(2024,2,1))),
-        "data_fim": str(fake.date_between_dates(date_start=datetime(2024,2,1), date_end=datetime(2024,2,28))),
+        "data_inicio": str(fake.date_between_dates(date_start=datetime(2024, 1, 1), date_end=datetime(2024, 2, 1))),
+        "data_fim": str(fake.date_between_dates(date_start=datetime(2024, 2, 1), date_end=datetime(2024, 2, 28))),
         "local": 1,
         "nome_do_evento": fake.name(),
         "observacoes": fake.paragraph(),
@@ -351,19 +352,17 @@ def new_evento_recorrente():
     return dados
 
 
-#Monitoramento
+# Monitoramento
 @fixture
 def new_monitoramento(app):
     return {
-        "fk_escola":1,
-        "hidrometro":"xxxxxxx",
-        "leitura":"222,022",
+        "fk_escola": 1,
+        "hidrometro": "xxxxxxx",
+        "leitura": "222,022",
         "hora": "12:56",
         "data": "11/01/2024",
         "escola": "",
     }
-
-
 
 
 # AUTENTICAÇÃO
