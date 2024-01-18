@@ -189,7 +189,7 @@ def media_consumo_pessoas_esc(id):
     }), 200
 
 
-#Media de consumo por pessoa de todas as escola - mês a mês -ok
+#Media de consumo por pessoa de todas as escola - mês a mês -
 @swag_from('../docs/get/dashboard/consumo_pessoas_escolas.yaml')
 @dashboard.get('/consumo-pessoas-escolas/')
 def consumo_pessoas_esc():
@@ -231,35 +231,10 @@ def consumo_pessoas_esc():
         } for l in resultados
     ]
 
-#     juncao = db.session.query(
-#         func.sum(consumo_escola.c.consumo).label('consumo_total'),
-#         func.sum(populacao_escola.c.populacao).label('populacao_total'),
-#         (func.sum(consumo_escola.c.consumo) / (func.sum(populacao_escola.c.populacao))).label("media_consumo"),
-#         func.concat(consumo_escola.c.mes,"-", consumo_escola.c.ano).label('mes_ano')
-#     ).join(consumo_escola, consumo_escola.c.fk_escola ==  populacao_escola.c.fk_escola).group_by('mes_ano').subquery()
-
-#     print(juncao)
-
-#     resultados = db.session.query(
-#         juncao.c.consumo_total,
-#         juncao.c.populacao_total,
-#         juncao.c.media_consumo,
-#         juncao.c.mes_ano
-#     ).all()
-
-#     resultados_json = [
-#         {
-#             "consumo_total": l[0],
-#             "populacao_total": l[1],
-#             "media_consumo": round(l[2], 3),
-#             "mes_ano": l[3]
-#         } for l in resultados
-#     ]
-
-#     return jsonify({
-#         "data": resultados_json,
-#         "status": True
-#     }), 200
+    return jsonify({
+        "data": resultados_json,
+        "status": True
+    }), 200
 
 
 # Media de consumo por nivel das escolas -- problema ao dividir p nivel
@@ -287,6 +262,7 @@ def consumo_pessoas_esc():
 #             } for l in consulta
 #         ],
 #     })
+
 
 @dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
 def grafico_media_consumo_mensal_todas_escolas():
@@ -369,6 +345,8 @@ def grafico_media_consumo_mensal_todas_escolas():
             ],
             "status": True
         }), 200
+
+
 
 # Media de consumo das escola
 @dashboard.get('/media_consumo')
