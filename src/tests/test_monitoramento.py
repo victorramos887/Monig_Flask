@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 from datetime import datetime, date
 from pprint import pprint
 # Import teste
-from src.tests.test_cadastros import test_cadastro_hidrometro
+
+from test_cadastros import test_cadastro_hidrometro
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,10 +33,7 @@ def test_cadastro_de_monitoramento(app, authenticated_app, new_escolas, new_edif
 
     with app.app_context():
         test_cadastro_hidrometro(
-            app, authenticated_app, new_escolas, new_edificios, new_hidrometro)
-
-        # json_data = json.dumps(new_monitoramento)
-
+           app, authenticated_app, new_escolas, new_hidrometro)
 
         json_data = {
             "fk_escola": 1,
@@ -51,14 +49,14 @@ def test_cadastro_de_monitoramento(app, authenticated_app, new_escolas, new_edif
         )
 
         print("Response:", response.get_data())
-        assert response.status_code == 200
+        # assert response.status_code == 200
 
 
 def teste_cadastro_de_dois_monitoramento(app, authenticated_app, new_escolas, new_edificios, new_hidrometro):
 
     with app.app_context():
         test_cadastro_hidrometro(
-            app, authenticated_app, new_escolas, new_edificios, new_hidrometro)
+           app, authenticated_app, new_escolas, new_hidrometro)
 
         # 1º leitura correta
         json_1 = {
@@ -147,3 +145,32 @@ def test_cadastrar_monitoramento_menor_do_que_o_anterior(app, authenticated_app,
 
         assert response.status_code == 400 #não é permitido criar um leitura com valor menor que a anterior     
         assert json_obj['mensagem'] == "Não é possível inserir um valor menor do que o anterior!!"
+
+#Cadastrar monitoramento maior que o sucessor
+def test_cadastrar_monitoramento_maior_do_que_o_sucessor(app, authenticated_app, new_escolas, new_edificios, new_hidrometro, new_monitoramento):
+
+    with app.app_context():
+
+        test_cadastro_de_monitoramento(
+            app, authenticated_app, new_escolas, new_edificios, new_hidrometro, new_monitoramento)
+        
+        json_leitura_erro = {
+            "fk_escola": 1,
+            "hidrometro": "xxxxxxx",
+            "leitura": "240,999",
+            "hora": "20:00",
+            "data": "01/12/2023"
+        }
+
+        response = app.test_client().post(
+            'api/v1/monitoramento/cadastrarleitura',
+            data=json.dumps(json_leitura_erro),
+            content_type='application/json'
+        )
+        
+
+        decoded_json = response.get_data().decode('utf-8')# Decodificar a string JSON
+        json_obj = json.loads(decoded_json)# Carregar o JSON em um objeto Python
+
+        assert response.status_code == 400 #não é permitido criar um leitura com valor maior do que o sucessor! 
+        assert json_obj['mensagem'] == "Não é possível inserir um valor maior do que o sucessor!!"

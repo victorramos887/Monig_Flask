@@ -4,13 +4,14 @@ import json
 
 from dotenv import load_dotenv
 
+#Importar testes
 
 
 # Define o diretório base do projeto
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
-print(sys.path)
+
 # Caminho para o arquivo .env
 ENV_PATH = os.path.join(sys.path[0], '.env')
 
@@ -18,54 +19,64 @@ ENV_PATH = os.path.join(sys.path[0], '.env')
 load_dotenv(ENV_PATH)
 
 
+def test_cadastrar_uma_escola_e_verificar_se_o_edificio_e_o_principal(app, authenticated_app, new_escolas):
+    with app.app_context():
 
-def test_edificios_cadastros_principal(app, new_escolas, new_edificios):
-    """Testando o cadstro de edificos e verificando se ele é incluido como principal."""
-    #cadastrar escola
+        headers = {"Authorization": 'Bearer ' + authenticated_app['token']}
 
-    json_escola = json.dumps(new_escolas)
+        json_data = json.dumps(new_escolas)
+        response = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_data,
+            content_type='application/json',
+            headers=headers
+        )
+        decoded_json = response.get_data().decode('utf-8')# Decodificar a string JSON
+        json_obj = json.loads(decoded_json)# Carregar o JSON em um objeto Python
+        
+        assert response.status_code == 200
+        assert json_obj['dada_edificio']['principal'] == True
+
+
+def test_cadastrar_um_segundo_edificio(app, authenticated_app, new_escolas, new_edificios):
+    """Testando o cadstro de edificos e verificando como não sendo o principal"""
 
     with app.app_context():
 
-        insertNewEscola = app.test_client().post(
+        headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
+        
+
+        json_data = json.dumps(new_escolas)
+        response = app.test_client().post(
             'api/v1/cadastros/escolas',
-            data=json_escola,
-            content_type='application/json'
+            data=json_data,
+            content_type='application/json',
+            headers=headers
         )
-
-        assert insertNewEscola.status_code == 200
-
-        response_escola = json.loads(insertNewEscola.get_data())
-
-    #selecionar edificio cadastrado
-
-        response_edificios_01 = response_escola['dada_edificio']
-
-    # verificar se é o principal
-        assert response_edificios_01['principal']
-
-    # cadastrar novo edificio
+        data = response.get_json()
+        assert response.status_code == 200
 
         json_edificios = json.dumps(new_edificios)
-
-        insertNewEficios = app.test_client().post(
+        response_new_edificios = app.test_client().post(
             'api/v1/cadastros/edificios',
             data=json_edificios,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers 
         )
-
-        assert insertNewEficios.status_code == 200
-
-        response_edificios_02 = json.loads(insertNewEficios.get_data())
         
-    # verificar se novo edificio não está como principal
-        assert response_edificios_02['data']['principal'] == False
+        decoded_json = response_new_edificios.get_data().decode('utf-8')# Decodificar a string JSON
+        json_obj = json.loads(decoded_json)# Carregar o JSON em um objeto Python
 
+        assert response_new_edificios.status_code == 200
+        assert json_obj['data']['principal'] == False
+        
 
-def test_edificios_update_principal(app, new_escolas, new_edificios):
+def test_edificios_update_principal(app, new_escolas, authenticated_app, new_edificios):
     """Testando se a trocar de edificio principal é realizada."""
     #cadastrar escola
 
+
+    headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
     json_escola = json.dumps(new_escolas)
 
     with app.app_context():
@@ -73,7 +84,8 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
         insertNewEscola = app.test_client().post(
             'api/v1/cadastros/escolas',
             data=json_escola,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertNewEscola.status_code == 200
@@ -94,7 +106,8 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
         insertNewEficios = app.test_client().post(
             'api/v1/cadastros/edificios',
             data=json_edificios,
-            content_type='application/json'
+            content_type='application/json',
+            headers=headers
         )
 
         assert insertNewEficios.status_code == 200

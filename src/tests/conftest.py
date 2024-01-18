@@ -81,10 +81,6 @@ def cnpj():
     return f'{randint(0, 9)}{randint(0, 9)}.{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}.{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}/0001-{randint(0, 9)}{randint(0, 9)}'
 
 
-niveis = fake.random_element(
-    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))
-
-
 @fixture
 def new_escolas():
     # criar novas escolas aleatórias
@@ -99,7 +95,9 @@ def new_escolas():
         'estado': fake.state_abbr(),
         'complemento': fake.secondary_address(),
         'logradouro': fake.street_name(),
-        'nivel': [niveis, niveis],
+        'nivel': [fake.random_element(
+    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU')), fake.random_element(
+    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))],
         'numero': fake.random_int(min=1, max=1000)
     }
 
@@ -372,10 +370,6 @@ def new_monitoramento(app):
 @fixture
 def authenticated_app(app, new_cliente, new_usuario):
     with app.app_context():
-        # Inicia a transação
-        # connection = db.engine.connect()
-        # transaction = connection.begin()
-
         json_data_cliente = json.dumps(new_cliente)
 
         response_cliente = app.test_client().post(

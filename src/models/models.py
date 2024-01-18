@@ -175,7 +175,7 @@ class Edificios(db.Model):
         print(self.id)
         escola_principal = Edificios.query.filter(
             Edificios.fk_escola == self.fk_escola, Edificios.principal == True).first()
-        print(escola_principal.fk_escola)
+        print("Edificio principal: ", escola_principal.fk_escola)
         if escola_principal:
             escola_principal.principal = False
             self.principal = True  # Correção aqui
@@ -885,7 +885,7 @@ class ConsumoAgua(db.Model):
     __tablename__ = 'consumo_agua'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    consumo = db.Column(db.Integer, nullable=False)
     data = db.Column(db.DateTime)
     dataFimPeriodo = db.Column(db.DateTime)
     dataInicioPeriodo = db.Column(db.DateTime)
