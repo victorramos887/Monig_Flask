@@ -424,3 +424,25 @@ def test_cadastro_usuario(app, new_cliente, new_usuario):
             content_type='application/json'
         )
         assert response.status_code == 200
+
+# def test_cadastro_consumo(app, authenticated_app, new_):
+    
+    
+#     json_consumo = json.dumps({
+#         "fk_escola": 1,
+#         "hidrometro": 1,
+#         "consumo": 345,
+#         "data": "2023/12/05",
+#         "dataInicioPeriodo": "2024/01/05",
+#         "dataFimPeriodo": "2023/02/05",
+#         "valor": 1.4
+#     })
+
+#     response = app.test_client().post(
+#         '/api/v1/cadastros/consumo',
+#         data=json_consumo,
+#         content_type='application/json'
+#     )
+
+#     print(response.get_data())
+#     assert response.status_code == 200;

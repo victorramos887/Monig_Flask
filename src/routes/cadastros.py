@@ -195,9 +195,19 @@ def escolas():
         db.session.add(escola)
 
         # VERIFICAR NÍVEIS
-
         niveis_query = AuxOpNiveis.query.filter(
             AuxOpNiveis.nivel.in_(nivel)).all()
+        
+        
+        if niveis_query:
+            for nivel in niveis_query:
+                #Cadastras Níveis
+                niveis_escolas = EscolaNiveis(
+                    escola_id=escola.id,
+                    nivel_ensino_id=nivel.id
+                )
+
+                db.session.add(niveis_escolas)
 
         edificio = Edificios(
             fk_escola=int(escola.id),
@@ -759,7 +769,6 @@ def consumos():
     
     try:
         formulario = request.get_json()
-        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -794,7 +803,6 @@ def consumos():
             dataFimPeriodo = dataFimPeriodo,
             valor = valor
         )
-        print(consumo)
         db.session.add(consumo)
         db.session.commit()
         
@@ -831,7 +839,6 @@ def consumos():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        print(e)
         return jsonify({
             'status': False,
             'mensagem':'Erro não tratado.', 'codigo': str(e)

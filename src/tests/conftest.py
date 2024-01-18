@@ -81,10 +81,6 @@ def cnpj():
     return f'{randint(0, 9)}{randint(0, 9)}.{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}.{randint(0, 9)}{randint(0, 9)}{randint(0, 9)}/0001-{randint(0, 9)}{randint(0, 9)}'
 
 
-niveis = fake.random_element(
-    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))
-
-
 @fixture
 def new_escolas():
     # criar novas escolas aleatórias
@@ -99,7 +95,9 @@ def new_escolas():
         'estado': fake.state_abbr(),
         'complemento': fake.secondary_address(),
         'logradouro': fake.street_name(),
-        'nivel': [niveis, niveis],
+        'nivel': [fake.random_element(
+    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU')), fake.random_element(
+    elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))],
         'numero': fake.random_int(min=1, max=1000)
     }
 

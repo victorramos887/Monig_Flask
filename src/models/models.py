@@ -217,8 +217,6 @@ class Edificios(db.Model):
 
         # PRINCIPAL
         verificar = self.query.filter_by(fk_escola=self.fk_escola).count()
-        print("Verificar: ", verificar)
-        print("Edificio: ", self.nome_do_edificio)
         if verificar == 0:
             self.principal = True
         else:
@@ -937,7 +935,7 @@ class ConsumoAgua(db.Model):
     __tablename__ = 'consumo_agua'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    consumo = db.Column(db.Integer, nullable=False, unique=True)
+    consumo = db.Column(db.Integer, nullable=False)
     data = db.Column(db.DateTime)
     dataFimPeriodo = db.Column(db.DateTime)
     dataInicioPeriodo = db.Column(db.DateTime)
