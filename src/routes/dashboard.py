@@ -76,16 +76,14 @@ def consumo_media_escola(id):
 
 
  
-#Media de consumo por pessoa de cada escola - mês a mês
+#Media de consumo por pessoa de cada escola - mês a mês - teste com alunos
 @swag_from('../docs/get/dashboard/media_consumo_pessoas.yaml')
 @dashboard.get('/media-consumo-pessoas')
 def media_consumo_pessoas():
 
     populacao_escola = db.session.query(
         Edificios.fk_escola,
-        func.sum(Populacao.alunos).label('total_alunos'),
-        func.sum(Populacao.funcionarios).label('total_funcionarios'),
-        func.sum(Populacao.alunos + Populacao.funcionarios).label('total_populacao')
+        func.sum(Populacao.alunos).label('total_alunos')
     ).filter(Edificios.id == Populacao.fk_edificios).group_by(Edificios.fk_escola).subquery()
 
     consumo_escola = db.session.query(
@@ -98,18 +96,14 @@ def media_consumo_pessoas():
     juncao = db.session.query(
         populacao_escola.c.fk_escola,
         populacao_escola.c.total_alunos,
-        populacao_escola.c.total_funcionarios,
-        (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios).label('total_pessoas'),
         consumo_escola.c.consumo,
         func.concat(consumo_escola.c.mes, "-" , consumo_escola.c.ano).label('mes_ano'),
-        (consumo_escola.c.consumo / (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios)).label('media_consumo')
+        (consumo_escola.c.consumo / (populacao_escola.c.total_alunos)).label('media_consumo')
     ).join(consumo_escola, populacao_escola.c.fk_escola == consumo_escola.c.fk_escola).subquery()
 
     resultados = db.session.query(
         juncao.c.fk_escola,
         juncao.c.total_alunos,
-        juncao.c.total_funcionarios,
-        juncao.c.total_pessoas,
         juncao.c.consumo,
         juncao.c.mes_ano,
         juncao.c.media_consumo
@@ -119,11 +113,9 @@ def media_consumo_pessoas():
         {
             "escola": l[0],
             "alunos": l[1],
-            "funcionarios": l[2],
-            "populacao_total": l[3],
-            "consumo": l[4],
-            "mes_ano": l[5],
-            "media_consumo": round(l[6], 3)
+            "consumo": l[2],
+            "mes_ano": l[3],
+            "media_consumo": round(l[4], 3)
         } for l in resultados
     ]
 
