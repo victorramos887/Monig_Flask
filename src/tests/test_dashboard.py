@@ -255,19 +255,19 @@ def test_grafico_media_consumo_mensal_todas_escolas(app, authenticated_app):
             'api/v1/dashboard/grafico-media-consumo-mensal-todas-escolas'
         )
 
-        print(response_consumo.get_data())
+        assert response_consumo.status_code == 200
+
+        print("Retorno: ", response_consumo.get_data())
 
 
-def test_grafico_media_consumo_mensal_todas_escolas_nivel(app, authenticated_app):
+def test_grafico_media_consumo_mensal_a_todas_escolas_nivel(app, authenticated_app):
     nivel_1 = fake.random_element(
     elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))
     nivel_2 = fake.random_element(
     elements=('Fundamental', 'Médio', 'Superior', 'Creche', 'Berçario', 'CEU'))
     with app.app_context():
         valor = test_cadastrar_consumo(app, authenticated_app)
-        print("Valor: ",valor.get_data())
         headers = {'Authorization': 'Bearer ' + authenticated_app['token']}
-
 
         for d in range(1, 3):
             populacao = {
@@ -286,13 +286,11 @@ def test_grafico_media_consumo_mensal_todas_escolas_nivel(app, authenticated_app
                 headers=headers
             )
 
-            print("Populacao: ",json_data)
 
             assert response.status_code == 200
 
         response_consumo = app.test_client().get(
             f'api/v1/dashboard/grafico-media-consumo-mensal-todas-escolas?niveis={nivel_1},{nivel_2}'
-            # 'api/v1/dashboard/media-consumo'
         )
 
         assert response_consumo.status_code == 200

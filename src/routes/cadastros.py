@@ -444,7 +444,7 @@ def edificios():
     return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
 
 @cadastros.post('/hidrometros')
-@flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
+# @flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
 @swag_from('../docs/cadastros/hidrometros.yaml')
 def hidrometros():
 
