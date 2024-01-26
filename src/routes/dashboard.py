@@ -305,7 +305,6 @@ def obter_nome_mes(numero_mes):
     return meses_em_portugues.get(numero_mes, str(numero_mes))
 
 
-
 @dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
 def grafico_media_consumo_mensal_todas_escolas():
 
@@ -445,14 +444,38 @@ def grafico_media_consumo_mensal_todas_escolas():
             lista_ordenada = sorted(resultados, key=lambda x: (int(x[2]), int(x[1])))
             print("Lista ordenada: ", lista_ordenada)
 
-
-
             return jsonify({
                 "data": [
                     {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
                 ],
                 "status": True
             }), 200
+
+@dashboard.get('/cad-principal')
+def cad_principal():
+
+    # Total de Alunos
+    # Total de População
+    populacao = db.session.query(
+                func.sum(Populacao.alunos).label('alunos'),
+                func.sum(Populacao.funcionarios).label('funcionarios')
+            ).all()
+
+    # Consumo total
+
+    consumo = db.session.query(
+        func.sum(ConsumoAgua.consumo).label('soma_consumo')
+    ).all()
+
+    populacao = {"Alunos":populacao[0][0], "Funcionarios":populacao[0][1]}
+    consumo = {"Consumo":consumo[0][0]}
+
+
+    return jsonify({
+        "data": [populacao, consumo]
+    })
+
+
 
 
 # Media de consumo das escola
