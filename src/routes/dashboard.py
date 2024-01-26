@@ -91,16 +91,6 @@ def media_consumo_pessoas():
         extract("month", ConsumoAgua.data).label('mes')
     ).group_by(ConsumoAgua.fk_escola, extract("year", ConsumoAgua.data), extract("month", ConsumoAgua.data)).subquery()
 
-    # juncao = db.session.query(
-    #     populacao_escola.c.fk_escola,
-    #     populacao_escola.c.total_alunos,
-    #     populacao_escola.c.total_funcionarios,
-    #     (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios).label('total_pessoas'),
-    #     consumo_escola.c.consumo,
-    #     func.concat(consumo_escola.c.mes, "-" , consumo_escola.c.ano).label('mes_ano'),
-    #     (consumo_escola.c.consumo / (populacao_escola.c.total_alunos + populacao_escola.c.total_funcionarios)).label('media_consumo')
-    # ).join(consumo_escola, populacao_escola.c.fk_escola == consumo_escola.c.fk_escola).subquery()
-
     juncao = db.session.query(
         populacao_escola.c.fk_escola,
         populacao_escola.c.total_alunos,
@@ -237,31 +227,6 @@ def consumo_pessoas_esc():
     }), 200
 
 
-# Media de consumo por nivel das escolas -- problema ao dividir p nivel
-# @swag_from('../docs/get/dashboard/media_consumo_niveis.yaml')
-# @dashboard.get('/media-consumo-niveis')
-# def consumo_media_niveis():
-#     consulta = (
-#         db.session.query(
-#             AuxOpNiveis.nivel,
-#             func.avg(ConsumoAgua.consumo).label('Media De Consumo')
-#          )
-#         .join(Escolas, Escolas.id == ConsumoAgua.fk_escola)
-#         .join(EscolaNiveis, EscolaNiveis.escola_id == ConsumoAgua.fk_escola)
-#         .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id)
-#         .group_by(AuxOpNiveis.nivel)
-#         .all()
-#     )
-
-#     return jsonify({
-#         "data": [
-#             {
-#                 "Nivel": l[0],
-#                 "Media de Consumo": round(l[1], 2)
-
-#             } for l in consulta
-#         ],
-#     })
 
 
 @dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
