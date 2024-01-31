@@ -100,3 +100,93 @@ def get_evento_sem_encerramento():
 
     return jsonify(result), 200
 
+
+
+# @alertas.get('/avisos_escolas')
+# def avisos_escolas():
+               
+#                 tipo_alias = aliased(AuxTipoDeEventos)
+                
+#                 # filtrando eventos ocasionais
+#                 # Alterando junção
+#                 eventos_ocasional = (
+#                         db.session.query(Eventos)
+#                         .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+#                         .filter(
+#                         or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+#                         )
+#                         .all()
+#                 )
+
+#                 # eventos sem data de encerramento
+#                 eventos_sem_encerramento = [
+#                         evento for evento in eventos_ocasional if evento.data_encerramento is None]
+
+#                 for evento in eventos_sem_encerramento:
+
+#                         # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+#                         tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+                        
+#                         #verificar se está dentro do prazo
+#                         if tipo and tipo.tempo is not None:
+#                                 unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
+#                                 tempo = tipo.tempo
+#                                 # comparar a unidade e realizar o calculo
+#                                 if unidade == "meses":
+#                                         tolerancia = evento.datainicio + relativedelta(months=tempo)
+
+#                                 elif unidade == "semanas":
+#                                         tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+
+#                                 elif unidade =="dias": 
+#                                         tolerancia = evento.datainicio + relativedelta(days=tempo)
+#                                 else:
+#                                         tolerancia = None
+
+#                                 # igualar as datas
+#                                 tolerancia = tolerancia.date() if tolerancia is not None else None
+#                                 data_atual = date.today()
+
+#                                 if tolerancia < data_atual:
+#                                   data =  {
+#                                     'titulo': "A Escola YZX ainda não atingiu 50%",
+#                                     'icone': '<ExclamationCircleOutlined />',
+#                                     'cor': "orange",
+#                                 }                                                                           
+#                                 return jsonify (data)
+#                 return jsonify ('não possui eventos sem encerramento')
+            
+            
+            
+@alertas.get('/avisos_escolas')
+def avisos_escolas(): 
+    
+    data = [
+        {
+            "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00" 
+        },
+        {
+            "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
+            "icone": 2,
+            "cor": "#F27B37" 
+        },
+        {
+            "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00"  
+        },
+        {
+            "titulo": "A Escola Monitora ainda não atingiu 50%",
+            "icone": 2,
+            "cor": "#F27B37"
+        },
+        {
+            "titulo": "A Escola ABC está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00" 
+        }
+    ]
+    
+    return jsonify(data)

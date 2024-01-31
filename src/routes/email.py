@@ -114,39 +114,7 @@ def evento_sem_encerramento():
                                         mail.send(msg)
 
                                         print('EMAIL ENVIADO') 
-                                        
-                                     
-
-#Enviar email Monitoramento -OK
-# @email.post("/monitoramento")
-# def monitoramento():
-#         with app.app_context():
-#                 #percorrer escolas
-#                 escolas = Escolas.query.all()
-                
-#                 for escola in escolas:
-                
-#                         #verificar se escola tem registro na tabela Monitoramento
-#                         registros = Monitoramento.query.filter_by(fk_escola=escola.id).all()
-                        
-#                         if registros:
-#                                 # Pegar a última data registrada
-#                                 ultima_data_registrada = max(r.datahora for r in registros).date()
-                                
-#                                 # Pegar a data atual
-#                                 hoje = datetime.now().date()
-
-#                                 # diferença de dias
-#                                 intervalo = (hoje - ultima_data_registrada).days
-                                
-#                                 if intervalo > 10:
-                                        
-#                                         #email para escola
-#                                         msg = Message('Teste email monitoramento', sender = 'monitoramento_escola@gmail.com', recipients = [escola.email])
-#                                         msg.body = "Alerta de monitoramento para a escola {}.\n Não registramos nenhum monitoramento nos últimos {} dias.".format(escola.nome, intervalo)
-#                                         mail.send(msg)
-
-#                                         print('EMAIL ENVIADO', escola.id)  
+                                                                             
                         
 #ativar só se necessário
 
