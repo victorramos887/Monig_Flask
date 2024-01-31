@@ -1,13 +1,13 @@
 from flask import Blueprint, jsonify
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc, or_
+from sqlalchemy import func, select, desc, or_, extract
 from sqlalchemy.orm import aliased
-from ..models import AuxTipoDeEventos, Eventos, db
+from ..models import AuxTipoDeEventos, Eventos, db, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
-
+import random
 
 
 
@@ -102,59 +102,77 @@ def get_evento_sem_encerramento():
 
 
 
-# @alertas.get('/avisos_escolas')
-# def avisos_escolas():
+@alertas.get('/avisos_escolas_')
+def avisos_escolas_():
                
-#                 tipo_alias = aliased(AuxTipoDeEventos)
+               
+               #EVENTOS VENCIDOS
+                tipo_alias = aliased(AuxTipoDeEventos)
                 
-#                 # filtrando eventos ocasionais
-#                 # Alterando junção
-#                 eventos_ocasional = (
-#                         db.session.query(Eventos)
-#                         .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
-#                         .filter(
-#                         or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
-#                         )
-#                         .all()
-#                 )
+                #filtrando eventos ocasionais
+                #Alterando junção
+                eventos_ocasional = (
+                        db.session.query(Eventos)
+                        .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+                        .filter(
+                        or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+                        )
+                        .all()
+                )
 
-#                 # eventos sem data de encerramento
-#                 eventos_sem_encerramento = [
-#                         evento for evento in eventos_ocasional if evento.data_encerramento is None]
+                avisos = []
+                # eventos sem data de encerramento
+                eventos_sem_encerramento = [
+                        evento for evento in eventos_ocasional if evento.data_encerramento is None]
+                
+                for evento in eventos_sem_encerramento:
 
-#                 for evento in eventos_sem_encerramento:
-
-#                         # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
-#                         tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+                        # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+                        tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
                         
-#                         #verificar se está dentro do prazo
-#                         if tipo and tipo.tempo is not None:
-#                                 unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
-#                                 tempo = tipo.tempo
-#                                 # comparar a unidade e realizar o calculo
-#                                 if unidade == "meses":
-#                                         tolerancia = evento.datainicio + relativedelta(months=tempo)
+                        #verificar se está dentro do prazo
+                        if tipo and tipo.tempo is not None:
+                                unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
+                                tempo = tipo.tempo
+                                # comparar a unidade e realizar o calculo
+                                if unidade == "meses":
+                                        tolerancia = evento.datainicio + relativedelta(months=tempo)
 
-#                                 elif unidade == "semanas":
-#                                         tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+                                elif unidade == "semanas":
+                                        tolerancia = evento.datainicio + relativedelta(weeks=tempo)
 
-#                                 elif unidade =="dias": 
-#                                         tolerancia = evento.datainicio + relativedelta(days=tempo)
-#                                 else:
-#                                         tolerancia = None
+                                elif unidade =="dias": 
+                                        tolerancia = evento.datainicio + relativedelta(days=tempo)
+                                else:
+                                        tolerancia = None
 
-#                                 # igualar as datas
-#                                 tolerancia = tolerancia.date() if tolerancia is not None else None
-#                                 data_atual = date.today()
+                                # igualar as datas
+                                tolerancia = tolerancia.date() if tolerancia is not None else None
+                                data_atual = date.today()
 
-#                                 if tolerancia < data_atual:
-#                                   data =  {
-#                                     'titulo': "A Escola YZX ainda não atingiu 50%",
-#                                     'icone': '<ExclamationCircleOutlined />',
-#                                     'cor': "orange",
-#                                 }                                                                           
-#                                 return jsonify (data)
-#                 return jsonify ('não possui eventos sem encerramento')
+                                #vencido
+                                if tolerancia < data_atual:
+                                 
+                                    data =  {
+                                        'titulo': 'A Escola {} está com o evento {}, id {}, acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
+                                        'icone': 1,
+                                        'cor': "#00FF00",
+                                    }
+                                    avisos.append(data)     
+                        
+                        
+                #MEDIA DAS ESCOLAS E MEDIA DAS ESCOLAS INDIVIDUALMENTE COMPARAR E RETORNAR SE ESTIVER ACIMA
+                
+                #embaralhar lista e retorna 2 itens
+                random.shuffle(avisos)                                                                      
+                return jsonify(avisos[:2])
+    
+ 
+ #testando   
+# @alertas.get('/avisos_escolas_')
+# def avisos_escolas_():    
+        
+
             
             
             
