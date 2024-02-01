@@ -3,12 +3,12 @@ from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
 from sqlalchemy import func, select, desc, or_, extract
 from sqlalchemy.orm import aliased
-from ..models import AuxTipoDeEventos, Eventos, db, ConsumoAgua
+from ..models import AuxTipoDeEventos, Eventos, db, ConsumoAgua, Monitoramento, Escolas
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 import random
-
+from datetime import datetime, date
 
 
 alertas = Blueprint('alertas', __name__,
@@ -102,9 +102,8 @@ def get_evento_sem_encerramento():
 
 
 
-@alertas.get('/avisos_escolas_')
-def avisos_escolas_():
-               
+@alertas.get('/avisos_escolas')
+def avisos_escolas():
                
                #EVENTOS VENCIDOS
                 tipo_alias = aliased(AuxTipoDeEventos)
@@ -154,57 +153,78 @@ def avisos_escolas_():
                                 if tolerancia < data_atual:
                                  
                                     data =  {
-                                        'titulo': 'A Escola {} está com o evento {}, id {}, acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
+                                        'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
                                         'icone': 1,
-                                        'cor': "#00FF00",
+                                        'cor': "#00FF00"
                                     }
                                     avisos.append(data)     
                         
                         
-                #MEDIA DAS ESCOLAS E MEDIA DAS ESCOLAS INDIVIDUALMENTE COMPARAR E RETORNAR SE ESTIVER ACIMA
+                #MONITORAMENTO
+                #percorre apenas escolas com registro - id das escolas
+                escolas = Monitoramento.query.with_entities(Monitoramento.fk_escola).distinct().all() 
                 
-                #embaralhar lista e retorna 2 itens
+                for i in escolas:
+                        fk_escola = i.fk_escola
+                
+                        #pegar todos os registros desse fk
+                        registros = Monitoramento.query.filter_by(fk_escola=fk_escola).all() 
+                        
+                        # Pegar a última data registrada
+                        registro_recente = max(r.datahora for r in registros).date()
+                        
+                        # Pegar a data atual
+                        hoje = datetime.now().date()
+
+                        # diferença de dias
+                        intervalo = (hoje - registro_recente).days
+                        
+                        if intervalo > 10:
+                            info_escola = Escolas.query.filter_by(id=fk_escola).first()
+                            
+                            data =  {
+                                    'titulo': 'A Escola {} está a {} dias sem monitoramento'.format(info_escola.nome, intervalo),
+                                    'icone': 2,
+                                    'cor': "#F27B37"
+                                    }
+                            
+                            avisos.append(data)
+                
+                #embaralhar lista e limitar itens
                 random.shuffle(avisos)                                                                      
-                return jsonify(avisos[:2])
+                return jsonify(avisos[:10])
     
  
- #testando   
-# @alertas.get('/avisos_escolas_')
-# def avisos_escolas_():    
-        
-
             
-            
-            
-@alertas.get('/avisos_escolas')
-def avisos_escolas(): 
+# @alertas.get('/avisos_escolas')
+# def avisos_escolas(): 
     
-    data = [
-        {
-            "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
-            "icone": 1,
-            "cor": "#00FF00" 
-        },
-        {
-            "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
-            "icone": 2,
-            "cor": "#F27B37" 
-        },
-        {
-            "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
-            "icone": 1,
-            "cor": "#00FF00"  
-        },
-        {
-            "titulo": "A Escola Monitora ainda não atingiu 50%",
-            "icone": 2,
-            "cor": "#F27B37"
-        },
-        {
-            "titulo": "A Escola ABC está com o consumo acima da média",
-            "icone": 1,
-            "cor": "#00FF00" 
-        }
-    ]
+#     data = [
+#         {
+#             "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         },
+#         {
+#             "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37" 
+#         },
+#         {
+#             "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00"  
+#         },
+#         {
+#             "titulo": "A Escola Monitora ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37"
+#         },
+#         {
+#             "titulo": "A Escola ABC está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         }
+#     ]
     
-    return jsonify(data)
+#     return jsonify(data)
