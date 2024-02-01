@@ -192,7 +192,7 @@ def avisos_escolas():
                 
                 #embaralhar lista e limitar itens
                 random.shuffle(avisos)                                                                      
-                return jsonify(avisos[:10])
+                return jsonify(avisos[:4])
     
  
             
