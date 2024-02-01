@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc, or_ , aliased
+from sqlalchemy import func, select, desc, or_ 
+from sqlalchemy.orm import aliased
 from ..models import  AuxTipoDeEventos,Eventos, db, Monitoramento, Escolas
 from datetime import timedelta, date, datetime
 from dateutil.relativedelta import relativedelta
@@ -206,6 +207,6 @@ def avisos_escolas():
                 
                 #embaralhar lista e limitar itens
                 random.shuffle(avisos)                                                                      
-                return jsonify(avisos[:2])
+                return jsonify(avisos[:3])
     
  
