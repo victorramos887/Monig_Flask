@@ -79,17 +79,37 @@ def get_evento_sem_encerramento():
 
     return jsonify(result), 200
 
-#alerta monitoramento - x dias sem registrar o hidrometro - enviar email
 
-#@swag_from('../docs/get/email.yaml')
-# @alertas.get('/email')
-# def get_email():
 
-#     mail_message = Message(
-#         'Olá! Não se esqueça de me seguir para mais artigos!', 
-#         sender = 'anaprferrari@gmail.com', 
-#         recipients = ['paulocdferrari@gmail.com'])
-#     mail_message.body = "Teste"
-#     mail.send(mail_message)
+@alertas.get('/avisos_escolas')
+def avisos_escolas(): 
     
-#     return 200
+    data = [
+        {
+            "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00" 
+        },
+        {
+            "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
+            "icone": 2,
+            "cor": "#F27B37" 
+        },
+        {
+            "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00"  
+        },
+        {
+            "titulo": "A Escola Monitora ainda não atingiu 50%",
+            "icone": 2,
+            "cor": "#F27B37"
+        },
+        {
+            "titulo": "A Escola ABC está com o consumo acima da média",
+            "icone": 1,
+            "cor": "#00FF00" 
+        }
+    ]
+    
+    return jsonify(data)
