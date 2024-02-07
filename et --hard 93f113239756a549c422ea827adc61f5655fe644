@@ -1,0 +1,507 @@
+[33mcommit 4fb900b385eb3f08cd2905d3553f6abd85ec9f05[m[33m ([m[1;36mHEAD -> [m[1;32mtdd[m[33m)[m
+Merge: 19bdfb3 9c08e64
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Feb 7 09:53:35 2024 -0300
+
+    alertas
+
+[33mcommit 19bdfb3d692adaf36242d7f1b8dbe6816961bec0[m[33m ([m[1;31morigin/tdd[m[33m)[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Feb 1 14:11:03 2024 -0300
+
+    ajustes
+
+[33mcommit a28a4d961eb4a22dbce219b262e0a37bb5757476[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Feb 1 14:06:42 2024 -0300
+
+    atualizando rota
+
+[33mcommit 9c08e647567d8a0a71d381e68039a03d409b7434[m[33m ([m[1;31morigin/ajustes[m[33m, [m[1;32majustes[m[33m)[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Feb 1 14:01:26 2024 -0300
+
+    rotas
+
+[33mcommit 0e2e6285350dcf96bc2393b143b5a5cffae96471[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Feb 1 11:08:30 2024 -0300
+
+    rota avisos
+
+[33mcommit 5d16419bb8dad0ec4c96e9cd3a8f2dfcaf66db04[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Feb 1 09:10:36 2024 -0300
+
+    nova rota
+
+[33mcommit 561796a290f251c95681ae8f6818e8320814dee9[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 31 17:00:54 2024 -0300
+
+    rota
+
+[33mcommit 2fbbc891b123503965c4b1228dad2bb520b2c13c[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 31 14:00:20 2024 -0300
+
+    rota dos avisos
+
+[33mcommit 9775c5f4bb786584251470505e42efdb8cc171b1[m
+Merge: 7a6fc1f 5633f58
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Jan 29 14:01:43 2024 -0300
+
+    teste
+
+[33mcommit 5633f5889aa11a4cf0a75b9c9581aa537923ceae[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Jan 29 13:56:09 2024 -0300
+
+    merge
+
+[33mcommit 7a6fc1f0173f0dd8bff9834558126c98eb7c6986[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 26 15:50:44 2024 -0300
+
+    ajustes
+
+[33mcommit 1c0e53d920db47b54174dea1f9f8d35a6ace2ae0[m
+Merge: eb7d54b 7e2a808
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 26 15:30:47 2024 -0300
+
+    merge
+
+[33mcommit 7e2a808ff3d8ce6c76b406454d8c7517c475a3f6[m
+Merge: 9cf0c13 93f1132
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 26 15:24:47 2024 -0300
+
+    merge
+
+[33mcommit eb7d54b8b6f79160be6934ae87c14cc0b3bc8f1f[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 26 15:19:38 2024 -0300
+
+    ajustes
+
+[33mcommit 93f113239756a549c422ea827adc61f5655fe644[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 26 15:10:43 2024 -0300
+
+    Rota Cart principal
+
+[33mcommit e8972adaf2dae5dbc6cfceb7cb7dfc52e4cd3a79[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 26 13:34:39 2024 -0300
+
+    ajustes
+
+[33mcommit d2a97b5fc9e18258508208b119c834cc03a841cb[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 19 10:17:02 2024 -0300
+
+    dashboard gráfico 1
+
+[33mcommit 9cf0c13639e4657c0c92a1004f7be2081dd3f28c[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 16:57:59 2024 -0300
+
+    merge
+
+[33mcommit 5c4d7298e7708e73e3541b2ac6f134499d95070d[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 15:46:36 2024 -0300
+
+    teste
+
+[33mcommit 38f67dab6600465116d29b2e6362d1946c1e036f[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 15:44:02 2024 -0300
+
+    merge
+
+[33mcommit b0ca223aaa737236576b40611ee2d54b3d5a78fa[m
+Merge: f93eeaa 4a2723f
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 15:15:07 2024 -0300
+
+    Merge branch 'tdd' into ajustes
+
+[33mcommit f93eeaabfae1c43623c2a7c499758a53738cc5b6[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 15:14:34 2024 -0300
+
+    merge
+
+[33mcommit 4a2723f3418b88f6adecb94fe6b01f5609b1c9fa[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Thu Jan 18 15:09:09 2024 -0300
+
+    Ultima versão
+
+[33mcommit 6e954569e13a93e8e38a04843c2d00bb0d34232a[m
+Merge: f910f26 0407a30
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 14:40:31 2024 -0300
+
+    merge
+
+[33mcommit f910f261f72f8e13cceeb29e66a51050a3b524c5[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 14:35:15 2024 -0300
+
+    retirada dos funcionarios da média
+
+[33mcommit 0407a306aa9d7f3566ad15b1977f634aac5804f3[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Thu Jan 18 14:00:16 2024 -0300
+
+    teste dashboard
+
+[33mcommit 32ae3e10013c7171fa2e5f35af2d00bc7bb254f5[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 18 13:47:37 2024 -0300
+
+    ajustes
+
+[33mcommit 66ddbb71ce7d5370fc230019ba4f64cea270d501[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 17 13:53:53 2024 -0300
+
+    atualizacao
+
+[33mcommit d66d0186e980179097b5f0a8096d027b0999e607[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Fri Jan 12 15:29:27 2024 -0300
+
+    ajuste rota dashboard
+
+[33mcommit 5ea8dad87816959b268260c612bb17027d3af607[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 12 12:28:07 2024 -0300
+
+    Testes monitoramento, update e eventos
+
+[33mcommit 692581df431600764cb817c118167d2e35b1b128[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 11 18:02:24 2024 -0300
+
+    envio de email-evento
+
+[33mcommit 855694df3fa2d4c4cffa6f247e7ef281c5a2d494[m
+Merge: 556d12c a1cc243
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 11 15:06:48 2024 -0300
+
+    merge
+
+[33mcommit 556d12c8333ded73609cb04c6e57b9116e24414d[m
+Merge: 6ef5940 a9c39c2
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Jan 11 14:57:51 2024 -0300
+
+    merge
+
+[33mcommit a1cc243e3a947debce34bff45b6f6bade907f029[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Thu Jan 11 14:27:32 2024 -0300
+
+    Testes tdd
+
+[33mcommit 6049b5d6678dcbcd9cf3679d63c202dab253812f[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Thu Jan 11 13:43:29 2024 -0300
+
+    Teste Monitoramneto
+
+[33mcommit 855c018067c6b46389a20cd59e5cd48a22765a81[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Jan 10 22:21:02 2024 -0300
+
+    Alterações no tdd
+    
+    Acrescentando header no docs
+
+[33mcommit 6ef594069b1203ebee720586f7bdebd425091c36[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 10 15:50:18 2024 -0300
+
+    nova versao email-monitoramento
+
+[33mcommit a9c39c2ce4229c26d6dd4112427d26909faeb882[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Jan 10 13:29:50 2024 -0300
+
+    Ajustes
+
+[33mcommit 64f9f93bec95356149ec008fc7ad0f147d96360b[m
+Merge: aaf10b0 a8d624f
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 10 11:25:02 2024 -0300
+
+    merge
+
+[33mcommit a8d624fd71392f90f2a78b14e5ab5e9bed82208d[m
+Merge: 393eb7b 6133550
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 10 11:20:45 2024 -0300
+
+    Merge branch 'main' of https://github.com/victorramos887/Monig_Flask
+
+[33mcommit aaf10b03912612b01654177be43ec7b00f8552c6[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 10 11:19:50 2024 -0300
+
+    ajustes
+
+[33mcommit 613355076d94c3c40f2ae58f7f0c2cc1e3bd47ac[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Wed Jan 10 10:16:52 2024 -0300
+
+    alterações em envio da leitura
+
+[33mcommit 217880618dbe80e1010abf4775170a8aaee86312[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 17:37:57 2024 -0300
+
+    ajuste
+
+[33mcommit 5ed36e2f6acb62d843d91cfbe885915b8812ea34[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 17:29:35 2024 -0300
+
+    ajustes
+
+[33mcommit 77b3349feea4e9b136d8c800675f1d980868821b[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 17:28:34 2024 -0300
+
+    ajustes
+
+[33mcommit 191c39c093c76c47be5982a7a2306a82c7fb80c8[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 16:02:27 2024 -0300
+
+    enviar email monitoramento
+
+[33mcommit ccb1c53a557e9185fd77cf3619488eb47833a479[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 12:26:45 2024 -0300
+
+    func envio de  email agendado
+
+[33mcommit 7e10e981db8c36a4d290af0726676712992caeff[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 9 11:02:58 2024 -0300
+
+    add
+
+[33mcommit aa71ebb7f546e34b2af11280713b6468dbee1ead[m
+Merge: 0c16ef6 393eb7b
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Jan 8 10:55:48 2024 -0300
+
+    Merge branch 'main' into ajustes
+
+[33mcommit 393eb7bcee19cf43a405f1772a8099647c83ecf3[m
+Merge: 5cb7412 1240282
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Jan 8 10:55:21 2024 -0300
+
+    Merge branch 'main' of https://github.com/victorramos887/Monig_Flask
+
+[33mcommit 0c16ef6d311a17bfcef16eff453ea05eb5c4eac9[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Jan 8 10:55:04 2024 -0300
+
+    atualizacao
+
+[33mcommit 77ac4722491541ce73c3e29490da0c613aecf055[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 5 10:00:18 2024 -0300
+
+    validação
+
+[33mcommit 2aba65b8960b3ee56b9ffb2b68838f3863e4cffe[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 5 09:30:28 2024 -0300
+
+    entendo o alerta
+
+[33mcommit 1aacb89a0791082fb1d8c344d74f45ce256ee2af[m
+Merge: 1240282 ae6b948
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 5 07:24:32 2024 -0300
+
+    merge: ajustes
+
+[33mcommit 124028247e3984414b0817293a2dfc50b7d50a9e[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Jan 5 07:19:27 2024 -0300
+
+    monitoramento
+
+[33mcommit ae6b948a81cc308725dd0bd258320bec5cd17f6b[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Jan 3 17:54:23 2024 -0300
+
+    ajuste
+
+[33mcommit 04a17b825b50f5e9eed7ad84352345f16c7b4ce6[m
+Merge: f324b5f 5cb7412
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 2 17:21:35 2024 -0300
+
+    merge main
+
+[33mcommit 5cb741205f8628eabe23691a7dc3b10555dd7314[m
+Merge: ac67375 3793f35
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 2 17:17:40 2024 -0300
+
+    Merge branch 'main' of https://github.com/victorramos887/Monig_Flask
+
+[33mcommit f324b5f759c45a1593c82d2b8601cb484a684196[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Jan 2 17:14:12 2024 -0300
+
+    media de consumo por pessoa - mes a mes- escolas
+
+[33mcommit 3793f35f6c67dcafc58e008f337705d0a99873da[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Thu Dec 28 16:46:27 2023 -0300
+
+    scritp join sdf e access
+
+[33mcommit 3babd06ec46fd74fed4e5f14f4ecc3ef848fbedd[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Tue Dec 26 10:57:34 2023 -0300
+
+    validaçãoes
+
+[33mcommit 9c4492bc0cf34a0d574d8590619c29dafaddcc3c[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Thu Dec 21 11:49:34 2023 -0300
+
+    media p/ pessoa de uma escola
+
+[33mcommit e9752f53e0f61e395b39a29280407e75e8ba47e2[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 20 18:59:41 2023 -0300
+
+    teste
+
+[33mcommit 1d03a99f3d0728af487753a7ffd7b91806032918[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 20 18:58:01 2023 -0300
+
+    media consumo mensal de uma escola
+
+[33mcommit 63678acaa4730bfdbd71fcd0c408f8f012aac2bf[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 20 15:51:48 2023 -0300
+
+    commit
+
+[33mcommit 6f9d4fe446dcaf59ef1c029841eeb4f842d260b1[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 20 15:49:50 2023 -0300
+
+    media consumo pessoa
+
+[33mcommit a26999985ff6d5db0923c9a285220f99ed1efec8[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 20 15:28:37 2023 -0300
+
+    rota consumo p/ pessoa
+
+[33mcommit abc2e82351c6a69afb3599bd7da9a70bc36a8ec3[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 18 18:30:49 2023 -0300
+
+    rota medio consumo p/ pessoa
+
+[33mcommit 5382568b80b9f3f88f96bf9f63a04ae645dfcc34[m
+Merge: 17eb9f5 ac67375
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 18 10:47:00 2023 -0300
+
+    merge main
+
+[33mcommit ac6737531617f1d0ebc40c969cccf3b83188fe7e[m
+Merge: cef2680 bc61286
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 18 10:43:32 2023 -0300
+
+    Merge branch 'main' of https://github.com/victorramos887/Monig_Flask
+
+[33mcommit 17eb9f59ae512b88e0ebc249ae8f732e87b4f068[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 18 10:43:15 2023 -0300
+
+    teste
+
+[33mcommit bc612862164fb5f048d33ef22dc06c8725f6d960[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Dec 15 22:08:50 2023 -0300
+
+    alteacoes em envio
+
+[33mcommit 9d3af2bcbded31cd3797d5f49d8ecf447d62e41d[m
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Dec 15 15:21:48 2023 -0300
+
+    retorno
+
+[33mcommit ef439e21924421f2648b08dca261bd6cca0f4722[m
+Merge: d4efe68 bb392dd
+Author: victorramos887 <v.ramos58@hotmail.com>
+Date:   Fri Dec 15 09:27:42 2023 -0300
+
+    subindo merge
+
+[33mcommit 62236b7dd57f09d8aebcbf6a3729f31b392288c5[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Wed Dec 13 17:52:03 2023 -0300
+
+    atualizacao documentacao
+
+[33mcommit 2e547a1c7cd94555559dd5fabb970491231c0976[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Dec 12 15:03:28 2023 -0300
+
+    atualizacao documentacao
+
+[33mcommit f021c7beefbe8749620f5bb8cad488c258de1a81[m
+Merge: 38ae095 cef2680
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Dec 12 10:27:42 2023 -0300
+
+    Merge branch 'main' into ajustes
+
+[33mcommit cef26803dbe283ca21ca4a65e53eada757c1e727[m
+Merge: bb392dd d4efe68
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Dec 12 10:27:15 2023 -0300
+
+    Merge branch 'main' of https://github.com/victorramos887/Monig_Flask
+
+[33mcommit 38ae095500f756a36f9aa41abb9ab34bc96f0b18[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Tue Dec 12 10:26:28 2023 -0300
+
+    atualizacao documentacao
+
+[33mcommit 378e4bc99b986e3460979b339b8dc5f362b4d523[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 11 18:02:42 2023 -0300
+
+    documentacao rotas
+
+[33mcommit 68da6eb46f1da78ad7624c18fe9e47d423e599f9[m
+Author: Ana Paula R. Ferrari <88218648+Ana-Paula-Ferrari@users.noreply.github.com>
+Date:   Mon Dec 11 15:49:04 2023 -0300
+
+    atualizacao documentacao rotas
