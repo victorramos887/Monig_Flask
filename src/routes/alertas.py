@@ -1,12 +1,13 @@
 from flask import Blueprint, jsonify
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc
-from ..models import  AuxTipoDeEventos,Eventos
-from datetime import timedelta, date
+from sqlalchemy import func, select, desc, or_ 
+from sqlalchemy.orm import aliased
+from ..models import  AuxTipoDeEventos,Eventos, db, Monitoramento, Escolas
+from datetime import timedelta, date, datetime
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
-
+import random
 
 
 
@@ -79,17 +80,133 @@ def get_evento_sem_encerramento():
 
     return jsonify(result), 200
 
-#alerta monitoramento - x dias sem registrar o hidrometro - enviar email
 
-#@swag_from('../docs/get/email.yaml')
-# @alertas.get('/email')
-# def get_email():
 
-#     mail_message = Message(
-#         'Olá! Não se esqueça de me seguir para mais artigos!', 
-#         sender = 'anaprferrari@gmail.com', 
-#         recipients = ['paulocdferrari@gmail.com'])
-#     mail_message.body = "Teste"
-#     mail.send(mail_message)
+# @alertas.get('/avisos_escolas')
+# def avisos_escolas(): 
     
-#     return 200
+#     data = [
+#         {
+#             "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         },
+#         {
+#             "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37" 
+#         },
+#         {
+#             "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00"  
+#         },
+#         {
+#             "titulo": "A Escola Monitora ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37"
+#         },
+#         {
+#             "titulo": "A Escola ABC está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         }
+#     ]
+    
+#     return jsonify(data)
+
+
+
+@alertas.get('/avisos_escolas')
+def avisos_escolas():
+               
+               #EVENTOS VENCIDOS
+                tipo_alias = aliased(AuxTipoDeEventos)
+                
+                #filtrando eventos ocasionais
+                #Alterando junção
+                eventos_ocasional = (
+                        db.session.query(Eventos)
+                        .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+                        .filter(
+                        or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+                        )
+                        .all()
+                )
+
+                avisos = []
+                # eventos sem data de encerramento
+                eventos_sem_encerramento = [
+                        evento for evento in eventos_ocasional if evento.data_encerramento is None]
+                
+                for evento in eventos_sem_encerramento:
+
+                        # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+                        tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+                        
+                        #verificar se está dentro do prazo
+                        if tipo and tipo.tempo is not None:
+                                unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
+                                tempo = tipo.tempo
+                                # comparar a unidade e realizar o calculo
+                                if unidade == "meses":
+                                        tolerancia = evento.datainicio + relativedelta(months=tempo)
+
+                                elif unidade == "semanas":
+                                        tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+
+                                elif unidade =="dias": 
+                                        tolerancia = evento.datainicio + relativedelta(days=tempo)
+                                else:
+                                        tolerancia = None
+
+                                # igualar as datas
+                                tolerancia = tolerancia.date() if tolerancia is not None else None
+                                data_atual = date.today()
+
+                                #vencido
+                                if tolerancia < data_atual:
+                                 
+                                    data =  {
+                                        'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
+                                        'icone': 1,
+                                        'cor': "#00FF00"
+                                    }
+                                    avisos.append(data)     
+                        
+                        
+                #MONITORAMENTO
+                #percorre apenas escolas com registro - id das escolas
+                escolas = Monitoramento.query.with_entities(Monitoramento.fk_escola).distinct().all() 
+                
+                for i in escolas:
+                        fk_escola = i.fk_escola
+                
+                        #pegar todos os registros desse fk
+                        registros = Monitoramento.query.filter_by(fk_escola=fk_escola).all() 
+                        
+                        # Pegar a última data registrada
+                        registro_recente = max(r.datahora for r in registros).date()
+                        
+                        # Pegar a data atual
+                        hoje = datetime.now().date()
+
+                        # diferença de dias
+                        intervalo = (hoje - registro_recente).days
+                        
+                        if intervalo > 10:
+                            info_escola = Escolas.query.filter_by(id=fk_escola).first()
+                            
+                            data =  {
+                                    'titulo': 'A Escola {} está a {} dias sem monitoramento'.format(info_escola.nome, intervalo),
+                                    'icone': 2,
+                                    'cor': "#F27B37"
+                                    }
+                            
+                            avisos.append(data)
+                
+                #embaralhar lista e limitar itens
+                random.shuffle(avisos)                                                                      
+                return jsonify(avisos[:3])
+    
+ 
