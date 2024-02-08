@@ -151,7 +151,7 @@ def usuario():
 
 # Cadastros das escolas
 @cadastros.post('/escolas')
-@flask_praetorian.roles_accepted("admin", "diretoria")
+# @flask_praetorian.roles_accepted("admin", "diretoria")
 @swag_from('../docs/cadastros/escolas.yaml')
 def escolas():
 
@@ -262,7 +262,7 @@ def escolas():
 
 # cadastro de reservatorios
 @cadastros.post('/reservatorios')
-@flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
+# @flask_praetorian.roles_accepted("admin", "diretoria", "operacao")
 @swag_from('../docs/cadastros/reservatorios.yaml')
 def reservatorios():
 
@@ -329,7 +329,7 @@ def reservatorios():
 
 # Cadastros dos edifícios.
 @cadastros.post('/edificios')
-@flask_praetorian.roles_accepted("admin", "diretoria")
+# @flask_praetorian.roles_accepted("admin", "diretoria")
 @swag_from('../docs/cadastros/edificios.yaml')
 def edificios():
 
@@ -506,7 +506,7 @@ def hidrometros():
         })
 
 @cadastros.post('/populacao')
-@flask_praetorian.roles_accepted("admin", "diretoria")
+# @flask_praetorian.roles_accepted("admin", "diretoria")
 @swag_from('../docs/cadastros/populacao.yaml')
 def populacao():
 
@@ -589,7 +589,7 @@ def populacao():
 
 # Cadastros das areas umidas
 @cadastros.post('/area-umida')
-@flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
+# @flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
 @swag_from('../docs/cadastros/area_umida.yaml')
 def area_umida():
     try:
@@ -677,7 +677,7 @@ def area_umida():
         return jsonify({'status': False, 'mensagem': 'Erro não Tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 @cadastros.post('/equipamentos')
-@flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
+# @flask_praetorian.roles_accepted("admin", "diretoria", "operacional")
 @swag_from('../docs/cadastros/equipamentos.yaml')
 def equipamentos():
 
