@@ -554,8 +554,8 @@ def consumo_escolas():
 
 
 #TESTANDO RETORNO MES GRÁFICO DE LINHA
-@dashboard.get('/grafico-media-consumo-mensal-escolas')
-def grafico_media_consumo_mensal_escolas():
+@dashboard.get('/grafico-media-consumo-mensal-escolas_teste')
+def grafico_media_consumo_mensal_escolas_teste():
     
   
     #maior data e menor - intervalo 
@@ -573,7 +573,8 @@ def grafico_media_consumo_mensal_escolas():
     
     #alimentar a lista com intervalo de datas
     while data_menor <= data_maior:
-        lista_com_intervalo.append(data_menor)
+        lista_com_intervalo.append(data_menor.strftime("%Y-%m"))
+        
         if data_menor == data_maior:
             break
         prox_mes = data_menor.month + 1 
@@ -581,6 +582,7 @@ def grafico_media_consumo_mensal_escolas():
             data_menor = data_menor.replace(year=data_menor.year + 1, month=1)
         else:
             data_menor = data_menor.replace(month=prox_mes)
+   
     print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo)) 
      
      
@@ -593,13 +595,34 @@ def grafico_media_consumo_mensal_escolas():
     
      # Agrupar os resultados por ano e mês
     consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano')
-
+   
+    
     # Ordenar os resultados # todos os valores- lista com mes-ano e consumo 
     resultados = consulta.all() 
+    print(resultados)
     
-    return jsonify({
+    
+    #percorre os item da lista de datas
+    for ano_mes_lista in lista_com_intervalo:
+        
+        #concatenar ano mes do resultados
+        for l in resultados:
+            ano_mes_consulta =  '-'.join([f'{l[2]}', f'{l[1]}']) 
+            print(ano_mes_consulta)
+            
+            if ano_mes_lista == ano_mes_consulta:
+                return jsonify ({
+                    "data": [
+                        {"gastosEscola": round(l[0], 3), "mes": ano_mes_consulta, "gastosNivel":""} 
+                    ],
+                    "status": True
+                })
+                
+            #datas não correspondentes
+            return jsonify({
                 "data": [
-                    {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
+                    {"gastosEscola": "0", "mes_ano":ano_mes_lista, "gastosNivel": "0"} 
                 ],
                 "status": True
-            }), 200
+            })
+
