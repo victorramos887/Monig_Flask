@@ -1,10 +1,11 @@
-from sqlalchemy import func, extract, select
+from sqlalchemy import func, extract, text
+from sqlalchemy.sql.functions import concat, lpad
 from ..models import db, ConsumoAgua, EscolaNiveis, Escolas, AuxOpNiveis, Edificios, Populacao
 from flask import Blueprint, json, jsonify, request
 from datetime import datetime
 from dateutil import relativedelta
 from flasgger import swag_from
-
+import dateutil
 
 dashboard = Blueprint('dashboard', __name__,
                       url_prefix='/api/v1/dashboard')
@@ -564,6 +565,7 @@ def grafico_media_consumo_mensal_escolas_teste():
                     func.min(ConsumoAgua.data).label('menor_data')
                 )
     
+    
     #pegar resultado da consulta
     data = data_consulta.all()
     data_maior = data[0][0]
@@ -573,7 +575,7 @@ def grafico_media_consumo_mensal_escolas_teste():
     
     #alimentar a lista com intervalo de datas
     while data_menor <= data_maior:
-        lista_com_intervalo.append(data_menor.strftime("%Y-%m"))
+        lista_com_intervalo.append(datetime.strftime(data_menor, "%Y-%m"))
         
         if data_menor == data_maior:
             break
@@ -585,44 +587,42 @@ def grafico_media_consumo_mensal_escolas_teste():
    
     print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo)) 
      
-     
-    #Consulta do consumo - mes e ano
+       
+    #saida atual '2024-4'
     consulta = db.session.query(
                     func.avg(ConsumoAgua.consumo).label('media_escola'),
-                    extract('month', ConsumoAgua.data).label('mes'),
-                    extract('year', ConsumoAgua.data).label('ano')
-                )
+                   func.concat(extract('year', ConsumoAgua.data), '-', func.lpad(extract('month', ConsumoAgua.data), 2, '0')).label('ano_mes')
+                ).group_by('ano_mes').order_by('ano_mes')
     
-     # Agrupar os resultados por ano e mês
-    consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano')
+    
+     # Agrupar os resultados por ano e mês  # Ordenar os resultados
+    # consulta = consulta.group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
    
-    
-    # Ordenar os resultados # todos os valores- lista com mes-ano e consumo 
+    # lista com mes-ano e consumo 
     resultados = consulta.all() 
+  
+    #percorrer a lista para concatenar mes e ano
     print(resultados)
     
-    
-    #percorre os item da lista de datas
-    for ano_mes_lista in lista_com_intervalo:
-        
-        #concatenar ano mes do resultados
-        for l in resultados:
-            ano_mes_consulta =  '-'.join([f'{l[2]}', f'{l[1]}']) 
-            print(ano_mes_consulta)
+    #for i[1] in resultados:     
+    # #percorrer a lista_com_intervalo e comparar com a concatenação do ano e mês da lista de resultados
+    # for i in lista_com_intervalo:
+      
+    #         #comparar se data_consulta está na lista
+    #         if data in lista_com_intervalo:
+    #                 return jsonify({
+    #                 "data": [
+    #                     {"gastosEscola": round('media_escola', 3), "mes":data, "gastosNivel":""} 
+    #                 ],
+    #                 "status": True
+    #             }), 200
+    #         else:
+    #             #data não está na lista
+    #             return jsonify({
+    #                 "data": [
+    #                     {"gastosEscola": "0", "mes_ano":i, "gastosNivel": "0"} 
+    #                 ],
+    #                 "status": True
+    #             }), 200
             
-            if ano_mes_lista == ano_mes_consulta:
-                return jsonify ({
-                    "data": [
-                        {"gastosEscola": round(l[0], 3), "mes": ano_mes_consulta, "gastosNivel":""} 
-                    ],
-                    "status": True
-                })
-                
-            #datas não correspondentes
-            return jsonify({
-                "data": [
-                    {"gastosEscola": "0", "mes_ano":ano_mes_lista, "gastosNivel": "0"} 
-                ],
-                "status": True
-            })
-
+    return 200
