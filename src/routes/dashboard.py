@@ -570,23 +570,24 @@ def grafico_media_consumo_mensal_escolas_teste():
     data = data_consulta.all()
     data_maior = data[0][0]
     data_menor = data[0][1]
-    
+ 
     lista_com_intervalo = []
     
     #alimentar a lista com intervalo de datas
     while data_menor <= data_maior:
         lista_com_intervalo.append(data_menor.strftime("%Y-%m"))
         
-        if data_menor == data_maior:
-            break
-        prox_mes = data_menor.month + 1 
-        if prox_mes > 12:
+        prox_mes = (data_menor.month % 12) + 1
+        if prox_mes == 1:
             data_menor = data_menor.replace(year=data_menor.year + 1, month=1)
         else:
             data_menor = data_menor.replace(month=prox_mes)
-   
-    # print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo)) 
-     
+
+    # Adicione a maior data à lista
+    lista_com_intervalo.append(data_maior.strftime("%Y-%m"))
+    
+    print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo))
+
        
     #consulta
     consulta = db.session.query(
@@ -597,7 +598,7 @@ def grafico_media_consumo_mensal_escolas_teste():
                  .all()
                 
     #percorrer a lista para concatenar mes e ano
-    # print(consulta)
+    print(consulta)
     
     
     #LOOP OK
