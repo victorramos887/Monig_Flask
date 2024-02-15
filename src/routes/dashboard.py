@@ -1,5 +1,5 @@
-from sqlalchemy import func, extract, text
-from sqlalchemy.sql.functions import concat, lpad
+from sqlalchemy import func, extract
+from sqlalchemy.sql.functions import concat
 from ..models import db, ConsumoAgua, EscolaNiveis, Escolas, AuxOpNiveis, Edificios, Populacao
 from flask import Blueprint, json, jsonify, request
 from datetime import datetime
@@ -575,7 +575,7 @@ def grafico_media_consumo_mensal_escolas_teste():
     
     #alimentar a lista com intervalo de datas
     while data_menor <= data_maior:
-        lista_com_intervalo.append(datetime.strftime(data_menor, "%Y-%m"))
+        lista_com_intervalo.append(data_menor.strftime("%Y-%m"))
         
         if data_menor == data_maior:
             break
@@ -585,44 +585,41 @@ def grafico_media_consumo_mensal_escolas_teste():
         else:
             data_menor = data_menor.replace(month=prox_mes)
    
-    print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo)) 
+    # print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo)) 
      
        
-    #saida atual '2024-4'
+    #consulta
     consulta = db.session.query(
                     func.avg(ConsumoAgua.consumo).label('media_escola'),
-                   func.concat(extract('year', ConsumoAgua.data), '-', func.lpad(extract('month', ConsumoAgua.data), 2, '0')).label('ano_mes')
-                ).group_by('ano_mes').order_by('ano_mes')
-    
-    
-     # Agrupar os resultados por ano e mês  # Ordenar os resultados
-    # consulta = consulta.group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
-   
-    # lista com mes-ano e consumo 
-    resultados = consulta.all() 
-  
+                    func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+                ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .all()
+                
     #percorrer a lista para concatenar mes e ano
-    print(resultados)
+    # print(consulta)
     
-    #for i[1] in resultados:     
-    # #percorrer a lista_com_intervalo e comparar com a concatenação do ano e mês da lista de resultados
-    # for i in lista_com_intervalo:
-      
-    #         #comparar se data_consulta está na lista
-    #         if data in lista_com_intervalo:
-    #                 return jsonify({
-    #                 "data": [
-    #                     {"gastosEscola": round('media_escola', 3), "mes":data, "gastosNivel":""} 
-    #                 ],
-    #                 "status": True
-    #             }), 200
-    #         else:
-    #             #data não está na lista
-    #             return jsonify({
-    #                 "data": [
-    #                     {"gastosEscola": "0", "mes_ano":i, "gastosNivel": "0"} 
-    #                 ],
-    #                 "status": True
-    #             }), 200
+    
+    #LOOP OK
+    data = []
+    
+    #para cada data na lista - percorre a lista 2021-10 
+    for data_intervalo in lista_com_intervalo: 
+       
+        #para cada consulta na lista consulta - percorre os consulta 2021-11, 2021-12, 2024-1
+        for data_resultado in consulta:
             
-    return 200
+            #comparar se data_intervalo é igual ao resultados na posição [1]
+            if data_intervalo == data_resultado[1] :
+                data.append({"gastosEscola": round(data_resultado[0], 3), "mes":data_intervalo, "gastosNivel":""})
+                break
+            else:
+                continue
+        
+        if data_intervalo != data_resultado[1] :
+                data.append({"gastosEscola": "0", "mes":data_intervalo, "gastosNivel":""})
+                
+            
+    return jsonify({"data":data, "status": True}), 200
+        
+ 
