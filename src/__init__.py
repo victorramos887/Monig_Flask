@@ -58,7 +58,7 @@ def create_app(test_config=None):
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
             JWT_EXPIRATION_DELTA=timedelta(seconds=10),
-            DEBUG=False,
+            DEBUG=True,
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG'),
             RBAC_USE_WHITE=False,
@@ -81,7 +81,7 @@ def create_app(test_config=None):
         app.config.from_mapping(
             test_config,
             SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
-            DEBUG=False,
+            DEBUG=True,
             SECRET_KEY='testabancodedados'
         )
     print("CONTEXT: ", app.config['SQLALCHEMY_DATABASE_URI'])
@@ -121,10 +121,3 @@ if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True, ssl_context=context)
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-
-
-
-
-
-
