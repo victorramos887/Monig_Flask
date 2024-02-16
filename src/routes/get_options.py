@@ -56,6 +56,7 @@ def tipo_equipamento(area_umida):
 
     if tipoareaumida:
         tipoareaumida_id = tipoareaumida.tipo_area_umida
+        print()
     else:
         return jsonify([])
 
@@ -97,14 +98,14 @@ def nivel_populacao(id):
     serialized_result = [nivel for escola_id, nivel in result]
     # return serialized_result
 
-    opcoes_personalizadas = Customizados.query.all()
-    options = []
+    # opcoes_personalizadas = Customizados.query.all()
+    # options = []
 
-    if escola:
-        options.extend(serialized_result)
-    options.extend(
-        o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola)
+    # if escola:
+    #     options.extend(serialized_result)
+    # options.extend(
+    #     o.nivel_escola for o in opcoes_personalizadas if o.nivel_escola)
 
-    return jsonify(options)
+    return jsonify(serialized_result)
 
 

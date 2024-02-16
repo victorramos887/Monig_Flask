@@ -48,3 +48,5 @@ override.tf.json
 # exemplo: *tfplan* 
 
 .idea/
+
+package-lock.json
