@@ -307,151 +307,151 @@ def obter_nome_mes(numero_mes):
     return meses_em_portugues.get(numero_mes, str(numero_mes))
 
 
-@dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
-def grafico_media_consumo_mensal_todas_escolas():
+# @dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
+# def grafico_media_consumo_mensal_todas_escolas():
 
-    try:
-        niveis = request.args['niveis']
-    except:
-        niveis = None
+#     try:
+#         niveis = request.args['niveis']
+#     except:
+#         niveis = None
 
-    if niveis is not None:
-        print("Verificando o recebimento: ", niveis)
-        lista = niveis.split(',')
-        # Crie uma condição usando SQLAlchemy
-        query = AuxOpNiveis.query.filter(AuxOpNiveis.nivel.in_(lista)).all()
-        # Use a condição em uma consulta SQL
+#     if niveis is not None:
+#         print("Verificando o recebimento: ", niveis)
+#         lista = niveis.split(',')
+#         # Crie uma condição usando SQLAlchemy
+#         query = AuxOpNiveis.query.filter(AuxOpNiveis.nivel.in_(lista)).all()
+#         # Use a condição em uma consulta SQL
 
-        listaid = [q.id for q in query]
+#         listaid = [q.id for q in query]
 
-        #escolas_all = EscolaNiveis.query.all()
-        #print("Todas as Escolas: ", [escola_.escola_id for escola_ in escolas_all])
+#         #escolas_all = EscolaNiveis.query.all()
+#         #print("Todas as Escolas: ", [escola_.escola_id for escola_ in escolas_all])
 
-        # Filtrar por nível
-        query = Escolas.query.join(
-            EscolaNiveis, Escolas.id == EscolaNiveis.escola_id)
-        query = query.filter(EscolaNiveis.nivel_ensino_id.in_(listaid))
-        escolas_id = [q.id for q in query]
+#         # Filtrar por nível
+#         query = Escolas.query.join(
+#             EscolaNiveis, Escolas.id == EscolaNiveis.escola_id)
+#         query = query.filter(EscolaNiveis.nivel_ensino_id.in_(listaid))
+#         escolas_id = [q.id for q in query]
 
 
-        consulta = db.session.query(
-            func.avg(ConsumoAgua.consumo).label('media_escola'),
-            extract('month', ConsumoAgua.data).label('mes'),
-            extract('year', ConsumoAgua.data).label('ano')
-        )
+#         consulta = db.session.query(
+#             func.avg(ConsumoAgua.consumo).label('media_escola'),
+#             extract('month', ConsumoAgua.data).label('mes'),
+#             extract('year', ConsumoAgua.data).label('ano')
+#         )
 
-        # Agrupar os resultados por ano e mês
-        consulta = consulta.group_by('mes', 'ano')
-        # Ordenar os resultados 
-        consulta = consulta.order_by('mes', 'ano')
-        resultados = consulta.all()
+#         # Agrupar os resultados por ano e mês
+#         consulta = consulta.group_by('mes', 'ano')
+#         # Ordenar os resultados 
+#         consulta = consulta.order_by('mes', 'ano')
+#         resultados = consulta.all()
 
-        resultados_nivel = db.session.query(
-            func.sum(ConsumoAgua.consumo).label('media_escola'),
-            extract('month', ConsumoAgua.data).label('mes'),
-            extract('year', ConsumoAgua.data).label('ano')
-        ).where(ConsumoAgua.fk_escola.in_(escolas_id))
+#         resultados_nivel = db.session.query(
+#             func.sum(ConsumoAgua.consumo).label('media_escola'),
+#             extract('month', ConsumoAgua.data).label('mes'),
+#             extract('year', ConsumoAgua.data).label('ano')
+#         ).where(ConsumoAgua.fk_escola.in_(escolas_id))
 
-        resultados_nivel = resultados_nivel.group_by('mes', 'ano').all()     
+#         resultados_nivel = resultados_nivel.group_by('mes', 'ano').all()     
 
-        # consumoaguaniveis = ConsumoAgua.query.filter(ConsumoAgua.fk_escola.in_(escolas_id)).all()
-        # print([l.consumo for l in consumoaguaniveis])
-        # consulta_nivel = db.session.query(
-        #     func.avg(consumoaguaniveis.consumo).label('media_escola'),
-        #     extract('month', ConsumoAgua.data).label('mes'),
-        #     extract('year', ConsumoAgua.data).label('ano')
-        # ).filter(ConsumoAgua.fk_escola.in_(escolas_id))
+#         # consumoaguaniveis = ConsumoAgua.query.filter(ConsumoAgua.fk_escola.in_(escolas_id)).all()
+#         # print([l.consumo for l in consumoaguaniveis])
+#         # consulta_nivel = db.session.query(
+#         #     func.avg(consumoaguaniveis.consumo).label('media_escola'),
+#         #     extract('month', ConsumoAgua.data).label('mes'),
+#         #     extract('year', ConsumoAgua.data).label('ano')
+#         # ).filter(ConsumoAgua.fk_escola.in_(escolas_id))
 
-        # # Agrupar os resultados por ano e mês
-        # resultados_nivel = consulta_nivel.group_by('mes', 'ano')
-        # # # Ordenar os resultados
-        # resultados_nivel = consulta_nivel.order_by('mes', 'ano')
-        # resultados_nivel = consulta_nivel.all()
-        lista_resultado = []
+#         # # Agrupar os resultados por ano e mês
+#         # resultados_nivel = consulta_nivel.group_by('mes', 'ano')
+#         # # # Ordenar os resultados
+#         # resultados_nivel = consulta_nivel.order_by('mes', 'ano')
+#         # resultados_nivel = consulta_nivel.all()
+#         lista_resultado = []
 
-        index_nivel = 0
+#         index_nivel = 0
 
-        for resultado in resultados:
-            if index_nivel < len(resultados_nivel):
-                resultado_nivel = resultados_nivel[index_nivel]
-                # Adiciona o resultado atual de 'resultados' ao resultado final
-                mes_ano = f"{obter_nome_mes(resultado[1])}-{resultado[2]}"
-                lista_resultado.append({
-                    "mes": mes_ano,
-                    "gastosEscola": round(resultado[0], 3),
-                    "gastosNivel": round(resultado_nivel[0], 3)
-                })
+#         for resultado in resultados:
+#             if index_nivel < len(resultados_nivel):
+#                 resultado_nivel = resultados_nivel[index_nivel]
+#                 # Adiciona o resultado atual de 'resultados' ao resultado final
+#                 mes_ano = f"{obter_nome_mes(resultado[1])}-{resultado[2]}"
+#                 lista_resultado.append({
+#                     "mes": mes_ano,
+#                     "gastosEscola": round(resultado[0], 3),
+#                     "gastosNivel": round(resultado_nivel[0], 3)
+#                 })
 
-                # Avança para o próximo resultado_nivel se estivermos na mesma mes/ano
-                while (
-                    index_nivel < len(resultados_nivel) and
-                    resultado.mes == resultado_nivel.mes and
-                    resultado.ano == resultado_nivel.ano
-                ):
-                    index_nivel += 1
-                    if index_nivel < len(resultados_nivel):
-                        resultado_nivel = resultados_nivel[index_nivel]
+#                 # Avança para o próximo resultado_nivel se estivermos na mesma mes/ano
+#                 while (
+#                     index_nivel < len(resultados_nivel) and
+#                     resultado.mes == resultado_nivel.mes and
+#                     resultado.ano == resultado_nivel.ano
+#                 ):
+#                     index_nivel += 1
+#                     if index_nivel < len(resultados_nivel):
+#                         resultado_nivel = resultados_nivel[index_nivel]
 
-            else:
-                # Adiciona o resultado atual de 'resultados' ao resultado final sem correspondência
-                mes_ano = f"{obter_nome_mes(resultado[1])}-{resultado[2]}"
-                lista_resultado.append({
-                    "mes": mes_ano,
-                    "gastosEscola": round(resultado[0], 3),
-                    "gastosNivel": None,
-                })
+#             else:
+#                 # Adiciona o resultado atual de 'resultados' ao resultado final sem correspondência
+#                 mes_ano = f"{obter_nome_mes(resultado[1])}-{resultado[2]}"
+#                 lista_resultado.append({
+#                     "mes": mes_ano,
+#                     "gastosEscola": round(resultado[0], 3),
+#                     "gastosNivel": None,
+#                 })
 
-        if len(lista_resultado) > 0:
+#         if len(lista_resultado) > 0:
 
-            return jsonify({
-                "data": lista_resultado,
-                "status": True
-            }), 200
+#             return jsonify({
+#                 "data": lista_resultado,
+#                 "status": True
+#             }), 200
         
-        else:
-            consulta = db.session.query(
-                func.avg(ConsumoAgua.consumo).label('media_escola'),
-                extract('month', ConsumoAgua.data).label('mes'),
-                extract('year', ConsumoAgua.data).label('ano')
-            )
+#         else:
+#             consulta = db.session.query(
+#                 func.avg(ConsumoAgua.consumo).label('media_escola'),
+#                 extract('month', ConsumoAgua.data).label('mes'),
+#                 extract('year', ConsumoAgua.data).label('ano')
+#             )
 
-            # Agrupar os resultados por ano e mês
-            consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano' )
+#             # Agrupar os resultados por ano e mês
+#             consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano' )
 
-            # # Ordenar os resultados
-            resultados = consulta.all()       
+#             # # Ordenar os resultados
+#             resultados = consulta.all()       
 
-            lista_ordenada = sorted(resultados, key=lambda x: (int(x[2]), int(x[1])))
+#             lista_ordenada = sorted(resultados, key=lambda x: (int(x[2]), int(x[1])))
 
-            return jsonify({
-                "data": [
-                    {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
-                ],
-                "status": True
-            }), 200
+#             return jsonify({
+#                 "data": [
+#                     {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
+#                 ],
+#                 "status": True
+#             }), 200
         
-    else:
-            consulta = db.session.query(
-                func.avg(ConsumoAgua.consumo).label('media_escola'),
-                extract('month', ConsumoAgua.data).label('mes'),
-                extract('year', ConsumoAgua.data).label('ano')
-            )
+#     else:
+#             consulta = db.session.query(
+#                 func.avg(ConsumoAgua.consumo).label('media_escola'),
+#                 extract('month', ConsumoAgua.data).label('mes'),
+#                 extract('year', ConsumoAgua.data).label('ano')
+#             )
 
-            # Agrupar os resultados por ano e mês
-            consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano')
+#             # Agrupar os resultados por ano e mês
+#             consulta = consulta.group_by('mes', 'ano').order_by('mes', 'ano')
 
-            # # Ordenar os resultados
-            resultados = consulta.all()       
+#             # # Ordenar os resultados
+#             resultados = consulta.all()       
 
-            lista_ordenada = sorted(resultados, key=lambda x: (int(x[2]), int(x[1])))
-            print("Lista ordenada: ", lista_ordenada)
+#             lista_ordenada = sorted(resultados, key=lambda x: (int(x[2]), int(x[1])))
+#             print("Lista ordenada: ", lista_ordenada)
 
-            return jsonify({
-                "data": [
-                    {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
-                ],
-                "status": True
-            }), 200
+#             return jsonify({
+#                 "data": [
+#                     {"gastosEscola": round(l[0], 3), "mes": f"{obter_nome_mes(l[1])}-{l[2]}", "gastosNivel":""} for l in resultados
+#                 ],
+#                 "status": True
+#             }), 200
 
 
 @dashboard.get('/cad-principal')
@@ -624,3 +624,160 @@ def grafico_media_consumo_mensal_escolas_teste():
     return jsonify({"data":data, "status": True}), 200
         
  
+
+@dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
+def grafico_media_consumo_mensal_todas_escolas():
+
+    try:
+        niveis = request.args['niveis']
+    except:
+        niveis = None
+        
+    #LISTA COM INTERVALO DE DATAS
+    #maior data e menor - intervalo 
+    data = db.session.query(
+                    func.max(ConsumoAgua.data).label('maior_data'),
+                    func.min(ConsumoAgua.data).label('menor_data')
+                ).all()
+    
+    #pegar resultado da consulta
+    data_maior = data[0][0]
+    data_menor = data[0][1]
+ 
+    lista_com_intervalo = []
+    
+    #alimentar a lista com intervalo de datas
+    while data_menor <= data_maior:
+        lista_com_intervalo.append(data_menor.strftime("%Y-%m"))
+        
+        prox_mes = (data_menor.month % 12) + 1
+        if prox_mes == 1:
+            data_menor = data_menor.replace(year=data_menor.year + 1, month=1)
+        else:
+            data_menor = data_menor.replace(month=prox_mes)
+
+    # Adicione a maior data à lista
+    lista_com_intervalo.append(data_maior.strftime("%Y-%m"))
+    
+    ###
+    
+    if niveis is not None:
+        print("Verificando o recebimento: ", niveis)
+        lista = niveis.split(',')
+        # Crie uma condição usando SQLAlchemy
+        query = AuxOpNiveis.query.filter(AuxOpNiveis.nivel.in_(lista)).all()
+        # Use a condição em uma consulta SQL
+
+        listaid = [q.id for q in query]
+
+        #escolas_all = EscolaNiveis.query.all()
+        #print("Todas as Escolas: ", [escola_.escola_id for escola_ in escolas_all])
+
+        # Filtrar por nível
+        query = Escolas.query.join(
+            EscolaNiveis, Escolas.id == EscolaNiveis.escola_id)
+        query = query.filter(EscolaNiveis.nivel_ensino_id.in_(listaid))
+        escolas_id = [q.id for q in query]
+
+    
+        consulta = db.session.query(
+                    func.avg(ConsumoAgua.consumo).label('media_escola'),
+                    func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+                ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .all()
+   
+
+        resultados_nivel = db.session.query(
+            func.sum(ConsumoAgua.consumo).label('media_escola'),
+            func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+            ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+            .where(ConsumoAgua.fk_escola.in_(escolas_id))\
+            .all()   
+
+        lista_resultado = []
+
+        index_nivel = 0
+
+        for resultado in consulta:
+            if index_nivel < len(resultados_nivel):
+                resultado_nivel = resultados_nivel[index_nivel]
+                # Adiciona o resultado atual de 'resultados' ao resultado final
+                lista_resultado.append({
+                    "mes": resultado[1],
+                    "gastosEscola": round(resultado[0], 3),
+                    "gastosNivel": round(resultado_nivel[0], 3)
+                })
+
+                # Avança para o próximo resultado_nivel se estivermos na mesma mes/ano
+                while (
+                    index_nivel < len(resultados_nivel) and
+                    resultado.mes == resultado_nivel.mes and
+                    resultado.ano == resultado_nivel.ano
+                ):
+                    index_nivel += 1
+                    if index_nivel < len(resultados_nivel):
+                        resultado_nivel = resultados_nivel[index_nivel]
+
+            else:
+                # Adiciona o resultado atual de 'resultados' ao resultado final sem correspondência
+                lista_resultado.append({
+                    "mes": resultado[1],
+                    "gastosEscola": round(resultado[0], 3),
+                    "gastosNivel": None,
+                })
+
+        if len(lista_resultado) > 0:
+
+            return jsonify({
+                "data": lista_resultado,
+                "status": True
+            }), 200
+        
+        else:
+            consulta = db.session.query(
+                    func.avg(ConsumoAgua.consumo).label('media_escola'),
+                    func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+                ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .all()
+
+
+            return jsonify({
+                "data": [
+                    {"gastosEscola": round(l[0], 3), "mes": l[1], "gastosNivel":""} for l in consulta
+                ],
+                "status": True
+            }), 200
+            
+     #FUNCIONANDO   
+    else:
+            consulta = db.session.query(
+                    func.avg(ConsumoAgua.consumo).label('media_escola'),
+                    func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+                ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+                 .all()  
+            
+            data = []
+    
+            #para cada data na lista - percorre a lista 2021-10 
+            for data_intervalo in lista_com_intervalo: 
+            
+                #para cada consulta na lista consulta - percorre os consulta 2021-11, 2021-12, 2024-1
+                for data_resultado in consulta:
+                    
+                    #comparar se data_intervalo é igual ao resultados na posição [1]
+                    if data_intervalo == data_resultado[1] :                               
+                        data.append({"gastosEscola": round(data_resultado[0], 3),'mes':data_resultado[1], "gastosNivel":""})
+                        break
+                    else:
+                        continue
+                
+                if data_intervalo != data_resultado[1] :
+                        data.append({"gastosEscola":"0", "mes":data_intervalo, "gastosNivel":""})
+                        
+            
+    return jsonify({"data":data, "status": True}), 200
+
+          
