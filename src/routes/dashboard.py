@@ -466,30 +466,32 @@ def cad_principal():
         "data": [populacao, consumo]
     })
 
-@dashboard.get('/cad-principal/<id:int>')
-def cad_principal():
+# @dashboard.get('/cad-principal/<id:int>')
+# def cad_principal():
 
-    #Filtro 
+#     #Filtro de escola
 
-    # Total de Alunos
-    # Total de População
-    populacao = db.session.query(
-        func.sum(Populacao.alunos).label('alunos'),
-        func.sum(Populacao.funcionarios).label('funcionarios')
-    ).all()
 
-    # Consumo total
 
-    consumo = db.session.query(
-        func.sum(ConsumoAgua.consumo).label('soma_consumo')
-    ).all()
+#     # Total de Alunos
+#     # Total de População
+#     populacao = db.session.query(
+#         func.sum(Populacao.alunos).label('alunos'),
+#         func.sum(Populacao.funcionarios).label('funcionarios')
+#     ).all()
 
-    populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
-    consumo = {"Consumo": consumo[0][0]}
+#     # Consumo total
 
-    return jsonify({
-        "data": [populacao, consumo]
-    })
+#     consumo = db.session.query(
+#         func.sum(ConsumoAgua.consumo).label('soma_consumo')
+#     ).all()
+
+#     populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
+#     consumo = {"Consumo": consumo[0][0]}
+
+#     return jsonify({
+#         "data": [populacao, consumo]
+#     })
 
 
 # Media de consumo das escola
