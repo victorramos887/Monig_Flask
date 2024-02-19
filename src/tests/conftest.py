@@ -41,7 +41,7 @@ def app():
     from src.models import add_opniveis, db
     app = create_app({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:postgres@localhost:5432/testedb'
+        'SQLALCHEMY_DATABASE_URI': 'postgresql://postgres:208931@localhost:5432/testdb'
     })
 
     app.json_encoder = CustomJSONEncoder

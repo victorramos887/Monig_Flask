@@ -20,9 +20,6 @@ __pycache__/
 !.elasticbeanstalk/*.global.yml
 
 
-# Diretórios locais .terraform 
-**/.terraform/* 
-
 # Arquivos .tfstate 
 *.tfstate 
 *.tfstate.* 

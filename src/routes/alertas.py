@@ -1,27 +1,42 @@
 from flask import Blueprint, jsonify
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc, or_ 
+from sqlalchemy import func, select, desc, or_, extract
 from sqlalchemy.orm import aliased
-from ..models import  AuxTipoDeEventos,Eventos, db, Monitoramento, Escolas
-from datetime import timedelta, date, datetime
+from ..models import AuxTipoDeEventos, Eventos, db, ConsumoAgua, Monitoramento, Escolas
+from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
 import random
-
+from datetime import datetime, date
 
 
 alertas = Blueprint('alertas', __name__,
-                          url_prefix='/api/v1/alertas')
+                    url_prefix='/api/v1/alertas')
 
 
 # RETORNO TOLERÂNCIA
 @swag_from('../docs/get/alertas_evento_aberto.yaml')
 @alertas.get('/evento-aberto')
 def get_evento_sem_encerramento():
+
+    # eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(
+    #     AuxTipoDeEventos.recorrente.in_([False, None])).all()
+
+    tipo_alias = aliased(AuxTipoDeEventos)
+    
     # filtrando eventos ocasionais
-    eventos_ocasional = Eventos.query.join(AuxTipoDeEventos).filter(
-        AuxTipoDeEventos.recorrente == False).all()
+    # Alterando junção
+    eventos_ocasional = (
+        db.session.query(Eventos)
+        .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+        .filter(
+            or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+        )
+        .all()
+    )
+
+    print("Eventos: ", eventos_ocasional)
 
     # eventos sem data de encerramento
     eventos_sem_encerramento = [
@@ -37,9 +52,8 @@ def get_evento_sem_encerramento():
         tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
 
         if tipo and tipo.tempo is not None:
-            unidade = tipo.unidade
+            unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
             tempo = tipo.tempo
-
             # comparar a unidade e realizar o calculo
             if unidade == "meses":
                 tolerancia = evento.datainicio + relativedelta(months=tempo)
@@ -47,25 +61,31 @@ def get_evento_sem_encerramento():
             elif unidade == "semanas":
                 tolerancia = evento.datainicio + relativedelta(weeks=tempo)
 
-            elif unidade == "dias":
+            elif unidade =="dias": 
                 tolerancia = evento.datainicio + relativedelta(days=tempo)
+            else:
+                tolerancia = None
 
             # igualar as datas
-            tolerancia = tolerancia.date()
+            tolerancia = tolerancia.date() if tolerancia is not None else None
             data_atual = date.today()
 
-            # comparar para retornar a mensagem
-            if tolerancia > data_atual:
-                mensagem = "Evento dentro do prazo"
+            if tolerancia:
+                # comparar para retornar a mensagem
+                if tolerancia > data_atual:
+                    mensagem = "Evento dentro do prazo"
 
-            elif tolerancia == data_atual:
-                mensagem = "Atenção"
+                elif tolerancia == data_atual:
+                    mensagem = "Atenção"
 
+                else:
+                    mensagem = "Evento fora do prazo de tolerância"
             else:
-                mensagem = "Evento fora do prazo de tolerância"
+                mensagem = "Verificar datas de eventos!!!"
 
             # adicionar o evento ao resultado
             evento_json = {
+                "id_escola": evento.escola.id,
                 "id": evento.id,
                 "title": evento.nome,
                 "start": str(evento.datainicio).format("%d/%m/%Y"),
@@ -73,47 +93,12 @@ def get_evento_sem_encerramento():
                 "recorrente": evento.tipodeevento.recorrente,
                 "escola": evento.escola.nome,
                 "requer ação": evento.tipodeevento.requer_acao,
-                "tolerância": str(tolerancia).format("%d/%m/%Y"),
+                "tolerância": str(tolerancia).format("%d/%m/%Y") if tolerancia is not None else None,
                 "mensagem": mensagem
             }
             result["evento"].append(evento_json)
 
     return jsonify(result), 200
-
-
-
-# @alertas.get('/avisos_escolas')
-# def avisos_escolas(): 
-    
-#     data = [
-#         {
-#             "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
-#             "icone": 1,
-#             "cor": "#00FF00" 
-#         },
-#         {
-#             "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
-#             "icone": 2,
-#             "cor": "#F27B37" 
-#         },
-#         {
-#             "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
-#             "icone": 1,
-#             "cor": "#00FF00"  
-#         },
-#         {
-#             "titulo": "A Escola Monitora ainda não atingiu 50%",
-#             "icone": 2,
-#             "cor": "#F27B37"
-#         },
-#         {
-#             "titulo": "A Escola ABC está com o consumo acima da média",
-#             "icone": 1,
-#             "cor": "#00FF00" 
-#         }
-#     ]
-    
-#     return jsonify(data)
 
 
 
@@ -207,6 +192,39 @@ def avisos_escolas():
                 
                 #embaralhar lista e limitar itens
                 random.shuffle(avisos)                                                                      
-                return jsonify(avisos[:3])
+                return jsonify(avisos[:4])
     
  
+            
+# @alertas.get('/avisos_escolas')
+# def avisos_escolas(): 
+    
+#     data = [
+#         {
+#             "titulo": "A Escola Marcelo Campos está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         },
+#         {
+#             "titulo": "A Escola Aldo Angelini ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37" 
+#         },
+#         {
+#             "titulo": "A Escola Camilo Principe de Moraes está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00"  
+#         },
+#         {
+#             "titulo": "A Escola Monitora ainda não atingiu 50%",
+#             "icone": 2,
+#             "cor": "#F27B37"
+#         },
+#         {
+#             "titulo": "A Escola ABC está com o consumo acima da média",
+#             "icone": 1,
+#             "cor": "#00FF00" 
+#         }
+#     ]
+    
+#     return jsonify(data)
