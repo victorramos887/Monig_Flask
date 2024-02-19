@@ -68,7 +68,7 @@ def consumo_media_escola(id):
         "data": [
             {
                 "gastosEscola": round(l[0], 3),
-                "mes_ano": (str(l[1]) + '-' + str(l[2]))
+                "mes": (str(l[1]) + '-' + str(l[2]))
             } for l in resultados
         ],
         "status": True
@@ -445,6 +445,31 @@ def grafico_media_consumo_mensal_todas_escolas():
 
 @dashboard.get('/cad-principal')
 def cad_principal():
+
+    # Total de Alunos
+    # Total de População
+    populacao = db.session.query(
+        func.sum(Populacao.alunos).label('alunos'),
+        func.sum(Populacao.funcionarios).label('funcionarios')
+    ).all()
+
+    # Consumo total
+
+    consumo = db.session.query(
+        func.sum(ConsumoAgua.consumo).label('soma_consumo')
+    ).all()
+
+    populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
+    consumo = {"Consumo": consumo[0][0]}
+
+    return jsonify({
+        "data": [populacao, consumo]
+    })
+
+@dashboard.get('/cad-principal/<id:int>')
+def cad_principal():
+
+    #Filtro 
 
     # Total de Alunos
     # Total de População
