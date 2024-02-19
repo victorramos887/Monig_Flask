@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from dateutil import relativedelta
 from flasgger import swag_from
 import dateutil
+from sqlalchemy.orm import aliased
 
 dashboard = Blueprint('dashboard', __name__,
                       url_prefix='/api/v1/dashboard')
@@ -466,32 +467,34 @@ def cad_principal():
         "data": [populacao, consumo]
     })
 
-# @dashboard.get('/cad-principal/<id:int>')
-# def cad_principal():
+@dashboard.get('/cad-principal-escola/<int:id>')
+def cad_principal_escola(id):
+    #Filtro de escola
+    edificios_alias = aliased(Edificios)
+    populacao = db.session.query(
+    func.sum(Populacao.alunos).label('alunos'),
+    func.sum(Populacao.funcionarios).label('funcionarios')
+    ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == id).all()
 
-#     #Filtro de escola
+    # Total de Alunos
+    # Total de População
+    # populacao = db.session.query(
+    #     func.sum(Populacao.alunos).label('alunos'),
+    #     func.sum(Populacao.funcionarios).label('funcionarios')
+    # ).all()
 
+    # Consumo total
 
+    consumo = db.session.query(
+        func.sum(ConsumoAgua.consumo).label('soma_consumo')
+    ).filter(ConsumoAgua.fk_escola == id).all()
 
-#     # Total de Alunos
-#     # Total de População
-#     populacao = db.session.query(
-#         func.sum(Populacao.alunos).label('alunos'),
-#         func.sum(Populacao.funcionarios).label('funcionarios')
-#     ).all()
+    populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
+    consumo = {"Consumo": consumo[0][0]}
 
-#     # Consumo total
-
-#     consumo = db.session.query(
-#         func.sum(ConsumoAgua.consumo).label('soma_consumo')
-#     ).all()
-
-#     populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
-#     consumo = {"Consumo": consumo[0][0]}
-
-#     return jsonify({
-#         "data": [populacao, consumo]
-#     })
+    return jsonify({
+        "data": [populacao, consumo]
+    })
 
 
 # Media de consumo das escola
