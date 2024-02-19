@@ -374,9 +374,11 @@ def grafico_media_consumo_mensal_todas_escolas():
             if index_nivel < len(resultados_nivel):
                 resultado_nivel = resultados_nivel[index_nivel]
                 # Adiciona o resultado atual de 'resultados' ao resultado final
+
+                print(type(round(resultado[0], 3)))
                 lista_resultado.append({
-                    "mes": resultado[1],
-                    "gastosEscola": round(resultado[0], 3),
+                    "mes": converter_mes_ano(resultado[1]),
+                    "gastosEscola": float(round(resultado[0], 3)),
                     "gastosNivel": round(resultado_nivel[0], 3)
                 })
 
@@ -393,8 +395,8 @@ def grafico_media_consumo_mensal_todas_escolas():
             else:
                 # Adiciona o resultado atual de 'resultados' ao resultado final sem correspondência
                 lista_resultado.append({
-                    "mes": resultado[1],
-                    "gastosEscola": round(resultado[0], 3),
+                    "mes": converter_mes_ano(resultado[1]),
+                    "gastosEscola": float(round(resultado[0], 3)),
                     "gastosNivel": None,
                 })
         if len(lista_resultado) > 0:
