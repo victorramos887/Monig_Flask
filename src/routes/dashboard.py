@@ -450,30 +450,46 @@ def cad_principal():
     # Total de Alunos
     # Total de População
     populacao = db.session.query(
-        func.sum(Populacao.alunos).label('alunos'),
-        func.sum(Populacao.funcionarios).label('funcionarios')
-    ).all()
+        func.sum(Populacao.alunos).label('alunos')
+    )
+
 
     # Consumo total
-
+    # consumo = db.session.query(
+    #        func.concat(extract('year', ConsumoAgua.data), '-',
+    #                 (extract('month', ConsumoAgua.data))).label('ano_mes'),
+    #        func.sum(ConsumoAgua.consumo).label('soma_consumo'),
+    #        func.sum(ConsumoAgua.consumo).label('soma_valor_ultimo_mes')
+    # ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
+        
     consumo = db.session.query(
-        func.sum(ConsumoAgua.consumo).label('soma_consumo')
-    ).all()
+        extract('year', ConsumoAgua.data).label('ano'),
+        extract('month', ConsumoAgua.data).label('mes'),
+        func.sum(ConsumoAgua.consumo).label('soma_consumo'),
+        func.sum(ConsumoAgua.valor).over(
+            order_by=extract('year', ConsumoAgua.data).desc(), 
+            partition_by=extract('year', ConsumoAgua.data),
+            rows=(1, None)
+        ).label('soma_valor_ultimo_mes')
+    ).group_by(
+        extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data), ConsumoAgua.valor
+    ).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data), ConsumoAgua.valor)
 
-    populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
-    consumo = {"Consumo": consumo[0][0]}
+    populacao = {"Alunos": populacao[0]}
+    consumo = {"Consumo": consumo[0][]}
+    valor = {"Valor": consumo[0][2]}
 
     return jsonify({
-        "data": [populacao, consumo]
+        "data": [populacao, consumo, valor]
     })
+
 
 @dashboard.get('/cad-principal-escola/<int:id>')
 def cad_principal_escola(id):
     #Filtro de escola
     edificios_alias = aliased(Edificios)
     populacao = db.session.query(
-    func.sum(Populacao.alunos).label('alunos'),
-    func.sum(Populacao.funcionarios).label('funcionarios')
+    func.sum(Populacao.alunos).label('alunos')
     ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == id).all()
 
     # Total de Alunos
@@ -489,7 +505,7 @@ def cad_principal_escola(id):
         func.sum(ConsumoAgua.consumo).label('soma_consumo')
     ).filter(ConsumoAgua.fk_escola == id).all()
 
-    populacao = {"Alunos": populacao[0][0], "Funcionarios": populacao[0][1]}
+    populacao = {"Alunos": populacao[0][0]}
     consumo = {"Consumo": consumo[0][0]}
 
     return jsonify({
