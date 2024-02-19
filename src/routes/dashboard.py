@@ -288,24 +288,25 @@ def media_consumo_pessoas_esc(id):
 #         ],
 #     })
 
-meses_em_portugues = {
-    1: "Jan",
-    2: "Fev",
-    3: "Mar",
-    4: "Abr",
-    5: "Mai",
-    6: "Jun",
-    7: "Jul",
-    8: "Ago",
-    9: "Set",
-    10: "Out",
-    11: "Nov",
-    12: "Dez"
-}
+def converter_mes_ano(data_str):
+    meses_abreviados = {
+        "01": "Jan",
+        "02": "Fev",
+        "03": "Mar",
+        "04": "Abr",
+        "05": "Mai",
+        "06": "Jun",
+        "07": "Jul",
+        "08": "Ago",
+        "09": "Set",
+        "10": "Out",
+        "11": "Nov",
+        "12": "Dez",
+    }
 
-
-def obter_nome_mes(numero_mes):
-    return meses_em_portugues.get(numero_mes, str(numero_mes))
+    ano, mes = data_str.split("-")
+    mes_abreviado = meses_abreviados[mes]
+    return f"{mes_abreviado}-{ano}"
 
 
 @dashboard.get('/grafico-media-consumo-mensal-todas-escolas')
@@ -337,11 +338,13 @@ def grafico_media_consumo_mensal_todas_escolas():
     ###
     if niveis is not None:
         print("Verificando o recebimento: ", niveis)
-        lista = niveis.split(',')
+        lista = niveis.capitalize().split(',')
+        print("lista: ", lista)
         # Crie uma condição usando SQLAlchemy
         query = AuxOpNiveis.query.filter(AuxOpNiveis.nivel.in_(lista)).all()
         # Use a condição em uma consulta SQL
         listaid = [q.id for q in query]
+
         #escolas_all = EscolaNiveis.query.all()
         #print("Todas as Escolas: ", [escola_.escola_id for escola_ in escolas_all])
         # Filtrar por nível
@@ -349,6 +352,7 @@ def grafico_media_consumo_mensal_todas_escolas():
             EscolaNiveis, Escolas.id == EscolaNiveis.escola_id)
         query = query.filter(EscolaNiveis.nivel_ensino_id.in_(listaid))
         escolas_id = [q.id for q in query]
+
         consulta = db.session.query(
                     func.avg(ConsumoAgua.consumo).label('media_escola'),
                     func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
@@ -363,7 +367,10 @@ def grafico_media_consumo_mensal_todas_escolas():
             .all()
         lista_resultado = []
         index_nivel = 0
+
         for resultado in consulta:
+
+            # print("Consulta atual: ", consulta)
             if index_nivel < len(resultados_nivel):
                 resultado_nivel = resultados_nivel[index_nivel]
                 # Adiciona o resultado atual de 'resultados' ao resultado final
@@ -372,11 +379,13 @@ def grafico_media_consumo_mensal_todas_escolas():
                     "gastosEscola": round(resultado[0], 3),
                     "gastosNivel": round(resultado_nivel[0], 3)
                 })
+
+                print("Resultado Ano ", resultado)
                 # Avança para o próximo resultado_nivel se estivermos na mesma mes/ano
                 while (
                     index_nivel < len(resultados_nivel) and
-                    resultado.mes == resultado_nivel.mes and
-                    resultado.ano == resultado_nivel.ano
+                    resultado[1].split('-')[1] == resultado_nivel[1].split('-')[1] and
+                    resultado[1].split('-')[0] == resultado_nivel[1].split('-')[0]
                 ):
                     index_nivel += 1
                     if index_nivel < len(resultados_nivel):
@@ -417,16 +426,18 @@ def grafico_media_consumo_mensal_todas_escolas():
             data = []
             #para cada data na lista - percorre a lista 2021-10
             for data_intervalo in lista_com_intervalo:
+
+                print("Data: ", data_intervalo)
                 #para cada consulta na lista consulta - percorre os consulta 2021-11, 2021-12, 2024-1
                 for data_resultado in consulta:
                     #comparar se data_intervalo é igual ao resultados na posição [1]
                     if data_intervalo == data_resultado[1] :
-                        data.append({"gastosEscola": round(data_resultado[0], 3), "mes":data_intervalo, "gastosNivel":""})
+                        data.append({"gastosEscola": round(data_resultado[0], 3), "mes":converter_mes_ano(data_intervalo), "gastosNivel":""})
                         break
                     else:
                         continue
                 if data_intervalo != data_resultado[1] :
-                        data.append({"gastosEscola": "0", "mes":data_intervalo, "gastosNivel":""})
+                        data.append({"gastosEscola": 0, "mes":converter_mes_ano(data_intervalo), "gastosNivel":""})
     return jsonify({"data":data, "status": True}), 200
 
 
@@ -534,6 +545,7 @@ def grafico_media_consumo_mensal_escolas_teste():
     data_maior = data[0][0]
     data_menor = data[0][1]
     lista_com_intervalo = []
+
     # alimentar a lista com intervalo de datas
     while data_menor <= data_maior:
         lista_com_intervalo.append(datetime.strftime(data_menor, "%Y-%m"))
