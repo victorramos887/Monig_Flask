@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc
+from sqlalchemy import func, select, desc, extract
 from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import timedelta, date
 from dateutil.relativedelta import relativedelta
@@ -17,11 +17,31 @@ def escolas():
     # [escola.to_json() for escola in escolas] if escolas else []
     escolas = Escolas.query.all()
     print(escolas)
+    
+    # Dicionário para armazenar resultados
+    resultado = {}
+    
+    # Consultar consumo
+    for escola in escolas:
+             
+        consumo = db.session.query(
+                func.sum(ConsumoAgua.consumo).label('soma_consumo')
+            ).group_by(ConsumoAgua.fk_escola
+            ).filter(ConsumoAgua.fk_escola==escola.id).first()
+        
+        resultado[int(escola.id)] = {
+            "escola": escola.to_json(),
+            "consumo_total": consumo.soma_consumo if consumo and hasattr(consumo, 'soma_consumo') else None
+         }
+              
     return jsonify({
-        'return': [escola.to_json() for escola in escolas] if escolas else [],
-        'status': True,
-        'mensagem': 'Escolas retornadas com sucesso'
+        "data": resultado,
+        "status": True,
+        "mensagem": "Escolas retornadas com sucesso",
     }), 200
+    
+   
+  
 
 # RETORNA APENAS UMA ESCOLA
 @swag_from('../docs/get/escola.yaml')
@@ -37,7 +57,12 @@ def get_escolas(id):
         }), 404
 
     escola_json = escola.to_json() if escola is not None else ''
-
+        
+    consumo = db.session.query(
+                func.sum(ConsumoAgua.consumo).label('soma_consumo')
+            ).group_by(ConsumoAgua.fk_escola
+            ).filter(ConsumoAgua.fk_escola==id).first()
+               
     edificio = Edificios.query.filter_by(fk_escola=id).first()
     edificio_json = edificio.to_json() if edificio is not None else None
 
@@ -62,14 +87,15 @@ def get_escolas(id):
             "complemento": edificio_json["complemento_edificio"],
             "estado": edificio_json["estado_edificio"],
             "cep": edificio_json["cep_edificio"],
-            "cidade": edificio_json["cidade_edificio"]
+            "cidade": edificio_json["cidade_edificio"],
+            "consumo_total": consumo.soma_consumo if consumo and hasattr(consumo, 'soma_consumo') else None
         }
         return jsonify({
             "status": True,
             "escola": enviar,
             'mensagem': 'Escola retornada com sucesso!'
         }), 200
-
+       
     # Adicione esta declaração de retorno caso a condição anterior não seja satisfeita
     return jsonify({
         "status": False,
