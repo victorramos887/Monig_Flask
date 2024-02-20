@@ -1,4 +1,4 @@
-from sqlalchemy import func, extract, text, and_
+from sqlalchemy import func, extract, text, and_, desc
 from sqlalchemy.sql.functions import concat
 from ..models import db, ConsumoAgua, EscolaNiveis, Escolas, AuxOpNiveis, Edificios, Populacao
 from flask import Blueprint, json, jsonify, request
@@ -426,6 +426,7 @@ def grafico_media_consumo_mensal_todas_escolas():
                 ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
                  .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
                  .all()
+                 
             data = []
             #para cada data na lista - percorre a lista 2021-10
             for data_intervalo in lista_com_intervalo:
@@ -448,69 +449,62 @@ def grafico_media_consumo_mensal_todas_escolas():
 def cad_principal():
 
     # Total de Alunos
-    # Total de População
     populacao = db.session.query(
         func.sum(Populacao.alunos).label('alunos')
     )
-
-
-    # Consumo total
-    # consumo = db.session.query(
-    #        func.concat(extract('year', ConsumoAgua.data), '-',
-    #                 (extract('month', ConsumoAgua.data))).label('ano_mes'),
-    #        func.sum(ConsumoAgua.consumo).label('soma_consumo'),
-    #        func.sum(ConsumoAgua.consumo).label('soma_valor_ultimo_mes')
-    # ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
-        
+    
     consumo = db.session.query(
-        extract('year', ConsumoAgua.data).label('ano'),
-        extract('month', ConsumoAgua.data).label('mes'),
-        func.sum(ConsumoAgua.consumo).label('soma_consumo'),
-        func.sum(ConsumoAgua.valor).over(
-            order_by=extract('year', ConsumoAgua.data).desc(), 
-            partition_by=extract('year', ConsumoAgua.data),
-            rows=(1, None)
-        ).label('soma_valor_ultimo_mes')
-    ).group_by(
-        extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data), ConsumoAgua.valor
-    ).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data), ConsumoAgua.valor)
+            extract('year', ConsumoAgua.data).label('ano'),
+            extract('month', ConsumoAgua.data).label('mes'),
+            func.sum(ConsumoAgua.consumo).label('soma_consumo'),
+            func.sum(ConsumoAgua.valor).label('soma_valor_ultimo_mes')
+        ).group_by(
+            extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)
+        ).order_by(desc(extract('year', ConsumoAgua.data)), desc(extract('month', ConsumoAgua.data))).first()
 
-    populacao = {"Alunos": populacao[0]}
-    consumo = {"Consumo": consumo[0][]}
-    valor = {"Valor": consumo[0][2]}
+     # Concatenar ano e mês 
+    mes_ano_str = f"{consumo[0]}-{consumo[1]}"
 
     return jsonify({
-        "data": [populacao, consumo, valor]
+        "data": [
+            {"Alunos": populacao[0][0]},
+            {"Consumo": consumo[2]},
+            {"Valor": consumo[3]},
+            {"Ano_mes": mes_ano_str}
+        ]
     })
-
 
 @dashboard.get('/cad-principal-escola/<int:id>')
 def cad_principal_escola(id):
+    
     #Filtro de escola
     edificios_alias = aliased(Edificios)
     populacao = db.session.query(
     func.sum(Populacao.alunos).label('alunos')
     ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == id).all()
 
-    # Total de Alunos
-    # Total de População
-    # populacao = db.session.query(
-    #     func.sum(Populacao.alunos).label('alunos'),
-    #     func.sum(Populacao.funcionarios).label('funcionarios')
-    # ).all()
-
     # Consumo total
-
     consumo = db.session.query(
-        func.sum(ConsumoAgua.consumo).label('soma_consumo')
-    ).filter(ConsumoAgua.fk_escola == id).all()
+            extract('year', ConsumoAgua.data).label('ano'),
+            extract('month', ConsumoAgua.data).label('mes'),
+            func.sum(ConsumoAgua.consumo).label('soma_consumo'),
+            func.sum(ConsumoAgua.valor).label('soma_valor_ultimo_mes')
+        ).group_by(
+            extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)
+        ).order_by(desc(extract('year', ConsumoAgua.data)), desc(extract('month', ConsumoAgua.data))
+        ).filter(ConsumoAgua.fk_escola == id).first()
 
-    populacao = {"Alunos": populacao[0][0]}
-    consumo = {"Consumo": consumo[0][0]}
+    mes_ano_str = f"{consumo[0]}-{consumo[1]}"
 
     return jsonify({
-        "data": [populacao, consumo]
+        "data": [
+            {"Alunos": populacao[0][0]},
+            {"Consumo": consumo[2]},
+            {"Valor": consumo[3]},
+            {"Ano_mes": mes_ano_str}
+        ]
     })
+   
 
 
 # Media de consumo das escola
