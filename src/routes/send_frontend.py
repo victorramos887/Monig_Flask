@@ -25,7 +25,7 @@ def escolas():
     
     # Consultar consumo
     for escola in escolas:
-        #pegar tres ultimos meses
+        #pegar tres ultimos meses - pegando mês atual e dois pra traz 
         subquery = db.session.query(
             ConsumoAgua.fk_escola,
             func.concat(extract('year', ConsumoAgua.data), '-',
@@ -73,11 +73,24 @@ def get_escolas(id):
 
     escola_json = escola.to_json() if escola is not None else ''
         
-    consumo = db.session.query(
-                func.sum(ConsumoAgua.consumo).label('soma_consumo')
-            ).group_by(ConsumoAgua.fk_escola
-            ).filter(ConsumoAgua.fk_escola==id).first()
-               
+    #pegar tres ultimos meses de consumo - pegando mês atual e dois pra traz 
+    subquery = db.session.query(
+        ConsumoAgua.fk_escola,
+        func.concat(extract('year', ConsumoAgua.data), '-',
+                    extract('month', ConsumoAgua.data)).label('ano_mes'),
+        func.sum(ConsumoAgua.consumo).label("soma_consumo")
+    ).where(
+        ConsumoAgua.data.between(
+            func.date_trunc('month', func.current_date()) - func.cast(concat(2, 'months'), INTERVAL),
+            func.current_date()
+        )
+    ).group_by(ConsumoAgua.fk_escola, 'ano_mes').subquery()
+
+    query = db.session.query(
+        subquery.c.fk_escola,
+        func.sum(subquery.c.soma_consumo).label("consumo_ultimo_tres_meses")
+    ).group_by(subquery.c.fk_escola).filter(subquery.c.fk_escola==escola.id).all()
+
     edificio = Edificios.query.filter_by(fk_escola=id).first()
     edificio_json = edificio.to_json() if edificio is not None else None
 
@@ -103,7 +116,7 @@ def get_escolas(id):
             "estado": edificio_json["estado_edificio"],
             "cep": edificio_json["cep_edificio"],
             "cidade": edificio_json["cidade_edificio"],
-            "consumo_total": consumo.soma_consumo if consumo and hasattr(consumo, 'soma_consumo') else None
+            "consumo_total": query[0][1] if query else "0"
         }
         return jsonify({
             "status": True,
