@@ -474,6 +474,7 @@ def cad_principal():
         ]
     })
 
+
 @dashboard.get('/cad-principal-escola/<int:id>')
 def cad_principal_escola(id):
     
