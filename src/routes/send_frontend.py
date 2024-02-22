@@ -43,16 +43,15 @@ def escolas():
             func.sum(subquery.c.soma_consumo).label("consumo_ultimo_tres_meses")
         ).group_by(subquery.c.fk_escola).filter(subquery.c.fk_escola==escola.id).all()
 
+
         resultado[int(escola.id)] = {
-            "escola": escola.to_json(),
-            "consumo_total": query[0][1] if query else "0"
+            "escola": escola.to_json()
          }
         
-        print(query)   
     return jsonify({
-        "data": resultado,
-        "status": True,
-        "mensagem": "Escolas retornadas com sucesso",
+        'return': [escola.to_json() for escola in escolas] if escolas else [],
+        'status': True,
+        'mensagem': 'Escolas retornadas com sucesso'
     }), 200
     
    
@@ -70,7 +69,7 @@ def get_escolas(id):
             "status": False,
             "mensagem": "Escola não encontrada."
         }), 404
-
+ 
     escola_json = escola.to_json() if escola is not None else ''
         
     #pegar tres ultimos meses de consumo - pegando mês atual e dois pra traz 

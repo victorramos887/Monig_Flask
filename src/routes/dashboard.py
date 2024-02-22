@@ -152,7 +152,6 @@ def media_consumo_pessoas():
 def media_consumo_pessoas_esc(id):
 
     consumo_escola = ConsumoAgua.query.filter_by(fk_escola=id).first()
-    breakpoint()
     if not consumo_escola:
         return jsonify({
             "status": False,

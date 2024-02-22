@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func, text, DDL, and_, not_
+from sqlalchemy import func, text, DDL, and_, not_, extract
+from sqlalchemy.sql.functions import concat
+from sqlalchemy.dialects.postgresql import INTERVAL
 from datetime import datetime
 from sqlalchemy import inspect, func
 from sqlalchemy.ext.declarative import declarative_base
@@ -77,6 +79,27 @@ class Escolas(db.Model):
     def to_json(self):
 
 
+        #Consumo
+
+        subquery = db.session.query(
+            ConsumoAgua.fk_escola,
+            func.concat(extract('year', ConsumoAgua.data), '-',
+                        extract('month', ConsumoAgua.data)).label('ano_mes'),
+            func.sum(ConsumoAgua.consumo).label("soma_consumo")
+        ).where(
+            ConsumoAgua.data.between(
+                func.date_trunc('month', func.current_date()) - func.cast(concat(2, 'months'), INTERVAL),
+                func.current_date()
+            )
+        ).group_by(ConsumoAgua.fk_escola, 'ano_mes').subquery()
+
+        consumo = db.session.query(
+            subquery.c.fk_escola,
+            func.sum(subquery.c.soma_consumo).label("consumo_ultimo_tres_meses")
+        ).group_by(subquery.c.fk_escola).filter(subquery.c.fk_escola==self.id).all()
+
+        print("Consumo Total", consumo)
+
         niveis_de_ensino = (
         db.session.query(EscolaNiveis, AuxOpNiveis.nivel)
             .join(AuxOpNiveis, EscolaNiveis.nivel_ensino_id == AuxOpNiveis.id)
@@ -93,7 +116,8 @@ class Escolas(db.Model):
             "cnpj": self.cnpj,
             "telefone": self.telefone,
             "email": self.email,
-            "niveis": niveis
+            "niveis": niveis,
+            "consumo":consumo[0][1] if consumo else "0"
         }
 
         if self.geom is not None:
