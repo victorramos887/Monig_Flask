@@ -214,16 +214,21 @@ def leitura_atual(id):
     jsonRetorno = {}
     jsonRetorno["nome"] = escola.nome
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
-
+    print(jsonRetorno)
     # if escolamonitoramento:
     #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
     #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
     # else:
     #     inteiro = ""
     #     racional = ""
+    print("Escola monitorada: ", escolamonitoramento)
+    if escolamonitoramento is not None:
+        jsonRetorno["leitura"] = escolamonitoramento.leitura
+    else:
+        jsonRetorno["leitura"] = "0"
 
-    jsonRetorno["leitura"] = escolamonitoramento.leitura
     #jsonRetorno["leitura2"] = racional.zfill(3)
+
 
     return jsonRetorno
 
