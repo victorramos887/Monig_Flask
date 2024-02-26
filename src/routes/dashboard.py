@@ -359,6 +359,7 @@ def grafico_media_consumo_mensal_todas_escolas():
                 ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
                  .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
                  .all()
+                 
         resultados_nivel = db.session.query(
             func.sum(ConsumoAgua.consumo).label('media_escola'),
             func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
@@ -575,59 +576,117 @@ def consumo_escolas():
 
 
 # TESTANDO RETORNO MES GRÁFICO DE LINHA
-@dashboard.get('/grafico-media-consumo-mensal-escolas_teste')
-def grafico_media_consumo_mensal_escolas_teste():
-    # maior data e menor - intervalo
-    data_consulta = db.session.query(
-        func.max(ConsumoAgua.data).label('maior_data'),
-        func.min(ConsumoAgua.data).label('menor_data')
-    )
-    # pegar resultado da consulta
-    data = data_consulta.all()
-    data_maior = data[0][0]
-    data_menor = data[0][1]
-    lista_com_intervalo = []
+# @dashboard.get('/grafico-media-consumo-mensal-escolas_teste')
+# def grafico_media_consumo_mensal_escolas_teste():
+#     # maior data e menor - intervalo
+#     data_consulta = db.session.query(
+#         func.max(ConsumoAgua.data).label('maior_data'),
+#         func.min(ConsumoAgua.data).label('menor_data')
+#     )
+#     # pegar resultado da consulta
+#     data = data_consulta.all()
+#     data_maior = data[0][0]
+#     data_menor = data[0][1]
+#     lista_com_intervalo = []
 
-    # alimentar a lista com intervalo de datas
-    while data_menor <= data_maior:
-        lista_com_intervalo.append(datetime.strftime(data_menor, "%Y-%m"))
-        if data_menor == data_maior:
-            break
-        prox_mes = data_menor.month + 1
-        if prox_mes > 12:
-            data_menor = data_menor.replace(year=data_menor.year + 1, month=1)
+#     # alimentar a lista com intervalo de datas
+#     while data_menor <= data_maior:
+#         lista_com_intervalo.append(datetime.strftime(data_menor, "%Y-%m"))
+#         if data_menor == data_maior:
+#             break
+#         prox_mes = data_menor.month + 1
+#         if prox_mes > 12:
+#             data_menor = data_menor.replace(year=data_menor.year + 1, month=1)
+#         else:
+#             data_menor = data_menor.replace(month=prox_mes)
+#     print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo))
+#     # saida atual '2024-4'
+#     consulta = db.session.query(
+#         func.avg(ConsumoAgua.consumo).label('media_escola'),
+#         func.concat(extract('year', ConsumoAgua.data), '-',
+#                     (extract('month', ConsumoAgua.data))).label('ano_mes')
+#     ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
+#    # lista com mes-ano e consumo
+#     resultados = consulta.all()
+#     # percorrer a lista para concatenar mes e ano
+#     print(resultados)
+#     data = []
+#     for data_intervalo in lista_com_intervalo:
+#         for data_resultado in resultados:
+#             # data está na lista
+#             if data_intervalo == data_resultado[1]:
+#                 data.append({
+#                     "data": [
+#                             {"gastosEscola": round(
+#                                 data_resultado[0], 3), "mes": data_intervalo, "gastosNivel": ""}
+#                             ],
+#                     "status": True
+#                 })
+#             # data não está na lista
+#             else:
+#                 data.append({
+#                     "data": [
+#                         {"gastosEscola": "0", "mes_ano": data_intervalo,
+#                             "gastosNivel": "0"}
+#                     ],
+#                     "status": True
+#                 })
+#     return jsonify(data), 200
+
+
+#FAIXA DE CONSUMO - MAPA
+@dashboard.get('/mapa_faixa_consumo_teste')
+def mapa_faixa_consumo():
+    
+    lista = []
+    
+    #listar todas as escolas
+    escolas = Escolas.query.all()
+
+    #para cada escola verificar se tem consumo
+    for escola in escolas:
+
+        #pegar o ultimo consumo cadastrado da escola se tiver na tabela consumo 
+        consumo_escola = db.session.query(
+                func.sum(ConsumoAgua.consumo).label('media_escola'),
+                func.concat(extract('year', ConsumoAgua.data), '-',
+                            (extract('month', ConsumoAgua.data))).label('ano_mes')
+            ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(desc(extract('year', ConsumoAgua.data)), desc(extract('month', ConsumoAgua.data))
+            ).filter(ConsumoAgua.fk_escola == escola.id).first()
+        
+        print(consumo_escola, escola.id)
+        
+        if not consumo_escola:
+            consumo_litros = 0
+        
+        #converter consumo em litros 
         else:
-            data_menor = data_menor.replace(month=prox_mes)
-    print(lista_com_intervalo, min(lista_com_intervalo), max(lista_com_intervalo))
-    # saida atual '2024-4'
-    consulta = db.session.query(
-        func.avg(ConsumoAgua.consumo).label('media_escola'),
-        func.concat(extract('year', ConsumoAgua.data), '-',
-                    (extract('month', ConsumoAgua.data))).label('ano_mes')
-    ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data))
-   # lista com mes-ano e consumo
-    resultados = consulta.all()
-    # percorrer a lista para concatenar mes e ano
-    print(resultados)
-    data = []
-    for data_intervalo in lista_com_intervalo:
-        for data_resultado in resultados:
-            # data está na lista
-            if data_intervalo == data_resultado[1]:
-                data.append({
-                    "data": [
-                            {"gastosEscola": round(
-                                data_resultado[0], 3), "mes": data_intervalo, "gastosNivel": ""}
-                            ],
-                    "status": True
-                })
-            # data não está na lista
-            else:
-                data.append({
-                    "data": [
-                        {"gastosEscola": "0", "mes_ano": data_intervalo,
-                            "gastosNivel": "0"}
-                    ],
-                    "status": True
-                })
-    return jsonify(data), 200
+            # media = consumo_escola[0]
+            consumo_litros = consumo_escola[0] * 1000
+            
+        #escola com consumo verde 
+        if consumo_litros >= 0 and consumo_litros <= 10000:
+            lista.append({
+                "escola": escola.id,
+                "nome_escola": escola.nome,
+                "color": '#008000'
+            })
+            
+        #escola com consumo amarelo
+        if consumo_litros > 10000 and consumo_litros <= 30000:
+            lista.append({
+                "escola": escola.id,
+                "nome_escola": escola.nome,
+                "color": '#f6ef74'
+            })
+            
+        #escola com consumo vermelho        
+        if consumo_litros > 30000:
+            lista.append({
+                "escola": escola.id,
+                "nome_escola": escola.nome,
+                "color": '#ff0000'
+            })
+            
+         
+    return jsonify({"data":lista, "status":"ok"}), 200
