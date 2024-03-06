@@ -353,23 +353,24 @@ def grafico_media_consumo_mensal_todas_escolas():
         query = query.filter(EscolaNiveis.nivel_ensino_id.in_(listaid))
         escolas_id = [q.id for q in query]
 
-        consulta = db.session.query(
-                    func.avg(ConsumoAgua.consumo).label('media_escola'),
-                    func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
-                ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
-                 .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
-                 .all()
+        # consulta = db.session.query(
+        #             func.avg(ConsumoAgua.consumo).label('media_escola'),
+        #             func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
+        #         ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+        #          .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+        #          .all()
                  
         resultados_nivel = db.session.query(
-            func.sum(ConsumoAgua.consumo).label('media_escola'),
+            func.avg(ConsumoAgua.consumo).label('media_escola'),
             func.concat(extract('year', ConsumoAgua.data),'-',  func.to_char(ConsumoAgua.data, 'MM')).label('ano_mes')
             ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
+            .order_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data, 'MM'))\
             .where(ConsumoAgua.fk_escola.in_(escolas_id))\
             .all()
         lista_resultado = []
         index_nivel = 0
 
-        for resultado in consulta:
+        for resultado in resultados_nivel:
 
             # print("Consulta atual: ", consulta)
             if index_nivel < len(resultados_nivel):
@@ -669,6 +670,8 @@ def mapa_faixa_consumo():
             lista.append({
                 "escola": escola.id,
                 "nome_escola": escola.nome,
+                # "lat": escola.lat,
+                # "lon": escola.lon,
                 "color": '#008000'
             })
             
@@ -677,6 +680,8 @@ def mapa_faixa_consumo():
             lista.append({
                 "escola": escola.id,
                 "nome_escola": escola.nome,
+                # "lat": escola.lat,
+                # "lon": escola.lon,
                 "color": '#f6ef74'
             })
             
@@ -685,6 +690,8 @@ def mapa_faixa_consumo():
             lista.append({
                 "escola": escola.id,
                 "nome_escola": escola.nome,
+                # "lat": escola.lat,
+                # "lon": escola.lon,
                 "color": '#ff0000'
             })
             
