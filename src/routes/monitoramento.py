@@ -156,6 +156,7 @@ def leitura():
             "status": False
         }), 400
 
+#retorna todas as leituras
 @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
@@ -192,6 +193,8 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
+
+#retorna a ultima leitura cadastrada
 @swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
@@ -276,7 +279,7 @@ def leitura_deletar(id):
 
     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
-
+#retorna 
 # @swag_from('')
 @monitoramento.get("/monitoramento-volumes/<int:id>")
 def leituras_volumes(id):

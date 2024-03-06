@@ -1,15 +1,99 @@
 from flask import Blueprint, jsonify, request, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc
-from ..models import db, Escolas, Edificios, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
-from datetime import timedelta, date
+from sqlalchemy import func, select, desc, between
+from ..models import db, Escolas, Edificios, Monitoramento, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
+from datetime import time
+from sqlalchemy.orm import aliased
 from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
+
 
 send_frontend = Blueprint('send_frontend', __name__,
                           url_prefix='/api/v1/send_frontend')
 
+
+# /api/v1/send_frontend/escolas_nath
+
+#Rota teste natalia - csv
+# @swag_from('../docs/get/escolas.yaml')
+@send_frontend.get('/escolas_nath')
+def escolas_nath():
+    # token = validacao_token(request.headers.get('Authorization'))
+    # [escola.to_json() for escola in escolas] if escolas else []
+    
+    lista_monitoramento = []
+    
+    escolas = Escolas.query.all()
+    # print(escolas)
+    
+   # Check if any schools were found
+    if not escolas:
+        return jsonify({'message': 'Nenhuma escola encontrada'}), 404
+
+    for escola in escolas:
+        
+        edificios_alias = aliased(Edificios)
+
+        #filtrando todas as leituras dos hidrometros da escola selecionada
+        hidrometros = Hidrometros.query.join(edificios_alias).filter(
+            edificios_alias.fk_escola == escola.id).all()
+        
+        for hidr in hidrometros:
+            
+            #todas as leituras do hidrometro 
+            hidrometro_monitoramento = Monitoramento.query.filter(
+                Monitoramento.hidrometro == hidr.id).order_by(desc(Monitoramento.datahora)).all()
+            
+            expediente = []
+            fora_expediente = []
+            
+            #SEPARAR AS LEITURAS POR PERIODO - dia - noite
+            inicio_expediente = time(hour=6)
+            fim_expediente = time(hour=23)
+            
+            for i in hidrometro_monitoramento:
+                if i.datahora.time() >= inicio_expediente <= fim_expediente: 
+                    expediente.append(i)
+                else:
+                    fora_expediente.append(i)
+                    
+            #ULTIMA LEITURA DO DIA      
+            if len(expediente) > 0:
+                #maior data da lista expediente ou ultima data cadastrada
+                maior_data_expediente = max(expediente, key=lambda x: x.datahora)
+                print({
+                    "escola": escola.nome,
+                    "hidrometro":hidr.hidrometro,
+                    "ultima_leitura_expediente":(maior_data_expediente.datahora).strftime('%d-%m-%Y %H:%M:%S'),
+                    "leitura": maior_data_expediente.leitura
+                })
+                
+            #ULTIMA LEITURA DA NOITE  
+            if len(fora_expediente) > 0:
+                #maior data da lista expediente
+                maior_data_fora = max(fora_expediente, key=lambda x: x.datahora)
+                print({
+                    "escola": escola.nome,
+                    "hidrometro": hidr.hidrometro,
+                    "ultima_leitura_fora_expediente":(maior_data_fora.datahora).strftime('%d-%m-%Y %H:%M:%S'),
+                    "leitura": maior_data_fora.leitura
+                })
+                        
+        #QUANTOS LTS FORAM GASTOS POR ALUNO NO ULTIMO DIA
+           
+        #MEDIA CONSUMO DE 1 SEMANA - DIA
+        
+        #MEDIA CONSUMO DE 1 SEMANA - NOITE
+        
+        
+            
+    # return jsonify(lista_monitoramento) 
+    return ('200')
+    
+    
+    
+    
 @swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas')
 def escolas():
