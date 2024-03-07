@@ -86,9 +86,6 @@ def escolas_nath():
         
         #MEDIA CONSUMO DE 1 SEMANA - NOITE
         
-        
-            
-    # return jsonify(lista_monitoramento) 
     return ('200')
     
     
