@@ -176,7 +176,6 @@ def leituras_tabela(id):
             if indexanterior <= range_list:
                 diferenca = escolamonitoramento[i].leitura - \
                     escolamonitoramento[indexanterior].leitura
-                print(diferenca)
             #escolamonitoramento[i]['leitura'] = "{:.3f}".format(float(escolamonitoramento[i]['leitura']))
 
             tabela.append(

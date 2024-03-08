@@ -413,8 +413,6 @@ class Equipamentos(db.Model):
         return jsonRetorno
 
 # Tabela auxiliar
-
-
 class Customizados(db.Model):
     __table_args__ = {'schema': 'main'}
     __tablename__ = 'aux_customizado_cliente'

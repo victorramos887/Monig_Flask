@@ -40,7 +40,7 @@ def create_app(test_config=None):
             JSON_AS_ASCII=False,  # permitir caracteres acentuados
             JWT_SECRET_KEY=os.environ.get('JWT_SECRET_KEY'),
             JWT_EXPIRATION_DELTA=timedelta(seconds=10),
-            DEBUG=False,
+            DEBUG=True,
             SESSION_TYPE='redis',
             FLASK_DEBUG=os.environ.get('FLASK_DEBUG')
         )
@@ -48,7 +48,7 @@ def create_app(test_config=None):
         app.config.from_mapping(
             test_config,
             SQLALCHEMY_DATABASE_URI=os.environ.get('DB_TEST'),
-            DEBUG=False
+            DEBUG=True
         )
     
     db.app = app

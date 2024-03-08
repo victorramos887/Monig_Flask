@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from ..constants.http_status_codes import (
     HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED)
-from sqlalchemy import func, select, desc, between
+from sqlalchemy import func, select, desc, between, and_, extract, text
 from ..models import db, Escolas, Edificios, Monitoramento, Reservatorios, AreaUmida, AuxTipoDeEventos, AuxTiposEquipamentos, Eventos, EscolaNiveis, Equipamentos, Populacao, AreaUmida, Hidrometros, AuxOpNiveis, AuxDeLocais, ConsumoAgua
 from datetime import time, date, timedelta
 from sqlalchemy.orm import aliased
@@ -18,107 +18,25 @@ send_frontend = Blueprint('send_frontend', __name__,
 # @swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas_nath')
 def escolas_nath():
-    # token = validacao_token(request.headers.get('Authorization'))
-    # [escola.to_json() for escola in escolas] if escolas else []
     
-    escolas = Escolas.query.all()
-    # print(escolas)
-    
-   # Check if any schools were found
-    if not escolas:
-        return jsonify({'message': 'Nenhuma escola encontrada'}), 404
+    # Construindo a consulta (opcional - incluir filtro por dias se necessário)
+    query = text("SELECT * FROM main.relatorio")
+    # Executando a consulta
+    resultado = db.session.execute(query).all()
+    # Convertendo resultado em lista de dicionários
+    # print(resultado[0])
+    escolas = [{
+        "Escola":row[0],
+        "média":row[1],
+        "minima":row[2],
+        "maxima":row[3]
+    } for row in resultado]
 
-    for escola in escolas:
-        
-        edificios_alias = aliased(Edificios)
 
-        #filtrando todas as leituras dos hidrometros da escola selecionada
-        hidrometros = Hidrometros.query.join(edificios_alias).filter(
-            edificios_alias.fk_escola == escola.id).all()
-        
-        for hidr in hidrometros:
-            
-            #todas as leituras do hidrometro 
-            hidrometro_monitoramento = Monitoramento.query.filter(
-                Monitoramento.hidrometro == hidr.id).order_by(desc(Monitoramento.datahora)).all()
-            
-            expediente = []
-            fora_expediente = []
-            
-            #SEPARAR AS LEITURAS POR PERIODO - dia - noite
-            inicio_expediente = time(hour=6)
-            fim_expediente = time(hour=23)
-            
-            for i in hidrometro_monitoramento:
-                if i.datahora.time() >= inicio_expediente <= fim_expediente: 
-                    expediente.append(i)
-                    
-                else:
-                    fora_expediente.append(i)
-                    
-            #ULTIMA LEITURA DO DIA      
-            if len(expediente) > 0:
-                #maior data da lista expediente ou ultima data cadastrada
-                maior_data_expediente = max(expediente, key=lambda x: x.datahora)
-                print({
-                    "escola": escola.nome,
-                    "hidrometro":hidr.hidrometro,
-                    "ultima_leitura_expediente":(maior_data_expediente.datahora).strftime('%d-%m-%Y %H:%M:%S'),
-                    "leitura": maior_data_expediente.leitura
-                })
-                        
-            #ULTIMA LEITURA DA NOITE  
-            if len(fora_expediente) > 0:
-                #maior data da lista expediente
-                maior_data_fora = max(fora_expediente, key=lambda x: x.datahora)
-                print({
-                    "escola": escola.nome,
-                    "hidrometro": hidr.hidrometro,
-                    "ultima_leitura_fora_expediente":(maior_data_fora.datahora).strftime('%d-%m-%Y %H:%M:%S'),
-                    "leitura": maior_data_fora.leitura
-                })
-                
-             
-            #SEPARAR PERIODOS PARA FAZER A DIFERENÇA DE LEITURA PARA FAZER A MÉDIA DOS VALORES DE CONSUMO
-            
-            #MEDIA CONSUMO DE 1 SEMANA - DIA
-            ontem = date.today() - timedelta(days=1) #06-03-2024 quart
-            uma_semana = ontem - timedelta(days=6) #29-02-2024 quint
-            
-            # print(ontem, uma_semana)
-            
-            intervalo_datas=[]
-            #verificar se as data da leitura do hidrometro é dos ultimos 7 dias e acrescentar a lista
-            for i in hidrometro_monitoramento:
-                if i.datahora.date() >= uma_semana <= ontem: 
-                    intervalo_datas.append(i)
+    # print("Retorno:", escolas)
 
-            # Ordenar da maior para a menor data
-            intervalo_datas = sorted(intervalo_datas, key=lambda x: x.datahora, reverse=True)
-            
-            expediente = time(hour=6)
-            fim_expediente = time(hour=23)
-           
-            #lista com a diferença de consumo
-            #ultimo consumo fim de expediente - noite a partir do ultimo registro do dia
-            #dia 06 pegar o consumo das >23hs e <6hs - expediente do dia
-            #dia 06 consumo das  
-            
-            # #na lista procurar a ultima leitura de ontem
-            # if len(intervalo_datas) > 0:
-            #     ultima_leitura_intervalo = max(intervalo_datas, key=lambda x: x.datahora) #2024-03-06 02:00:00
-               
-            #     print("ultima_leitura", ultima_leitura_intervalo.datahora) #2024-03-06 02:00:00
-                
-                
-                                   
-            
-                   
-            
-            #MEDIA CONSUMO DE 1 SEMANA - NOITE  
-        
-    return ('200')
-    
+    # Retornando a lista de escolas
+    return jsonify({"retorno":escolas})
     
     
     
