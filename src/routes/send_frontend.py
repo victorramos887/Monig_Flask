@@ -20,7 +20,7 @@ send_frontend = Blueprint('send_frontend', __name__,
 def escolas_nath():
     
     # Construindo a consulta (opcional - incluir filtro por dias se necessário)
-    query = text("SELECT * FROM main.relatorio")
+    query = text("SELECT * FROM main.vw_relatorio")
     # Executando a consulta
     resultado = db.session.execute(query).all()
     # Convertendo resultado em lista de dicionários
