@@ -3,6 +3,7 @@ from sqlalchemy.sql.functions import concat
 from ..models import db, ConsumoAgua, EscolaNiveis, Escolas, AuxOpNiveis, Edificios, Populacao
 from flask import Blueprint, json, jsonify, request
 from datetime import datetime, timedelta
+from sqlalchemy.dialects.postgresql import INTERVAL
 from dateutil import relativedelta
 from flasgger import swag_from
 import dateutil
@@ -649,7 +650,7 @@ def mapa_faixa_consumo():
 
         #pegar o ultimo consumo cadastrado da escola se tiver na tabela consumo 
         consumo_escola = db.session.query(
-                func.sum(ConsumoAgua.consumo).label('media_escola'),
+                func.sum(ConsumoAgua.consumo).label('consumo_escola'),
                 func.concat(extract('year', ConsumoAgua.data), '-',
                             (extract('month', ConsumoAgua.data))).label('ano_mes')
             ).group_by(extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)).order_by(desc(extract('year', ConsumoAgua.data)), desc(extract('month', ConsumoAgua.data))
@@ -697,3 +698,80 @@ def mapa_faixa_consumo():
             
          
     return jsonify({"data":lista, "status":"ok"}), 200
+
+
+@dashboard.get('/home_monig')
+def home_monig():
+    
+    data = []
+    
+    #filtrar escolas
+    escolas = Escolas.query.all()
+    
+    for escola in escolas:
+        #filtrar populacao
+        edificios_alias = aliased(Edificios)
+        populacao = db.session.query(
+            func.sum(Populacao.alunos).label('alunos')
+        ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
+
+        #filtrar nivel de ensino
+        result_nivel = db.session.query(
+            EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
+        .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
+        .filter(EscolaNiveis.escola_id == escola.id) \
+        .all()
+
+        nivelRetorno = [nivel for escola_id, nivel in result_nivel]
+	
+        #filtrar consumo e valor conta - ultimo mês
+        consumo = db.session.query(
+            func.concat(extract('year', ConsumoAgua.data), '-',
+                        extract('month', ConsumoAgua.data)).label('ano_mes'),
+            func.sum(ConsumoAgua.consumo).label('soma_consumo'),
+            func.sum(ConsumoAgua.valor).label('soma_valor_ultimo_mes')
+        ).group_by('ano_mes')\
+         .order_by(desc('ano_mes'))\
+         .filter(ConsumoAgua.fk_escola == escola.id).first()
+         
+         
+        #filtar os ultimos 12 meses de consumo da escola
+        #retorna apenas os valores dos meses que tem no banco
+        # consumo_doze_meses = db.session.query(
+        #     func.sum(ConsumoAgua.consumo).label("consumo_"),
+        #     func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')\
+        # ).where(
+        #     ConsumoAgua.data.between(
+        #         func.date_trunc('month', func.current_date()) - func.cast(concat(11, 'months'), INTERVAL),
+        #         func.current_date()
+        #     )
+        # ).group_by('ano_mes')\
+        # .filter(ConsumoAgua.fk_escola == escola.id).all()
+        
+       
+        # consumoRetorno = [[ano_mes, consumo_] for consumo_, ano_mes in consumo_doze_meses]
+       
+        consumo_doze_meses = db.session.query(
+            func.coalesce(func.sum(ConsumoAgua.consumo), else_=0).label("consumo_"),  
+            func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')
+        ).where(
+            ConsumoAgua.data.between(
+                func.date_trunc('month', func.current_date()) - func.cast(concat(11, 'months'), INTERVAL),
+                func.current_date()
+            )
+        ).group_by('ano_mes')\
+        .filter(ConsumoAgua.fk_escola == escola.id).all()
+
+        
+        data.append({
+            "nome": escola.nome,
+            "id": escola.id,
+            "nivel_ensino": nivelRetorno,
+            "numero_alunos": populacao[0][0],
+            "consumo_agua": consumo[1] if consumo else 0,
+            "valor_conta_agua": round(consumo[2], 2) if consumo else 0,
+            'ano_mes_ultimo_consumo': consumo[0] if consumo else None,
+            'consumo_ultimos_12_meses': [consumo_ for consumo_ in consumo_doze_meses ] 
+        }) 
+        
+    return jsonify(data)
