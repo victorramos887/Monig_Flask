@@ -463,16 +463,19 @@ def cad_principal():
         ).group_by(
             extract('year', ConsumoAgua.data), extract('month', ConsumoAgua.data)
         ).order_by(desc(extract('year', ConsumoAgua.data)), desc(extract('month', ConsumoAgua.data))).first()
-
+    print(consumo)
      # Concatenar ano e mês 
-    mes_ano_str = f"{consumo[0]}-{consumo[1]}"
+    if consumo is not None:
+        mes_ano_str = f"{consumo[0]}-{consumo[1]}"
+    else:
+        mes_ano_str = f"00-00-2000"
 
     return jsonify({
         "data": [
             {"Alunos": populacao[0][0]},
-            {"Consumo": consumo[2]},
-            {"Valor": consumo[3]},
-            {"Ano_mes": mes_ano_str}
+            {"Consumo": consumo[2] if consumo is not None else 0},
+            {"Valor": consumo[3] if consumo is not None else 0},
+            {"Ano_mes": mes_ano_str if consumo is not None else 0}
         ]
     })
 
