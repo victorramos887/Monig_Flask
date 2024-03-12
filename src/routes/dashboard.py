@@ -712,13 +712,13 @@ def home_monig():
     escolas = Escolas.query.all()
     
     for escola in escolas:
-        #filtrar populacao
+        #filtrar populacao - ok
         edificios_alias = aliased(Edificios)
         populacao = db.session.query(
             func.sum(Populacao.alunos).label('alunos')
         ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
 
-        #filtrar nivel de ensino
+        #filtrar nivel de ensino - ok
         result_nivel = db.session.query(
             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
         .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
@@ -727,7 +727,7 @@ def home_monig():
 
         nivelRetorno = [nivel for escola_id, nivel in result_nivel]
 	
-        #filtrar consumo e valor conta - ultimo mês
+        #filtrar consumo e valor conta - ultimo mês - ok
         consumo = db.session.query(
             func.concat(extract('year', ConsumoAgua.data), '-',
                         extract('month', ConsumoAgua.data)).label('ano_mes'),
@@ -739,24 +739,10 @@ def home_monig():
          
          
         #filtar os ultimos 12 meses de consumo da escola
-        #retorna apenas os valores dos meses que tem no banco
-        # consumo_doze_meses = db.session.query(
-        #     func.sum(ConsumoAgua.consumo).label("consumo_"),
-        #     func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')\
-        # ).where(
-        #     ConsumoAgua.data.between(
-        #         func.date_trunc('month', func.current_date()) - func.cast(concat(11, 'months'), INTERVAL),
-        #         func.current_date()
-        #     )
-        # ).group_by('ano_mes')\
-        # .filter(ConsumoAgua.fk_escola == escola.id).all()
-        
-       
-        # consumoRetorno = [[ano_mes, consumo_] for consumo_, ano_mes in consumo_doze_meses]
-       
+        #retorna apenas os valores dos meses que tem no banco - ok
         consumo_doze_meses = db.session.query(
-            func.coalesce(func.sum(ConsumoAgua.consumo), else_=0).label("consumo_"),  
-            func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')
+            func.sum(ConsumoAgua.consumo).label("consumo"),
+            func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')\
         ).where(
             ConsumoAgua.data.between(
                 func.date_trunc('month', func.current_date()) - func.cast(concat(11, 'months'), INTERVAL),
@@ -764,7 +750,9 @@ def home_monig():
             )
         ).group_by('ano_mes')\
         .filter(ConsumoAgua.fk_escola == escola.id).all()
-
+        
+       
+        consumoRetorno = [[ano_mes, consumo_] for consumo_, ano_mes in consumo_doze_meses]
         
         data.append({
             "nome": escola.nome,
@@ -774,7 +762,7 @@ def home_monig():
             "consumo_agua": consumo[1] if consumo else 0,
             "valor_conta_agua": round(consumo[2], 2) if consumo else 0,
             'ano_mes_ultimo_consumo': consumo[0] if consumo else None,
-            'consumo_ultimos_12_meses': [consumo_ for consumo_ in consumo_doze_meses ] 
+            'consumo_ultimos_12_meses': consumoRetorno
         }) 
         
     return jsonify(data)
