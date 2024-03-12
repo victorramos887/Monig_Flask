@@ -738,22 +738,23 @@ def home_monig():
          .filter(ConsumoAgua.fk_escola == escola.id).first()
          
          
-        #filtar os ultimos 12 meses de consumo da escola
+        #filtar os ultimos 6 meses de consumo da escola
         #retorna apenas os valores dos meses que tem no banco - ok
         consumo_doze_meses = db.session.query(
             func.sum(ConsumoAgua.consumo).label("consumo"),
             func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')\
         ).where(
             ConsumoAgua.data.between(
-                func.date_trunc('month', func.current_date()) - func.cast(concat(11, 'months'), INTERVAL),
-                func.current_date()
+                func.date_trunc('month', func.current_date()) - func.cast(concat(5, 'months'), INTERVAL).label('intervalo_anterior'),
+                func.current_date().label('intervalo_atual')
             )
         ).group_by('ano_mes')\
         .filter(ConsumoAgua.fk_escola == escola.id).all()
-        
        
+        
         consumoRetorno = [[ano_mes, consumo_] for consumo_, ano_mes in consumo_doze_meses]
         
+          
         data.append({
             "nome": escola.nome,
             "id": escola.id,
