@@ -737,24 +737,55 @@ def home_monig():
          .order_by(desc('ano_mes'))\
          .filter(ConsumoAgua.fk_escola == escola.id).first()
          
-         
+        
+        # Pega a data e hora atual
+        data_atual = datetime.now()
+
+        # Subtrai 6 meses da data atual
+        mes_ano_6_meses = data_atual - timedelta(days=30 * 5)
+        
+        lista_intervalo = []
+       #alimentar a lista com intervalo de datas
+        while mes_ano_6_meses <= data_atual:
+            lista_intervalo.append(mes_ano_6_meses.strftime("%Y-%m"))
+            prox_mes = (mes_ano_6_meses.month % 12) + 1
+            if prox_mes == 1:
+                mes_ano_6_meses = mes_ano_6_meses.replace(year=mes_ano_6_meses.year + 1, month=1)
+            else:
+                mes_ano_6_meses = mes_ano_6_meses.replace(month=prox_mes)
+                
+        # Adicione a maior data à lista
+        lista_intervalo.append(data_atual.strftime("%Y-%m"))
+        
         #filtar os ultimos 6 meses de consumo da escola
         #retorna apenas os valores dos meses que tem no banco - ok
-        consumo_doze_meses = db.session.query(
-            func.sum(ConsumoAgua.consumo).label("consumo"),
-            func.concat(extract('year', ConsumoAgua.data),'-',extract('month', ConsumoAgua.data)).label('ano_mes')\
+        consumo_seis_meses = db.session.query(
+            func.sum(ConsumoAgua.consumo).label("consumo"), 
+            func.concat(extract('year', ConsumoAgua.data),'-', func.to_char(ConsumoAgua.data,'MM')).label('ano_mes')\
         ).where(
             ConsumoAgua.data.between(
-                func.date_trunc('month', func.current_date()) - func.cast(concat(5, 'months'), INTERVAL).label('intervalo_anterior'),
-                func.current_date().label('intervalo_atual')
+                func.date_trunc('month', func.current_date()) - func.cast(concat(5, 'months'), INTERVAL),
+                func.current_date()
             )
-        ).group_by('ano_mes')\
+        ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data,'MM'))\
         .filter(ConsumoAgua.fk_escola == escola.id).all()
+            
+        consumoRetorno = []
+        for data_ in lista_intervalo:
+            for ano_mes in consumo_seis_meses:
+                if data_ == ano_mes[1]:
+                    consumoRetorno.append({"ano_mes":ano_mes[1], "consumo": ano_mes[0]})
+                    break
+                else:
+                    continue
+            if data_ != ano_mes[1]:
+                consumoRetorno.append({"ano_mes":data_, "consumo":0})
+
+        # print(lista_intervalo)
        
+        # # Imprime o mês e ano atual e o mês e ano 6 meses atrás
+        # print(consumoRetorno)
         
-        consumoRetorno = [[ano_mes, consumo_] for consumo_, ano_mes in consumo_doze_meses]
-        
-          
         data.append({
             "nome": escola.nome,
             "id": escola.id,
