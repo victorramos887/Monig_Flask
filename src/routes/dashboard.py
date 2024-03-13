@@ -8,6 +8,7 @@ from dateutil import relativedelta
 from flasgger import swag_from
 import dateutil
 from sqlalchemy.orm import aliased
+from geoalchemy2.shape import to_shape
 
 dashboard = Blueprint('dashboard', __name__,
                       url_prefix='/api/v1/dashboard')
@@ -708,17 +709,18 @@ def home_monig():
     
     data = []
     
-    #filtrar escolas
+    #FILTRAR  ESCOLAS
     escolas = Escolas.query.all()
     
     for escola in escolas:
-        #filtrar populacao - ok
+        #FILTRAR POPULACAO
         edificios_alias = aliased(Edificios)
         populacao = db.session.query(
             func.sum(Populacao.alunos).label('alunos')
         ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
 
-        #filtrar nivel de ensino - ok
+
+        #FILTRAR NIVEL
         result_nivel = db.session.query(
             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
         .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
@@ -727,7 +729,8 @@ def home_monig():
 
         nivelRetorno = [nivel for escola_id, nivel in result_nivel]
 	
-        #filtrar consumo e valor conta - ultimo mês - ok
+ 
+        #FILTRAR CONSUMO E VALOR ULTIMO MÊS
         consumo = db.session.query(
             func.concat(extract('year', ConsumoAgua.data), '-',
                         extract('month', ConsumoAgua.data)).label('ano_mes'),
@@ -737,7 +740,8 @@ def home_monig():
          .order_by(desc('ano_mes'))\
          .filter(ConsumoAgua.fk_escola == escola.id).first()
          
-        
+         
+        #FILTRAR CONSUMO DOS ULTIMOS 6 MESES
         # Pega a data e hora atual
         data_atual = datetime.now()
 
@@ -760,8 +764,8 @@ def home_monig():
         #filtar os ultimos 6 meses de consumo da escola
         #retorna apenas os valores dos meses que tem no banco - ok
         consumo_seis_meses = db.session.query(
-            func.sum(ConsumoAgua.consumo).label("consumo"), 
-            func.concat(extract('year', ConsumoAgua.data),'-', func.to_char(ConsumoAgua.data,'MM')).label('ano_mes')\
+            func.sum(ConsumoAgua.consumo).label("consumo_"), 
+            func.concat(extract('year', ConsumoAgua.data),'-', func.to_char(ConsumoAgua.data,'MM')).label('ano_mes_')\
         ).where(
             ConsumoAgua.data.between(
                 func.date_trunc('month', func.current_date()) - func.cast(concat(5, 'months'), INTERVAL),
@@ -769,26 +773,26 @@ def home_monig():
             )
         ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data,'MM'))\
         .filter(ConsumoAgua.fk_escola == escola.id).all()
-            
+             
         consumoRetorno = []
+                              
         for data_ in lista_intervalo:
-            for ano_mes in consumo_seis_meses:
-                if data_ == ano_mes[1]:
-                    consumoRetorno.append({"ano_mes":ano_mes[1], "consumo": ano_mes[0]})
-                    break
-                else:
-                    continue
-            if data_ != ano_mes[1]:
-                consumoRetorno.append({"ano_mes":data_, "consumo":0})
+            if any(data_ == i[1] for i in consumo_seis_meses):
+                consumo_ = next(i[0] for i in consumo_seis_meses if data_ == i[1])
+            else:
+                consumo_ = 0
 
-        # print(lista_intervalo)
-       
-        # # Imprime o mês e ano atual e o mês e ano 6 meses atrás
-        # print(consumoRetorno)
-        
+            consumoRetorno.append({"ano_mes": data_, "consumo_": consumo_})
+
+
+        #RETORNO
+        point = to_shape(escola.geom)
+          
         data.append({
             "nome": escola.nome,
             "id": escola.id,
+            "latitude": point.y,
+            "longitude": point.x,
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
             "consumo_agua": consumo[1] if consumo else 0,
