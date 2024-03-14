@@ -9,6 +9,8 @@ from flasgger import swag_from
 import dateutil
 from sqlalchemy.orm import aliased
 from geoalchemy2.shape import to_shape
+from shapely.geometry import Point
+
 
 dashboard = Blueprint('dashboard', __name__,
                       url_prefix='/api/v1/dashboard')
@@ -787,13 +789,19 @@ def home_monig():
 
         #LOCALIZAÇÃO 
         # point = to_shape(escola.geom)
+        point = None
+        if escola.geom:  # Verifique se geom não é NULL
+            point = to_shape(escola.geom)
+        else:
+            # Defina um valor padrão (por exemplo, ponto vazio ou coordenadas)
+            point = Point(0, 0)  # Exemplo: define para a origem (0, 0)
         
         #RETORNO  
         data.append({
             "nome": escola.nome,
             "id": escola.id,
-            # "latitude": point.y if point.y else None ,
-            # "longitude": point.x if point.x else None,
+            "latitude": point.y,
+            "longitude": point.x,
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
             "consumo_agua": consumo[1] if consumo else 0,
