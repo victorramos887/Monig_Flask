@@ -786,14 +786,14 @@ def home_monig():
 
 
         #LOCALIZAÇÃO 
-        point = to_shape(escola.geom)
+        # point = to_shape(escola.geom)
         
         #RETORNO  
         data.append({
             "nome": escola.nome,
             "id": escola.id,
-            "latitude": point.y if point.y else None ,
-            "longitude": point.x if point.x else None,
+            # "latitude": point.y if point.y else None ,
+            # "longitude": point.x if point.x else None,
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
             "consumo_agua": consumo[1] if consumo else 0,
