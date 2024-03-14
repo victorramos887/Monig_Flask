@@ -10,6 +10,7 @@ import dateutil
 from sqlalchemy.orm import aliased
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
+from ..routes.alertas import avisos_escolas
 
 
 dashboard = Blueprint('dashboard', __name__,
@@ -796,6 +797,11 @@ def home_monig():
             # Defina um valor padrão (por exemplo, ponto vazio ou coordenadas)
             point = Point(0, 0)  # Exemplo: define para a origem (0, 0)
         
+        
+        #ALERTAS - EVENTOS E MONITORAMENTO
+        alertas = avisos_escolas()
+      
+        
         #RETORNO  
         data.append({
             "nome": escola.nome,
@@ -810,4 +816,4 @@ def home_monig():
             'consumo_ultimos_12_meses': consumoRetorno
         }) 
         
-    return jsonify(data)
+    return jsonify(data, {'avisos':alertas})
