@@ -1,16 +1,15 @@
-from sqlalchemy import func, extract, text, and_, desc
+from sqlalchemy import func, extract, text, and_, desc, or_
 from sqlalchemy.sql.functions import concat
-from ..models import db, ConsumoAgua, EscolaNiveis, Escolas, AuxOpNiveis, Edificios, Populacao
+from ..models import db, ConsumoAgua, EscolaNiveis, Monitoramento, Eventos, AuxTipoDeEventos, Escolas, AuxOpNiveis, Edificios, Populacao
 from flask import Blueprint, json, jsonify, request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from sqlalchemy.dialects.postgresql import INTERVAL
-from dateutil import relativedelta
+from dateutil.relativedelta import relativedelta
 from flasgger import swag_from
-import dateutil
 from sqlalchemy.orm import aliased
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Point
-from ..routes.alertas import avisos_escolas
+
 
 
 dashboard = Blueprint('dashboard', __name__,
@@ -798,10 +797,92 @@ def home_monig():
             point = Point(0, 0)  # Exemplo: define para a origem (0, 0)
         
         
-        #ALERTAS - EVENTOS E MONITORAMENTO
-        alertas = avisos_escolas()
-      
+        #ALERTAS 
+        #EVENTOS VENCIDOS
+        tipo_alias = aliased(AuxTipoDeEventos)
         
+        #filtrando eventos ocasionais
+        #Alterando junção
+        eventos_ocasional = (
+                db.session.query(Eventos).filter(Eventos.fk_escola == escola.id)
+                .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
+                .filter(
+                 or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
+                )
+                .all()
+        )
+        print(eventos_ocasional)
+        avisos = []
+        
+        if eventos_ocasional:
+        
+            # eventos sem data de encerramento
+            eventos_sem_encerramento = [
+                    evento for evento in eventos_ocasional if evento.data_encerramento is None]
+            
+            for evento in eventos_sem_encerramento:
+
+                    # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
+                    tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
+                    
+                    #verificar se está dentro do prazo
+                    if tipo and tipo.tempo is not None:
+                            unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
+                            tempo = tipo.tempo
+                            # comparar a unidade e realizar o calculo
+                            if unidade == "meses":
+                                    tolerancia = evento.datainicio + relativedelta(months=tempo)
+
+                            elif unidade == "semanas":
+                                    tolerancia = evento.datainicio + relativedelta(weeks=tempo)
+
+                            elif unidade == "dias": 
+                                    tolerancia = evento.datainicio + relativedelta(days=tempo)
+                            else:
+                                    tolerancia = None
+
+                            # igualar as datas
+                            tolerancia = tolerancia.date() if tolerancia is not None else None
+                            data_atual = date.today()
+
+                            #vencido
+                            if tolerancia < data_atual:
+                                
+                                retorno =  {
+                                    'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
+                                    'icone': 1,
+                                    'cor': "#00FF00"
+                                }
+                                avisos.append(retorno)     
+                
+                
+        #MONITORAMENTO  
+        #pegar todos os registros da escola se houver
+        registros = Monitoramento.query.filter_by(fk_escola=escola.id).all() 
+        
+        if registros:
+            # Pegar a última data registrada
+            registro_recente = max(r.datahora for r in registros).date()
+            
+            # Pegar a data atual
+            hoje = datetime.now().date()
+
+            # diferença de dias
+            intervalo = (hoje - registro_recente).days
+            
+            if intervalo > 10:
+                # info_escola = Escolas.query.filter_by(id=fk_escola).first()
+                
+                retorno =  {
+                        'titulo': 'A Escola {} está a {} dias sem monitoramento'.format(escola.nome, intervalo),
+                        'icone': 2,
+                        'cor': "#F27B37"
+                        }
+                
+                avisos.append(retorno)
+
+  
+
         #RETORNO  
         data.append({
             "nome": escola.nome,
@@ -813,7 +894,8 @@ def home_monig():
             "consumo_agua": consumo[1] if consumo else 0,
             "valor_conta_agua": round(consumo[2], 2) if consumo else 0,
             'ano_mes_ultimo_consumo': consumo[0] if consumo else None,
-            'consumo_ultimos_12_meses': consumoRetorno
+            'consumo_ultimos_12_meses': consumoRetorno,
+            'avisos': avisos
         }) 
         
-    return jsonify(data, {'avisos':alertas})
+    return jsonify(data)
