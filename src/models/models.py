@@ -57,7 +57,7 @@ class Escolas(db.Model):
     __tablename__ = 'escolas'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    # geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
+    geom = db.Column(Geometry(geometry_type='POINT', srid="4674"))
     nome = db.Column(db.String, unique=True)  # 255
     cnpj = db.Column(db.String)  # 18
     email = db.Column(db.String)  # 55
@@ -120,13 +120,13 @@ class Escolas(db.Model):
             "consumo":consumo[0][1] if consumo else "0"
         }
 
-        # if self.geom is not None:
-        #     point = to_shape(self.geom)
-        #     retorno["lat"] = point.y
-        #     retorno["lon"] = point.x
-        # else:
-        #     retorno["lat"] = None
-        #     retorno["lon"] = None
+        if self.geom is not None:
+            point = to_shape(self.geom)
+            retorno["lat"] = point.y
+            retorno["lon"] = point.x
+        else:
+            retorno["lat"] = None
+            retorno["lon"] = None
 
         return retorno
 
