@@ -156,7 +156,7 @@ def leitura():
             "status": False
         }), 400
 
-
+#retorna todas as leituras
 @swag_from('../docs/get/monitoramento/leitura_tabela.yaml')
 @monitoramento.get("/leituras-tabela/<int:id>")
 def leituras_tabela(id):
@@ -165,8 +165,8 @@ def leituras_tabela(id):
         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
 
     tabela = []
-    print(f"Todas as leituras {escolamonitoramento}")
-    print("-----------------------------------------")
+    # print(f"Todas as leituras {escolamonitoramento}")
+    # print("-----------------------------------------")
 
     if len(escolamonitoramento) > 1:
         for i in range(0, len(escolamonitoramento)):
@@ -176,11 +176,15 @@ def leituras_tabela(id):
             if indexanterior <= range_list:
                 diferenca = escolamonitoramento[i].leitura - \
                     escolamonitoramento[indexanterior].leitura
-                print(diferenca)
+            #escolamonitoramento[i]['leitura'] = "{:.3f}".format(float(escolamonitoramento[i]['leitura']))
 
             tabela.append(
                 {
-                    "id": escolamonitoramento[i].id, "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), "leitura": escolamonitoramento[i].leitura, "diferenca": diferenca
+                    "id": escolamonitoramento[i].id, 
+                    "data": escolamonitoramento[i].datahora.strftime('%d/%m/%Y'), 
+                    "hora": escolamonitoramento[i].datahora.strftime('%H:%M'), 
+                    "leitura": f"{escolamonitoramento[i].leitura:,.3f}" if escolamonitoramento[i].leitura is not None else "N/A", #float(escolamonitoramento[i]['leitura']).format('.3f'), 
+                    "diferenca": f"{diferenca:,.3f}" if diferenca is not None else "N/A" 
                 }
             )
     return jsonify({
@@ -188,6 +192,8 @@ def leituras_tabela(id):
         "nome": escolamonitoramento[0].escola_monitorada.nome if len(escolamonitoramento) > 0 else ""
     })
 
+
+#retorna a ultima leitura cadastrada
 @swag_from('../docs/get/monitoramento/leitura_atual.yaml')
 @monitoramento.get("/leitura-atual/<int:id>")
 def leitura_atual(id):
@@ -210,16 +216,21 @@ def leitura_atual(id):
     jsonRetorno = {}
     jsonRetorno["nome"] = escola.nome
     jsonRetorno["hidrometro"] = hidrometro.hidrometro
-
+    print(jsonRetorno)
     # if escolamonitoramento:
     #     inteiro = str(int(escolamonitoramento.leitura)).zfill(7)
     #     racional = str(int(round(abs(escolamonitoramento.leitura % 1) * 1000)))
     # else:
     #     inteiro = ""
     #     racional = ""
+    print("Escola monitorada: ", escolamonitoramento)
+    if escolamonitoramento is not None:
+        jsonRetorno["leitura"] = escolamonitoramento.leitura
+    else:
+        jsonRetorno["leitura"] = "0"
 
-    jsonRetorno["leitura"] = escolamonitoramento.leitura
     #jsonRetorno["leitura2"] = racional.zfill(3)
+
 
     return jsonRetorno
 
@@ -267,7 +278,7 @@ def leitura_deletar(id):
 
     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
-
+#retorna 
 # @swag_from('')
 @monitoramento.get("/monitoramento-volumes/<int:id>")
 def leituras_volumes(id):
@@ -316,11 +327,11 @@ def leituras_volumes(id):
                 "id": id,
                 "Data": data.strftime('%d/%m/%Y'),
                 "Hora": data.strftime("%H:%M"),
-                "Leitura": letura,
+                "Leitura": f"{letura:,.3f}",
                 "DataAnterior": dataanterior.strftime('%d/%m/%Y'),
                 "HoraAnterior": dataanterior.strftime("%H:%M"),
-                "LeituraAnterior": f"{leituraanterior:,.2f}" if leituraanterior is not None and isinstance(leituraanterior, (int, float)) else None,
-                "Diferenca": f"{diferenca:,.2f}" if diferenca is not None and isinstance(diferenca, (int, float)) else None
+                "LeituraAnterior": f"{leituraanterior:,.3f}",
+                "Diferenca": f"{diferenca:,.3f}" if diferenca is not None and type(diferenca) in (int, float) else "N/A"
             }
 
             # print(dicionario)
@@ -354,7 +365,11 @@ def leituras_volumes(id):
 # RETORNA TODAS AS ESCOLAS
 @monitoramento.get('/escolas')
 def escolas():
-    #Returno da ultima leitura diurna e noturna    
+    
+
+    #Returno da ultima leitura diurna e noturna
+    
+
     escolas = Escolas.query.all()
     return jsonify({
         'return': [escola.to_json() for escola in escolas],
