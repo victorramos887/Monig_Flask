@@ -849,7 +849,7 @@ def home_monig():
                             if tolerancia < data_atual:
                                 
                                 retorno =  {
-                                    'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
+                                    'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(escola.nome, evento.nome),
                                     'icone': 1,
                                     'cor': "#00FF00"
                                 }

@@ -151,14 +151,14 @@ def avisos_escolas():
 
                                 #vencido
                                 if tolerancia < data_atual:
-                                 
-                                    data =  {
-                                        'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome, evento.id),
-                                        'icone': 1,
-                                        'cor': "#00FF00"
-                                    }
-                                    avisos.append(data)     
-                        
+                                    if evento.fk_escola is not None:
+                                        data =  {
+                                            'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(evento.escola.nome, evento.nome),
+                                            'icone': 1,
+                                            'cor': "#00FF00"
+                                        }
+                                        avisos.append(data)     
+                            
                         
                 #MONITORAMENTO
                 #percorre apenas escolas com registro - id das escolas
