@@ -38,6 +38,16 @@ def escolas_remover(id):
         if reservatorios:
             for reservatorio in reservatorios:
                 db.session.delete(reservatorio)
+                
+        consumo_ = ConsumoAgua.query.filter_by(fk_escola=id).all()
+        if consumo_:
+            for consumo in consumo_:
+                db.session.delete(consumo)
+                
+        monitoramentos = Monitoramento.query.filter_by(fk_escola=id).all()
+        if monitoramentos:
+            for monitoramento in monitoramentos:
+                db.session.delete(monitoramento)
 
         edificios =  Edificios.query.filter_by(fk_escola=id).all()
         if edificios:
@@ -66,7 +76,7 @@ def escolas_remover(id):
                         db.session.delete(populacao_)
 
         db.session.delete(edificio)
-
+        
         db.session.delete(escola)
         db.session.commit()
         return jsonify({"status": True, 'mensagem': 'Escola removida'}), HTTP_200_OK
