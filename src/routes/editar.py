@@ -770,8 +770,137 @@ def tipo_evento_editar(id):
 
 
 # EVENTOS
-@editar.put('/evento/<id>')
-def evento_editar(id):
+# @editar.put('/evento/<id>')
+# def evento_editar(id):
+#     evento = Eventos.query.filter_by(id=id).first()
+#     formulario = request.get_json()
+
+#     if not evento:
+#         return jsonify({'mensagem': 'evento não encontrado', "status": False}), 404
+
+#     try:
+
+#         fk_tipo = AuxTipoDeEventos.query.filter_by(
+#             nome_do_tipo_de_evento=formulario['tipo_de_evento']).first()
+
+#         if fk_tipo is None:
+#             return jsonify({'mensagem': 'Tipo de evento não encontrado!!!', "status": False}), 404
+
+#         if fk_tipo.recorrente:
+
+#             fk_tipo = fk_tipo.id
+#             nome = formulario['nome_do_evento']
+#             datainicio = formulario['data_inicio']
+#             datafim = formulario["data_fim"]
+          
+
+#             tipodelocal = AuxDeLocais.query.filter_by(
+#                 nome_da_tabela=formulario['tipo_de_local']).first()
+
+#             if tipodelocal is None:
+#                 return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+
+#             local = obter_local(
+#                 formulario['tipo_de_local'], formulario['local'])
+
+#             if local is None:
+#                 return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+
+#             tipo_de_local = tipodelocal.id
+#             observacao = formulario["observacoes"]
+
+#             evento.update(
+#                 fk_tipo=fk_tipo,
+#                 nome=nome,
+#                 datainicio=datainicio,
+#                 datafim=datafim,
+#                 local=local.id,
+#                 tipo_de_local=tipo_de_local,
+#                 observacao=observacao
+#             )
+
+#             db.session.commit()
+
+#         else:
+
+#             fk_tipo = fk_tipo.id
+#             nome = formulario['nome_do_evento']
+#             datainicio = formulario['data']
+#             encerramento = formulario.get('encerramento', False)
+#             data_encerramento = formulario.get("dataEncerramento", None)
+            
+#             tipodelocal = AuxDeLocais.query.filter_by(
+#                 nome_da_tabela=formulario['tipo_de_local']).first()
+
+#             if tipodelocal is None:
+#                 return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+
+#             local = obter_local(
+#                 formulario['tipo_de_local'], formulario['local'])
+
+#             print(local)
+
+#             if local is None:
+#                 return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+
+#             tipo_de_local = tipodelocal.id
+#             observacao = formulario["observacoes"]
+#             datafim = formulario.get("dataEncerramento", None)
+           
+            
+#             evento.update(
+#                 fk_tipo=fk_tipo,
+#                 nome=nome,
+#                 datainicio=datainicio,
+#                 datafim=datafim,
+#                 local=local.id,
+#                 tipo_de_local=tipo_de_local,
+#                 encerramento = encerramento,
+#                 data_encerramento = data_encerramento,
+#                 observacao=observacao
+#             )
+#             db.session.commit()
+
+#         return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
+#     except exc.DBAPIError as e:
+#         print("Erro no banco de dados", e)
+#         if e.orig.pgcode == '23503':
+#             match = re.search(
+#                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
+#             tabela = match.group(1) if match else 'tabela desconhecida'
+#             coluna = match.group(2) if match else 'coluna desconhecida'
+#             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
+#             return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
+
+#         if e.orig.pgcode == '23505':
+#             # UNIQUE VIOLATION
+#             match = re.search(r'Key \((.*?)\)=', str(e))
+#             campo = match.group(1) if match else 'campo desconhecido'
+#             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
+#             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
+
+#         if e.orig.pgcode == '01004':
+#             # STRING DATA RIGHT TRUNCATION
+#             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
+
+#         return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
+
+#     except Exception as e:
+#         print("Erro genérico - ", e)
+#         if isinstance(e, HTTPException) and e.code == 500:
+#             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
+
+#         if isinstance(e, HTTPException) and e.code == 400:
+#             # flash("Erro, 4 não salva")
+#             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
+
+#         print(e)
+#         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
+
+
+# EVENTO RECORRENTE
+@editar.put('/evento_recorrente/<id>')
+def evento_recorrente_editar(id):
     evento = Eventos.query.filter_by(id=id).first()
     formulario = request.get_json()
 
@@ -786,80 +915,39 @@ def evento_editar(id):
         if fk_tipo is None:
             return jsonify({'mensagem': 'Tipo de evento não encontrado!!!', "status": False}), 404
 
-        if fk_tipo.recorrente:
+        fk_tipo = fk_tipo.id
+        nome = formulario['nome_do_evento']
+        datainicio = formulario['data_inicio']
+        datafim = formulario["data_fim"]
+        
 
-            fk_tipo = fk_tipo.id
-            nome = formulario['nome_do_evento']
-            datainicio = formulario['data_inicio']
-            datafim = formulario["data_fim"]
-          
+        tipodelocal = AuxDeLocais.query.filter_by(
+            nome_da_tabela=formulario['tipo_de_local']).first()
 
-            tipodelocal = AuxDeLocais.query.filter_by(
-                nome_da_tabela=formulario['tipo_de_local']).first()
+        if tipodelocal is None:
+            return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
 
-            if tipodelocal is None:
-                return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+        local = obter_local(
+            formulario['tipo_de_local'], formulario['local'])
 
-            local = obter_local(
-                formulario['tipo_de_local'], formulario['local'])
+        if local is None:
+            return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
 
-            if local is None:
-                return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+        tipo_de_local = tipodelocal.id
+        observacao = formulario["observacoes"]
 
-            tipo_de_local = tipodelocal.id
-            observacao = formulario["observacoes"]
+        evento.update(
+            fk_tipo=fk_tipo,
+            nome=nome,
+            datainicio=datainicio,
+            datafim=datafim,
+            local=local.id,
+            tipo_de_local=tipo_de_local,
+            observacao=observacao
+        )
 
-            evento.update(
-                fk_tipo=fk_tipo,
-                nome=nome,
-                datainicio=datainicio,
-                datafim=datafim,
-                local=local.id,
-                tipo_de_local=tipo_de_local,
-                observacao=observacao
-            )
+        db.session.commit()
 
-            db.session.commit()
-
-        else:
-
-            fk_tipo = fk_tipo.id
-            nome = formulario['nome_do_evento']
-            datainicio = formulario['data']
-            encerramento = formulario.get('encerramento', False)
-            data_encerramento = formulario.get("dataEncerramento", None)
-            
-            tipodelocal = AuxDeLocais.query.filter_by(
-                nome_da_tabela=formulario['tipo_de_local']).first()
-
-            if tipodelocal is None:
-                return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
-
-            local = obter_local(
-                formulario['tipo_de_local'], formulario['local'])
-
-            print(local)
-
-            if local is None:
-                return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
-
-            tipo_de_local = tipodelocal.id
-            observacao = formulario["observacoes"]
-            datafim = formulario.get("dataEncerramento", None)
-           
-            
-            evento.update(
-                fk_tipo=fk_tipo,
-                nome=nome,
-                datainicio=datainicio,
-                datafim=datafim,
-                local=local.id,
-                tipo_de_local=tipo_de_local,
-                encerramento = encerramento,
-                data_encerramento = data_encerramento,
-                observacao=observacao
-            )
-            db.session.commit()
 
         return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
@@ -899,44 +987,61 @@ def evento_editar(id):
 
 
 
+@editar.put('/evento_ocasional/<id>')
+def evento_editar(id):
+    evento = Eventos.query.filter_by(id=id).first()
+    formulario = request.get_json()
 
+    if not evento:
+        return jsonify({'mensagem': 'evento não encontrado', "status": False}), 404
 
-# # MONITORAMENTO
-# @editar.put('/leitura/<id>')
-# def leitura_editar(id):
-#     monitoramento = Monitoramento.query.filter_by(id=id).first()
-#     formulario = request.get_json()
+    try:
 
-#     if not monitoramento:
-#         return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
+        fk_tipo = AuxTipoDeEventos.query.filter_by(
+            nome_do_tipo_de_evento=formulario['tipo_de_evento']).first()
 
-#     try:
+        if fk_tipo is None:
+            return jsonify({'mensagem': 'Tipo de evento não encontrado!!!', "status": False}), 404
 
-#         fk_escola = formulario["fk_escola"]
-#         hidrometro = formulario['hidrometro']
-#         leitura = f"{formulario['leitura']}{formulario['leitura2']}"
-#         datahora = f"{formulario['data']} {formulario['hora']}"
+       
+        fk_tipo = fk_tipo.id
+        nome = formulario['nome_do_evento']
+        datainicio = formulario['data']
+        encerramento = formulario.get('encerramento', False)
+        data_encerramento = formulario.get("dataEncerramento", None)
         
-#         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
-        
-#         if not fk_hidrometro:
-#             return jsonify({
-#                 "mensagem":"Não foi encontrado o hidrometro",
-#                 "status":False,
-#                 "codigo":e
-#             }), 400
-        
-#         monitoramento.update(
-#             fk_escola=fk_escola,
-#             hidrometro=fk_hidrometro.id,
-#             leitura=leitura,
-#             datahora=datahora
-#         )
-#         print(type(leitura))
-#         db.session.commit()
+        tipodelocal = AuxDeLocais.query.filter_by(
+            nome_da_tabela=formulario['tipo_de_local']).first()
 
-        return jsonify({"monitoramento": monitoramento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
+        if tipodelocal is None:
+            return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
+
+        local = obter_local(
+            formulario['tipo_de_local'], formulario['local'])
+
+        if local is None:
+            return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
+
+        tipo_de_local = tipodelocal.id
+        observacao = formulario["observacoes"]
+        datafim = formulario.get("dataEncerramento", None)
+        
+        evento.update(
+            fk_tipo=fk_tipo,
+            nome=nome,
+            datainicio=datainicio,
+            datafim=datafim,
+            local=local.id,
+            tipo_de_local=tipo_de_local,
+            encerramento = encerramento,
+            data_encerramento = data_encerramento,
+            observacao=observacao
+        )
+        db.session.commit()
+
+        return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
+        print("Erro no banco de dados", e)
         if e.orig.pgcode == '23503':
             match = re.search(
                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
@@ -959,6 +1064,7 @@ def evento_editar(id):
         return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
 
     except Exception as e:
+        print("Erro genérico - ", e)
         if isinstance(e, HTTPException) and e.code == 500:
             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -968,6 +1074,9 @@ def evento_editar(id):
 
         print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
+
+
+
 
 
 
