@@ -826,8 +826,8 @@ def evento_editar(id):
             fk_tipo = fk_tipo.id
             nome = formulario['nome_do_evento']
             datainicio = formulario['data']
-            encerramento = formulario['encerramento']
-            data_encerramento = formulario['dataEncerramento']
+            encerramento = formulario.get('encerramento', False)
+            data_encerramento = formulario.get("dataEncerramento", None)
             
             tipodelocal = AuxDeLocais.query.filter_by(
                 nome_da_tabela=formulario['tipo_de_local']).first()
@@ -846,6 +846,7 @@ def evento_editar(id):
             tipo_de_local = tipodelocal.id
             observacao = formulario["observacoes"]
             datafim = formulario.get("dataEncerramento", None)
+           
             
             evento.update(
                 fk_tipo=fk_tipo,
