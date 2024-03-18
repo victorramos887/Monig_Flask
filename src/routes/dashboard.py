@@ -706,200 +706,6 @@ def mapa_faixa_consumo():
     return jsonify({"data":lista, "status":"ok"}), 200
 
 
-# @dashboard.get('/home_monig')
-# def home_monig():
-    
-#     data = []
-    
-#     #FILTRAR  ESCOLAS
-#     escolas = Escolas.query.all()
-    
-#     for escola in escolas:
-#         #FILTRAR POPULACAO
-#         edificios_alias = aliased(Edificios)
-#         populacao = db.session.query(
-#             func.sum(Populacao.alunos).label('alunos')
-#         ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
-
-
-#         #FILTRAR NIVEL
-#         result_nivel = db.session.query(
-#             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
-#         .join(AuxOpNiveis, AuxOpNiveis.id == EscolaNiveis.nivel_ensino_id) \
-#         .filter(EscolaNiveis.escola_id == escola.id) \
-#         .all()
-
-#         nivelRetorno = [nivel for escola_id, nivel in result_nivel]
-	
- 
-#         #FILTRAR CONSUMO E VALOR ULTIMO MÊS
-#         consumo = db.session.query(
-#             func.concat(extract('year', ConsumoAgua.data), '-',
-#                         extract('month', ConsumoAgua.data)).label('ano_mes'),
-#             func.sum(ConsumoAgua.consumo).label('soma_consumo'),
-#             func.sum(ConsumoAgua.valor).label('soma_valor_ultimo_mes')
-#         ).group_by('ano_mes')\
-#          .order_by(desc('ano_mes'))\
-#          .filter(ConsumoAgua.fk_escola == escola.id).first()
-         
-         
-#         #FILTRAR CONSUMO DOS ULTIMOS 6 MESES
-#         # Pega a data e hora atual
-#         data_atual = datetime.now()
-
-#         # Subtrai 6 meses da data atual
-#         mes_ano_6_meses = data_atual - timedelta(days=30 * 5)
-        
-#         lista_intervalo = []
-#        #alimentar a lista com intervalo de datas
-#         while mes_ano_6_meses <= data_atual:
-#             lista_intervalo.append(mes_ano_6_meses.strftime("%Y-%m"))
-#             prox_mes = (mes_ano_6_meses.month % 12) + 1
-#             if prox_mes == 1:
-#                 mes_ano_6_meses = mes_ano_6_meses.replace(year=mes_ano_6_meses.year + 1, month=1)
-#             else:
-#                 mes_ano_6_meses = mes_ano_6_meses.replace(month=prox_mes)
-                
-#         # Adicione a maior data à lista
-#         lista_intervalo.append(data_atual.strftime("%Y-%m"))
-        
-#         #filtar os ultimos 6 meses de consumo da escola
-#         #retorna apenas os valores dos meses que tem no banco - ok
-#         consumo_seis_meses = db.session.query(
-#             func.sum(ConsumoAgua.consumo).label("consumo_"), 
-#             func.concat(extract('year', ConsumoAgua.data),'-', func.to_char(ConsumoAgua.data,'MM')).label('ano_mes_')\
-#         ).where(
-#             ConsumoAgua.data.between(
-#                 func.date_trunc('month', func.current_date()) - func.cast(concat(5, 'months'), INTERVAL),
-#                 func.current_date()
-#             )
-#         ).group_by(extract('year', ConsumoAgua.data), func.to_char(ConsumoAgua.data,'MM'))\
-#         .filter(ConsumoAgua.fk_escola == escola.id).all()
-             
-#         consumoRetorno = []
-                              
-#         for data_ in lista_intervalo:
-#             if any(data_ == i[1] for i in consumo_seis_meses):
-#                 consumo_ = next(i[0] for i in consumo_seis_meses if data_ == i[1])
-#             else:
-#                 consumo_ = 0
-
-#             consumoRetorno.append({"ano_mes": data_, "consumo_": consumo_})
-
-
-#         #LOCALIZAÇÃO 
-#         # point = to_shape(escola.geom)
-#         point = None
-#         if escola.geom:  # Verifique se geom não é NULL
-#             point = to_shape(escola.geom)
-#         else:
-#             # Defina um valor padrão (por exemplo, ponto vazio ou coordenadas)
-#             point = Point(-46.53309, -23.46788)  # Exemplo: define para a origem (0, 0)
-        
-        
-#         #ALERTAS 
-#         #EVENTOS VENCIDOS
-#         tipo_alias = aliased(AuxTipoDeEventos)
-        
-#         #filtrando eventos ocasionais
-#         #Alterando junção
-#         eventos_ocasional = (
-#                 db.session.query(Eventos).filter(Eventos.fk_escola == escola.id)
-#                 .join(tipo_alias, Eventos.fk_tipo == tipo_alias.id)
-#                 .filter(
-#                  or_(tipo_alias.recorrente == False, tipo_alias.recorrente == None)
-#                 )
-#                 .all()
-#         )
-#         print(eventos_ocasional)
-#         avisos = []
-        
-#         if eventos_ocasional:
-        
-#             # eventos sem data de encerramento
-#             eventos_sem_encerramento = [
-#                     evento for evento in eventos_ocasional if evento.data_encerramento is None]
-            
-#             for evento in eventos_sem_encerramento:
-
-#                     # buscar o tipo do evento na tabela auxiliar e pegar tolerancia e unidade desse tipo
-#                     tipo = AuxTipoDeEventos.query.filter_by(id=evento.fk_tipo).first()
-                    
-#                     #verificar se está dentro do prazo
-#                     if tipo and tipo.tempo is not None:
-#                             unidade = tipo.unidade.lower() #Reduzindo a unidade para minúsculo
-#                             tempo = tipo.tempo
-#                             # comparar a unidade e realizar o calculo
-#                             if unidade == "meses":
-#                                     tolerancia = evento.datainicio + relativedelta(months=tempo)
-
-#                             elif unidade == "semanas":
-#                                     tolerancia = evento.datainicio + relativedelta(weeks=tempo)
-
-#                             elif unidade == "dias": 
-#                                     tolerancia = evento.datainicio + relativedelta(days=tempo)
-#                             else:
-#                                     tolerancia = None
-
-#                             # igualar as datas
-#                             tolerancia = tolerancia.date() if tolerancia is not None else None
-#                             data_atual = date.today()
-
-#                             #vencido
-#                             if tolerancia < data_atual:
-                                
-#                                 retorno =  {
-#                                     'titulo': 'A Escola {} está com o evento {} acima do prazo de tolerância'.format(escola.nome, evento.nome),
-#                                     'icone': 1,
-#                                     'cor': "#00FF00"
-#                                 }
-#                                 avisos.append(retorno)     
-                
-                
-#         #MONITORAMENTO  
-#         #pegar todos os registros da escola se houver
-#         registros = Monitoramento.query.filter_by(fk_escola=escola.id).all() 
-        
-#         if registros:
-#             # Pegar a última data registrada
-#             registro_recente = max(r.datahora for r in registros).date()
-            
-#             # Pegar a data atual
-#             hoje = datetime.now().date()
-
-#             # diferença de dias
-#             intervalo = (hoje - registro_recente).days
-            
-#             if intervalo > 10:
-#                 # info_escola = Escolas.query.filter_by(id=fk_escola).first()
-                
-#                 retorno =  {
-#                         'titulo': 'A Escola {} está a {} dias sem monitoramento'.format(escola.nome, intervalo),
-#                         'icone': 2,
-#                         'cor': "#F27B37"
-#                         }
-                
-#                 avisos.append(retorno)
-
-  
-
-#         #RETORNO  
-#         data.append({
-#             "nome": escola.nome,
-#             "id": escola.id,
-#             "localizacao": {"lat": point.y, "lng": point.x},
-#             "nivel_ensino": nivelRetorno,
-#             "numero_alunos": populacao[0][0],
-#             "consumo_agua": consumo[1] if consumo else 0,
-#             "valor_conta_agua": round(consumo[2], 2) if consumo else 0,
-#             'ano_mes_ultimo_consumo': consumo[0] if consumo else None,
-#             'consumo_ultimos_12_meses': consumoRetorno,
-#             'avisos': avisos
-#         }) 
-        
-#     return jsonify(data)
-
-
 
 #HOME ESCOLAS
 @dashboard.get('/home_monig')
@@ -917,7 +723,10 @@ def home_monig():
             func.sum(Populacao.alunos).label('alunos')
         ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
 
-
+        #ENDERECO PRINCIPAL
+        edificio_principal = Edificios.query.filter(Edificios.fk_escola==escola.id, Edificios.principal==True).first()
+        print(edificio_principal.nome_do_edificio)
+        
         #FILTRAR NIVEL
         result_nivel = db.session.query(
             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
@@ -1081,6 +890,12 @@ def home_monig():
         data.append({
             "nome": escola.nome,
             "id": escola.id,
+            "endereco_principal": {
+                "logradouro": edificio_principal.logradouro_edificio,
+                "numero": edificio_principal.numero_edificio,
+                "bairro": edificio_principal.bairro_edificio,
+                "cidade": edificio_principal.cidade_edificio,
+                "cep": edificio_principal.cep_edificio},
             "localizacao": {"lat": point.y, "lng": point.x},
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
@@ -1108,7 +923,6 @@ def home_escola(id):
             "status": False,
             "mensagem": "Escola não encontrada."
         }), 404
-
 
     #FILTRAR POPULACAO
     edificios_alias = aliased(Edificios)
@@ -1274,7 +1088,8 @@ def home_escola(id):
                     }
             
             avisos.append(retorno)
-  
+    
+    
     #RETORNO  
     data.append({
         "nome": escola.nome,
