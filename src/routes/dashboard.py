@@ -887,8 +887,7 @@ def home_monig():
         data.append({
             "nome": escola.nome,
             "id": escola.id,
-            "latitude": point.y,
-            "longitude": point.x,
+            "localizacao": {"lat": point.y, "lon": point.x},
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
             "consumo_agua": consumo[1] if consumo else 0,
