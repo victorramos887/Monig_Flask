@@ -18,28 +18,19 @@ send_frontend = Blueprint('send_frontend', __name__,
 # @swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas_nath')
 def escolas_nath():
-    
-    # Construindo a consulta (opcional - incluir filtro por dias se necessário)
-    query = text("SELECT * FROM main.relatorio")
-    # Executando a consulta
+    query = text("SELECT * FROM main.vw_relatorio")
     resultado = db.session.execute(query).all()
-    # Convertendo resultado em lista de dicionários
-    # print(resultado[0])
     escolas = [{
-        "Escola":row[0],
-        "média":row[1],
+        "id":row[0],
+        "Escola":row[1],
+        "media":row[4],
         "minima":row[2],
         "maxima":row[3]
     } for row in resultado]
 
-
-    # print("Retorno:", escolas)
-
-    # Retornando a lista de escolas
     return jsonify({"retorno":escolas})
     
-    
-    
+
 @swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas')
 def escolas():

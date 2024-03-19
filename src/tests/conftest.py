@@ -81,6 +81,24 @@ def new_escolas():
     }
 
 @fixture
+def segunda_escola():
+    # criar novas escolas aleatórias
+    return {
+        'nome': fake.company(),
+        'cnpj': cnpj(),
+        'email': fake.email(),
+        'telefone': fake.phone_number(),
+        'bairro': fake.city_suffix(),
+        'cep': fake.postcode(),
+        'cidade': fake.city(),
+        'estado': fake.state_abbr(),
+        'complemento': fake.secondary_address(),
+        'logradouro': fake.street_name(),
+        'nivel': [niveis, niveis],
+        'numero': fake.random_int(min=1, max=1000)
+    }
+
+@fixture
 def update_escola():
 
     return {
@@ -182,7 +200,7 @@ def new_hidrometro():
 
     return {
         "fk_edificios":1,
-        "hidrometro":fake.name()
+        "hidrometro":fake.name().replace(" ", "")
     }
 
 @fixture

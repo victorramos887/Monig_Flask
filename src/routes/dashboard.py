@@ -27,7 +27,6 @@ def consumo_media():
      # Ordenar os resultados
     consulta = consulta.order_by('mes', 'ano')
     resultados = consulta.all()
-    print(resultados)
 
     return jsonify({
         "data": [
@@ -223,7 +222,6 @@ def consumo_pessoas_esc():
         func.concat(consumo_escola.c.mes,"-", consumo_escola.c.ano).label('mes_ano')
     ).join(consumo_escola, consumo_escola.c.fk_escola ==  populacao_escola.c.fk_escola).group_by('mes_ano').subquery()
    
-    print(juncao)
     
     resultados = db.session.query(
         juncao.c.consumo_total,

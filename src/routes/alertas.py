@@ -33,7 +33,6 @@ def get_evento_sem_encerramento():
         .all()
     )
 
-    print("Eventos: ", eventos_ocasional)
 
     # eventos sem data de encerramento
     eventos_sem_encerramento = [

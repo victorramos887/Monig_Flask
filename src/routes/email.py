@@ -29,7 +29,6 @@ def minha_funcao():
     msg = Message("API TRIGGER", sender = "v.ramos587@gmail.com", recipients=['v.ramos58@hotmail.com'])
     msg.body = "Olá, este email foi enviado automaticamente todos os dias as 11:0"
     mail.send(msg)
-    print("Evento acionado!")
 
 # # Agendando a função para ser executada todos os dias às 12:00
 # scheduler.add_job(minha_funcao, 'cron', hour=11, minute=53)

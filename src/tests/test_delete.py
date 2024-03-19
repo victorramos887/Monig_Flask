@@ -670,3 +670,155 @@ def test_deletar_reservatorio(app, new_escolas, new_reservatorio):
         )
         
         assert response_deletar_reservaotorio.status_code == 200
+
+
+def test_deletar_monitoramento(app, new_escolas, new_hidrometro):
+
+    with app.app_context():
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+
+
+        json_hidrometro = json.dumps(new_hidrometro)
+        
+        response_hidrometro = app.test_client().post(
+            'api/v1/cadastros/hidrometros',
+            data=json_hidrometro,
+            content_type='application/json'
+        )
+        
+        hidrometro = json.loads(response_hidrometro.get_data())
+
+        print(f"\033[32m{hidrometro['data']['hidrometro']}\033[0m")
+        print(f"Escola: \033[32m{escolas_dict['data']['nome']}\033[0m")
+
+        assert response_hidrometro.status_code == 200
+
+
+        json_monitoramento = json.dumps({
+                "hidrometro": hidrometro['data']['hidrometro'],
+                "leitura": "250000",
+                "nome": escolas_dict['data']['nome'],
+                "fk_escola":1,
+                "data":"11/02/2023",
+                "hora":"11:20"
+            })
+        response_monitoramento = app.test_client().post(
+            '/api/v1/monitoramento/cadastrarleitura',
+            data=json_monitoramento,
+            content_type='application/json'
+        )
+
+        monitoramento_dict = json.loads(response_monitoramento.get_data())
+
+        assert response_monitoramento.status_code == 200
+
+        response_monitoramento = app.test_client().delete(
+
+            f'api/v1/monitoramento/deletar-leitura/1'
+        )
+
+def test_deletar_monitoramento_duas_escolas(app, new_escolas, new_hidrometro, segunda_escola):
+    
+    with app.app_context():
+        json_escolas = json.dumps(new_escolas)
+        
+        response_escolas_insert = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert.get_data())
+        
+        assert response_escolas_insert.status_code == 200
+
+        #RECUPERAR EDIFICIO
+        response_send_edificio = app.test_client().get(
+            f'api/v1/send_frontend/edificio/1'
+        )
+        
+        assert response_send_edificio.status_code == 200
+
+        #Segunda Escola
+
+        json_escolas_2 = json.dumps(segunda_escola)
+        
+        response_escolas_insert_2 = app.test_client().post(
+            'api/v1/cadastros/escolas',
+            data=json_escolas_2,
+            content_type='application/json'
+        )
+        
+        escolas_dict = json.loads(response_escolas_insert_2.get_data())
+        
+        assert response_escolas_insert_2.status_code == 200
+
+        #RECUPERAR EDIFICIO
+        response_send_edificio_2 = app.test_client().get(
+            f'api/v1/send_frontend/edificio/2'
+        )
+        
+        assert response_send_edificio_2.status_code == 200
+
+
+    #     hidrometro = {
+    #     "fk_edificios":1,
+    #     "hidrometro":"HIDROMETRO1"
+    # }
+
+        json_hidrometro = json.dumps(new_hidrometro)
+        
+        response_hidrometro = app.test_client().post(
+            'api/v1/cadastros/hidrometros',
+            data=json_hidrometro,
+            content_type='application/json'
+        )
+        
+        hidrometro = json.loads(response_hidrometro.get_data())
+
+        print(f"\033[32m{hidrometro['data']['hidrometro']}\033[0m")
+        print(f"Escola: \033[32m{escolas_dict['data']['nome']}\033[0m")
+
+        assert response_hidrometro.status_code == 200
+
+
+        json_monitoramento_1 = json.dumps({
+                "hidrometro": hidrometro['data']['hidrometro'],
+                "leitura": "250000",
+                "nome": escolas_dict['data']['nome'],
+                "fk_escola":1,
+                "data":"11/02/2023",
+                "hora":"11:20"
+            })
+        response_monitoramento_1 = app.test_client().post(
+            '/api/v1/monitoramento/cadastrarleitura',
+            data=json_monitoramento_1,
+            content_type='application/json'
+        )
+
+        monitoramento_dict = json.loads(response_monitoramento_1.get_data())
+
+        assert response_monitoramento_1.status_code == 200
+
+       
+        response_monitoramento_1 = app.test_client().delete(
+
+            f'api/v1/monitoramento/deletar-leitura/1'
+        )

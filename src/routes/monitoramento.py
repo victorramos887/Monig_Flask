@@ -16,6 +16,7 @@ def leitura():
     try:
         formulario = request.get_json()
 
+
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulário!",
@@ -33,8 +34,6 @@ def leitura():
         edificios_alias = aliased(Edificios)
         leitura_float = float(leitura.replace('.', '').replace(',', '.'))
 
-        print("Leitura: ", leitura_float)
-
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
             fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
 
@@ -51,7 +50,7 @@ def leitura():
 
             escolamonitoramento_anterior = Monitoramento.query.filter(
                 and_(
-                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.fk_escola == fk_escola,
                     Monitoramento.datahora < datahora
                 )
             ).order_by(Monitoramento.datahora).first()
@@ -72,7 +71,7 @@ def leitura():
                         func.extract('day', Monitoramento.datahora) == func.extract(
                             'day', datahora),
                         Monitoramento.datahora < datahora,
-                        Monitoramento.fk_escola == escola_id.fk_escola,
+                        Monitoramento.fk_escola == fk_escola,
                     )
 
                 )
@@ -81,7 +80,7 @@ def leitura():
 
             escolamonitoramento_posterior = Monitoramento.query.filter(
                 and_(
-                    Monitoramento.fk_escola == escola_id.fk_escola,
+                    Monitoramento.fk_escola == fk_escola,
                     Monitoramento.datahora > datahora
                 )
             ).order_by(Monitoramento.datahora).first()
@@ -96,7 +95,7 @@ def leitura():
                 .filter(
                     and_(
                         Monitoramento.datahora > datahora,
-                        Monitoramento.fk_escola == escola_id.fk_escola,
+                        Monitoramento.fk_escola == fk_escola,
                     )
 
                 )
@@ -105,16 +104,14 @@ def leitura():
             )
 
             if escolamonitoramento_anterior:
-                # print("Leitura anterior datahora: ",
-                #       escolamonitoramento_anterior.datahora)
 
                 if escolamonitoramento_anterior[2] > leitura_float:
                     return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura": escolamonitoramento_anterior.leitura}), 400
 
             if escolamonitoramento_posterior:
 
-                print("Leitura posterio datahora: ",
-                      escolamonitoramento_posterior.datahora)
+                # print("Leitura posterio datahora: ",
+                #       escolamonitoramento_posterior.datahora)
 
                 if escolamonitoramento_posterior[2] < leitura_float:
                     return jsonify({"mensagem": "Não é possível inserir um valor maior do que o sucessor!!", "status": False, "Leitura": escolamonitoramento_posterior.leitura}), 400
@@ -123,29 +120,42 @@ def leitura():
             mes = extract('month', datahora)
             dia = extract('day', datahora)
 
+            #print(f"\033[32m{dia}/{mes}/{ano}\033[0m")
+
+            print(f"\033[32m{escola_id.fk_escola}\033[0m")
+
             # Consulta para verificar se a data é igual até o dia, mês e ano
             resultado = Monitoramento.query.filter(
                 (extract('day', Monitoramento.datahora) == datahora.day) &
                 (extract('month', Monitoramento.datahora) == datahora.month) &
                 (extract('year', Monitoramento.datahora) == datahora.year) &
-                (Monitoramento.fk_escola == escola_id.fk_escola)
+                (Monitoramento.fk_escola == fk_escola)
             ).all()
+
 
             if len(resultado) > 1:
                 return jsonify({"mensagem": f"Já foram adicionadas duas leituras no dia {datahora}", "status": False}), 400
 
-            if len(resultado) == 1 and resultado[0].datahora >= datahora:
-                return jsonify({"mensagem": "A segunda leitura deve ter um horário maior que a primeira", "status": False}), 400
+            # if escola_id != fk_escola:
+           
+            #     monitoramento = Monitoramento(
+            #     fk_escola=escola_id.fk_escola,
+            #     hidrometro=hidrometro_verificar.id,
+            #     leitura=leitura_float,
+            #     datahora=datahora
+            #     )
+            #     db.session.add(monitoramento)
+            #     db.session.commit()
 
-            monitoramento = Monitoramento(
-                fk_escola=escola_id.fk_escola,
-                hidrometro=hidrometro_verificar.id,
-                leitura=leitura_float,
-                datahora=datahora
-            )
+        monitoramento = Monitoramento(
+            fk_escola=fk_escola,
+            hidrometro=hidrometro_verificar.id,
+            leitura=leitura_float,
+            datahora=datahora
+        )
 
-            db.session.add(monitoramento)
-            db.session.commit()
+        db.session.add(monitoramento)
+        db.session.commit()
 
         return jsonify({"mensagem": "Cadastro realizado com sucesso!"}), 200
 
@@ -163,11 +173,10 @@ def leituras_tabela(id):
 
     escolamonitoramento = Monitoramento.query.filter_by(
         fk_escola=id).order_by(desc(Monitoramento.datahora)).all()
+    
+    print("Monitoramento: ", escolamonitoramento)
 
     tabela = []
-    # print(f"Todas as leituras {escolamonitoramento}")
-    # print("-----------------------------------------")
-
     if len(escolamonitoramento) > 1:
         for i in range(0, len(escolamonitoramento)):
             indexanterior = i + 1
@@ -176,7 +185,6 @@ def leituras_tabela(id):
             if indexanterior <= range_list:
                 diferenca = escolamonitoramento[i].leitura - \
                     escolamonitoramento[indexanterior].leitura
-            #escolamonitoramento[i]['leitura'] = "{:.3f}".format(float(escolamonitoramento[i]['leitura']))
 
             tabela.append(
                 {
@@ -238,43 +246,88 @@ def leitura_atual(id):
 @swag_from('../docs/editar/monitoramento/leitura.yaml')
 @monitoramento.patch("/edicao-monitoramento/<int:id>")
 def leitura_edicao(id):
-
     monitoramento = Monitoramento.query.filter_by(id=id).first()
-    if not monitoramento:
 
+    #outras leituras iguais
+    monitoramento_editar_outras = Monitoramento.query.filter(
+                (extract('day', Monitoramento.datahora) == monitoramento.datahora.day) &
+                (extract('month', Monitoramento.datahora) == monitoramento.datahora.month) &
+                (extract('year', Monitoramento.datahora) == monitoramento.datahora.year) &
+                (Monitoramento.fk_escola == monitoramento.fk_escola)
+            ).all()
+    
+    print("Monitoramento: ", monitoramento_editar_outras)
+
+    if not monitoramento:       
         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
 
     try:
         formulario = request.get_json()
     except Exception as e:
+        print(f"Não foi possível encontrar o formulário enviado \033[32m{e}\033[0m")
         return jsonify({"mensagem": "Não foi possível encontrar o formulário enviado", "status": False}), 400
-
+    
     try:
 
+
+            
         datahora = f"{formulario['dataEditar'].replace('/','-')} {formulario['horaEditar']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
+        
+        if len(monitoramento_editar_outras)>1:
+            for mon in monitoramento_editar_outras:
+                mon.leitura =  float(formulario['leituraEditar'].replace(',', '.'))
+                mon.datahora = datahora
 
-        monitoramento.leitura = formulario['leituraEditar']
+                db.session.commit()
+
+        monitoramento.leitura = float(formulario['leituraEditar'].replace(',', '.'))
         monitoramento.datahora = datahora
         db.session.commit()
 
         return jsonify({"mensagem": "Edição realizado com sucesso", "leitura": monitoramento.to_json()}), 200
 
     except Exception as e:
-        return jsonify({"mensagem": "Erro nas chaves do formulário enviado", "status": False}), 400
+        print(f"Erro nas chaves do formulário enviado \033[32m{e}\033[0m")
+        return jsonify({"mensagem": f"Erro nas chaves do formulário enviado \033[32m{e}\033[0m", "status": False}), 400
 
 
 @swag_from('../docs/remover/monitoramento/leitura.yaml')
 @monitoramento.delete("/deletar-leitura/<int:id>")
 def leitura_deletar(id):
-
+    edificios_alias = aliased(Edificios)
     monitoramento = Monitoramento.query.filter_by(id=id).first()
+    hidrometro = monitoramento.hidrometro
+    
+    escolas_com_mesmo_hidrometro = Hidrometros.query.join(
+            edificios_alias).filter(Hidrometros.id == hidrometro).all()
+    
+    # print("Hidrometro: ", escolas_com_mesmo_hidrometro[0])
+    # # Itera sobre cada objeto Hidrometros retornado e imprime todos os seus atributos
+    # for hidrometro_obj in escolas_com_mesmo_hidrometro:
+    #     atributos = vars(hidrometro_obj)
+    #     for atributo, valor in atributos.items():
+    #         print(atributo, ":", valor)
+        
+    #     # Adicione uma linha em branco entre cada objeto para melhor legibilidade
+    #     print()
 
     if not monitoramento:
         return jsonify({"mensagem": "Não foi encontrada a leitura", "status": False}), 400
+    
+    monitoramentos_excluir = Monitoramento.query.filter(
+                # (extract('day', Monitoramento.datahora) == monitoramento.datahora.day) &
+                # (extract('month', Monitoramento.datahora) == monitoramento.datahora.month) &
+                # (extract('year', Monitoramento.datahora) == monitoramento.datahora.year) &
+                (Monitoramento.datahora == monitoramento.datahora) &
+                (Monitoramento.hidrometro == escolas_com_mesmo_hidrometro[0].id)
+            ).all()
+    print("Hidrometros: ", monitoramentos_excluir)         
 
-    db.session.delete(monitoramento)
-    db.session.commit()
+
+    for mexcluir in monitoramentos_excluir:
+        db.session.delete(mexcluir)
+        db.session.commit()
 
     return jsonify({"mensagem": "Deleção realizado com sucesso"}), 200
 
