@@ -70,7 +70,8 @@ class Escolas(db.Model):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    def __init__(self, nome, cnpj, email, telefone):
+    def __init__(self, nome, cnpj, email, telefone, geom=None):
+        self.geom = geom
         self.nome = nome
         self.cnpj = cnpj
         self.email = email
