@@ -194,7 +194,7 @@ def escolas():
             cnpj=cnpj,
             email=email,
             telefone=telefone,
-            geom=ponto,
+            geom=ponto
         )
 
         db.session.add(escola)

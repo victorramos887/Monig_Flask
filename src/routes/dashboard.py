@@ -723,9 +723,19 @@ def home_monig():
             func.sum(Populacao.alunos).label('alunos')
         ).join(edificios_alias, Populacao.fk_edificios == edificios_alias.id).filter(edificios_alias.fk_escola == escola.id).all()
 
+        
+        endereco = None
         #ENDERECO PRINCIPAL
         edificio_principal = Edificios.query.filter(Edificios.fk_escola==escola.id, Edificios.principal==True).first()
-
+        if edificio_principal:
+            endereco = {
+                "logradouro": edificio_principal.logradouro_edificio,
+                "numero": edificio_principal.numero_edificio,
+                "bairro": edificio_principal.bairro_edificio,
+                "cidade": edificio_principal.cidade_edificio,
+                "estado": edificio_principal.estado_edificio,
+                "cep": edificio_principal.cep_edificio}
+            
         #FILTRAR NIVEL
         result_nivel = db.session.query(
             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
@@ -889,13 +899,7 @@ def home_monig():
         data.append({
             "nome": escola.nome,
             "id": escola.id,
-            "endereco_principal": {
-                "logradouro": edificio_principal.logradouro_edificio,
-                "numero": edificio_principal.numero_edificio,
-                "bairro": edificio_principal.bairro_edificio,
-                "cidade": edificio_principal.cidade_edificio,
-                "estado": edificio_principal.estado_edificio,
-                "cep": edificio_principal.cep_edificio},
+            "endereco_principal": endereco,
             "localizacao": {"lat": point.y, "lng": point.x},
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
