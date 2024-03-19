@@ -10,7 +10,7 @@ from ..models import (Escolas, Edificios, EscolaNiveis, EscolaNiveisVersion, db,
 import traceback
 from sqlalchemy.exc import ArgumentError
 from datetime import datetime
-import flask_praetorian
+# import flask_praetorian
 from flasgger import swag_from
 from ..utils.location import Localizacao
 
@@ -158,13 +158,16 @@ def escolas():
 
     try:
         formulario = request.get_json()
+        
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
             "status": False,
             "codigo": e
         }), 400
-
+        
+        
+        
     try:
         nome = formulario["nome"]
         cnpj = formulario["cnpj"]
@@ -178,14 +181,15 @@ def escolas():
         cidade = formulario["cidade"]
         estado = formulario["estado"]
         bairro = formulario["bairro"]
-
+         
         ponto = Localizacao(cep).location()
-        
+        print(ponto)
     except Exception as e:
-        return jsonify({
-            "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
-            "status": False
-        }), 400
+        # return jsonify({
+        #     "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
+        #     "status": False
+        # }), 400
+        return jsonify({"mensagem": str(e), "status": False}), 400
 
     try:
 

@@ -123,8 +123,8 @@ class Escolas(db.Model):
 
         if self.geom is not None:
             point = to_shape(self.geom)
-            retorno["lat"] = point.y
-            retorno["lon"] = point.x
+            retorno["lat"] = point.x
+            retorno["lon"] = point.y
         else:
             retorno["lat"] = None
             retorno["lon"] = None

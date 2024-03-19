@@ -10,7 +10,11 @@ class Localizacao():
         self.cep = cep
         self.endereco = brazilcep.get_address_from_cep(cep)
         self.geolocator = Nominatim(user_agent="monigGeo")
-        self.rua = f"{self.endereco['street'][0]}. {self.endereco['street'][3:]}"
+        if len(self.endereco['street']) >= 4:
+            self.rua = f"{self.endereco['street'][0]}. {self.endereco['street'][3:]}"
+        else:
+            self.rua = self.endereco['street'] 
+        # self.rua = f"{self.endereco['street'][0]}. {self.endereco['street'][3:]}"
         self.bairro = self.endereco['district']
         self.cidade = self.endereco['city']
 
@@ -26,3 +30,7 @@ class Localizacao():
         self.longitude = self.geolocator.geocode(f"{self.rua}, {self.bairro}-{self.cidade}").longitude
         #ponto = Point(self.latitude, self.longitude)
         return f"SRID=4674;POINT({self.latitude} {self.longitude})"
+
+# cep = "18260-000"
+# retorno = Localizacao(cep).location()
+# print(retorno)

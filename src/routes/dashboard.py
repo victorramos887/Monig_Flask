@@ -900,7 +900,7 @@ def home_monig():
             "nome": escola.nome,
             "id": escola.id,
             "endereco_principal": endereco,
-            "localizacao": {"lat": point.y, "lng": point.x},
+            "localizacao": {"lat": point.x, "lng": point.y},
             "nivel_ensino": nivelRetorno,
             "numero_alunos": populacao[0][0],
             "consumo_agua": consumo[1] if consumo else 0,
