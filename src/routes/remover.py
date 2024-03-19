@@ -1,6 +1,6 @@
 from flask import Blueprint, json, jsonify, request, render_template, flash, render_template_string
 from ..constants.http_status_codes import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_506_VARIANT_ALSO_NEGOTIATES, HTTP_409_CONFLICT, HTTP_401_UNAUTHORIZED
-from ..models import Escolas, EscolaNiveis, AuxTipoDeEventos, Monitoramento, ConsumoAgua, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
+from ..models import Escolas, Usuarios, EscolaNiveis, AuxTipoDeEventos, Monitoramento, ConsumoAgua, Eventos, Edificios, Reservatorios, db, AreaUmida, Equipamentos, Populacao, Hidrometros, ReservatorioEdificio, ReservatorioEdificiosVersion
 from sqlalchemy import exc, text, func
 import datetime
 from flasgger import swag_from
@@ -48,6 +48,11 @@ def escolas_remover(id):
         if monitoramentos:
             for monitoramento in monitoramentos:
                 db.session.delete(monitoramento)
+                
+        usuarios = Usuarios.query.filter_by(escola=id).all()
+        if usuarios:
+            for usuario in usuarios:
+                db.session.delete(usuario)
 
         edificios =  Edificios.query.filter_by(fk_escola=id).all()
         if edificios:
