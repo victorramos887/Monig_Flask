@@ -725,8 +725,7 @@ def home_monig():
 
         #ENDERECO PRINCIPAL
         edificio_principal = Edificios.query.filter(Edificios.fk_escola==escola.id, Edificios.principal==True).first()
-        print(edificio_principal.nome_do_edificio)
-        
+
         #FILTRAR NIVEL
         result_nivel = db.session.query(
             EscolaNiveis.escola_id, AuxOpNiveis.nivel) \
@@ -885,7 +884,7 @@ def home_monig():
                 
                 avisos.append(retorno)
 
-
+        
         #RETORNO  
         data.append({
             "nome": escola.nome,
@@ -895,6 +894,7 @@ def home_monig():
                 "numero": edificio_principal.numero_edificio,
                 "bairro": edificio_principal.bairro_edificio,
                 "cidade": edificio_principal.cidade_edificio,
+                "estado": edificio_principal.estado_edificio,
                 "cep": edificio_principal.cep_edificio},
             "localizacao": {"lat": point.y, "lng": point.x},
             "nivel_ensino": nivelRetorno,
@@ -907,6 +907,7 @@ def home_monig():
         }) 
         
     return jsonify(data)
+
 
 
 #HOME ESCOLA
