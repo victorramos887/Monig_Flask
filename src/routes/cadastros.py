@@ -12,6 +12,7 @@ from sqlalchemy.exc import ArgumentError
 from datetime import datetime
 import flask_praetorian
 from flasgger import swag_from
+from ..utils.location import Localizacao
 
 
 
@@ -178,6 +179,8 @@ def escolas():
         estado = formulario["estado"]
         bairro = formulario["bairro"]
 
+        ponto = Localizacao(cep).location()
+        
     except Exception as e:
         return jsonify({
             "mensagem": "Verifique os nomes das variaveis do json enviado!!!",
@@ -185,11 +188,13 @@ def escolas():
         }), 400
 
     try:
+
         escola = Escolas(
             nome=nome,
             cnpj=cnpj,
             email=email,
             telefone=telefone,
+            geom=ponto,
         )
 
         db.session.add(escola)
@@ -197,8 +202,7 @@ def escolas():
         # VERIFICAR NÍVEIS
         niveis_query = AuxOpNiveis.query.filter(
             AuxOpNiveis.nivel.in_(nivel)).all()
-        
-        
+
         if niveis_query:
             for nivel in niveis_query:
                 #Cadastras Níveis
