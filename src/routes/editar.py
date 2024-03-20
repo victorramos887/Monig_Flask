@@ -12,13 +12,25 @@ from flasgger import swag_from
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
 
-def obter_local(tipo_de_local, nome):
+# def obter_local(tipo_de_local, nome):
+#     consultas = {
+#         "Escola": Escolas.query.filter_by(nome=nome).first(),
+#         "Edificação": Edificios.query.filter_by(nome_do_edificio=nome).first(),
+#         "Área Úmida": AreaUmida.query.filter_by(nome_area_umida=nome).first(),
+#         "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
+#         "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
+#     }
+
+#     return consultas.get(tipo_de_local)
+
+def obter_local(tipo_de_local, id):
+    id = int(id)
     consultas = {
-        "Escola": Escolas.query.filter_by(nome=nome).first(),
-        "Edificação": Edificios.query.filter_by(nome_do_edificio=nome).first(),
-        "Área Úmida": AreaUmida.query.filter_by(nome_area_umida=nome).first(),
-        "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
-        "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
+        "Escola": Escolas.query.filter_by(id=id).first(),
+        "Edificação": Edificios.query.filter_by(id=id).first(),
+        "Área Úmida": AreaUmida.query.filter_by(id=id).first(),
+        "Reservatório": Reservatorios.query.filter_by(id=id).first(),
+        "Hidrômetro": Hidrometros.query.filter_by(id=id).first()
     }
 
     return consultas.get(tipo_de_local)
@@ -919,30 +931,52 @@ def evento_recorrente_editar(id):
         nome = formulario['nome_do_evento']
         datainicio = formulario['data_inicio']
         datafim = formulario["data_fim"]
-        
+        tipo_de_local = formulario["tipo_de_local"]
+        local = formulario["local"]
 
-        tipodelocal = AuxDeLocais.query.filter_by(
-            nome_da_tabela=formulario['tipo_de_local']).first()
+        tipodelocal = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
 
         if tipodelocal is None:
             return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
-
-        local = obter_local(
-            formulario['tipo_de_local'], formulario['local'])
+            
+        local = obter_local(tipodelocal.nome_da_tabela, local)
 
         if local is None:
             return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
 
-        tipo_de_local = tipodelocal.id
         observacao = formulario["observacoes"]
 
+        if tipodelocal.nome_da_tabela == "Escola":
+            fk_escola = local.id
+        
+        elif tipodelocal.nome_da_tabela == "Edificação":
+            edificio_ = Edificios.query.filter_by(id=local.id).first()
+            fk_escola = edificio_.fk_escola
+        
+        elif tipodelocal.nome_da_tabela == "Área Úmida":
+            areaumida_ = AreaUmida.query.filter_by(id=local.id).first()
+            fk_edificio = areaumida_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola
+
+        elif tipodelocal.nome_da_tabela == "Reservatório":
+            reservatorio_ = Reservatorios.query.filter_by(id=local.id).first()
+            fk_escola = reservatorio_.fk_escola
+        
+        else:
+            hidrometro_ = Hidrometros.query.filter_by(id=local.id).first()
+            fk_edificio = hidrometro_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola 
+            
         evento.update(
             fk_tipo=fk_tipo,
+            fk_escola = fk_escola,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
             local=local.id,
-            tipo_de_local=tipo_de_local,
+            tipo_de_local=tipodelocal.id,
             observacao=observacao
         )
 
@@ -1009,25 +1043,48 @@ def evento_editar(id):
         datainicio = formulario['data']
         encerramento = formulario.get('encerramento', False)
         data_encerramento = formulario.get("dataEncerramento", None)
+        tipo_de_local = formulario["tipo_de_local"]
+        local = formulario["local"]
         
-        tipodelocal = AuxDeLocais.query.filter_by(
-            nome_da_tabela=formulario['tipo_de_local']).first()
+        tipodelocal = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
 
         if tipodelocal is None:
             return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
 
-        local = obter_local(
-            formulario['tipo_de_local'], formulario['local'])
+        local = obter_local(tipodelocal.nome_da_tabela, local)
 
         if local is None:
             return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
 
-        tipo_de_local = tipodelocal.id
         observacao = formulario["observacoes"]
         datafim = formulario.get("dataEncerramento", None)
         
+        if tipodelocal.nome_da_tabela == "Escola":
+            fk_escola = local.id
+        
+        elif tipodelocal.nome_da_tabela == "Edificação":
+            edificio_ = Edificios.query.filter_by(id=local.id).first()
+            fk_escola = edificio_.fk_escola
+        
+        elif tipodelocal.nome_da_tabela == "Área Úmida":
+            areaumida_ = AreaUmida.query.filter_by(id=local.id).first()
+            fk_edificio = areaumida_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola
+
+        elif tipodelocal.nome_da_tabela == "Reservatório":
+            reservatorio_ = Reservatorios.query.filter_by(id=local.id).first()
+            fk_escola = reservatorio_.fk_escola
+        
+        else:
+            hidrometro_ = Hidrometros.query.filter_by(id=local.id).first()
+            fk_edificio = hidrometro_.fk_edificio
+            edificio_ = Edificios.query.filter_by(id=fk_edificio).first()
+            fk_escola = edificio_.fk_escola 
+            
         evento.update(
             fk_tipo=fk_tipo,
+            fk_escola=fk_escola,
             nome=nome,
             datainicio=datainicio,
             datafim=datafim,
