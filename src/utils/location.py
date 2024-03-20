@@ -1,6 +1,8 @@
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderUnavailable
 import brazilcep
 from shapely.geometry import Point
+import time
 
 
 class Localizacao():
@@ -17,6 +19,8 @@ class Localizacao():
         # self.rua = f"{self.endereco['street'][0]}. {self.endereco['street'][3:]}"
         self.bairro = self.endereco['district']
         self.cidade = self.endereco['city']
+        print(self.geolocator.__dict__)
+       
 
     # def endereco(self):
     #     self.geolocator = Nominatim(user_agent="monigGeo")
@@ -24,13 +28,27 @@ class Localizacao():
     #     self.bairro = self.endereco['district']
     #     self.cidade = self.endereco['city']
 
+     
     def location(self):
-        self.localizacao = self.geolocator.geocode(f"{self.rua}, {self.bairro}-{self.cidade}")
-        self.latitude = self.geolocator.geocode(f"{self.rua}, {self.bairro}-{self.cidade}").latitude
-        self.longitude = self.geolocator.geocode(f"{self.rua}, {self.bairro}-{self.cidade}").longitude
-        #ponto = Point(self.latitude, self.longitude)
-        return f"SRID=4674;POINT({self.latitude} {self.longitude})"
+        point = Point(0, 0) 
+        try:
+            result = self.geolocator.geocode(f"{self.rua}, {self.bairro}-{self.cidade}")
 
+            if result:  
+                self.latitude = result.latitude
+                self.longitude = result.longitude
+                return f"SRID=4674;POINT({self.latitude} {self.longitude})"
+            else:
+                print(f"Localização não encontrada para {self.rua}, {self.bairro}-{self.cidade}")
+                return "SRID=4674;{}".format(point) # Valor default
+
+        except GeocoderUnavailable as e:
+            print(f"Erro de geocodificação: {e}")
+            
+            return "SRID=4674;{}".format(point)  # Valor default 
+            
+        
 # cep = "18260-000"
 # retorno = Localizacao(cep).location()
 # print(retorno)
+#python src/utils/location.py

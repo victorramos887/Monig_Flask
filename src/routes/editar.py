@@ -12,17 +12,6 @@ from flasgger import swag_from
 editar = Blueprint('editar', __name__, url_prefix='/api/v1/editar')
 
 
-# def obter_local(tipo_de_local, nome):
-#     consultas = {
-#         "Escola": Escolas.query.filter_by(nome=nome).first(),
-#         "Edificação": Edificios.query.filter_by(nome_do_edificio=nome).first(),
-#         "Área Úmida": AreaUmida.query.filter_by(nome_area_umida=nome).first(),
-#         "Reservatório": Reservatorios.query.filter_by(nome_do_reservatorio=nome).first(),
-#         "Hidrômetro": Hidrometros.query.filter_by(hidrometro=nome).first()
-#     }
-
-#     return consultas.get(tipo_de_local)
-
 def obter_local(tipo_de_local, id):
     id = int(id)
     consultas = {
@@ -36,8 +25,6 @@ def obter_local(tipo_de_local, id):
     return consultas.get(tipo_de_local)
 
 # EDITAR Cliente
-
-
 @editar.put('/cliente/<id>')
 def cliente_editar(id):
     cliente = Cliente.query.filter_by(id=id).first()
@@ -781,134 +768,6 @@ def tipo_evento_editar(id):
         return jsonify({'status': False, 'mensagem': 'Erro não tratado', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
 
-# EVENTOS
-# @editar.put('/evento/<id>')
-# def evento_editar(id):
-#     evento = Eventos.query.filter_by(id=id).first()
-#     formulario = request.get_json()
-
-#     if not evento:
-#         return jsonify({'mensagem': 'evento não encontrado', "status": False}), 404
-
-#     try:
-
-#         fk_tipo = AuxTipoDeEventos.query.filter_by(
-#             nome_do_tipo_de_evento=formulario['tipo_de_evento']).first()
-
-#         if fk_tipo is None:
-#             return jsonify({'mensagem': 'Tipo de evento não encontrado!!!', "status": False}), 404
-
-#         if fk_tipo.recorrente:
-
-#             fk_tipo = fk_tipo.id
-#             nome = formulario['nome_do_evento']
-#             datainicio = formulario['data_inicio']
-#             datafim = formulario["data_fim"]
-          
-
-#             tipodelocal = AuxDeLocais.query.filter_by(
-#                 nome_da_tabela=formulario['tipo_de_local']).first()
-
-#             if tipodelocal is None:
-#                 return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
-
-#             local = obter_local(
-#                 formulario['tipo_de_local'], formulario['local'])
-
-#             if local is None:
-#                 return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
-
-#             tipo_de_local = tipodelocal.id
-#             observacao = formulario["observacoes"]
-
-#             evento.update(
-#                 fk_tipo=fk_tipo,
-#                 nome=nome,
-#                 datainicio=datainicio,
-#                 datafim=datafim,
-#                 local=local.id,
-#                 tipo_de_local=tipo_de_local,
-#                 observacao=observacao
-#             )
-
-#             db.session.commit()
-
-#         else:
-
-#             fk_tipo = fk_tipo.id
-#             nome = formulario['nome_do_evento']
-#             datainicio = formulario['data']
-#             encerramento = formulario.get('encerramento', False)
-#             data_encerramento = formulario.get("dataEncerramento", None)
-            
-#             tipodelocal = AuxDeLocais.query.filter_by(
-#                 nome_da_tabela=formulario['tipo_de_local']).first()
-
-#             if tipodelocal is None:
-#                 return jsonify({'mensagem': 'Tipo de local não encontrado.', "status": False}), 404
-
-#             local = obter_local(
-#                 formulario['tipo_de_local'], formulario['local'])
-
-#             print(local)
-
-#             if local is None:
-#                 return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
-
-#             tipo_de_local = tipodelocal.id
-#             observacao = formulario["observacoes"]
-#             datafim = formulario.get("dataEncerramento", None)
-           
-            
-#             evento.update(
-#                 fk_tipo=fk_tipo,
-#                 nome=nome,
-#                 datainicio=datainicio,
-#                 datafim=datafim,
-#                 local=local.id,
-#                 tipo_de_local=tipo_de_local,
-#                 encerramento = encerramento,
-#                 data_encerramento = data_encerramento,
-#                 observacao=observacao
-#             )
-#             db.session.commit()
-
-#         return jsonify({"evento": evento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
-#     except exc.DBAPIError as e:
-#         print("Erro no banco de dados", e)
-#         if e.orig.pgcode == '23503':
-#             match = re.search(
-#                 r'ERROR:  insert or update on table "(.*?)" violates foreign key constraint "(.*?)".*', str(e))
-#             tabela = match.group(1) if match else 'tabela desconhecida'
-#             coluna = match.group(2) if match else 'coluna desconhecida'
-#             mensagem = f"A operação não pôde ser concluída devido a uma violação de chave estrangeira na tabela '{tabela}', coluna '{coluna}'. Por favor, verifique os valores informados e tente novamente."
-#             return jsonify({'codigo': str(e), 'status': False, 'mensagem': mensagem}), HTTP_409_CONFLICT
-
-#         if e.orig.pgcode == '23505':
-#             # UNIQUE VIOLATION
-#             match = re.search(r'Key \((.*?)\)=', str(e))
-#             campo = match.group(1) if match else 'campo desconhecido'
-#             mensagem = f"Já existe um registro com o valor informado no campo '{campo}'. Por favor, corrija o valor e tente novamente."
-#             return jsonify({'status': False, 'mensagem': mensagem, 'código': str(e)}), HTTP_401_UNAUTHORIZED
-
-#         if e.orig.pgcode == '01004':
-#             # STRING DATA RIGHT TRUNCATION
-#             return jsonify({'status': False, 'mensagem': "Erro no cabeçalho", 'codigo': f'{e}'}), HTTP_506_VARIANT_ALSO_NEGOTIATES
-
-#         return jsonify({'status': False, 'mensagem': "Erro não tratado 2", 'codigo': f'{e}'}), 400
-
-#     except Exception as e:
-#         print("Erro genérico - ", e)
-#         if isinstance(e, HTTPException) and e.code == 500:
-#             return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
-
-#         if isinstance(e, HTTPException) and e.code == 400:
-#             # flash("Erro, 4 não salva")
-#             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-
-#         print(e)
-#         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
-
 
 # EVENTO RECORRENTE
 @editar.put('/evento_recorrente/<id>')
@@ -1131,8 +990,6 @@ def evento_editar(id):
 
         print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
-
-
 
 
 

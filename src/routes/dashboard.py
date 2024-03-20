@@ -807,7 +807,7 @@ def home_monig():
             point = to_shape(escola.geom)
         else:
             # Defina um valor padrão (por exemplo, ponto vazio ou coordenadas)
-            point = Point(-46.53309, -23.46788)  # Exemplo: define para a origem (0, 0)
+            point = Point(0, 0)  # Exemplo: define para a origem (0, 0)
         
         
         #ALERTAS 
