@@ -32,7 +32,9 @@ def leitura():
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
         datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
         edificios_alias = aliased(Edificios)
-        leitura_float = float(leitura.replace('.', '').replace(',', '.'))
+        print(f"\033[31m{leitura}\033[0m")
+        leitura_float = float(leitura.replace(',', '.'))
+        print(f"\033[32m{leitura_float}\033[0m")
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
             fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
@@ -53,30 +55,30 @@ def leitura():
                     Monitoramento.fk_escola == fk_escola,
                     Monitoramento.datahora < datahora
                 )
-            ).order_by(Monitoramento.datahora).first()
+            ).order_by(desc(Monitoramento.datahora)).first()
 
-            escolamonitoramento_anterior = (
+            # escolamonitoramento_anterior = (
 
-                db.session.query(
-                    Monitoramento.id,
-                    Monitoramento.datahora,
-                    Monitoramento.leitura
-                )
-                .filter(
-                    and_(
-                        func.extract('year', Monitoramento.datahora) == func.extract(
-                            'year', datahora),
-                        func.extract('month', Monitoramento.datahora) == func.extract(
-                            'month', datahora),
-                        func.extract('day', Monitoramento.datahora) == func.extract(
-                            'day', datahora),
-                        Monitoramento.datahora < datahora,
-                        Monitoramento.fk_escola == fk_escola,
-                    )
+            #     db.session.query(
+            #         Monitoramento.id,
+            #         Monitoramento.datahora,
+            #         Monitoramento.leitura
+            #     )
+            #     .filter(
+            #         and_(
+            #             func.extract('year', Monitoramento.datahora) == func.extract(
+            #                 'year', datahora),
+            #             func.extract('month', Monitoramento.datahora) == func.extract(
+            #                 'month', datahora),
+            #             func.extract('day', Monitoramento.datahora) == func.extract(
+            #                 'day', datahora),
+            #             Monitoramento.datahora < datahora,
+            #             Monitoramento.fk_escola == fk_escola,
+            #         )
 
-                )
-                .first()
-            )
+            #     )
+            #     .first()
+            # )
 
             escolamonitoramento_posterior = Monitoramento.query.filter(
                 and_(
@@ -105,7 +107,7 @@ def leitura():
 
             if escolamonitoramento_anterior:
 
-                if escolamonitoramento_anterior[2] > leitura_float:
+                if escolamonitoramento_anterior.leitura > leitura_float:
                     return jsonify({"mensagem": "Não é possível inserir um valor menor do que o anterior!!", "status": False, "Leitura": escolamonitoramento_anterior.leitura}), 400
 
             if escolamonitoramento_posterior:
