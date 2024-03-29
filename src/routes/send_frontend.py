@@ -20,12 +20,13 @@ send_frontend = Blueprint('send_frontend', __name__,
 def escolas_nath():
     query = text("SELECT * FROM main.vw_relatorio")
     resultado = db.session.execute(query).all()
+    print(resultado)
     escolas = [{
         "id":row[0],
         "Escola":row[1],
-        "media":row[4],
-        "minima":row[2],
-        "maxima":row[3]
+        "media":row[2],
+        "minima":row[3],
+        "maxima":row[4]
     } for row in resultado]
 
     return jsonify({"retorno":escolas})
