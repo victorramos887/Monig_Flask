@@ -342,7 +342,6 @@ def edificios_editar(id):
                         transacao=2,
                         created_at=datetime.now()
                     )
-                    print("remover")
                     db.session.add(edificios_reservatorio_version)
 
         db.session.commit()
@@ -405,7 +404,6 @@ def edificio_principal(id):
 
     except Exception as e:
 
-        print(e)
         db.session.rollback()
         return jsonify({
             'mensagem': 'Erro não tratado',
@@ -471,7 +469,6 @@ def populacao_editar(id):
 
     try:
 
-        print(body)
         alunos = body['alunos']
         fk_edificios = body['fk_edificios']
         funcionarios = body['funcionarios']
@@ -479,7 +476,6 @@ def populacao_editar(id):
         periodo = AuxPopulacaoPeriodo.query.filter_by(
             periodo=body['periodo']).first()
 
-        print(periodo.id)
         populacao.update(
             alunos=alunos,
             fk_edificios=fk_edificios,
@@ -532,7 +528,6 @@ def area_umida_editar(id):
     umida = AreaUmida.query.filter_by(id=id).first()
     body = request.get_json()
 
-    # print(umida.to_json())
     if not umida or umida is None:
         return jsonify({'mensagem': 'Area Umida não encontrado', "status": False}), 404
 
@@ -675,7 +670,6 @@ def equipamento_editar(id):
 def tipo_evento_editar(id):
     tipo_evento = AuxTipoDeEventos.query.filter_by(id=id).first()
     formulario = request.get_json()
-    print(formulario)
     
     meses_dict = {
         "Janeiro": 1,
@@ -706,10 +700,7 @@ def tipo_evento_editar(id):
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
         recorrente = formulario.get("recorrente")
-
-        print(recorrente)
-        # periodicidade = periodicidade.get(formulario.get(
-        #     'periodicidade')) if formulario.get('periodicidade') is not None else False
+       
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
         mes = meses_dict.get(formulario.get('mesRecorrente')) if formulario.get(
@@ -838,7 +829,7 @@ def evento_editar(id):
             local = obter_local(
                 formulario['tipo_de_local'], formulario['local'])
 
-            print(local)
+
 
             if local is None:
                 return jsonify({'mensagem': 'Local não encontrado.', "status": False}), 404
@@ -891,46 +882,8 @@ def evento_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
 
-
-
-
-
-# # MONITORAMENTO
-# @editar.put('/leitura/<id>')
-# def leitura_editar(id):
-#     monitoramento = Monitoramento.query.filter_by(id=id).first()
-#     formulario = request.get_json()
-
-#     if not monitoramento:
-#         return jsonify({'mensagem': 'leitura não encontrado', "status": False}), 404
-
-#     try:
-
-#         fk_escola = formulario["fk_escola"]
-#         hidrometro = formulario['hidrometro']
-#         leitura = f"{formulario['leitura']}{formulario['leitura2']}"
-#         datahora = f"{formulario['data']} {formulario['hora']}"
-        
-#         fk_hidrometro = Hidrometros.query.filter_by(hidrometro=hidrometro).first()
-        
-#         if not fk_hidrometro:
-#             return jsonify({
-#                 "mensagem":"Não foi encontrado o hidrometro",
-#                 "status":False,
-#                 "codigo":e
-#             }), 400
-        
-#         monitoramento.update(
-#             fk_escola=fk_escola,
-#             hidrometro=fk_hidrometro.id,
-#             leitura=leitura,
-#             datahora=datahora
-#         )
-#         print(type(leitura))
-#         db.session.commit()
 
         return jsonify({"monitoramento": monitoramento.to_json(), "status": True, "mensagem": "Edição realizada com sucesso!!!"}), HTTP_200_OK
     except exc.DBAPIError as e:
@@ -963,7 +916,6 @@ def evento_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400
 
 
@@ -975,7 +927,6 @@ def consumo_editar(id):
     consumo_ = ConsumoAgua.query.filter_by(id=id).first()
     formulario = request.get_json()
     
-    print(formulario)
 
     if not consumo_:
         return jsonify({'mensagem': 'consumo não encontrado', "status": False}), 404
@@ -1032,5 +983,4 @@ def consumo_editar(id):
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
 
-        print(e)
         return jsonify({'status': False, 'mensagem': 'Erro não tratado 1', 'codigo': str(e)}), 400

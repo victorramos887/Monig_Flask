@@ -45,7 +45,6 @@ def cliente():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -121,7 +120,6 @@ def usuario():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -221,7 +219,6 @@ def escolas():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -287,7 +284,6 @@ def reservatorios():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -426,7 +422,6 @@ def edificios():
     except Exception as e:
         db.session.rollback()
         traceback.print_exc()  # Imprime o traceback completo no console
-        print("não entrou aqui")
         return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': str(e)}), HTTP_500_INTERNAL_SERVER_ERROR
     return jsonify({'status': False, 'mensagem': 'Erro interno do servidor', 'codigo': 'Falha'}), HTTP_500_INTERNAL_SERVER_ERROR
 
@@ -611,8 +606,6 @@ def area_umida():
         operacao = AuxOperacaoAreaUmida.query.filter_by(
             operacao=operacao_area_umida).first()
 
-        print(tipos, ' -- tipos')
-
         umida = AreaUmida(
             fk_edificios=fk_edificios,
             tipo_area_umida=tipos.id,
@@ -739,7 +732,6 @@ def equipamentos():
         if isinstance(e, HTTPException) and e.code == 400:
             # flash("Erro, 4 não salva")
             return jsonify({'status': False, 'mensagem': 'Erro na requisição', 'codigo': str(e)}), HTTP_400_BAD_REQUEST
-        print(e)
         return jsonify({
             'status': False,
             'mensagem': 'Erro não tratado.', 'codigo': str(e)
@@ -753,7 +745,6 @@ def consumos():
     
     try:
         formulario = request.get_json()
-        print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -788,7 +779,6 @@ def consumos():
             dataFimPeriodo = dataFimPeriodo,
             valor = valor
         )
-        print(consumo)
         db.session.add(consumo)
         db.session.commit()
         
@@ -825,7 +815,6 @@ def consumos():
         if isinstance(e, HTTPException) and e.code == 400:
             #flash("Erro, 4 não salva")
             return jsonify({'status':False, 'mensagem': 'Erro na requisição', 'codigo':str(e)}), HTTP_400_BAD_REQUEST
-        print(e)
         return jsonify({
             'status': False,
             'mensagem':'Erro não tratado.', 'codigo': str(e)

@@ -49,7 +49,6 @@ def eventos_cadastro_unitario():
             datafim = formulario.get("data_fim", None)
             
         else:
-            print("alguma coisa")
             datainicio = formulario.get("data",None)
             datafim = formulario.get("data",None)
             
@@ -59,7 +58,6 @@ def eventos_cadastro_unitario():
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(nome_da_tabela=tipo_de_local).first()
         
-        print(tipo_de_local_fk)
         
         if not tipo_de_local_fk:
             return jsonify({
@@ -106,7 +104,6 @@ def eventos_cadastro_unitario():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:

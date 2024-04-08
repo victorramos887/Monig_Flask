@@ -91,7 +91,6 @@ def tipoeventoocasional():
             color=f"#{color}"
         )
    
-        print(tipoevento)
 
         db.session.add(tipoevento)
         db.session.commit()
@@ -128,14 +127,12 @@ def tipoeventorecorrente():
     try:
         formulario = request.get_json()
 
-        print(formulario)
 
         fk_cliente = formulario.get("fk_cliente")
         nome_do_tipo_de_evento = formulario.get("nome_do_evento")
         periodicidade = formulario.get('periodicidade') if formulario.get(
             'periodicidade') is not None else False
 
-        print(periodicidade)
 
         dia = formulario.get("dataRecorrente") if formulario.get(
             'dataRecorrente') and formulario.get("dataRecorrente") != "" else None
@@ -175,7 +172,6 @@ def tipoeventorecorrente():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -210,7 +206,6 @@ def eventos_cadastro_unitario():
 
     try:
         formulario = request.get_json()
-        # print(formulario)
     except Exception as e:
         return jsonify({
             "mensagem": "Não foi possível recuperar o formulario!",
@@ -254,7 +249,6 @@ def eventos_cadastro_unitario():
         encerramento = formulario.get("encerramento", False)
         data_encerramento = formulario.get("dataEncerramento", None)
         
-        # print(tipodeevento.recorrente)
         if tipodeevento.recorrente:
             datainicio = formulario.get("data_inicio", None)
             datafim = formulario.get("data_fim", None)
@@ -265,7 +259,6 @@ def eventos_cadastro_unitario():
         
         tipo_de_local_fk = AuxDeLocais.query.filter_by(id=tipo_de_local).first()
         
-        # print(tipo_de_local_fk.nome_da_tabela)
 
         if not tipo_de_local_fk:
             return jsonify({
@@ -292,10 +285,8 @@ def eventos_cadastro_unitario():
             }), 400
 
         #Escola
-        # print(f"Tipo de local --- {tipo_de_local_fk.nome_da_tabela}")
         if tipo_de_local_fk.nome_da_tabela == "Escola":
             fk_escola = local_fk.id
-            # print(local_fk)
         
         elif tipo_de_local_fk.nome_da_tabela == "Edificação":
             edificio_ = Edificios.query.filter_by(id=local_fk.id).first()
@@ -343,7 +334,6 @@ def eventos_cadastro_unitario():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:
@@ -385,7 +375,6 @@ def eventos_cadastro_coletivo():
     try:
         try:
             tipo_de_evento = formulario.get("tipo_de_evento", None)
-            print(tipo_de_evento)
 
             if not tipo_de_evento:
                 return jsonify({
@@ -462,7 +451,6 @@ def eventos_cadastro_coletivo():
         error_message = str(e)
         error_data = {'error': error_message}
         json_error = json.dumps(error_data)
-        print(json_error)
         return json_error
 
     except exc.DBAPIError as e:

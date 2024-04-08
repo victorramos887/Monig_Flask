@@ -32,12 +32,10 @@ def geometriaUpdate():
 
         for row in dfGeometria.itertuples():
             # 'row' é um namedtuple com os valores da linha
-            # print(f"Índice: {row.Index}, Valores: {row}")
 
             # Verifica se 'geom' não está vazio (nulo)
             if row.geom and row.geom != "nan":
 
-                print(row.geom)
                 escola = Escolas.query.filter_by(nome=row.nome).first()
 
                 # # Construa o objeto WKTElement apenas se 'geom' não for vazio
@@ -73,7 +71,6 @@ def inserirGuarulhos():
             areaumida, header=0, sep=";", encoding='latin-1')
 
         for index, row in dfEscola.iterrows():
-            print(row['Unidade Escolar'].upper())
 
             nome = row['Unidade Escolar'].upper()
             endereco = str(row['Logradouro']).split(',')

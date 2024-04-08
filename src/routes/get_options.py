@@ -61,7 +61,6 @@ def tipo_equipamento(area_umida):
 
     opcoes_pers = AuxTipoDeAreaUmidaTipoDeEquipamento.query.filter_by(tipo_area_umida_id=tipoareaumida_id).all()
     opcoes_pre_definidos = [op.to_json()['tipo'] for op in opcoes_pers]
-    print(opcoes_pre_definidos)
     return jsonify({
         "tipoequipamentos": opcoes_pre_definidos
     })
