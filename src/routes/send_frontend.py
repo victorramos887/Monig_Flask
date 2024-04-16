@@ -18,14 +18,10 @@ send_frontend = Blueprint('send_frontend', __name__,
 # @swag_from('../docs/get/escolas.yaml')
 @send_frontend.get('/escolas_nath')
 def escolas_nath():
-<<<<<<< HEAD
     
     # Construindo a consulta (opcional - incluir filtro por dias se necessário)
     query = text("SELECT * FROM main.vw_relatorio")
     # Executando a consulta
-=======
-    query = text("SELECT * FROM main.vw_relatorio")
->>>>>>> 5948b7e5899018e7520f285b637347bc70a8d630
     resultado = db.session.execute(query).all()
     print(resultado)
     escolas = [{
