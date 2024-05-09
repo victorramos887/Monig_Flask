@@ -435,3 +435,79 @@ def escolas():
         'status': True,
         'mensagem': 'Escolas retornadas com sucesso'
     }), 200
+
+
+
+# RETORNA TODAS AS ESCOLAS
+@monitoramento.get('/relatorio_escolas')
+def relatorio_escolas():
+   
+    monitoramento = Monitoramento.query.all()
+    monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
+    hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
+    
+    data = []
+
+    #para cada hidrometro na tabela Monitoramento
+    for h in hidrometros_unicos:
+            #calcular consumo dos últimos 30 dias
+            consumo_30 = db.session.query(
+                func.min(Monitoramento.datahora).label('inicio_intervalo'),
+                func.max(Monitoramento.datahora).label('fim_intervalo'),
+                func.max(Monitoramento.leitura) - func.min(Monitoramento.leitura).label('consumo_30_dias')
+            ).where(
+                Monitoramento.datahora.between(
+                    func.date_trunc('days', func.current_date()) - func.cast(concat(30, 'days'), INTERVAL),
+                    func.current_date()
+                )
+            ).filter(Monitoramento.hidrometro == h).all()
+
+            #consumo do dia - 2 leitura do dia
+            
+            #consumo noturno - 2º leitura
+            consumo_noturno = text("""
+            WITH retorno AS (SELECT m.id,
+                        m.hidrometro,
+                        m.leitura,
+                        lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS leitura_lag,
+                            CASE
+                                WHEN date_part('hour'::text, m.datahora) <= 9::double precision AND (m.datahora - '16:00:00'::interval) <= lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) THEN
+                                NULLIF(m.leitura - lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora), 0::double precision)
+                                ELSE NULL::double precision
+                            END AS diferenca,
+                        m.datahora AS dataatual,
+                        lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS datalag,
+                        row_number() OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS row_num
+                    FROM main.monitoramento m
+                    WHERE m.hidrometro =:hid
+                    ORDER BY m.datahora DESC)
+            SELECT re.* FROM retorno re WHERE re.diferenca IS NOT NULL LIMIT 1;""").bindparams(hid=h)
+           
+            
+            consumo = db.session.execute(consumo_noturno)
+            print(consumo.fetchall())
+
+            #retorna populacao do edificio que contem esse hidrometro
+            alunos = db.session.query(
+                    Hidrometros.id,
+                    Hidrometros.hidrometro,
+                    Populacao.fk_edificios,
+                    func.sum(Populacao.alunos).label('total_alunos')
+                ).join(Hidrometros, Populacao.fk_edificios == Hidrometros.fk_edificios) \
+                .filter(Hidrometros.id == h)\
+                .group_by(Populacao.fk_edificios, Hidrometros.id).all()
+
+            data.append({
+                "consumo_30_dias":{
+                    "inicio_intervalo": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}',
+                    "periodo_analisado": f'{consumo_30[0][0]:%d/%m/%Y %H:%M} a {datetime.now().strftime('%d/%m/%Y %H:%M')}',
+                    "fim_intervalo": f'{consumo_30[0][1]:%d/%m/%Y %H:%M}',
+                    "consumo_m³":consumo_30[0][2],
+                    "consumo_por_aluno_lt": round(consumo_30[0][2]* (1000/alunos[0][3]/30)if alunos[0][3] else None , 2),
+                    "nome_hidrometro": alunos[0][1] if alunos[0][1] else None,
+                    "edificio":alunos[0][2] if alunos[0][2] else None,
+                    "total_alunos": alunos[0][3]
+                    }})
+            
+    return jsonify(data), 200
+   
