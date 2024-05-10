@@ -448,12 +448,12 @@ def escolas():
 @monitoramento.get('/relatorio_escolas')
 def relatorio_escolas():
    
-    # monitoramento = Monitoramento.query.all()
-    # monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
-    # hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
+    monitoramento = Monitoramento.query.all()
+    monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
+    hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
     
     data = []
-    hidrometros_unicos = [1,2,11]
+    # hidrometros_unicos = [1,2,11]
     #para cada hidrometro na tabela Monitoramento
     for h in hidrometros_unicos:
             #calcular consumo dos últimos 30 dias
@@ -477,7 +477,7 @@ def relatorio_escolas():
                     from(select *, 
                         RANK() OVER (ORDER BY DATE(datahora) DESC) AS rank_data
                         from main.monitoramento
-                        where hidrometro = 55
+                        where hidrometro = :hid
                 limit 3)as tb
                 group by rank_data 
                 having count(rank_data)>1 
@@ -486,7 +486,7 @@ def relatorio_escolas():
                   
             consumo_dia_ = db.session.execute(consumo_dia)
             resultado_consumo_dia = consumo_dia_.fetchall()
-            print("consumo", resultado_consumo_dia)
+            # print("consumo", resultado_consumo_dia)
 
             #consumo noturno - 2º leitura
             consumo_noturno = text("""
@@ -524,10 +524,10 @@ def relatorio_escolas():
             print(alunos)
 
             #consumo dia
-            consumo_ = round(consumo_30[0][2],2) if consumo_30[0][2] is not None else 0
+            consumo_ = round(resultado_consumo_dia[0][2],2) if len(resultado_consumo_dia) > 0 else 0
             consumo_lts = consumo_ * 1000
             total_alunos_ = alunos[0][3] if len(alunos) > 0 else None
-            consumo_alunos_ = (consumo_lts/ total_alunos_) if total_alunos_ is not None else None
+            consumo_alunos_ = round((consumo_lts/ total_alunos_), 2) if total_alunos_ is not None else None
 
             #consumo alunos mensal
             consumo = round(consumo_30[0][2],2) if consumo_30[0][2] is not None else 0
@@ -550,7 +550,7 @@ def relatorio_escolas():
                 "consumo_dia": {
                     "consumo_1_dia_m³": consumo_,
                     "consumo_1_dia_lt": consumo_alunos_,
-                    "data": f'{consumo_dia[0][0]:%d/%m/%Y}'  if consumo_dia[0][0] else None
+                    "data": f'{resultado_consumo_dia[0][0]:%d/%m/%Y}'if len(resultado_consumo_dia) > 0 else None
                 },
                 "consumo_noturno":{
                     "consumo_m3": round(resultado_consumo_not[0][4] if len(resultado_consumo_not) > 0 else 0, 2),
