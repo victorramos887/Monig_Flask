@@ -139,3 +139,17 @@ def test_edificios_update_principal(app, new_escolas, new_edificios):
         response_select_edificio_01 = json.loads(selecionarEdificio_01.get_data())
         assert selecionarEdificio_01.status_code == 200
         assert response_select_edificio_01['edificio']['principal'] == False
+
+
+def test_monitoramento_principal(app):
+    """Testando se a trocar de edificio principal é realizada."""
+  
+    with app.app_context():
+
+        insertNewEscola = app.test_client().get(
+            'api/v1/monitoramento/relatorio_escolas',
+            content_type='application/json'
+        )
+
+        assert insertNewEscola.status_code == 200
+

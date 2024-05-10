@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from random import randint
 from faker import Faker
 from flask import Response
@@ -6,6 +7,11 @@ import sys
 import os
 import json
 from datetime import date
+from sqlalchemy_utils import database_exists, create_database, drop_database
+from sqlalchemy import create_engine, text
+from sqlalchemy.schema import CreateSchema
+import psycopg2 as psg
+from flask_sqlalchemy import SQLAlchemy
 
 
 sys.path.insert(0, os.path.abspath(
@@ -18,39 +24,44 @@ class CustomJSONEncoder(json.JSONEncoder):
         if isinstance(o, date):
             return o.isoformat()
         return super().default(o)
-
+    
+def pytest_configure(config):
+    config.addinivalue_line("filterwarnings", "ignore::DeprecationWarning")
+    config.addinivalue_line(
+        "filterwarnings", "ignore::sqlalchemy.exc.SAWarning")
 @fixture
 def app():
     # Configura a aplicação para usar o banco de dados de teste
-
     from src import create_app
-    from src.models import add_opniveis
+    from src.models import add_opniveis, db
     app = create_app({
         'TESTING': True,
-        'SQLALCHEMY_DATA_BASE_URI': 'sqlite:///test.db'
+        'SQLALCHEMY_DATABASE_URI':"postgresql://postgres:adminmonig@monig.cvrntyeol4tz.us-east-2.rds.amazonaws.com/monig"
     })
 
-
     app.json_encoder = CustomJSONEncoder
-    
-    with app.app_context():
-        # Cria o banco de dados de testes e tabelas
-        from src.models import db
-        db.create_all()
-        add_opniveis()
-        yield app
-
-        # Limpando banco de dados de teste após cada execução do teste
-        db.session.remove()
-        db.drop_all()
-
+    try:
+        with app.app_context():
+            # Cria o banco de dados de testes e tabelas
+            if not database_exists(app.config['SQLALCHEMY_DATABASE_URI']):
+                create_database(app.config['SQLALCHEMY_DATABASE_URI'])
+                engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+                db.session.execute(text('CREATE SCHEMA IF NOT EXISTS main;'))
+                db.session.execute(text('CREATE EXTENSION postgis;'))
+                db.session.execute(text('CREATE EXTENSION postgis_topology;'))
+                db.session.commit()
+                db.create_all()
+                add_opniveis()
+            yield app
+            drop_database(app.config['SQLALCHEMY_DATABASE_URI'])
+    except Exception as e:
+        raise ValueError(f"{e}")
 @fixture
 def assert_response():
     def _assert_response(response: Response, status_code: int, content_type: str, content: bytes):
         assert response.status_code == status_code
         assert response.content_type == content_type
         assert content in response.data
-
     return _assert_response
 
 
