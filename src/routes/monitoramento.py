@@ -448,12 +448,12 @@ def escolas():
 @monitoramento.get('/relatorio_escolas')
 def relatorio_escolas():
    
-    monitoramento = Monitoramento.query.all()
-    monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
-    hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
+    # monitoramento = Monitoramento.query.all()
+    # monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
+    # hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
     
     data = []
-    # hidrometros_unicos = [1,2,11]
+    hidrometros_unicos = [11]
     #para cada hidrometro na tabela Monitoramento
     for h in hidrometros_unicos:
             #calcular consumo dos últimos 30 dias
@@ -516,12 +516,12 @@ def relatorio_escolas():
             alunos = db.session.query(
                     Hidrometros.id,
                     Hidrometros.hidrometro,
-                    Populacao.fk_edificios,
+                    Hidrometros.fk_edificios,
                     func.sum(Populacao.alunos).label('total_alunos')
-                ).join(Hidrometros, Populacao.fk_edificios == Hidrometros.fk_edificios) \
+                ).join(Populacao, Populacao.fk_edificios == Hidrometros.fk_edificios, isouter=True) \
                 .filter(Hidrometros.id == h)\
                 .group_by(Populacao.fk_edificios, Hidrometros.id).all()
-            print(alunos)
+            # print(alunos)
 
             #consumo dia
             consumo_ = round(resultado_consumo_dia[0][2],2) if len(resultado_consumo_dia) > 0 else 0
@@ -537,7 +537,7 @@ def relatorio_escolas():
             consumo_alunos_mensal = round(consumo_alunos/30, 2) if consumo_alunos is not None else None
            
             data.append({
-                "id_hidrometro": resultado_consumo_not[0][1] if len(resultado_consumo_not) > 0 else None,
+                "id_hidrometro": alunos[0][0] if len(alunos) > 0 else None,
                 "hidrometro": alunos[0][1] if len(alunos) > 0 else None,
                 "edificio_id":alunos[0][2] if len(alunos) > 0 else None,
                 "total_alunos": total_alunos,
