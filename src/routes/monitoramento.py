@@ -445,120 +445,119 @@ def escolas():
 
 
 # RETORNA TODAS AS ESCOLAS
-@monitoramento.get('/relatorio_escolas')
-def relatorio_escolas():
+@monitoramento.get('/relatorio_escolas/<int:h>')
+def relatorio_escolas(h):
+
+    #buscar na tabela - registro do hidrometro passado
+    monitoramento = Monitoramento.query.filter_by(hidrometro=h).all()
    
-    monitoramento = Monitoramento.query.all()
-    monitoramento_filtrado = [registro for registro in monitoramento if registro.hidrometro is not None]
-    hidrometros_unicos = list(set([registro.hidrometro for registro in monitoramento_filtrado]))
-    
+    if not monitoramento:
+        return jsonify('Hidrometro sem registro de consumo'), 400
+
     data = []
  
-    #para cada hidrometro na tabela Monitoramento
-    for h in hidrometros_unicos:
-            #calcular consumo dos últimos 30 dias
-            consumo_30 = db.session.query(
-                func.min(Monitoramento.datahora).label('inicio_intervalo'),
-                func.max(Monitoramento.datahora).label('fim_intervalo'),
-                func.max(Monitoramento.leitura) - func.min(Monitoramento.leitura).label('consumo_30_dias')
-            ).where(
-                Monitoramento.datahora.between(
-                    func.date_trunc('days', func.current_date()) - func.cast(concat(30, 'days'), INTERVAL),
-                    func.current_date()
-                )
-            ).filter(Monitoramento.hidrometro == h).all()
+    #calcular consumo dos últimos 30 dias
+    consumo_30 = db.session.query(
+        func.min(Monitoramento.datahora).label('inicio_intervalo'),
+        func.max(Monitoramento.datahora).label('fim_intervalo'),
+        func.max(Monitoramento.leitura) - func.min(Monitoramento.leitura).label('consumo_30_dias')
+    ).where(
+        Monitoramento.datahora.between(
+            func.date_trunc('days', func.current_date()) - func.cast(concat(30, 'days'), INTERVAL),
+            func.current_date()
+        )
+    ).filter(Monitoramento.hidrometro==h).all()
 
-            #consumo do dia - 2 leitura do dia
-            consumo_dia = text("""
-                select
-                    MAX(tb.datahora) AS maior_data,
-                    MIN(tb.datahora) AS menor_data,
-                    MAX(tb.leitura) - MIN(tb.leitura)AS consumo_dia
-                    from(select *, 
-                        RANK() OVER (ORDER BY DATE(datahora) DESC) AS rank_data
-                        from main.monitoramento
-                        where hidrometro = :hid
-                limit 3)as tb
-                group by rank_data 
-                having count(rank_data)>1 
-                limit 2;
-                """).bindparams(hid=h)
+    #consumo do dia - 2 leitura do dia
+    consumo_dia = text("""
+        select
+            MAX(tb.datahora) AS maior_data,
+            MIN(tb.datahora) AS menor_data,
+            MAX(tb.leitura) - MIN(tb.leitura)AS consumo_dia
+            from(select *, 
+                RANK() OVER (ORDER BY DATE(datahora) DESC) AS rank_data
+                from main.monitoramento
+                where hidrometro = :hid
+        limit 3)as tb
+        group by rank_data 
+        having count(rank_data)>1 
+        limit 2;
+        """).bindparams(hid=h)
                   
-            consumo_dia_ = db.session.execute(consumo_dia)
-            resultado_consumo_dia = consumo_dia_.fetchall()
+    consumo_dia_ = db.session.execute(consumo_dia)
+    resultado_consumo_dia = consumo_dia_.fetchall()
+    
+    #consumo noturno - 2º leitura
+    consumo_noturno = text("""
+            WITH retorno AS (SELECT m.id,
+                        m.hidrometro,
+                        m.leitura,
+                        lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS leitura_lag,
+                            CASE
+                                WHEN date_part('hour'::text, m.datahora) <= 9::double precision AND (m.datahora - '16:00:00'::interval) <= lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) THEN
+                                NULLIF(m.leitura - lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora), 0::double precision)
+                                ELSE NULL::double precision
+                            END AS diferenca,
+                        m.datahora AS dataatual,
+                        lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS datalag,
+                        row_number() OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS row_num
+                    FROM main.monitoramento m
+                    WHERE m.hidrometro =:hid
+                    ORDER BY m.datahora DESC)
+            SELECT re.* FROM retorno re WHERE re.diferenca IS NOT NULL LIMIT 1;""").bindparams(hid=h)
+        
             
-            #consumo noturno - 2º leitura
-            consumo_noturno = text("""
-                    WITH retorno AS (SELECT m.id,
-                                m.hidrometro,
-                                m.leitura,
-                                lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS leitura_lag,
-                                    CASE
-                                        WHEN date_part('hour'::text, m.datahora) <= 9::double precision AND (m.datahora - '16:00:00'::interval) <= lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) THEN
-                                        NULLIF(m.leitura - lag(m.leitura) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora), 0::double precision)
-                                        ELSE NULL::double precision
-                                    END AS diferenca,
-                                m.datahora AS dataatual,
-                                lag(m.datahora) OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS datalag,
-                                row_number() OVER (PARTITION BY m.hidrometro ORDER BY m.datahora) AS row_num
-                            FROM main.monitoramento m
-                            WHERE m.hidrometro =:hid
-                            ORDER BY m.datahora DESC)
-                    SELECT re.* FROM retorno re WHERE re.diferenca IS NOT NULL LIMIT 1;""").bindparams(hid=h)
-                
-                    
-            consumo_not = db.session.execute(consumo_noturno)
-            resultado_consumo_not = consumo_not.fetchall()
-            # print("consumo", resultado_consumo_not)
+    consumo_not = db.session.execute(consumo_noturno)
+    resultado_consumo_not = consumo_not.fetchall()
+  
+    #retorna populacao do edificio que contem esse hidrometro
+    alunos = db.session.query(
+            Hidrometros.id,
+            Hidrometros.hidrometro,
+            Hidrometros.fk_edificios,
+            func.sum(Populacao.alunos).label('total_alunos')
+        ).join(Populacao, Populacao.fk_edificios == Hidrometros.fk_edificios, isouter=True) \
+        .filter(Hidrometros.id == h)\
+        .group_by(Populacao.fk_edificios, Hidrometros.id).all()
 
-            #retorna populacao do edificio que contem esse hidrometro
-            alunos = db.session.query(
-                    Hidrometros.id,
-                    Hidrometros.hidrometro,
-                    Hidrometros.fk_edificios,
-                    func.sum(Populacao.alunos).label('total_alunos')
-                ).join(Populacao, Populacao.fk_edificios == Hidrometros.fk_edificios, isouter=True) \
-                .filter(Hidrometros.id == h)\
-                .group_by(Populacao.fk_edificios, Hidrometros.id).all()
+    edificio = Edificios.query.filter_by(id=alunos[0][2]).first()
+    escola_id = edificio.fk_escola if edificio.fk_escola is not None else None
 
-            edificio = Edificios.query.filter_by(id=alunos[0][2]).first()
-            escola_id = edificio.fk_escola if edificio.fk_escola is not None else None
+    #consumo dia
+    consumo_ = round(resultado_consumo_dia[0][2],2) if len(resultado_consumo_dia) > 0 else 0
+    consumo_lts = consumo_ * 1000
+    total_alunos_ = alunos[0][3] if len(alunos) > 0 else None
+    consumo_alunos_ = round((consumo_lts/ total_alunos_), 2) if total_alunos_ is not None else None
 
-            #consumo dia
-            consumo_ = round(resultado_consumo_dia[0][2],2) if len(resultado_consumo_dia) > 0 else 0
-            consumo_lts = consumo_ * 1000
-            total_alunos_ = alunos[0][3] if len(alunos) > 0 else None
-            consumo_alunos_ = round((consumo_lts/ total_alunos_), 2) if total_alunos_ is not None else None
+    #consumo alunos mensal
+    consumo = round(consumo_30[0][2],2) if consumo_30[0][2] is not None else 0
+    consumo_lts = consumo * 1000
+    total_alunos = alunos[0][3] if len(alunos) > 0 else None
+    consumo_alunos = (consumo_lts/ total_alunos) if total_alunos is not None else None
+    consumo_alunos_mensal = round(consumo_alunos/30, 2) if consumo_alunos is not None else None
 
-            #consumo alunos mensal
-            consumo = round(consumo_30[0][2],2) if consumo_30[0][2] is not None else 0
-            consumo_lts = consumo * 1000
-            total_alunos = alunos[0][3] if len(alunos) > 0 else None
-            consumo_alunos = (consumo_lts/ total_alunos) if total_alunos is not None else None
-            consumo_alunos_mensal = round(consumo_alunos/30, 2) if consumo_alunos is not None else None
-
-          
-            data.append({
-                "id_hidrometro": alunos[0][0] if len(alunos) > 0 else None,
-                "hidrometro": alunos[0][1] if len(alunos) > 0 else None,
-                "edificio_id":alunos[0][2] if len(alunos) > 0 else None,
-                "escola_id": escola_id,
-                "total_alunos": total_alunos,
-                "consumo_30_dias":{
-                    "data_inicio": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}' if consumo_30[0][0] else None,
-                    "data_fim": f'{consumo_30[0][1]:%d/%m/%Y %H:%M}' if consumo_30[0][1] else None,
-                    "consumo_m³": consumo,
-                    "consumo_por_aluno_lt": consumo_alunos_mensal
-                    },
-                "consumo_dia": {
-                    "consumo_1_dia_m³": consumo_,
-                    "consumo_1_dia_lt": consumo_alunos_,
-                    "data": f'{resultado_consumo_dia[0][0]:%d/%m/%Y}'if len(resultado_consumo_dia) > 0 else None
-                },
-                "consumo_noturno":{
-                    "consumo_m3": round(resultado_consumo_not[0][4] if len(resultado_consumo_not) > 0 else 0, 2),
-                    "ultimo_consumo": f'{resultado_consumo_not[0][6]:%d/%m/%Y %H:%M}' if len(resultado_consumo_not) > 0 else None
-                    }})
-            
+    
+    data.append({
+        "id_hidrometro": alunos[0][0] if len(alunos) > 0 else None,
+        "hidrometro": alunos[0][1] if len(alunos) > 0 else None,
+        "edificio_id":alunos[0][2] if len(alunos) > 0 else None,
+        "escola_id": escola_id,
+        "total_alunos": total_alunos,
+        "consumo_30_dias":{
+            "data_inicio": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}' if consumo_30[0][0] else None,
+            "data_fim": f'{consumo_30[0][1]:%d/%m/%Y %H:%M}' if consumo_30[0][1] else None,
+            "consumo_m³": consumo,
+            "consumo_por_aluno_lt": consumo_alunos_mensal
+            },
+        "consumo_dia": {
+            "consumo_1_dia_m³": consumo_,
+            "consumo_1_dia_lt": consumo_alunos_,
+            "data": f'{resultado_consumo_dia[0][0]:%d/%m/%Y}'if len(resultado_consumo_dia) > 0 else None
+        },
+        "consumo_noturno":{
+            "consumo_m3": round(resultado_consumo_not[0][4] if len(resultado_consumo_not) > 0 else 0, 2),
+            "ultimo_consumo": f'{resultado_consumo_not[0][6]:%d/%m/%Y %H:%M}' if len(resultado_consumo_not) > 0 else None
+            }})
+    
     return jsonify(data), 200
    
