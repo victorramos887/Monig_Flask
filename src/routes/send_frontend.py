@@ -325,6 +325,29 @@ def hidrometro(id):
         "hidrometro": [hidrometro.to_json() for hidrometro in hidrometros], "status": True
     })
 
+#lista hidrometro e escola
+@send_frontend.get('/hidrometros-escola')
+def lista_hidrometros_escola():
+   
+    EscolasAlias = aliased(Escolas)
+    EdificiosAlias = aliased(Edificios)
+    HidrometrosAlias = aliased(Hidrometros)
+
+    hidrometros_escolas = db.session.query(
+            HidrometrosAlias.id.label('id_hidrometro'),
+            EscolasAlias.nome.label('nome_escola')
+        ).join(EdificiosAlias, HidrometrosAlias.fk_edificios == EdificiosAlias.id) \
+        .join(EscolasAlias, EdificiosAlias.fk_escola == EscolasAlias.id) \
+        .all()
+
+    retorno = [{
+        "id_hidrometro": i[0],
+        "nome_escola": i[1]
+    } for i in hidrometros_escolas]
+
+    return jsonify(retorno), 200
+
+
 
 @swag_from('../docs/get/hidrometros_escola.yaml')
 @send_frontend.get("/hidrometros-escolas/<int:id>")
