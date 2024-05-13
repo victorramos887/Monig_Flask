@@ -460,13 +460,14 @@ def relatorio_escolas():
             consumo_30 = db.session.query(
                 func.min(Monitoramento.datahora).label('inicio_intervalo'),
                 func.max(Monitoramento.datahora).label('fim_intervalo'),
-                func.max(Monitoramento.leitura) - func.min(Monitoramento.leitura).label('consumo_30_dias')
+                func.max(Monitoramento.leitura) - func.min(Monitoramento.leitura).label('consumo_30_dias'),
+                Monitoramento.fk_escola
             ).where(
                 Monitoramento.datahora.between(
                     func.date_trunc('days', func.current_date()) - func.cast(concat(30, 'days'), INTERVAL),
                     func.current_date()
                 )
-            ).filter(Monitoramento.hidrometro == h).all()
+            ).filter(Monitoramento.hidrometro == h).group_by(Monitoramento.fk_escola).all()
 
             #consumo do dia - 2 leitura do dia
             consumo_dia = text("""
@@ -540,6 +541,7 @@ def relatorio_escolas():
                 "id_hidrometro": alunos[0][0] if len(alunos) > 0 else None,
                 "hidrometro": alunos[0][1] if len(alunos) > 0 else None,
                 "edificio_id":alunos[0][2] if len(alunos) > 0 else None,
+                "escola_id": consumo_30[0][3],
                 "total_alunos": total_alunos,
                 "consumo_30_dias":{
                     "data_inicio": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}' if consumo_30[0][0] else None,
