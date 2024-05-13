@@ -546,11 +546,11 @@ def relatorio_escolas(h):
         "consumo_30_dias":{
             "data_inicio": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}' if consumo_30[0][0] else None,
             "data_fim": f'{consumo_30[0][1]:%d/%m/%Y %H:%M}' if consumo_30[0][1] else None,
-            "consumo_m³": consumo,
+            "consumo_m3": consumo,
             "consumo_por_aluno_lt": consumo_alunos_mensal
             },
         "consumo_dia": {
-            "consumo_1_dia_m³": consumo_,
+            "consumo_1_dia_m3": consumo_,
             "consumo_1_dia_lt": consumo_alunos_,
             "data": f'{resultado_consumo_dia[0][0]:%d/%m/%Y}'if len(resultado_consumo_dia) > 0 else None
         },
