@@ -521,8 +521,8 @@ def relatorio_escolas(h):
         .group_by(Populacao.fk_edificios, Hidrometros.id).all()
 
     edificio = Edificios.query.filter_by(id=alunos[0][2]).first()
-    escola_id = edificio.fk_escola if edificio.fk_escola is not None else None
-
+    escola = Escolas.query.filter_by(id=edificio.fk_escola).first()
+    
     #consumo dia
     consumo_ = round(resultado_consumo_dia[0][2],2) if len(resultado_consumo_dia) > 0 else 0
     consumo_lts = consumo_ * 1000
@@ -541,7 +541,8 @@ def relatorio_escolas(h):
         "id_hidrometro": alunos[0][0] if len(alunos) > 0 else None,
         "hidrometro": alunos[0][1] if len(alunos) > 0 else None,
         "edificio_id":alunos[0][2] if len(alunos) > 0 else None,
-        "escola_id": escola_id,
+        "escola_id": escola.id,
+        "nome_escola":escola.nome,
         "total_alunos": total_alunos,
         "consumo_30_dias":{
             "data_inicio": f'{consumo_30[0][0]:%d/%m/%Y %H:%M}' if consumo_30[0][0] else None,
