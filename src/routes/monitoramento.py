@@ -36,11 +36,9 @@ def leitura():
         hidrometro = formulario['hidrometro']
         leitura = f"{formulario['leitura']}"
         datahora = f"{formulario['data'].replace('/','-')} {formulario['hora']}"
-        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M:%S')
+        datahora = datetime.strptime(datahora, '%d-%m-%Y %H:%M')
         edificios_alias = aliased(Edificios)
-        print(f"\033[31m{leitura}\033[0m")
         leitura_float = float(leitura.replace(',', '.'))
-        print(f"\033[32m{leitura_float}\033[0m")
 
         hidrometro_verificar = Hidrometros.query.join(edificios_alias).filter(and_(
             fk_escola == edificios_alias.fk_escola, Hidrometros.hidrometro == hidrometro)).first()
